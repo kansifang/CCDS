@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+	<!--  
+	<Resource name="jdbc/als6" auth="Container" type="javax.sql.DataSource"
+	   maxActive="100" maxIdle="30" maxWait="10000"
+	   username="als6kf" password="als6kf" driverClassName="com.ibm.db2.jcc.DB2Driver"
+	   url="jdbc:db2://10.16.1.91:50000/ALS6KF" />
+	 -->
+	<!--  -->
+	<Resource name="jdbc/als6" auth="Container" type="javax.sql.DataSource"
+	   maxActive="100" maxIdle="30" maxWait="10000"
+	   username="als6" password="als6" driverClassName="com.ibm.db2.jcc.DB2Driver"
+	   url="jdbc:db2://localhost:50000/TJNS" />
+	 
+</Context>

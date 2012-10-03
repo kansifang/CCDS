@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="GB2312"?>
+<Domain ConfigurationVersion="1.0.0.0" Name="am@rBank">
+	<ResourcesPath>/Resources</ResourcesPath>
+	<CABClassID>80152A12-F33E-11D0-8A4F-00C04FB9C3A5</CABClassID>
+	<CABName>AmarDWYt.CAB</CABName>
+
+	<DataSource>java:comp/env/jdbc/als6</DataSource>
+	<DataSource_Report>java:comp/env/jdbc/als6</DataSource_Report>
+
+	<!--DataSource Config 
+	<WebServer>JBoss</WebServer>
+	<DataSource>java:jdbc/als6</DataSource>
+	<DataSource_Report>java:jdbc/als6</DataSource_Report>
+
+	<WebServer>Tomcat Or Stand Config</WebServer>
+	<DataSource>java:comp/env/jdbc/als6</DataSource>
+	<DataSource_Report>java:comp/env/jdbc/als6</DataSource_Report>
+
+	<WebServer>Weblogic Or WebSphere or Other</WebServer>
+	<DataSource>jdbc/als6</DataSource>
+	<DataSource_Report>jdbc/als6</DataSource_Report>
+	-->
+	
+	<DebugMode>1</DebugMode>
+	<RunTimeDebugMode>1</RunTimeDebugMode>
+
+	<PostChange>1</PostChange>
+	<!--PostChange Remark 0:ISO8859_1,1:NoChange,2:ISO8859_1->GBK,3:GBK->ISO8859_1,5:GBK -->
+	<DBChange>2</DBChange>
+	<!--DBChange Remark 1:GBK->ISO8859_1,2:NoChange,3:ISO8859_1->GBK -->
+	<AmarDWChange>1</AmarDWChange>
+	<AmarDWMaxRows>1000000</AmarDWMaxRows>
+
+	<AmarDWTransMode>1</AmarDWTransMode>
+	<TransDebugMode>1</TransDebugMode>
+	<!--TransDebugMode Remark 0:NoSql,1:AllSql,2:ExecuteSql -->
+
+	<DBName>DB2</DBName>
+	<OSName>NT</OSName>
+
+	<RunMode>Development</RunMode>
+	<!--Development Remark Development：开发模式；Production：产品模式;Demonstration:演示模式 -->
+	<FileSaveMode>Disk</FileSaveMode>
+	<!--FileSaveMode Remark Table：存放在数据库；Disk：存放在文件服务器 -->
+	<FileSavePath>/tmp/als6/Upload</FileSavePath>
+	<!--FileSavePath Remark 文件保存路径 在FileSaveMode为Disk指定，如果指定目录不存在则保存在WEB-INF的Upload下 -->
+	<WorkDocSavePath>/tmp/als6/WorkDoc</WorkDocSavePath>
+	<!--WorkDocSavePath Remark 格式化文档保存路径，如果指定目录不存在则保存在WEB-INF的WorkDoc下 -->
+	<FileNameType>SRC</FileNameType>
+	<!--FileNameType Remark SRC:上传原始名称 MD5:生成MD5加密文件名 -->
+
+	<ProductID>ALS</ProductID>
+	<ProductName>信贷风险管理系统</ProductName>
+	<ProductVersion>6.3</ProductVersion>
+	<ImplementationID>CMS</ImplementationID>
+	<ImplementationName>天津农村合作银行信贷风险管理系统</ImplementationName>
+	<ImplementationVersion>1.0</ImplementationVersion>
+</Domain>

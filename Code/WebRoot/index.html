@@ -1,0 +1,277 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>欢迎进入天津农商银行信贷风险管理系统</title>
+<link href="TCR.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+<!--
+body {
+	margin: 0px;
+}
+td {
+	margin: 0px;
+}
+-->
+</style>
+</head>
+<SCRIPT>
+function $(id){
+	return document.getElementById(id)
+}
+//用户签退
+function resetfrm(){
+   LogonForm.Logon.value="N";
+   doSubmit();
+}
+
+function doReset(){
+	document.forms("LogonForm").UserID.value="";
+	document.forms("LogonForm").Password.value="";
+}
+
+
+function myset(){
+	$("maskdiv").style.display="block"
+	$("setdiv").style.display="block"
+}
+
+function closemyset(){
+	$("maskdiv").style.display="none"
+	$("setdiv").style.display="none"
+}
+
+function colorsAll(cc){
+	document.body.style.background="#"+cc
+	registercookie("#"+cc);
+	closemyset()
+}
+
+function setpic(pic){
+	document.body.style.background="url(Resources/EverBright/tmpbg/"+pic+") center center repeat fixed"
+	registercookie("url(Resources/EverBright/tmpbg/"+pic+") center center repeat fixed");
+	closemyset()
+}
+
+function setnetpic(){
+	picurl=$("netpicurl").value
+	document.body.style.background="#f4f4f4 url("+picurl+") center center repeat fixed"
+	registercookie("url("+picurl+") center center repeat fixed");
+	closemyset()
+}
+
+function iiisetCookie(name,value,expire){
+	document.cookie = name + "="
+	+ escape(value) + ((expire == null) ? "":(";expires=" +
+	expire.toGMTString()));
+}
+
+function iiGet_Cookie( check_name ){
+	var a_all_cookies = document.cookie.split( ';' );
+	var a_temp_cookie = '';
+	var cookie_name = '';
+	var cookie_value = '';
+	var b_cookie_found = false; // set boolean t/f default f
+	for ( i = 0; i < a_all_cookies.length; i++ )
+	{
+		a_temp_cookie = a_all_cookies[i].split( '=' );
+		cookie_name = a_temp_cookie[0].replace(/^\s+|\s+$/g, '');	
+		if ( cookie_name == check_name )
+		{
+			b_cookie_found = true;
+			if ( a_temp_cookie.length > 1 )
+			{
+				cookie_value = unescape( a_temp_cookie[1].replace(/^\s+|\s+$/g, '') );
+			}
+			return cookie_value;
+			break;
+		}
+		
+		a_temp_cookie = null;
+		cookie_name = '';
+	}
+	if ( !b_cookie_found )
+	{
+		return null;
+	}
+}	
+
+	function registercookie(name){
+	var today = new Date();
+	var expires = new Date();
+	expires.setTime(today.getTime() + 1000*60*60*24000);
+	iiisetCookie("cebusrset",name,expires);
+}
+</SCRIPT>
+<body>
+<table width="100%" height="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td align="center" valign="top" class="outbody">
+    	<table width="100%" height="100%" align="center" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td align="center" valign="top" height="465">
+    	<table width="1000" border="0" cellspacing="0" cellpadding="0">
+  		<tr>
+            <td><img src="images/TCR_top.jpg" width="1000" height="96" /></td>
+          </tr>
+          <tr>
+            <td>
+            <FORM name=LogonForm onSubmit="return chkForm(this);" action=Logon.jsp method=post>
+			<table width="100%" border="0" cellspacing="0" cellpadding="0">
+              <tr>
+                <td rowspan="4"><img src="images/TCR_main_left.jpg" width="313" height="369" /></td>
+                <td width="391"><img src="images/TCR_logo.jpg" width="391" height="100" /></td>
+                <td rowspan="4"><img src="images/TCR_main_right.jpg" width="296" height="369" /></td>
+              </tr>
+              <tr>
+                <td><img src="images/TCR_name.jpg" width="391" height="46" /></td>
+                </tr>
+              <tr>
+                <td width="391" height="146" class="td_input">
+                <table width="100%" border="0" cellspacing="0" cellpadding="0" height="146px">
+                  <tr>
+                    <td height="46" colspan="2">&nbsp;</td>
+                    <td align="right" valign="top" class="linkgary"><A href="Frame/DownPrg/amar_obj_y.exe">安装控件</a></td>
+                    </tr>
+                  <tr>
+                  	<input type=hidden name="ScreenWidth">
+                    <td width="125" height="40" align="right" valign="middle" class="td_input_font">用户名:</td>
+                    <td align="left" valign="middle">
+                    <label>
+                      <INPUT id=inputname name=UserID value="" size="20"  onKeyPress="javascript:pressEnter(1);"> 
+                    </label>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td height="40" align="right" valign="middle" class="td_input_font">密&nbsp;&nbsp;码:</td>
+                    <td align="left" valign="middle">
+                    <label>
+                      	<INPUT id=inputpass type=password name=Password value='000000als6' size="20" onKeyPress="javascript:pressEnter(2);">
+                    </label>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td height="20" colspan="2" align="right" valign="middle">&nbsp;</td>
+                    </tr>
+                </table></td>
+                </tr>
+              <tr>
+			   <td  width="391" height="77" align="center" class="td_login">
+					<INPUT type="button" id="inputsubmit" class="png" value=""   onclick="javascript:doSubmit(2);  ">
+                	<INPUT type="button" id="inputreset" class="png" value=""  onclick="doReset()">
+	                <INPUT type=hidden value=1 name=StyleModel> 
+					<INPUT type=hidden value=N name=VPN>
+					<INPUT type=hidden value=Y name=Logon>
+				</td>
+              </tr>
+            </table>
+			</form>
+            </td>
+          </tr>
+          
+        </table>
+    </td>
+  </tr>
+  <tr>
+    <td align="right" valign="bottom">
+    	<table width="1000" border="0" cellspacing="0" cellpadding="0">
+  		  <tr>
+        	<td align="right"><img src="images/bottom.gif" width="804" height="143"></td>
+          </tr>
+</table>
+
+    </td>
+  </tr>
+</table>
+
+
+    </td>
+  </tr>
+</table>
+<SCRIPT>
+$("inputname").focus()
+//modefied by lpzhang 2009-5-22 for test
+//document.getElementById("inputsubmit").focus();
+//$("inputsubmit").focus()
+
+var cookieUserID = iiGet_Cookie("UserID");
+if(typeof(cookieUserID) == "undefined" || cookieUserID == "" ||  cookieUserID == "null")
+{
+	cookieUserID = "";
+}
+$("inputname").value = cookieUserID;
+//iiigogogo();
+
+
+
+//hdwang  增加变量判断，如果重复点击按钮或回车后，会调用两次或多次Logon.jsp
+var submitFlag = true;
+function doSubmit(arg)
+{
+   if(arg=="1")
+   {
+		if(submitFlag)
+		{   
+			if(chkForm(document.forms("LogonForm"))){
+			    submitFlag = false;
+				document.forms("LogonForm").submit();		
+			}
+		}
+	}
+	else
+	{
+	    if(chkForm(document.forms("LogonForm"))){
+	          document.forms("LogonForm").submit();		
+	    }
+	}
+	var today = new Date();
+	var expires = new Date();
+	expires.setTime(today.getTime() + 1000*60*60*24000);
+	iiisetCookie("UserID",$("inputname").value,expires);
+}
+function chkForm(theForm){
+
+	if(theForm.UserID.value.length<1){
+		alert("请输入用户名！");
+		theForm.UserID.focus();
+		return false;
+	}
+	if(theForm.Password.value.length<1){
+		alert("请输入密码！");
+		theForm.Password.focus();
+		return false;
+	}
+		
+	return true;
+}
+
+function pressEnter(arg){
+	if(window.event.keyCode==13){
+		if(arg==2){
+			doSubmit();
+			return false;
+		}
+		else if(arg==1){
+			document.all("Password").focus();
+		}
+	}
+	else{
+		return true;
+	}
+}
+function writeCookie(name, value, hours)
+{
+  var expire = "";
+  if(hours != null)
+  {
+    expire = new Date((new Date()).getTime() + hours * 3600000);
+    expire = "; expires=" + expire.toGMTString();
+  }
+  document.cookie = name + "=" + escape(value) + expire;
+}
+
+</SCRIPT>
+</body>
+</html>
+<script language="JavaScript" type="text/JavaScript">
+	LogonForm.ScreenWidth.value=screen.availWidth;
+</script>

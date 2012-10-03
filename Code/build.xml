@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="GBK"?>
+<project name="ALS6" basedir="." default="makezip">
+	<!-- application property,these property depend on product-->
+	<property name="app.name" value="ALS6" />
+	<property name="app.releasename" value="ALS6" />
+	<property name="app.shortname" value="als6" />
+	<property name="app.version" value="6.3" />
+
+	<!-- directory define -->
+	<!--
+	<property name="classes.dir" value="classes" />
+	<property name="classes_g.dir" value="classes_g" />
+	-->
+	<!--定义源文件夹路径-->
+	<property name="src.home" value="D:/WorkSpace" />
+	<property name="src.doc" value="${src.home}/ALS6/DOC" />
+	<property name="src.app" value="${src.home}/ALS6" />
+	
+	<!--定义发布路径-->
+	<property name="release.home" value="D:/release" />
+	<property name="release.dir" value="${release.home}/${app.releasename}" />
+	<property name="release.bizsrc" value="${release.dir}/app/src" />
+	<property name="release.doc" value="${release.dir}/${app.releasename}_doc" />
+	<property name="release.app" value="${release.dir}/app/WebRoot" />
+	<property name="release.database" value="${release.dir}/database" />
+	<property name="release.classes" value="${release.dir}/classes" />
+	<property name="release.lib" value="${release.dir}/lib" />
+	
+	<!-- prepare statndard compile and release dir, add more ...-->
+	<target name="preparedir" description="prepare directory">
+		<mkdir dir="${release.bizsrc}" />
+		<mkdir dir="${release.app}" />
+		<mkdir dir="${release.doc}" />
+		<mkdir dir="${release.database}" />
+		<!--
+		<mkdir dir="${release.classes}" />
+		<mkdir dir="${release.lib}" />
+		-->
+	</target>
+    
+	<!--  copy latest Code-->  
+	<target name="release" depends="preparedir" description="Release Application ">
+        <delete>
+        	<fileset dir="${release.home}" includes="**/*"/>
+        </delete>
+		<copy todir="${release.bizsrc}">
+            <fileset dir="${src.app}/src" includes="**/*" />
+        </copy>
+		<copy todir="${release.app}">
+			<fileset dir="${src.app}/WebRoot" includes="**/*" />
+		</copy>
+	</target>
+	
+	<!-- copy latest doc -->
+	<target name="releasedoc" depends="release" description="Release Application ">
+		<copy  encoding="GBK" 
+		    outputencoding="GBK" 
+		    todir="${release.doc}">
+			<fileset dir="${src.doc}/6 Deploy">
+				<include name="**/*" />
+		    </fileset>         
+		</copy>
+		<copy  encoding="GBK" 
+            outputencoding="GBK" 
+            todir="${release.doc}/数据结构/" 
+            flatten="true">
+			<fileset dir="${src.doc}/3 Design/数据库结构/">
+				<include name="*.pdm" />
+            </fileset>         
+		</copy>
+	</target>
+	
+	<!-- zip  the release package-->
+	<target name="makezip" depends="release,releasedoc">
+		<tstamp />
+
+		<zip destfile="${release.home}/${app.releasename}_${app.version}_Code_${DSTAMP}.zip" 
+            basedir="${release.dir}/app" 
+            includes="${app.releasename}/**,src/**,WebRoot/**" 
+            compress="true" 
+        />
+		<zip destfile="${release.home}/${app.releasename}_${app.version}_database_${DSTAMP}.zip" 
+            basedir="${release.dir}" 
+            includes="database/**" 
+            compress="true" 
+		 />
+		<zip destfile="${release.home}/${app.releasename}_${app.version}_doc_${DSTAMP}.zip" 
+            basedir="${release.dir}" 
+            includes="${app.releasename}_doc/**" 
+            compress="true" 
+        />
+
+	</target>
+	
+</project>

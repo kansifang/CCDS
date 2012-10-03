@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<!--
+	此交易为交易“个贷业务出账交易”
+
+	RCV_***.xml为上传报文结构，即信贷系统发送核心系统数据
+	此配置文件分为两部分，前部分为报文头，后一部分为报文体：
+	对于报文头部分只有TradeCode需要根据不同交易进行改变，新增要素不需要修改。
+	每个交易主要区别都在报文体部分。
+	 <WholeLength>　　　　　　　　　　　　　　　　　　－－节点名称 
+    	<length>4</length>					　　－－节点数据长度
+    	<fixed>R</fixed>					　　－－填补方式，R为右填空格;L为左填0
+    	<chn>N</chn>						  　－－是否需要进行中文转换
+    	<defalutvalue>0113</defalutvalue>	　　－－默认值
+    </WholeLength>
+-->
+<Trade>
+    <MessageType>    
+    	<length>2</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>RP</defalutvalue>     
+    </MessageType>
+    <TradeCode>    
+    	<length>4</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>6001</defalutvalue>     
+    </TradeCode>
+    <LastFlag>    
+    	<length>1</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>1</defalutvalue>     
+    </LastFlag>
+    <TradeType>    
+    	<length>1</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>1</defalutvalue>     
+    </TradeType>
+    <OutMsgID>    
+    	<length>4</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue></defalutvalue>     
+    </OutMsgID>
+    <OriginalSerialNo>    
+    	<length>32</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue></defalutvalue>     
+    </OriginalSerialNo>
+    
+    <!-- 以上为报文头信息　只有TradeCode需要根据不同交易进行改变，新增要素不需要修改，对于反馈报文头有67位-->
+    <DuebillSerialNo>    
+    	<length>16</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue></defalutvalue>     
+    </DuebillSerialNo>
+    <DuebillNo>    
+    	<length>14</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue></defalutvalue>     
+    </DuebillNo>
+
+    <OutMsg>    
+    	<length>-1</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue></defalutvalue>     
+    </OutMsg>
+</Trade> 

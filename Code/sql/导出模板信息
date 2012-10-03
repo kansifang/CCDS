@@ -1,0 +1,9 @@
+--申请信息
+select dono,colheader as 要素名称,getitemname('ColEditStyle',coleditstyle) as 输入方式,getitemname('TrueFalse',colreadonly) as 是否只读 ,getitemname('CheckFormat',colcheckformat) as 显示格式,getitemname('TrueFalse',colrequired) as 必输项,coleditsource as 备注 from dataobject_library where colvisible='1' and dono in(select applydetailno from business_type where typeno in('2050010','1080070','1080030','1080040','1080060','1080035','1080010','1080020')) order by dono,colindex;
+select typename,applydetailno from business_type where typeno in('2050010','1080070','1080030','1080040','1080060','1080035','1080010','1080020') order by applydetailno;
+--合同
+select dono,colheader as 要素名称,getitemname('ColEditStyle',coleditstyle) as 输入方式,getitemname('TrueFalse',colreadonly) as 是否只读 ,getitemname('CheckFormat',colcheckformat) as 显示格式,getitemname('TrueFalse',colrequired) as 必输项,coleditsource as 备注 from dataobject_library where colvisible='1' and dono in(select contractdetailno from business_type where typeno in('2050010','1080070','1080030','1080040','1080060','1080035','1080010','1080020')) order by dono,colindex;
+select typename,contractdetailno from business_type where typeno in('2050010','1080070','1080030','1080040','1080060','1080035','1080010','1080020') order by contractdetailno;
+--出账
+select dono,colheader as 要素名称,getitemname('ColEditStyle',coleditstyle) as 输入方式,getitemname('TrueFalse',colreadonly) as 是否只读 ,getitemname('CheckFormat',colcheckformat) as 显示格式,getitemname('TrueFalse',colrequired) as 必输项,coleditsource as 备注 from dataobject_library where colvisible='1' and dono in(select displaytemplet from business_type where typeno in('2050010','1080070','1080030','1080040','1080060','1080035','1080010','1080020')) order by dono,colindex;
+select typename,displaytemplet from business_type where typeno in('2050010','1080070','1080030','1080040','1080060','1080035','1080010','1080020') order by displaytemplet;

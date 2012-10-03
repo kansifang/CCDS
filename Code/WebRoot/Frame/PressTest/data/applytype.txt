@@ -1,0 +1,9 @@
+CreditLineApply|1010|
+CreditLineApply|1020|
+CreditLineApply|1030|
+DependentApply|1010|
+DependentApply|1020|
+DependentApply|1030|
+IndependentApply|1010|
+IndependentApply|1020|
+IndependentApply|1030|

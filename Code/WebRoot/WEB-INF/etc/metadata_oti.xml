@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="GB2312"?>
+<dataSource>
+	<name>oti_objects</name>
+	<encoding>GBK</encoding>
+	<label>实时接口交易对象定义</label>
+	<describe>样例数据库元数据定义</describe>
+	<product>
+		<name>XML Metadata</name>
+		<version>1.0</version>
+		<provider>Amarsoft</provider>
+	</product>
+	<tables>
+		<!-- 88017交易的交易对象 -->
+		<table name="88017header" label="报文头" describe="帐户余额查询报文头">
+			<column index="1" name="TRADENO" label="bwlsh" type="CHAR"  displaySize="14" format="" defaultValue="123456789"/>
+			<column index="2" name="TRADECODE" label="jym" type="CHAR" displaySize="5" format="" defaultValue="88017"/>
+			<column index="3" name="RESPONSECODE" label="xym" type="CHAR" displaySize="4" format="" defaultValue="0000"/>
+			<column index="4" name="INPUTORGID" label="jgh" type="CHAR" displaySize="9" format="1000" />
+			<column index="5" name="INPUTDATE" label="rq" type="CHAR" displaySize="10" format="" />			
+			<column index="6" name="INPUTTIME" label="sj" type="CHAR" displaySize="8" format="" />						
+		</table>
+		
+		<table name="88017body" label="报文体" describe="帐户余额查询报文体">
+		<extendProperties>
+				<property name="jbo.query.dataSource" value="datasource:db:dzCredit:select accountno,MainFrameOrgID from ACCOUNT_INFO,ORG_INFO"/>
+		</extendProperties>
+			<column index="1" name="ACCOUNTNO" label="zh" type="CHAR"  displaySize="21" format="" />
+			<column index="2" name="MainFrameOrgID" label="hxjg" type="CHAR" displaySize="9" format="" />
+		</table>
+		
+		<table name="88017response" label="反馈报文头" describe="帐户余额查询反馈">
+			<column index="1" name="SUCCESSFLAG" label="xym" type="CHAR"  displaySize="4" format="" />
+			<column index="2" name="CODEFLAG" label="xym" type="CHAR"  displaySize="4" format="" />									
+		</table>
+		
+		<table name="88017responseBody" label="反馈报文体" describe="帐户余额查询反馈">
+			<column index="1" name="MATURITY" label="dqr" type="CHAR" displaySize="10" format="" />
+			<column index="2" name="BALANCE" label="ye" type="CHAR" displaySize="16" format="" />
+			<column index="3" name="CURRENCY" label="bz" type="CHAR" displaySize="2" format="" />
+			<column index="4" name="CUSTOMERNAME" label="khmc" type="CHAR" displaySize="20" format="" />								
+		</table>
+		
+		<!-- 88011交易的交易对象 -->
+		<table name="88011header" label="报文头" describe="个人贷款放款报文头">
+			<column index="1" name="TRADENO" label="bwlsh" type="CHAR"  displaySize="14" format="" defaultValue="123456789"/>
+			<column index="2" name="TRADECODE" label="jym" type="CHAR" displaySize="5" format="" defaultValue="88017"/>
+			<column index="3" name="RESPONSECODE" label="xym" type="CHAR" displaySize="4" format="" defaultValue="0000"/>
+			<column index="4" name="INPUTORGID" label="jgh" type="CHAR" displaySize="9" format="" />
+			<column index="5" name="INPUTDATE" label="rq" type="CHAR" displaySize="10" format="" />			
+			<column index="6" name="INPUTTIME" label="sj" type="CHAR" displaySize="8" format="" />						
+		</table>
+		
+		<table name="88011body" label="报文体" describe="个人贷款放款报文体">
+		<extendProperties>
+				<property name="jbo.query.dataSource" value="datasource:db:dzCredit:select bp.SERIALNO as SERIALNO,bp.CustomerName as CUSTOMERNAME,bp.Maturity as MATURITY,bp.BusinessSum as BUSINESSSUM,1.2*nvl(bp.BusinessRate,0) as BusinessRate,bc.ArtificialNo as CONTRACTNO,bc.CycleFlag as CYCLEFLAG,bc.BusinessSum as CONTRACTSUM from BUSINESS_PUTOUT bp,BUSINESS_CONTRACT bc "/>
+			</extendProperties>
+			<column index="1" name="CREDITTYPE" label="fklx" type="CHAR"  displaySize="1" format="" />
+			<column index="2" name="CONTRACTNO" label="hth" type="CHAR" displaySize="15" format="" />
+			<column index="3" name="CUSTOMERNAME" label="khmc" type="CHAR" displaySize="60" format="" />
+			<column index="4" name="CONTRACTSUM" label="htje" type="DOUBLE" displaySize="16" format="##.##" />
+			<column index="5" name="BUSINESSRATE" label="dklv" type="DOUBLE" displaySize="10" format="##.####" />
+			<column index="6" name="MATURITY" label="dqr" type="CHAR" displaySize="10" format="" />
+			<column index="7" name="BUSINESSSUM" label="fsje" type="DOUBLE" displaySize="16" format="##.##" />
+			<column index="8" name="SERIALNO" label="czbh" type="CHAR" displaySize="40" format="" />
+			<column index="9" name="CYCLEFLAG" label="xhbz" type="CHAR" displaySize="1" format="" />									
+		</table>
+		
+		<table name="88011response" label="反馈报文头" describe="个人贷款放款反馈">
+			<column index="1" name="SUCCESSFLAG" label="xym" type="CHAR"  displaySize="4" format="" />
+		</table>
+		
+		<!-- 9613交易的交易对象 9613报文格式为8583格式-->
+		
+		<table name="9613header" label="报文头" describe="SZS展期登记报文头">
+			<column index="1" name="SIA-TR-ORG" label="机构编码" type="CHAR"  displaySize="10" format="" defaultValue="9504"/>
+			<column index="2" name="SIA-TR-BAG" label="包体长" type="INT" displaySize="8" format="" />
+			<column index="3" name="SIA-HTR-CODE" label="主机交易码" type="INT" displaySize="5" format="" />
+			<column index="4" name="SIA-TR-SNAME" label="通讯服务名称" type="CHAR" displaySize="15" format="" defaultValue="ylywtcpdmn"/>
+			<column index="5" name="SIA-TR-KEEP1" label="保留使用" type="INT" displaySize="1" format="" defaultValue="0"/>			
+			<column index="6" name="SIA-TR-IP" label="IP地址" type="CHAR" displaySize="15" format="" defaultValue="192.168.5.63"/>
+			<column index="7" name="SIA-TR-KEEP2" label="保留使用" type="INT" displaySize="1" format="" defaultValue="0"/>
+			<column index="8" name="SIA-TR-MODEL" label="通讯模式" type="CHAR" displaySize="3" format="" defaultValue="TCP"/>
+			<column index="9" name="SIA-CH-CONTROL" label="渠道控制" type="INT" displaySize="1" format="" defaultValue="4"/>			
+			<column index="10" name="SIA-TR-TEAM" label="柜组" type="INT" displaySize="1" format="" defaultValue="0"/>
+			<column index="11" name="SIA-TR-KEEP3" label="保留使用" type="CHAR" displaySize="5" format="" defaultValue="     "/>
+			<column index="12" name="SIA-TR-BODY" label="报体长" type="INT" displaySize="4" format="" />			
+			<column index="13" name="SIA-TR-TYPE" label="交易类型" type="CHAR" displaySize="5" format="" defaultValue="01001"/>						
+		</table>
+		
+		<table name="9613body" label="报文体" describe="SZS展期登记报文体">
+			<extendProperties>
+				<property name="jbo.query.dataSource" value="datasource:db:dzCredit:select OccurDate as SIATRDATE,OccurDate as maturity,InputOrgID as SIABRANCH,InputUserID as SIATELLER,ContractSerialNo,Businessrate as extensionRate,LoanAccountNo as loanAccount,Maturity as maturity from BUSINESS_PUTOUT"/>
+			</extendProperties>
+			<column index="1" name="SIATRCODE" label="交易码" type="INT"  displaySize="4" format="" defaultValue="9613" >
+			<extendProperties>
+					<property name="bitMap" value="PP3" />
+			</extendProperties>
+			</column>
+			<column index="2" name="loanAccount" label="贷款帐号" type="CHAR" displaySize="32" format="" >
+			<extendProperties>
+					<property name="bitMap" value="PP8" />
+			</extendProperties>
+			</column>
+			<column index="3" name="SIATRDATE" label="交易日期" type="INT" displaySize="8" format="" >
+			<extendProperties>
+					<property name="bitMap" value="PP13" />
+			</extendProperties>
+			</column>
+			<column index="4" name="maturity" label="到期日期" type="INT" displaySize="8" format="" >
+			<extendProperties>
+					<property name="bitMap" value="PP14" />
+			</extendProperties>
+			</column>
+			<column index="5" name="SIATELLER" label="操作员" type="CHAR" displaySize="3" format="" >			
+			<extendProperties>
+					<property name="bitMap" value="PP16" />
+			</extendProperties>
+			</column>
+			<column index="6" name="SIABRANCH" label="机构编码" type="CHAR" displaySize="9" format="" >
+			<extendProperties>
+					<property name="bitMap" value="PP32,09" />
+			</extendProperties>
+			</column>
+			<column index="7" name="serialNo" label="出帐号" type="CHAR" displaySize="16" format="" >
+			<extendProperties>
+					<property name="bitMap" value="PP53" />
+			</extendProperties>
+			</column>
+			<column index="8" name="SIATRTERM" label="终端号" type="CHAR" displaySize="4" format="" defaultValue="3608">			
+			<extendProperties>
+					<property name="bitMap" value="PP88" />
+			</extendProperties>
+			</column>
+			<column index="9" name="114" label="基本分户结构" type="CHAR" displaySize="0" format="" >
+			<extendProperties>
+					<property name="bitMap" value="PP114,187" />
+			</extendProperties>
+			</column>
+			<column index="10" name="subjectNo" label="科目号" type="CHAR" displaySize="7" format="" >
+			<extendProperties>
+					<property name="bitMap" value="S11401" />
+			</extendProperties>
+			</column>
+			<column index="11" name="zhibiaotixiCode" label="指标体系代码" type="CHAR" displaySize="10" format="" >			
+			<extendProperties>
+					<property name="bitMap" value="S11402" />
+			</extendProperties>
+			</column>
+			<column index="12" name="phone" label="电话" type="CHAR" displaySize="5" format="" >		
+			<extendProperties>
+					<property name="bitMap" value="S11403" />
+			</extendProperties>
+			</column>
+			<column index="13" name="customerMGR" label="客户经理" type="DOUBLE"  displaySize="10" format="" defaultValue="1234567.8">
+			<extendProperties>
+					<property name="bitMap" value="S11404" />
+			</extendProperties>
+			</column>
+			<column index="14" name="address" label="地址" type="CHAR" displaySize="50" format="" >
+			<extendProperties>
+					<property name="bitMap" value="S11405" />
+			</extendProperties>
+			</column>
+			<column index="15" name="extensionRate" label="展期利率" type="DOUBLE" displaySize="8" format="" >
+			<extendProperties>
+					<property name="bitMap" value="S11406" />
+			</extendProperties>
+			</column>
+			<column index="16" name="acceptanceRate" label="承兑费率" type="DOUBLE" displaySize="8" format="" >
+			<extendProperties>
+					<property name="bitMap" value="S11407" />
+			</extendProperties>
+			</column>
+			<column index="17" name="abnormalRate1" label="非正常利率１" type="DOUBLE" displaySize="8" format="" >			
+			<extendProperties>
+					<property name="bitMap" value="S11408" />
+			</extendProperties>
+			</column>
+			<column index="18" name="abnormalRate2" label="非正常利率2" type="DOUBLE" displaySize="8" format="###,###.######" defaultValue="123456">
+			<extendProperties>
+					<property name="bitMap" value="S11409" />
+			</extendProperties>
+			</column>
+			<column index="19" name="rate2" label="利率" type="DOUBLE"  displaySize="8" format="###.##" defaultValue="456.568">
+			<extendProperties>
+					<property name="bitMap" value="S11410" />
+			</extendProperties>
+			</column>
+			<column index="20" name="qixiri1" label="起息日" type="INT" displaySize="8" format="" >
+			<extendProperties>
+					<property name="bitMap" value="S11411" />
+			</extendProperties>
+			</column>
+			<column index="21" name="daoqiri1" label="到期日" type="INT" displaySize="8" format="" >
+			<extendProperties>
+					<property name="bitMap" value="S11412" />
+			</extendProperties>
+			</column>
+			<column index="22" name="postalcode" label="邮编" type="CHAR" displaySize="6" format="" >
+			<extendProperties>
+					<property name="bitMap" value="S11413" />
+			</extendProperties>
+			</column>
+			<column index="23" name="jishu" label="积数" type="INT" displaySize="19" format="" >			
+			<extendProperties>
+					<property name="bitMap" value="S11414" />
+			</extendProperties>
+			</column>
+			<column index="24" name="cpRate" label="复利利率" type="INT" displaySize="8" format="" >
+			<extendProperties>
+					<property name="bitMap" value="S11415" />
+			</extendProperties>
+			</column>
+			<column index="25" name="qixiri2" label="起息日" type="INT" displaySize="8" format="" >
+			<extendProperties>
+					<property name="bitMap" value="S11416" />
+			</extendProperties>
+			</column>
+			<column index="26" name="daoqiri2" label="到期日" type="INT" displaySize="8" format="" >							
+			<extendProperties>
+					<property name="bitMap" value="S11417" />
+			</extendProperties>
+			</column>
+		</table>
+		
+		
+		<table name="9613response" label="反馈报文头" describe="SZS展期登记反馈报文头">
+			<column index="1" name="ResponseCode" label="响应码" type="CHAR"  displaySize="4" format="" />
+		</table>
+		
+		<!-- wlmq的测试交易对象 -->
+		
+		<table name="XJRequestHeader" label="报文头" describe="XJ通用报文头">
+			<column index="1" name="SubSystem" label="客户端系统代码" type="CHAR"  displaySize="8" format="" defaultValue="XINDAIGL"/>
+			<column index="2" name="TermDate" label="客户端交易日期" type="CHAR" displaySize="10" format="YYYY-MM-DD" />
+			<column index="3" name="TermTime" label="客户端交易时间" type="CHAR" displaySize="6" format="HHMMSS"/>
+			<column index="4" name="SeqNo1" label="客户端流水号" type="CHAR" displaySize="20" format="" />
+			<column index="5" name="Brc" label="主机交易机构" type="CHAR" displaySize="9" format="" />			
+			<column index="6" name="Teller" label="主机柜员号" type="CHAR" displaySize="6" format="" />
+			<column index="7" name="ChannelId" label="客户端渠道代码" type="CHAR" displaySize="2" format="" defaultValue="80"/>
+			<column index="8" name="AuthFlag" label="保留标志" type="CHAR" displaySize="1" format="" defaultValue="0"/>		
+			<column index="9" name="FileName" label="文件传输名称" type="CHAR" displaySize="92" format="" />							
+		</table>
+		
+		<table name="XJResponseHeader" label="反馈报文头" describe="XJ通用反馈报文头">
+			<column index="1"  name="TranDate"     label="交易日期"	    type="CHAR" displaySize="10" format="yyyy-MM-dd" />
+			<column index="2"  name="TranTime"     label="交易时间"	    type="CHAR" displaySize="6" format="HHmmss" />
+			<column index="3"  name="SerSeqNo"     label="主机流水号"	    type="INT"  displaySize="20" format="" />
+			<column index="4"  name="RspCode"	   label="响应代码"	    type="CHAR" displaySize="6" format="" />
+			<column index="5"  name="RspMsg"	   label="响应信息"	    type="CHAR" displaySize="60" format="" />
+			<column index="6"  name="FileName"     label="文件传输名称"   type="CHAR" displaySize="2" format="" />							
+		</table>
+		
+		<table name="DKBody" label="报文体" describe="贷款放款核准信息报文体">
+			<extendProperties>
+				<property name="jbo.query.dataSource" value="datasource:db:dzCredit:select '1' as OprType,CustomerId as CustomId,
+							ContractSerialno as ContractNo,Serialno as DueBillno,
+							VouchType as ProdType,LoanType as LoanType1,IcType as IntFlag0,CONTRACTSUM as ContractAmt,
+							BUSINESSSUM as TranAmt,ACCOUNTNO as PayAccNo, BUSINESSRATE as Rate1,BACKRATE as Rate2,
+							baserate as Rate3,TermMonth as Term,baserate as Rate4, '0' as SubCtrlCode,
+							CORPUSPAYMETHOD as CommitWay, PAYCYC as TermType1, '08' as PayMode, 
+							CONSIGNACCOUNTNO as AcctNo1, PDGPAYMETHOD as FTType,'5.3' as Rate5,'0' as YNFlag2,'2.3' as Rate6
+							from business_putout "/>
+			</extendProperties>
+			<column index="1"  name="OprType"     label="操作类型"          type="CHAR"  displaySize="1" format="" defaultValue="9504"/>
+			<column index="2"  name="CustomId"    label="客户号"            type="CHAR" displaySize="21" format="" />           
+			<column index="3"  name="ContractNo"  label="合同编号"          type="CHAR" displaySize="20" format="" />           
+			<column index="4"  name="DueBillNo"   label="借据编号"          type="CHAR" displaySize="20" format="" defaultValue="ylywtcpdmn"/>
+			<column index="5"  name="ProdType"    label="主担保方式"        type="CHAR" displaySize="3" format="" defaultValue="0"/>			
+			<column index="6"  name="LoanType1"   label="贷款性质"          type="CHAR" displaySize="1" format="" defaultValue="192.168.5.63"/>
+			<column index="7"  name="IntFlag0"    label="计息方式"          type="CHAR" displaySize="1" format="" defaultValue="0"/>
+			<column index="8"  name="ContractAmt" label="合同金额"          type="DOUBLE" displaySize="16" format="##.00" defaultValue=""/>
+			<column index="9"  name="TranAmt"     label="借据金额"          type="DOUBLE" displaySize="16" format="##.00" defaultValue=""/>			
+			<column index="10" name="PayAccNo"    label="扣款帐号"          type="CHAR" displaySize="1" format="" defaultValue="0"/>
+			<column index="11" name="Rate1"       label="贷款利率"          type="DOUBLE" displaySize="10" format="##.000000" defaultValue=""/>
+			<column index="12" name="Rate2"       label="逾期利率"          type="DOUBLE" displaySize="10" format="##.000000" />			         
+			<column index="13" name="Rate3"       label="复利利率"          type="DOUBLE" displaySize="10" format="##.000000" defaultValue="01001"/>
+			<column index="14"  name="TermType"    label="期限时间类型"       type="CHAR"  displaySize="1" format="" defaultValue="M"/>       
+			<column index="15"  name="Term"        label="期限期数"          type="INT" displaySize="2" format="" />                                  
+			<column index="16"  name="Rate4"       label="费率"              type="DOUBLE" displaySize="10" format="##.000000" />                              
+			<column index="17"  name="SubCtrlCode" label="科目号"            type="CHAR" displaySize="10" format="" defaultValue="ylywtcpdmn"/> 
+			<column index="18"  name="CommitWay"   label="还款方式"          type="CHAR" displaySize="1" format="" defaultValue="0"/>			           
+			<column index="19"  name="TermType1"   label="还款周期"          type="CHAR" displaySize="1" format="" defaultValue="192.168.5.63"/>     
+			<column index="20"  name="PayMode"     label="约定还款日"        type="CHAR" displaySize="2" format="" defaultValue="0"/>                
+			<column index="21"  name="AcctNo1"     label="委托存款帐号"      type="CHAR" displaySize="32" format="" defaultValue="TCP"/>             
+			<column index="22"  name="FTType"      label="委贷手续费收费方式"  type="CHAR" displaySize="2" format="" defaultValue="4"/>			           
+			<column index="23" name="Rate5"       label="委贷手续费率"      type="DOUBLE" displaySize="10" format="##.000000" defaultValue="0"/>                    
+			<column index="24" name="YNFlag2"     label="是否贴息标志"      type="CHAR" displaySize="1" format="" defaultValue="     "/>           
+			<column index="25" name="Rate6"       label="贴息比例"          type="DOUBLE" displaySize="10" format="##.000000" />								
+		</table>
+		
+		<table name="BZJBody" label="报文体" describe="保证金账户查询请求信息">
+			<extendProperties>
+				<property name="jbo.query.dataSource" value="datasource:db:dzCredit:select customerid as CustomId,
+						customername as CustName, serialno as ContractNo from business_putout "/>
+			</extendProperties>
+			<column index="1"  name="CustomId"     label="客户号"       type="CHAR"  displaySize="21" format="" />
+			<column index="2"  name="CustName"    label="客户名称"       type="CHAR" displaySize="60" format="" />           
+			<column index="3"  name="Type"        label="协议类型"       type="CHAR" displaySize="1" format="" />           
+			<column index="4"  name="ContractNo"   label="协议编号"      type="CHAR" displaySize="20" format="" />
+			<column index="5"  name="AcctNo"    label="保证金账号"        type="CHAR" displaySize="32" format="" />						
+		</table>	
+			
+		<table name="BailInfoBody" label="报文体" describe="保证金账户信息查询反馈报文体">
+			<column index="1" name="CustomId" label="客户号" type="CHAR"  displaySize="21" format="" defaultValue=""/>
+			<column index="2" name="AcctNo" label="账号" type="CHAR" displaySize="32" format="" />
+			<column index="3" name="SubCtrlCode" label="科目号" type="CHAR" displaySize="10" />
+			<column index="4" name="Ccy" label="货币号" type="CHAR" displaySize="3" format="" />
+			<column index="5" name="AcctName" label="户名" type="CHAR" displaySize="10" format="" />			
+			<column index="6" name="Bal" label="帐户余额" type="DOUBLE" displaySize="16" format="##.00" />
+			<column index="7" name="OpenDate" label="开户日期" type="DATE" displaySize="10" format="YYYY-MM-DD" />
+			<column index="8" name="LastDate" label="最近存入日期" type="CHAR" displaySize="10" format="YYYY-MM-DD" />		
+			<column index="9" name="InAmt" label="最近存入金额" type="DOUBLE" displaySize="16" format="##.00" />							
+		</table>
+				
+			
+	</tables>
+</dataSource>

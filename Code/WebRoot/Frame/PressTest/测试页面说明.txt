@@ -1,0 +1,49 @@
+压力测试页面说明
+
+1.存放路径  \Frame\PressTest
+2.在此文件夹下存放有修改后的IncludeBegin.jsp和IncludeEnd.jsp
+  独立测试页面必须使用此目录下的IncludeBegin.jsp,和IncludeEnd.jsp
+  其中IncludeBegin.jsp有建立组件的语句,以便可以独立访问页面
+            CurComp = CurCompSession.creatComponent("PressTest","压力测试",CurUser,(HttpServletRequest)request);
+  其中IncludeEnd.jsp有清除session的语句,防止压力测试服务器内存耗尽
+         if(CurCompSession!=null) CurCompSession.clear(session);
+3.c4_Logon.jsp文件修改
+       增加CurCompSession.clear(session)
+       去掉用户登陆成功，记录登陆信息
+4.js目录下的测试案例是Webload的测试案例
+  data目录下是测试数据
+  测试之前请将js和data目录拷贝到D:/Tmp/PressTest下并修改js文件的url内容和准备data中的数据
+  data目录中文件的说明
+  user_info.txt 用户信息(压力测试随机采用的登陆用户信息,字段[用户,密码]) 需要根据实际测试环境准备
+  customer_info.txt 客户信息(压力测试随机采用的客户信息,字段[客户号]) 需要根据实际测试环境准备
+  business_info.txt 业务信息(压力测试随机采用的业务信息,字段[对象类型,对象编号]) 需要根据实际测试环境准备
+  
+
+测试列表页面路径(通过IE页面访问)
+http://localhost:8080/ALS6/Frame/PressTest/index.html
+按照顺序访问测试案例(访问前执行data下的InitPTest.sql)
+
+测试案例页面列表
+1.c1_connect.htm
+2.c2_static.htm
+3.c3_nodb.jsp
+4.c4_Logon.jsp
+4.c4_SessionOut.jsp
+5.c5_WorkTips.jsp
+6.c6_CustomerInfo.jsp
+6.c6_CreditInfo.jsp
+7.c7_CustomerList.jsp
+7.c7_CreditApplyList.jsp
+7.c7_InputCreidtList.jsp
+8.c8_ApproveMain.jsp
+
+其中:
+c1为测试连接htm叶面
+c2为静态htm页面
+c3为无数据库的jsp页面
+c4为登陆,退出页面(作为业务也会包含在其中)
+c5为WorkTips页面
+c6为详情信息页面,如客户,业务详情
+c7为常用列表页面,如客户列表,任务列表,补登列表等
+c8为常用的主页面,如审查审批主页面
+

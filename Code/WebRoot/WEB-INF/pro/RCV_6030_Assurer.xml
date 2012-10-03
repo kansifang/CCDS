@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<!--
+	此交易为交易“公积金组合贷款交易-担保人循环”
+	每个交易主要区别都在报文体部分。
+	 <WholeLength>　　　　　　　　　　　　　　　　　　－－节点名称 
+    	<length>4</length>					　　－－节点数据长度
+    	<fixed>R</fixed>					　　－－填补方式，R为右填空格;L为左填0
+    	<chn>N</chn>						  　－－是否需要进行中文转换
+    	<defalutvalue>0113</defalutvalue>	　　－－默认值
+    </WholeLength>
+-->
+<Assurer>
+    <AssureAgreementFlag>    
+    	<length>1</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue></defalutvalue>     
+    </AssureAgreementFlag>
+    <SequenceNumber>    
+    	<length>2</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue></defalutvalue>     
+    </SequenceNumber>
+    <AssurerType>    
+    	<length>1</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue></defalutvalue>     
+    </AssurerType>
+    <CertType>    
+    	<length>1</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue></defalutvalue>     
+    </CertType>
+    <CertID>    
+    	<length>18</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue></defalutvalue>     
+    </CertID>
+    <CustomerName>    
+    	<length>60</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue></defalutvalue>     
+    </CustomerName>
+    <MFCustomerID>    
+    	<length>18</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue></defalutvalue>     
+    </MFCustomerID>
+    <GuarantyValue>    
+    	<length>18</length>
+    	<fixed>L</fixed>
+    	<chn>N</chn>
+    	<decimal>4</decimal>
+    	<defalutvalue></defalutvalue>     
+    </GuarantyValue>
+    <BeginDate>    
+    	<length>10</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue></defalutvalue>     
+    </BeginDate>
+    <EndDate>    
+    	<length>10</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue></defalutvalue>     
+    </EndDate>
+    <InputOrgID>    
+    	<length>9</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue></defalutvalue>     
+    </InputOrgID>
+</Assurer> 

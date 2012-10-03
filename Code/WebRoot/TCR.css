@@ -1,0 +1,71 @@
+.outbody {
+	background-image: url(images/bg.jpg);
+	background-repeat: repeat-x;
+	background-color: #E4BD1A;
+}
+.td_login {
+	background-image: url(images/TCR_login.jpg);
+}
+.td_input {
+	background-image: url(images/TCR_input.jpg);
+}
+.td_input_font {
+	color:#333;
+	font-family: "宋体";
+	font-size: 14px;
+	font-weight: bold;
+}
+.td_input input {
+	width:175px;
+	border: 1px solid #dab98d;
+	height: 25px;
+}
+  .linkgary a:link,active,hover {
+	font-family: "宋体";
+	font-size: 12px;
+	font-weight: normal;
+	color: #999;
+	}
+.linkgary a:active {
+	font-family: "宋体";
+	font-size: 12px;
+	font-weight: normal;
+	color: #999;
+	}
+.linkgary a:hover {
+	font-family: "宋体";
+	font-size: 12px;
+	font-weight: normal;
+	color: #999;
+	}
+.linkgary a:visited {
+	font-family: "宋体";
+	font-size: 12px;
+	font-weight: normal;
+	color: #999;
+	}
+#inputsubmit {
+	BACKGROUND: url(images/input1.jpg);
+	BORDER-RIGHT: 0px; 
+	BORDER-TOP: 0px; 
+	BORDER-LEFT: 0px;
+	BORDER-BOTTOM: 0px;
+	CURSOR: pointer; 
+	TOP:0px;
+	LEFT:0px;
+	HEIGHT: 74px;
+	width:130px;z-index:9999
+}
+#inputreset {
+	BACKGROUND: url(images/input2.jpg);
+	BORDER-RIGHT: 0px; 
+	BORDER-TOP: 0px; 
+	BORDER-LEFT: 0px;
+	BORDER-BOTTOM: 0px;
+	CURSOR: pointer; 
+	TOP:0px;
+	LEFT:500px;
+	HEIGHT:74px;
+	width:130px;
+	z-index:9999
+}

@@ -1,0 +1,959 @@
+body{
+
+
+}
+td {  font-size: 9pt; text-decoration: none }
+a:link {
+	text-decoration: none;
+	color: Black;
+}
+a:active {
+	text-decoration: none;
+	color: Black;
+}
+a:hover {  text-decoration: underline}
+a:visited {
+	font-size: 9pt;
+	color: Black;
+	text-decoration: none
+}
+td {font-size: 9pt;}
+
+.windowbackground{
+	background-color: #99B0CE; 
+	overflow:scroll;
+	overflow-x:visible;
+	overflow-y:visible;
+}
+.pagebackground{
+	background-color: #DCDCDC;
+}
+.MainMessageFrame{
+	background-color: #DCDCDC;
+}
+.MainMessageBg{
+	padding-left:5;
+	background-color: #6382BC;
+}
+.MainMessageTitle{
+	background-color: #DCDCDC;
+	height:18px;
+}
+
+.no_border {  border-top-width: 0px; border-right-width: 0px; border-bottom-width: 0px; border-left-width: 0px}
+.number {  text-align: right}
+.no_border_number {  text-align: right; border-top-width: 0px; border-right-width: 0px; border-bottom-width: 0px; border-left-width: 0px}
+.pt9white {  font-size: 9pt; color: #FFFFFF; text-decoration: none}
+.allwhite {  font-size: 9pt; line-height: 10pt; text-decoration: none color: #FFFFFF;}
+.orange9pt {  font-size: 9pt; color: #FF6600}
+input {
+	height: 20px;
+	font-size: 9pt;
+	text-decoration: none;
+}
+.mytable {BORDER-RIGHT: black 0px solid; BORDER-TOP: #000000 0px solid; BORDER-LEFT: #000000 1px solid; BORDER-BOTTOM: #000000 1px solid}
+.mytd    {BORDER-RIGHT: #000000 1px solid; BORDER-TOP: #000000 1px solid; FONT-SIZE: 9pt; BORDER-LEFT: black 0px solid; COLOR: #000000; BORDER-BOTTOM: black 0px solid}
+.pt11song {	FONT-SIZE: 11pt}
+.pt16song {	FONT-SIZE: 16pt}
+.pt16songud {	FONT-WEIGHT: bold; FONT-SIZE: 16pt; FONT-FAMILY: '黑体','宋体'; TEXT-DECORATION: underline}
+.pt9song {	FONT-SIZE: 9pt; FONT-FAMILY: '宋体','黑体';}
+.pt20song {	FONT-SIZE: 20pt}
+.pt24song {	FONT-SIZE: 24pt}
+.myunderline {	TEXT-DECORATION: underline}
+.ModuleTitle {  FONT-WEIGHT: normal;font-size: 15px; line-height: 18px; letter-spacing: 2px;padding-left:10px;filter:dropshadow(color=#FFFFFF,offx=1,offy=1,positive=1)}
+.ButtonBar{
+	background-color:#DCDCDC;
+}
+
+
+/*****************  menu  ******************************************************************/
+.menuTd{
+
+}
+.menuTdRight{
+	width: 0%
+}
+.menuTdLeft{
+	/*border-bottom : 1px solid #999999;*/
+}
+.menu0{
+
+	/*border-right: 1px solid;#999999;
+	border-bottom : 1px solid #999999;*/
+	background-image:url(menu6bg.gif);
+}
+.menu1{
+	/*font-size: 9pt;
+	line-height: 14pt;
+	border-color : #FFFFFF #DCDCDC #DCDCDC #FFFFFF;*/
+}
+.menu2{
+	/*background-image : URL(menubar.gif);
+	border : 1 solid;
+	border-color : #999999 #999999 #999999 #999999;*/
+	color: #FFFFFF;
+	vertical-align: bottom;
+}
+.menu2_selected{
+	background-image : url(menuselectedbg.gif);
+	border : 1 solid;
+	border-color : #999999 #999999 #DFC92F	 #999999;
+	color : White;
+	font-weight : bold;
+}
+.menubgtable{
+	height: 30px;
+	background-color: #DCDCDC;
+	width: 100%;
+}
+.SubMenuTable {
+	width: 100%;
+	margin : 0;
+}
+.SubMenuTd1 {
+	border-color: #999999 black #FFFFFF black;
+	border-top-width: 1px;
+	border-right-width: 0px;
+	border-bottom-width: 1px;
+	border-left-width: 0px;
+	background-color : #EBEBEB;
+	height: 22px;
+	text-align : center;
+}
+.SubMenuTd2 {
+	border-color: #999999 black #FFFFFF black;
+	border-top-width: 1px;
+	border-right-width: 0px;
+	border-bottom-width: 1px;
+	border-left-width: 0px;
+	background-color : #FBFAF2;
+	height: 22px;
+}
+.SubMenuDiv{
+	position:absolute;
+	left:0px;
+	top:0px;
+	visibility:hidden;
+	border-style: solid;
+	border-color: #8D8D80 #8D8D80 #8D8D80 #8D8D80;
+	border-width:1px;
+}
+.subMenu_down {color: #FFFFFF; background-color: navy; cursor: hand;}
+.menu6bg_right{
+	background-image:url(menu6bg_right.gif);
+	height:30px;
+	width:29px;	
+}
+.menu6bg{
+	background-image: url(menu6bg.gif);
+	height: 30px;
+	background-repeat: no-repeat;
+}
+.MenuSeperatorTD{
+	background-image: url(menu6bg_between.gif);
+	width:20px;
+	background-repeat: no-repeat;
+}
+
+
+.SystemArea{
+	background-color: #DCDCDC;
+}
+.appversion{
+	background-image: url(app_version.gif);
+	width:59px;
+	height:21px;	
+}
+.icon_home{
+	background-image: url(icon_home.gif);
+	width: 49px;
+	height: 21px;
+}
+.icon_home_hover{
+	background-image: url(icon_home_hover.gif);
+	width: 49px;
+	height: 21px;
+}
+.icon_home_down{
+	background-image: url(icon_home_down.gif);
+	width: 49px;
+	height: 21px;
+}
+.icon_role{
+	background-image: url(icon_role.gif);
+	width: 49px;
+	height: 21px;
+}
+.icon_role_hover{
+	background-image: url(icon_role_hover.gif);
+	width: 49px;
+	height: 21px;
+}
+.icon_role_down{
+	background-image: url(icon_role_down.gif);
+	width: 49px;
+	height: 21px;
+}
+.icon_key{
+	background-image: url(icon_key.gif);
+	width: 49px;
+	height: 21px;
+}
+.icon_key_hover{
+	background-image: url(icon_key_hover.gif);
+	width: 49px;
+	height: 21px;
+}
+.icon_key_down{
+	background-image: url(icon_key_down.gif);
+	width: 49px;
+	height: 21px;
+}
+.icon_signout{
+	background-image: url(icon_signout.gif);
+	width: 49px;
+	height: 21px;
+}
+.icon_signout_hover{
+	background-image: url(icon_signout_hover.gif);
+	width: 49px;
+	height: 21px;
+}
+.icon_signout_down{
+	background-image: url(icon_signout_down.gif);
+	width: 49px;
+	height: 21px;
+}
+.icon_resizeleft{
+	background-image: url(icon_resizeleft.gif);
+	width: 21px;
+	height: 21px;
+}
+.icon_resizeleft_hover{
+	background-image: url(icon_resizeleft_hover.gif);
+	width: 21px;
+	height: 21px;
+}
+.icon_resizeleft_down{
+	background-image: url(icon_resizeleft_down.gif);
+	width: 21px;
+	height: 21px;
+}
+.icon_help{
+	background-image: url(icon_help.gif);
+	width: 49px;
+	height: 21px;
+}
+.icon_help_hover{
+	background-image: url(icon_help_hover.gif);
+	width: 49px;
+	height: 21px;
+}
+.icon_help_down{
+	background-image: url(icon_help_down.gif);
+	width: 49px;
+	height: 21px;
+}
+.icon_showtab{
+	background-image: url(icon_showtab.gif);
+	width: 21px;
+	height: 21px;
+}
+.icon_showtab_hover{
+	background-image: url(icon_showtab_hover.gif);
+	width: 21px;
+	height: 21px;
+}
+.icon_showtab_down{
+	background-image: url(icon_showtab_down.gif);
+	width: 21px;
+	height: 21px;
+}
+.icon_refresh{
+	background-image: url(icon_refresh.gif);
+	width: 49px;
+	height: 21px;
+}
+.icon_refresh_hover{
+	background-image: url(icon_refresh_hover.gif);
+	width: 49px;
+	height: 21px;
+}
+.icon_refresh_down{
+	background-image: url(icon_refresh_down.gif);
+	width: 49px;
+	height: 21px;
+}
+.icon_close{
+	background-image: url(icon_close.gif);
+	width: 49px;
+	height: 21px;
+}
+.icon_close_hover{
+	background-image: url(icon_close_hover.gif);
+	width: 49px;
+	height: 21px;
+}
+.icon_close_down{
+	background-image: url(icon_close_down.gif);
+	width: 49px;
+	height: 21px;
+}
+.icon_version{
+	background-image: url(icon_version.gif);
+	width: 49px;
+	height: 21px;
+}
+.icon_version_hover{
+	background-image: url(icon_version_hover.gif);
+	width: 49px;
+	height: 21px;
+}
+.icon_version_down{
+	background-image: url(icon_version_down.gif);
+	width: 49px;
+	height: 21px;
+}
+/***********************************************************************************/
+
+.groupboxmaxcontent
+{
+	
+	font-weight: normal;
+	padding-top: 0px;
+	overflow: hidden;
+	width:100%;
+	height:100%;
+	background-color: #DCDCDC;
+	border-style: solid;
+	border-color: #ECECEC #AAAAAA #AAAAAA #ECECEC;
+	border-width:1px;
+}
+
+.LoweredArea
+{
+	
+	font-weight: normal;
+	padding-top: 0px;
+	overflow: hidden;
+	width:100%;
+	height:100%;
+	background-color: #DCDCDC;
+	border-style: solid;
+	border-color: #AAAAAA #ECECEC #ECECEC #AAAAAA;
+	border-width:1px;
+}
+
+
+.groupboxmaxcontentscroll
+{
+	
+	font-weight: normal;
+	padding-top: 0px;
+	overflow: scroll;
+	overflow-x:scroll;
+	overflow-y:scroll;
+	width:100%;
+	height:100%;
+	background-color: #DCDCDC;
+	border-style: solid;
+	border-color: #ECECEC #AAAAAA #AAAAAA #ECECEC;
+	border-width:1px;
+}
+
+.groupboxmaxcontentpillow
+{
+	
+	font-weight: normal;
+	padding-top: 0px;
+	overflow: hidden;
+	width:100%;
+	height:100%;
+	background-color: #DCDCDC;
+	border-style: solid;
+	border-color: #888888 #ECECEC #ECECEC #888888;
+	border-width:1px;
+}
+
+.groupboxmaxpage
+{
+	font-weight: normal;
+	padding-top: 0px;
+	overflow: hidden;
+	width:100%;
+	height:100%;
+	background-color: #DCDCDC;
+	border-style: solid;
+	border-color: #E7E7DA;
+	border-width:0px;
+}
+
+.groupboxheader
+{
+	color:#FFFFFF;
+	border-bottom: 0px solid #8D8D80;
+	background-image:url(groupboxheader.gif);
+	font-size : 9pt;
+}
+.groupboxheader_grey
+{
+	color:#FFFFFF;
+	border-bottom: 0px solid #8D8D80;
+	background-image:url(groupboxheader_grey.gif);
+	font-size : 9pt;
+}
+
+.groupboxcornerimg
+{
+
+	width:19px;
+	height:19px;
+   	background-image:url(corner.gif);
+}
+.groupboxcornerimg_grey
+{
+
+	width:19px;
+	height:19px;
+   	background-image:url(corner_grey.gif);
+}
+.pagetitleimg{
+	width:239px;
+	height:29px;
+   	background-image:url(title.gif);
+}
+.pagelinkimg
+{
+
+	width:38px;
+	height:10px;
+   	background-image:url(link.gif);
+}
+.pageversion{
+	font-size : 9pt;
+	color : Gray;
+	FONT-FAMILY: Arial, Helvetica, sans-serif;
+}
+
+/********************************* button configuration************************************/
+.button
+{
+	font-family: "宋体","Arial", "Helvetica", "sans-serif";
+	font-size: 9pt;
+	color: #000000;
+	filter:dropshadow(color=#FFFFFF,offx=1,offy=1,positive=1);
+	padding: 0px 1px 0px 0px;
+	height:19px;
+	background-image: url(button/button_back.gif);
+}
+.buttontext
+{
+
+}
+.buttonleft
+{ 
+	/*display:none;*/
+}
+.buttonright
+{ 
+	/*display:none;*/
+}
+
+
+.buttonleftimg
+{ 
+	width:13px;
+	height:19px;
+   	background-image:url(button/button_left.gif);
+}
+
+.buttonrightimg
+{ 
+	width:13px;
+	height:19px;
+   	background-image:url(button/button_right.gif);
+}
+
+
+.buttonHover
+{
+
+	background-image: url(button/button_back_hover.gif);
+	font-family: "宋体","Arial", "Helvetica", "sans-serif";
+	font-size: 9pt;
+	color: #000000;
+	filter:dropshadow(color=#FFFFFF,offx=1,offy=1,positive=1);
+	padding: 0px 1px 0px 0px;
+	height:19px;
+	cursor:hand;
+}
+.buttonleftimgHover
+{ 
+	width:13px;
+	height:19px;
+   	background-image:url(button/button_left_hover.gif);
+	cursor:hand;
+}
+.buttonrightimgHover
+{ 
+	width:13px;
+	height:19px;
+   	background-image:url(button/button_right_hover.gif);
+	cursor:hand;
+}
+
+
+.buttonDown
+{
+	background-image: url(button/button_back_down.gif);
+	font-family: "宋体","Arial", "Helvetica", "sans-serif";
+	font-size: 9pt;
+	color: #000000;
+	filter:dropshadow(color=#CCCCCC,offx=2,offy=2,positive=1);
+	padding: 1px 0px 0px 1px;
+	height:19px;
+	cursor:hand;
+}
+.buttonleftimgDown
+{ 
+	width:13px;
+	height:19px;
+   	background-image:url(button/button_left_down.gif);
+	cursor:hand;
+}
+.buttonrightimgDown
+{ 
+	width:13px;
+	height:19px;
+   	background-image:url(button/button_right_down.gif);
+	cursor:hand;
+}
+
+
+
+
+/********************************* tab configuration************************************/
+
+.tabhead{
+	height:1px;
+}
+.tabtd{
+	height: 19px;
+	background-image : url(tab/tab_bg.gif);
+}
+
+.tabbar
+{
+	background-image : url(tab/tab_right_bg.gif);
+	height:1px;
+	width:100px;
+	text-align : right;
+}
+
+.tabcontent
+{
+	border-top: #DCDCDC 1px solid;
+	border-bottom: #AAAAAA 2px solid;
+	border-left: #FFFFFF 1px solid;
+	border-right: #AAAAAA 2px solid;
+	background-color:#DCDCDC;
+}
+
+
+.tabtext
+{
+	cursor:hand;
+}
+
+.tabline
+{
+	background-color:#FFFFFF;
+}
+
+.tabline1
+{
+	background-color:#DCDCDC;
+}
+
+.tabsel
+{
+	background-color:#DCDCDC;
+	font-weight: bold;
+}
+
+.tabdesel
+{
+	background-color:#C4C4C4;
+}
+
+img.tabfron
+{
+	height:18px;
+	width:28px;
+	background-image:url(tab/fron.gif);
+}
+
+img.tabfroff
+{
+	height:18px;
+	width:28px;
+	background-image:url(tab/froff.gif);
+}
+
+img.tabonbk
+{
+	height:18px;
+	width:14px;
+	background-image:url(tab/bkon.gif);
+}
+
+img.taboffbk
+{
+	height:18px;
+	width:14px;
+	background-image:url(tab/bkoff.gif);
+}
+
+img.tabonoff
+{
+	height:19px;
+	width:24px;
+	background-image:url(tab/onoff.gif);
+}
+
+img.taboffon
+{
+	height:19px;
+	width:24px;
+	background-image:url(tab/offon.gif);
+}
+
+img.taboffoff
+{
+	height:19px;
+	width:24px;
+	background-image:url(tab/offoff.gif);
+}
+
+
+
+.frameheader{
+	color: #000000;
+	background-color: #CCCCCC;
+	cursor: hand;
+	padding-left : 4;
+	padding-bottom : 2;
+	padding-top : 2;
+}
+.WizardControlerTitleBG{
+	background-image:url(WizardControlerTitleBG.jpg);
+}
+
+/********************************* style for pages of "Main" type ************************************/
+.RightContentDiv{
+	font-weight: normal;
+	padding-top: 0px;
+	overflow: hidden;
+	width:100%;
+	height:100%;
+	background-color: #DCDCDC;
+	border-style: solid;
+	border-color: #ECECEC #AAAAAA #AAAAAA #ECECEC;
+	border-width:1px;
+}
+.content_table{
+	width:100%;
+	height:100%;
+}
+.imgDrag{
+	width:100%;
+	height:100%;
+	background-color:#99B0CE;
+	cursor: w-resize;
+}
+.mytop{
+	height:50px;
+}
+
+.mymiddle{
+	height:0px;
+	background-color: #DCDCDC;
+	/*background-image : url(menutabbg.gif);*/
+}
+.mymiddleShadow{
+	height:5px;
+	background-image : url(mymiddleshadow.gif);
+}
+.myleft_left_top_corner{
+	width: 6px;
+	height:6px;
+}
+.myleft_leftMargin{
+	width: 6px;
+}
+.myleft_left_bottom_corner{
+	width: 6px;
+	height:6px;
+}
+.myleft_top{
+	height:6px;
+}
+.myleft_bottom{
+	height:6px;
+}
+.myleft_right_top_corner{
+	width: 0px;
+	height:6px;
+}
+.myleft_rightMargin{
+	width: 0px;
+}
+.myleft_right_bottom_corner{
+	width: 0px;
+	height:6px;
+}
+.mycenter{
+	width: 3px;
+}
+.mycenter_top{
+	width: 3px;
+	height:6px;
+}
+.mycenter_bottom{
+	width: 3px;
+	height:6px;
+}
+.myright_left_top_corner{
+	width: 0px;
+	height:6px;
+}
+.myright_leftMargin{
+	width: 0px;
+}
+.myright_left_bottom_corner{
+	width: 0px;
+	height:6px;
+}
+.myright_left_bottom_corner{
+	width: 3px;
+	height:6px;
+}
+.myright_top{
+	height:6px;
+}
+.myright_bottom{
+	height:6px;
+}
+.myright_right_top_corner{
+	width: 6px;
+	height:6px;
+}
+.myright_rightMargin{
+	width: 6px;
+}
+.myright_right_bottom_corner{
+	width: 6px;
+	height:6px;
+}
+
+/********************************* style for pages of "List" type ************************************/
+.ListPage{
+	background-color: #DCDCDC;
+	margin-bottom : 0px;
+	margin-left : 0px;
+	margin-right : 0px;
+	margin-top : 0px;
+	overflow:scroll;
+	overflow-x:visible;
+	overflow-y:visible;
+}
+.ListTitle{
+	height:5px;
+	background-color: #CCCCCC;
+}
+.buttonback{
+	height:32px;
+}
+.buttontd{
+}
+.ListCriteriaTd{
+	height:1px;
+}
+.ListButtonArea{
+	height:1px;
+}
+.ListDWArea{
+}
+.ListBottomArea{
+	height:0px;
+}
+.ListHorizontalBar{
+	height:4px;
+}
+.ListDetailAreaTD{
+}
+
+/********************************* style for pages of "Info" type ************************************/
+.InfoPage{
+	background-color: #DCDCDC;
+	margin-bottom : 0px;
+	margin-left : 0px;
+	margin-right : 0px;
+	margin-top : 0px;
+	overflow:scroll;
+	overflow-x:visible;
+	overflow-y:visible;
+}
+.InfoTitle{
+	height:5px;
+}
+.InfoCriteriaTd{
+	height:0px;
+}
+.InfoButtonArea{
+	height:0px;
+}
+.InfoDWArea{
+}
+.InfoBottomArea{
+	height:0px;
+}
+.InfoHorizontalBar{
+	height:4px;
+}
+.InfoDetailAreaTD{
+}
+
+/********************************* style for pages of "Report" type ************************************/
+.ReportPage{
+	background-color: #DCDCDC;
+	margin-bottom : 0px;
+	margin-left : 0px;
+	margin-right : 0px;
+	margin-top : 0px;
+	overflow:scroll;
+	overflow-x:visible;
+	overflow-y:visible;
+}
+
+/********************************* style for pages of "Dialog" type ************************************/
+.ShowModalPage{
+	background-image : url(GridBG_everbright.gif);
+}
+
+/********************************* style for pages of "Frame" type ************************************/
+.imgsDrag{
+	width:100%;
+	height:4px;
+	background-image : url(h_resize.gif);
+	cursor: s-resize;
+}
+
+/********************************* style for pages of "DOFilter" ************************************/
+
+.DOFilterOperatorSelect{
+	width:120px;
+}
+.FilterButtonTd{
+	width:1px;
+	vertical-align: bottom;
+}
+.FilterHeaderTd{
+	background-color: #CCCCCC;
+}
+.FilterSubmitTd{
+	background-color: #CCCCCC;
+}
+.FilterIcon{
+	width:21px;
+	height:21px;
+   	background-image:url(FilterIcon.gif);
+	cursor:hand;
+}
+.DOFilterHint
+{
+    color:#666666;
+}
+.FilterIcon{
+	width:19px;
+	height:19px;
+   	background-image:url(plus.gif);
+	cursor:hand;
+}
+.FilterIcon2{
+	width:19px;
+	height:19px;
+   	background-image:url(minus.gif);
+	cursor:hand;
+}
+
+/********************************* style for pages of "workflow" ************************************/
+.ActionSelect{
+	width:100%;
+	height:100%;
+}
+
+
+/********************************* style for pages of "ScriptEditor" ************************************/
+.Script_TextArea{
+	overflow: auto;
+	border: none;
+	width:100%
+}
+.Help_TextArea{
+	background-color: #DCDCDC;
+	overflow: auto;
+	border: none;
+	width:100%;
+	MARGIN: 3px;
+    PADDING: 3px;
+}
+.CommentEditor{
+	background-color: #ffffff;
+	overflow: auto;
+	LINE-HEIGHT: normal;
+	border:  inset 2px;
+	width:100%;
+	height:100%;
+	MARGIN: 3px;
+    PADDING: 3px;
+}
+
+/********************************* style for pages of "UserRoleList" ************************************/
+.RoleTitle{
+	background-color: #CCCCCC;
+	LINE-HEIGHT: normal;
+	border:  inset 2px;
+	width:100%;
+	height:100%;
+	MARGIN: 3px;
+    PADDING: 3px;
+}
+.RoleLeafCheck
+{
+	background-color: #ccccff;
+	LINE-HEIGHT: normal;
+	border:  inset 2px;
+	width:100%;
+	height:100%;
+	MARGIN: 3px;
+    PADDING: 3px;
+}
+.RoleLeafUncheck
+{
+	LINE-HEIGHT: normal;
+	border:  inset 2px;
+	width:100%;
+	height:100%;
+	MARGIN: 3px;
+    PADDING: 3px;
+}
+.RoleNode
+{
+	LINE-HEIGHT: normal;
+	border:  inset 2px;
+	width:100%;
+	height:100%;
+	MARGIN: 3px;
+    PADDING: 3px;
+}

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="GB2312"?>
+<otiConfig>
+	<!-- 本文件定义AmarOTI实时交易接口资源,包括交易连接列表定义和交易对象定义-->
+	<!-- 连接定义 -->
+	<connections>
+				
+		<connection name="DZconn"
+			className="com.amarsoft.oti.connection.SocketCharStreamConnection">
+			<extendProperties>
+				<property name="host" value="192.168.5.63" />
+				<property name="port" value="10000" />
+				<!-- 设置反馈报文的交易状态码 -->
+				<property name="statusField" value="SUCCESSFLAG" />
+				<property name="errorCodeField" value="CODEFLAG" />
+				<property name="describe" value="DZ测试连接" />
+				<!-- 初置打包器 -->
+				<property name="packer"
+					value="com.amarsoft.oti.packer.StringPacker" />
+				<!-- 如果是分割符报文设置报文分隔符 -->	
+				<!--	<property name="packer.fieldSplit" value="|" />	-->
+				<!--	<property name="packer.recordEndFlag" value="~" />	-->
+				<!--	<property name="packer.headerEndFlag" value="#" />	-->
+				<!--	<property name="packer.bodyEndFlag" value="@" />	-->
+				<!--	<property name="packer.tailEndFlag" value="$" /> -->
+				<!--	<property name="packer.messageEndFlag" value="!" /> -->
+				<!-- 定长报文 -->
+				<property name="packer.fixLength" value="true" />
+			</extendProperties>
+		</connection>
+		
+		<connection name="SZSconn"
+			className="mybank.SZSSocketConnection">
+			<extendProperties>
+				<property name="host" value="192.168.5.63" />
+				<property name="port" value="10000" />
+				<!-- 设置本地端口的绑定 -->
+				<property name="errorCodeField" value="ResponseCode" />
+				<property name="describe" value="SZS测试连接" />
+				<!-- 初置打包器 -->
+				<property name="packer"
+					value="mybank.SZSByteArrayBitMapPacker" />
+				<!-- 定长报文 -->
+				<property name="packer.fixLength" value="true" />
+			</extendProperties>
+		</connection>
+		
+		<connection name="XJconn"
+			className="com.amarsoft.oti.connection.SocketByteStreamConnection">
+			<extendProperties>
+				<property name="host" value="192.168.5.63" />
+				<property name="port" value="10000" />
+				<!-- 设置反馈报文的交易状态码 -->
+				<property name="successfulStatus" value="0" />
+				<property name="statusField" value="RspCode" />
+				<property name="errorCodeField" value="RspCode" />
+				<property name="errorMessageField" value="RspMsg" />
+				<property name="describe" value="wlmq测试连接" />
+				<!-- 初置打包器 -->
+				<property name="packer"
+					value="com.amarsoft.oti.packer.ByteArrayPacker" />
+				<!-- 定长报文 -->
+				<property name="packer.fixLength" value="true" />
+			</extendProperties>
+		</connection>
+		
+	</connections>
+
+	<!-- 交易定义 -->
+	<transactions>
+		<!-- 查询业务-->	
+		<transaction code="88017" name="DZ帐户余额查询"
+				requestHeaderObject="88017header"
+				requestBodyObject="88017body" requestTailObject=""
+				requestMaxSize="5" responseHeaderObject="88017response"
+				responseBodyObject="88017responseBody" responseTailObject="" responseMaxSize="5" />
+		<!-- 放款业务-->		
+		<transaction code="88011" name="DZ个人贷款放款"
+			requestHeaderObject="88011header"
+			requestBodyObject="88011body" requestTailObject=""
+			requestMaxSize="5" responseHeaderObject="88011response"
+			responseBodyObject="" responseTailObject="" responseMaxSize="5" />
+		<!-- 9613交易报文为8583格式-->
+		<transaction code="9613" name="SZS展期登记"
+			requestHeaderObject="9613header"
+			requestBodyObject="9613body" requestTailObject=""
+			requestMaxSize="5" responseHeaderObject="9613response"
+			responseBodyObject="" responseTailObject="" responseMaxSize="5" />
+			
+		<!-- wlmq交易列表-->
+		<transaction code="UP01" name="XJ贷款放款核准信息"
+			requestHeaderObject="XJRequestHeader"
+			requestBodyObject="DKBody" requestTailObject=""
+			requestMaxSize="5" responseHeaderObject="XJResponseHeader"
+			responseBodyObject="" responseTailObject="" responseMaxSize="5" />
+		
+		<transaction code="UP03" name="XJ保证金账户查询请求信息"
+			requestHeaderObject="XJRequestHeader" requestBodyObject="BZJBody" requestTailObject="" requestMaxSize="1" 
+			responseHeaderObject="XJResponseHeader" responseBodyObject="BailInfoBody" responseTailObject="" responseMaxSize="2" 
+		/>
+		
+		
+	</transactions>
+
+</otiConfig>

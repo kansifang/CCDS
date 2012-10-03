@@ -1,0 +1,9 @@
+
+select ba.Serialno as 申请流水号,ba.customerID as 客户编号,ba.customername as 客户名称, getBusinessName(ba.BusinessType) as 业务品种 ,
+getItemname('Currency',ba.BusinessCurrency) as 币种,ba.BusinessSum as 申请金额,ba.TermMonth as 申请期限,fo1.phasename as 审批状态,
+fo.businessSum  as 审批批准金额, fo.Termmonth as 批准期限,fo.Businessrate as 批准利率,ba.BailRate as 保证金比例,
+getItemName('VouchType',ba.VouchType) as 主要担保方式,fo1.flowName  as 审批流程,getusername(ba.InputUserID) as 经办人,
+getorgName(ba.InputOrgID) as 经办机构,getUserName(fo.InputUser) as 审批人,getorgName(fo.Inputorg) as 审批机构,(select left(endtime,10) from flow_task where objectno=ba.serialno and phaseno in ('1000','8000')) as 审批通过时间,
+getitemname('OccurType',ba.occurtype) as 发生类型
+from business_Apply ba, flow_opinion fo,flow_object fo1 where fo1.ObjectNO=ba.Serialno and fo1.objecttype='CreditApply'  and  fo.ObjectNO=ba.Serialno and fo.objecttype='CreditApply'  
+ and fo.serialno=(select max(Relativeserialno) from flow_task ft where ft.ObjectNo=ba.serialno and ft.Objecttype='CreditApply'); 

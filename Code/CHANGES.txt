@@ -1,0 +1,151 @@
+** 2008/09/19 ** 修改人 fmwu
+1.配合ade-1.0beta.jar发布重新整理WEB-INF/lib内容
+  ade-1.0beta.jar 同ALS6系统配套的Web及工具包
+  are-0.2beta.jar Amarsoft运行环境 ALS6系统主要使用日志，数据库操作及底层工具包
+  ars3-1.0.1.jar 报表展示java类
+  lib下增加optional可选包
+    ade-1.0beta_g.jar ade-1.0beta.jar调试包,可替换ade-1.0beta.jar
+    are-0.2beta_g.jar are-0.2beta.jar调试包,可替换are-0.2beta.jar
+    ASTaskScheduler.jar 预警调度引用了该包，功能不详，不建议使用
+    dbunit-hxd-gbk.jar  代码表的导入导出使用了该包，使用很少
+    poi-2.5.1-final-20040804.jar excel操作的相关包
+    poi-contrib-2.5.1-final-20040804.jar  excel操作的相关包
+    poi-scratchpad-2.5.1-final-20040804.jar excel操作的相关包
+     
+2.根据ADE的相关整理调整相关的jsp文件
+  主要涉及文件
+  Blank.jsp
+  ErrorPage.jsp
+  IncludeBegin.jsp
+  InlcudeBeginDw.jsp
+  Login.jsp
+  Redirector.jsp
+  Resources\Include\IncludeHead.jsp
+  Resources\Include\IncludeTail.jsp
+
+3.公共变量调整
+  去掉公共变量sCurSlash 使用ASConfigure.sCurSlash代替
+  去掉公共变量sOSName，暂时没有用到，如需要使用，可以用ASConfigure.getASConfigure().getConfigure("OSName")获得
+  去掉公共变量sDBName，因为容易出现定义不正确，在需要获判断的时候使用JDBC函数获取
+	String sDBName = Sqlca.conn.getMetaData().getDatabaseProductName().toUpperCase();
+	if(sDBName.startsWith("DB2")) 主要后面的数据库名称必须用大写
+	将sDBName.equalsIgnoreCases替换成sDBName.startsWith
+	将"Informix"替换成"INFORMIX"
+	将"Oracle"替换成"ORACLE"
+  涉及的相关文件较多，不再列举，如果出现变量不存在情况，按照上面的方法修改
+
+4.配置文件及方式修改
+  web.xml修改 
+    增加InitAREServlet的配置，进行ARE的初始化
+    修改InitDataServlet的配置，增加ConfigFile参数，使原amarsoft.xml配置文件可以自由指定
+  增加WEB-INF/etc路径
+    用于放置are相关的配置文件，以后增加的配置文件也要求放到该目录，amarsoft.xml也移到相应的目录
+  增加log目录，用于存放缺省日志
+
+
+** 2008/07/21 ** 修改人 jbye
+修改内容：
+1修改登陆用户修改密码后状态不改变
+在页面: DeskTop\ModifyPassword.jsp 的 62 行增加以下语句
+==============================================================================================================
+Sqlca.executeSQL("Update USER_PREF set PreferenceValue='0' where UserID = '"+CurUser.UserID+"' and PreferenceID='PasswordState'");
+==============================================================================================================
+目的： 首次登陆用户修改密码更新登陆状态标志
+
+
+** 2008/07/21 ** 修改人 xdhou
+修改内容：
+1.打印及查看出账通知书报错修改
+将直接http文件引用变成fileview查看
+==============================================================================================================
+<script language=javascript>
+	window.open("<%=sWebRootPath%>/FormatDoc/WorkDoc/<%=sSerialNoNew%>.html","<%=sFrameName%>",OpenStyle,true);
+</script>
+==============================================================================================================
+改为
+==============================================================================================================
+<%
+	String sFileName = CurConfig.getConfigure("WorkDocSavePath")+"/"+sSerialNoNew+".html";
+%>
+
+<form name=form1 method=post target="_blank" action=<%=sWebRootPath%>/fileview >
+	<div style="display:none">
+		<input name=filename value="<%=sFileName%>">
+		<input name=contenttype value="text/html">
+		<input name=viewtype value="view">		
+	</div>
+</form>
+
+<script language=javascript>
+	form1.submit();
+</script>	 
+==============================================================================================================
+
+
+** 2008/04/10 ** 修改人 xdhou
+修改内容：
+1.附件上传和查看方式修改
+2.Excel导出模式修改
+  注意：按F2或者ctrl+F3导出xls数据,会在 <应用目录>\DownLoad目录下建立文件，需要定期删除此文件夹中的内容
+
+相关文件的更新有：
+1. 根目录下
+	IncludeBeginDW.jsp
+	IncludeBeginReport.jsp
+	IncludeBeginReportMD.jsp
+	Logon.jsp
+
+2. Common\Document\AttachmentUpload.jsp
+
+3. FormatDoc目录下	
+	ChooseFile.jsp
+	GetReportFile.jsp
+	IncludeFDFooter.jsp
+	IncludePOFooter.jsp
+	PreviewFile.jsp
+	ProduceFile.jsp
+	
+4. Frame\DownPrg\amar_obj_y.exe
+
+5. InfoManage\QueryManage目录下
+	CodeConfiguration.xml
+	XQuery.jsp
+	XSelectX.jsp
+	
+6. Resources\1目录下
+	common.js
+	expand.js
+	String.js
+	xls.vbs
+
+7. Resources\1\Support目录下
+	AmarDWYt.CAB
+	as_dz_end.js
+	as_dz.js
+	datawindow_save.jsp
+	GetDWCurrRow.jsp
+	GetDWDataAll3.jsp
+	GetDWDataAll3Local.jsp
+	GetDWDataAllNew.jsp
+	GetDWDataSort.jsp
+	SaveParaToComp.jsp
+	SaveParaToCompSession.jsp
+	
+8. Resources\CodeParts目录下	
+	Info05.jsp
+	List05.jsp
+	Main04.jsp
+	Report01.jsp
+	Tree04.jsp
+	View04.jsp
+	View05.jsp
+	View06.jsp
+	
+9. Resources\Include\IncludeHead.jsp
+
+10.WEB-INF目录下
+	amarsoft.xml
+	web.xml
+	
+11.WEB-INF\lib目录下
+	ade6_java.jar		

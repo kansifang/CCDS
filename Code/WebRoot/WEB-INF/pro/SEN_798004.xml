@@ -1,0 +1,120 @@
+<?xml version="1.0"?>
+<!--
+	此交易为交易“实时余额查询”
+	
+	SEN_***.xml为上传报文结构，即信贷系统发送核心系统数据
+	此配置文件分为两部分，前部分为报文头，后一部分为报文体：
+	对于报文头部分只有TradeCode和WholeLength需要根据不同交易进行改变，新增要素不需要修改。WholeLength＝75+报文体长度。
+	每个交易主要区别都在报文体部分。
+	 <WholeLength>　　　　　　　　　　　　　　　　　　－－节点名称 
+    	<length>4</length>					　　－－节点数据长度
+    	<fixed>R</fixed>					　　－－填补方式，R为右填空格;L为左填0
+    	<chn>N</chn>						  　－－是否需要进行中文转换
+    	<defalutvalue>0113</defalutvalue>	　　－－默认值
+    </WholeLength>
+-->
+<Trade>
+    <WholeLength> 
+    	<length>4</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>0107</defalutvalue>
+    </WholeLength>
+    <MessageType>    
+    	<length>2</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>RQ</defalutvalue>     
+    </MessageType>
+    <TradeCode>    
+    	<length>6</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>798004</defalutvalue>     
+    </TradeCode>
+    <TradeDate>    
+    	<length>10</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>2007-12-30</defalutvalue>     
+    </TradeDate>
+    <SysDate>    
+    	<length>10</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>2007-12-30</defalutvalue>     
+    </SysDate>
+    <TradeTime>    
+    	<length>8</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>08.08.08</defalutvalue>     
+    </TradeTime>
+    <OrgID>    
+    	<length>4</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>1189</defalutvalue>     
+    </OrgID>
+    <TerminiterID>    
+    	<length>2</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>  </defalutvalue>     
+    </TerminiterID>
+    <UserID>    
+    	<length>10</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>031996    </defalutvalue>     
+    </UserID>
+    <TradeFlag>    
+    	<length>1</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>0</defalutvalue>     
+    </TradeFlag>
+    <TradeSerialNo>    
+    	<length>8</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>00000000</defalutvalue>     
+    </TradeSerialNo>
+    <Flag1>    
+    	<length>1</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>0</defalutvalue>     
+    </Flag1>
+    <Flag2>    
+    	<length>1</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>0</defalutvalue>     
+    </Flag2>
+    <Flag3>    
+    	<length>1</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>0</defalutvalue>     
+    </Flag3>
+    <Flag4>    
+    	<length>1</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>0</defalutvalue>     
+    </Flag4>
+    <ConfirmUserID>    
+    	<length>10</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>          </defalutvalue>     
+    </ConfirmUserID>
+    <!-- 以上为报文头信息　只有TradeCode和WholeLength需要根据不同交易进行改变，新增要素不需要修改。WholeLength＝75+报文体长度 -->
+    <BCSerialNo>    
+    	<length>32</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue></defalutvalue>     
+    </BCSerialNo>
+</Trade> 

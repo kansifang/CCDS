@@ -1,0 +1,138 @@
+<?xml version="1.0"?>
+<!--
+	RCV_***.xml为上传报文结构，即信贷系统发送核心系统数据
+	 <WholeLength>　　　　　　　　　　　　　　　　　　－－节点名称 
+    	<length>4</length>					　　－－节点数据长度
+    	<fixed>R</fixed>					　　－－填补方式，R为右填空格;L为左填0
+    	<chn>N</chn>						  　－－是否需要进行中文转换
+    	<defalutvalue>0113</defalutvalue>	　　－－默认值
+    </WholeLength>
+-->
+<Trade>
+    <MessageType>    
+    	<length>2</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>RP</defalutvalue>     
+    </MessageType>
+    <TradeCode>    
+    	<length>8</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>42016201</defalutvalue>     
+    </TradeCode>
+    <LastFlag>    
+    	<length>1</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>1</defalutvalue>     
+    </LastFlag>
+    <TradeType>    
+    	<length>1</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>1</defalutvalue>     
+    </TradeType>
+    <ReturnRequest>    
+    	<length>1</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>0</defalutvalue>     
+    </ReturnRequest>
+    <TradeSucFlag>    
+    	<length>1</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue> </defalutvalue>     
+    </TradeSucFlag>
+    <OldTradeNo>    
+    	<length>8</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>        </defalutvalue>     
+    </OldTradeNo>
+    <MsgType>    
+    	<length>1</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>2</defalutvalue>     
+    </MsgType>
+    <OutEqu1>    
+    	<length>2</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>DS</defalutvalue>     
+    </OutEqu1>
+    <Flag1>    
+    	<length>3</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>001</defalutvalue>     
+    </Flag1>
+    <OutEqu2>    
+    	<length>2</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>  </defalutvalue>     
+    </OutEqu2>
+    <Flag2>    
+    	<length>3</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>   </defalutvalue>     
+    </Flag2>
+    <OutEqu3>    
+    	<length>2</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>  </defalutvalue>     
+    </OutEqu3>
+    <Flag3>    
+    	<length>3</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>   </defalutvalue>     
+    </Flag3>
+    <OutEqu4>    
+    	<length>2</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>  </defalutvalue>     
+    </OutEqu4>
+    <Flag4>    
+    	<length>3</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>   </defalutvalue>     
+    </Flag4>
+    <OutEqu5>    
+    	<length>2</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>  </defalutvalue>     
+    </OutEqu5>
+    <Flag5>    
+    	<length>3</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue>   </defalutvalue>     
+    </Flag5>
+    <Remark>    
+    	<length>1</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue> </defalutvalue>     
+    </Remark>
+    <OutMsgID>    
+    	<length>12</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue></defalutvalue>     
+    </OutMsgID>
+    <OutMsg>    
+    	<length>-1</length>
+    	<fixed>R</fixed>
+    	<chn>Y</chn>
+    	<defalutvalue></defalutvalue>     
+    </OutMsg>
+</Trade> 

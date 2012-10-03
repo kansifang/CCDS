@@ -1,0 +1,1 @@
+//select Customerid as 信贷客户ID,getcustomername(Customerid) as 客户名称, customername as 配偶名称,getItemName('CertType',certTYpe) as 配偶证件类型,CertID  as 配偶证件号码 from customer_relative where relationship='0301'  and inputorgid='908130100';

@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!--
+	
+	每个交易主要区别都在报文体部分。
+	 <WholeLength>　　　　　　　　　　　　　　　　　　－－节点名称 
+    	<length>4</length>					　　－－节点数据长度
+    	<fixed>R</fixed>					　　－－填补方式，R为右填空格;L为左填0
+    	<chn>N</chn>						  　－－是否需要进行中文转换
+    	<defalutvalue>0113</defalutvalue>	　　－－默认值
+    </WholeLength>
+-->
+<BillGuaranty>
+    <Attribute1>    
+    	<length>2</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue></defalutvalue>     
+    </Attribute1>
+    <Attribute2>    
+    	<length>4</length>
+    	<fixed>R</fixed>
+    	<chn>N</chn>
+    	<defalutvalue></defalutvalue>     
+    </Attribute2>
+</BillGuaranty> 
