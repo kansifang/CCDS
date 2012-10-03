@@ -1,0 +1,15 @@
+执行:
+DDL.sql
+DML_Code.sql
+DML_Config.sql
+DML_Model.sql
+更新页面:
+/Common/Evaluate/EvaluateDetail.jsp
+/Common/Configurator/EvaluateManage/EvaluateCatalogList.jsp
+/Common/Configurator/EvaluateManage/EvaluateModelList.jsp
+/Common/Configurator/EvaluateManage/EvaluateModelInfo.jsp
+新增页面:
+/Common/Configurator/EvaluateManage/EvaluateScoreConfigInfo.jsp
+/Common/Configurator/EvaluateManage/EvaluateScoreConfigList.jsp
+/com/amarsoft/app/lending/bizlets/EvaluateGetValue.class
+/com/amarsoft/app/lending/bizlets/EvaluateScoreOrResultGene.class
