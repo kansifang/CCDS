@@ -1,4 +1,3 @@
-
 <%@ page contentType="text/html; charset=GBK"%>
 <%@ include file="/IncludeBegin.jsp"%>
 

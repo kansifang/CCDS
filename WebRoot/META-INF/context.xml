@@ -11,5 +11,4 @@
 	   maxActive="100" maxIdle="30" maxWait="10000"
 	   username="als6" password="als6" driverClassName="com.ibm.db2.jcc.DB2Driver"
 	   url="jdbc:db2://localhost:50000/TJNS" />
-	 
 </Context>
