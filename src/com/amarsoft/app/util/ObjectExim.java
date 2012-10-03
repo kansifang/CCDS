@@ -11,14 +11,6 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.sql.ResultSet;
 
-import org.dbunit.database.DatabaseConnection;
-import org.dbunit.database.QueryDataSet;
-import org.dbunit.dataset.IDataSet;
-import org.dbunit.dataset.stream.IDataSetProducer;
-import org.dbunit.dataset.stream.StreamingDataSet;
-import org.dbunit.dataset.xml.XmlDataSet;
-import org.dbunit.dataset.xml.XmlProducer;
-import org.dbunit.operation.DatabaseOperation;
 import org.xml.sax.InputSource;
 
 import com.amarsoft.are.sql.ConnectionManager;
