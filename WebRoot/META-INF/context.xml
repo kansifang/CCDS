@@ -10,5 +10,5 @@
 	<Resource name="jdbc/als6" auth="Container" type="javax.sql.DataSource"
 	   maxActive="100" maxIdle="30" maxWait="10000"
 	   username="als6" password="als6" driverClassName="com.ibm.db2.jcc.DB2Driver"
-	   url="jdbc:db2://localhost:50000/TJNS" />
+	   url="jdbc:db2://11-A6F5951F7257:50000/TJNS" />
 </Context>
