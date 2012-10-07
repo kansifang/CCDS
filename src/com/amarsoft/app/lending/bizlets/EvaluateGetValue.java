@@ -122,7 +122,7 @@ public class EvaluateGetValue extends Bizlet {
      * @param sReportScope
      * @param sRowSubject
      * @param sItemName
-     * @param firstN 为正数 表示平均，为负数，-1上一年，-2为前一年等等
+     * @param firstN 为正数 表示平均，为负数，-1上一年(上一期)，-2为前一年（上两期）等等
      * @return
      * @throws Exception
      */
@@ -133,27 +133,28 @@ public class EvaluateGetValue extends Bizlet {
 		//如果当期（非年报）报表口径和最近一期年报不一致也将造成查不出数据
 		int iCurYear =Integer.parseInt(sAccountMonth.substring(0,4));
 		String sReportDate="";
-		if(firstN>0){
+		int iCount=firstN;
+		if(iCount>0){
 			if(sAccountMonth!=null&&!sAccountMonth.endsWith("/12")){
-				firstN++;
+				iCount++;
 				sReportDate="('";
 			}else{
 				sReportDate="('"+sAccountMonth+"','";
 			}
-			for(int i=1;i<firstN;i++){
+			for(int i=1;i<iCount;i++){
 				sReportDate+=(iCurYear-i)+"/12','";
 			}
 			sReportDate =sReportDate.substring(0, sReportDate.length()-2)+")";
 		}else{
 			if(sAccountMonth!=null&&!sAccountMonth.endsWith("/12")){
-				sReportDate="('"+(iCurYear-1)+"')";
+				sReportDate="('"+((iCurYear-1)-iCount)+"/12')";
 			}else{
-				sReportDate="('"+(iCurYear-2)+"')";
+				sReportDate="('"+(iCurYear-iCount)+"/12')";
 			}
 			firstN=1;
 		}
 		//查询今年财务报表相关值
-		String sSql = 	" SELECT nvl("+sItemName+",0) FROM REPORT_DATA "+
+		String sSql = "SELECT nvl("+sItemName+",0) FROM REPORT_DATA "+
 						 " where ReportNo in "+
 						 " (select ReportNo from REPORT_RECORD "+
 						 " 	where ObjectNo ='"+sObjectNo+"'"+
@@ -161,12 +162,13 @@ public class EvaluateGetValue extends Bizlet {
 						 " 	and ReportScope = '"+sReportScope+"')"+
 						 " and RowSubject='"+sRowSubject+"'";	
 		if(isTY){
-			sSql = " select nvl("+sItemName+",0) from CUSTOMER_FSRATION " +
+			sSql = "select nvl("+sItemName+",0) from CUSTOMER_FSRATION " +
 						" where CustomerID ='"+sObjectNo+"'"+
 						" and ReportDate in "+sReportDate;
 		}
 		ASResultSet rs = Sqlca.getASResultSet(sSql);
-		int iCount=rs.getRowCount();
+		iCount=0;
+		iCount=rs.getRowCount();
 		if(iCount<firstN){//没那么多年报，就能取多少是多少
 			firstN=iCount;
 		}
