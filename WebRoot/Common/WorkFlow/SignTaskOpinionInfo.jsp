@@ -46,6 +46,17 @@
 	System.out.println("sCustomerID:"+sCustomerID);
 	String Sql="",sCustomerType="",Sql1="";
 	String sEvaluateSerialNo="",sEvaluateResult="",sCognResult="",sModelNo="",sTransformMethod ="",sModelDescribe="",sSmallEntFlag="";
+	//并行信用等级评估变量
+	String sIsInuse="";//是否停用并行客户信用评级
+	String sNewEvaluateSerialNo = "";
+	String sNewEvaluateResult = "" ;
+	String sNewCognResult = "";
+	String sNewModelNo = "";
+	String sSModelNo = "";
+	String sNewTransformMethod = "";
+	String sNewModelDescribe  = "";
+	double dNewEvaluateScore = 0.0;
+	double dNewCognScore = 0.0;
 	double dEvaluateScore=0.0,dCognScore=0.0;
 	ASResultSet rs = null, rs1 = null;
 	//String[][] sEvluateArr = new String[8][]; 
@@ -61,12 +72,15 @@
 	sCustomerType = Sqlca.getString(Sql);
 	if(sCustomerType == null) sCustomerType="";
 	
+	//录入公司客客户、个人客户、同业客户信息时判断，是否“停用并行客户信用等级评估”
+	sIsInuse = Sqlca.getString(" select IsInuse  from code_library where codeno = 'UnusedOldEvaluateCard' and itemno = 'UnusedOldEvaluateCard' ");
+	if (sIsInuse== null) sIsInuse="" ;
 	//不是同业授信，非额度项下
 	if( ("3015,3050,3060").indexOf(sBusinessType) == -1 && !sApplyType.equals("DependentApply") 
 		&& sObjectType.equals("CreditApply") && !(sBusinessType.equals("1056") || sBusinessType.equals("1054")))
 	{
 		Sql = " select SerialNo,EvaluateScore,EvaluateResult,CognScore,CognResult from Evaluate_Record where ObjectType ='Customer' "+
-		       " and ObjectNo ='"+sCustomerID+"' and (EvaluateResult <>'' and EvaluateResult is not null) order by AccountMonth desc fetch first 1 rows only ";
+		       " and ObjectNo ='"+sCustomerID+"' and (EvaluateResult <>'' and EvaluateResult is not null) order by AccountMonth desc,SerialNo desc fetch first 1 rows only ";
 		rs = Sqlca.getASResultSet(Sql);
 		if(rs.next())
 		{
@@ -82,15 +96,38 @@
 		}
 		rs.getStatement().close();
 		
+		if(sIsInuse.equals("2"))
+		{
+			Sql = " select SerialNo,EvaluateScore,EvaluateResult,CognScore,CognResult from Evaluate_Record where ObjectType ='NewEvaluate' "+
+		          " and ObjectNo ='"+sCustomerID+"' and (EvaluateResult <>'' and EvaluateResult is not null) order by AccountMonth desc,SerialNo desc fetch first 1 rows only ";
+			rs = Sqlca.getASResultSet(Sql);
+			if(rs.next())
+			{
+				sNewEvaluateSerialNo = rs.getString("SerialNo");
+				dNewEvaluateScore    = rs.getDouble("EvaluateScore");
+				sNewEvaluateResult   = rs.getString("EvaluateResult");
+				dNewCognScore        = rs.getDouble("CognScore");
+				sNewCognResult       = rs.getString("CognResult");
+				
+				if(sNewEvaluateSerialNo == null) sNewEvaluateSerialNo ="";
+				if(sNewEvaluateResult == null) sNewEvaluateResult ="";
+				if(sNewCognResult == null) sNewCognResult ="";
+			}
+			rs.getStatement().close();		
+		}
+		
 		String sCustomerFlag="";
 		if(sCustomerType.startsWith("03"))
 		{
 			sCustomerFlag = "IND_INFO";
 			sModelNo = Sqlca.getString("select CreditBelong from "+sCustomerFlag+" where CustomerID = '"+sCustomerID+"'");
 			
+			if(sModelNo == null) sModelNo ="";
+			sNewModelNo = Sqlca.getString("select NewCreditBelong from "+sCustomerFlag+" where CustomerID = '"+sCustomerID+"'");			
+			if(sNewModelNo == null) sNewModelNo ="";
 		}else{
 			sCustomerFlag = "ENT_INFO";
-			Sql ="select CreditBelong,SmallEntFlag from "+sCustomerFlag+" where CustomerID = '"+sCustomerID+"'";
+			Sql ="select CreditBelong,NewCreditBelong,SmallEntFlag from "+sCustomerFlag+" where CustomerID = '"+sCustomerID+"'";
 			rs = Sqlca.getASResultSet(Sql);
 			if(rs.next())
 			{
@@ -99,6 +136,8 @@
 				
 				if(sModelNo == null) sModelNo ="";
 				if(sSmallEntFlag == null) sSmallEntFlag ="";
+				sNewModelNo = rs.getString("NewCreditBelong");
+				if(sNewModelNo == null) sNewModelNo ="";
 			}
 			rs.getStatement().close();
 		}
@@ -117,6 +156,20 @@
 			}
 			rs1.getStatement().close();
 		}
+		
+		if(sNewModelNo != null && !sNewModelNo.equals("") && sIsInuse.equals("2"))
+		{
+			Sql1 = " select TransformMethod,ModelDescribe from EVALUATE_CATALOG where ModelNo = '"+sNewModelNo+"' ";
+			rs1 = Sqlca.getASResultSet2(Sql1);
+			if(rs1.next())
+			{
+				sNewTransformMethod = rs1.getString("TransformMethod");
+				sNewModelDescribe = rs1.getString("ModelDescribe");
+				if(sNewTransformMethod == null) sNewTransformMethod ="";
+				if(sNewModelDescribe == null) sNewModelDescribe ="";	
+			}
+			rs1.getStatement().close();
+		}
 	
 	}
 	
@@ -125,6 +178,10 @@
 				            {"SystemResult","系统评估结果"},
 				            {"CognScore","人工评定得分"},
 				            {"CognResult","人工评定结果"},
+							{"NewSystemScore","并行系统评估得分"},
+				            {"NewSystemResult","并行系统评估结果"},
+				            {"NewCognScore","并行人工评定得分"},
+				            {"NewCognResult","并行人工评定结果"},				            
 				            {"PhaseChoice","调查意见"},
 	                        {"PhaseOpinion","意见说明"},
 	                        {"InputOrgName","登记机构"}, 
@@ -134,7 +191,7 @@
 		
 	//定义SQL语句
 	String sSql = 	" select SerialNo,OpinionNo,"+
-					" SystemScore,SystemResult,CognScore,CognResult,PhaseChoice,PhaseOpinion,"+
+					" SystemScore,SystemResult,CognScore,CognResult,NewSystemScore,NewSystemResult,NewCognScore,NewCognResult,PhaseChoice,PhaseOpinion,"+
 					" InputOrg,getOrgName(InputOrg) as InputOrgName, "+
 					" InputUser,getUserName(InputUser) as InputUserName, "+
 					" InputTime,UpdateUser,UpdateTime "+
@@ -167,9 +224,22 @@
 		
 	//有信用评估的时候才显示等
 	doTemp.setVisible("SystemScore,CognScore,SystemResult,CognResult",false);
+	//并行评级模板
+	doTemp.setVisible("NewSystemScore,NewCognScore,NewSystemResult,NewCognResult",false);	
 	if(("3015,3050,3060").indexOf(sBusinessType) == -1 && !sApplyType.equals("DependentApply") 
 		&& sObjectType.equals("CreditApply") )
 	{
+		//并行评级模板
+		if(sIsInuse.equals("2"))
+		{
+			doTemp.setReadOnly("NewSystemScore,NewSystemResult,NewCognResult",true);
+			if(!(sBusinessType.equals("1056") || sBusinessType.equals("1054")) && !sSmallEntFlag.equals("1") && !sCustomerType.startsWith("03"))	
+				doTemp.setRequired("NewSystemScore,NewCognScore,NewSystemResult,NewCognResult",true);
+			doTemp.setVisible("NewSystemScore,NewCognScore,NewSystemResult,NewCognResult",true);
+			doTemp.setHTMLStyle("NewCognScore","onChange=\"javascript:parent.setNewResult()\"	");
+			doTemp.setAlign("NewSystemScore,NewCognScore","3");
+			doTemp.setType("NewSystemScore,NewCognScore","Number");
+		}
 		doTemp.setReadOnly("SystemScore,SystemResult,CognResult",true);
 		if(!(sBusinessType.equals("1056") || sBusinessType.equals("1054")) && !sSmallEntFlag.equals("1") && !sCustomerType.startsWith("03"))	
 			doTemp.setRequired("SystemScore,CognScore,SystemResult,CognResult",true); 
@@ -340,6 +410,41 @@
 		}			
 
 	}
+		/*~[Describe=根据分值换算并行评级结果;InputParam=无;OutPutParam=无;]~*/
+			function setNewResult(){		
+		//评估分值结果换算
+		//需要根据具体情况进行调整
+		var NewCognScore = getItemValue(0,getRow(),"NewCognScore");
+		if(NewCognScore<0 || NewCognScore>100){
+			alert("调整分请在0至100之间！");
+			setItemValue(0,getRow(),"NewCognScore","");
+			setItemValue(0,getRow(),"NewCognResult","");
+			setItemFocus(0,getRow(),"NewCognScore");
+			return;
+		}
+		sModelDescribe = "<%=sNewModelDescribe%>";
+		if(typeof(sModelDescribe) != "undefined" && sModelDescribe != "") 
+		{			
+			var my_array = new Array();
+			var str_array = new Array();
+			my_array = sModelDescribe.split(",");
+			for(var i=0;i<my_array.length;i++)
+			{ 
+				str_array = my_array[i].split("&");
+				if(checkResult(str_array[0],str_array[1],NewCognScore))
+				{
+					result = str_array[2];
+					setItemValue(0,getRow(),"NewCognResult",result);
+					return;
+				}
+			}
+			
+		}else
+		{
+			alert("评估模板配置错误，请联系管理员！");
+		}			
+
+	}
 	//计算信用等级评级测试结果
 	function checkResult(sSign,dNum,dCognScore)
 	{
@@ -403,6 +508,26 @@
 	 		setItemValue(0,getRow(),"SystemResult",sEvaluateResult);
 	 		setItemValue(0,getRow(),"CognScore",dCognScore);
 	 		setItemValue(0,getRow(),"CognResult",sCognResult);
+	 	}
+	 	if("<%=sIsInuse%>" == "2")
+	 	{
+	 		sNewEvaluateSerialNo = "<%=sNewEvaluateSerialNo%>";
+   			dNewEvaluateScore    = "<%=dNewEvaluateScore%>";
+	   		sNewEvaluateResult   = "<%=sNewEvaluateResult%>";
+	   		dNewCognScore        = "<%=dNewCognScore%>";
+	   		sNewCognResult       = "<%=sNewCognResult%>";
+	   		
+	   		if(!isNotNull(sNewEvaluateSerialNo))
+	   		{
+	   			alert("该客户没有并行信用等级评估记录，请先进并行行信用等级评估！");
+	   			return;
+	   		}else
+	   		{
+	   			setItemValue(0,getRow(),"NewSystemScore",dNewEvaluateScore);
+	 			setItemValue(0,getRow(),"NewSystemResult",sNewEvaluateResult);
+	 			setItemValue(0,getRow(),"NewCognScore",dNewCognScore);
+	 			setItemValue(0,getRow(),"NewCognResult",sNewCognResult);
+	   		}	 	
 	 	}
 	 	
 	} 

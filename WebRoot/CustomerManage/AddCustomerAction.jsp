@@ -155,9 +155,9 @@
 			}else if(sCustomerType.substring(0,2).equals("03"))//个人客户
 			{
 				//客户编号、姓名、证件类型、证件编号、登记机构、登记人、登记日期、更新日期、暂存标志
-				sSql = " insert into IND_INFO(CustomerID,FullName,CertType,CertID,InputOrgID,InputUserID,InputDate,UpdateDate,TempSaveFlag,CreditBelong) "+
+				sSql = " insert into IND_INFO(CustomerID,FullName,CertType,CertID,InputOrgID,InputUserID,InputDate,UpdateDate,TempSaveFlag) "+
 					   " values('"+sCustomerID+"','"+sCustomerName+"','"+sCertType+"','"+sCertID+"','"+CurOrg.OrgID+"','"+CurUser.UserID+"', "+
-					   " '"+StringFunction.getToday()+"','"+StringFunction.getToday()+"','1','501')";
+					   " '"+StringFunction.getToday()+"','"+StringFunction.getToday()+"','1')";
 				Sqlca.executeSQL(sSql);
 			}else if(sCustomerType.equals("0401")||sCustomerType.equals("0501"))//农户联保小组,信用共同体
 			{

@@ -88,6 +88,9 @@
 	    sIsUseSmallTemplet = Sqlca.getString("select IsUseSmallTemplet from ORG_INFO where OrgID = '"+CurOrg.OrgID+"' ");
 		if (sIsUseSmallTemplet == null) sIsUseSmallTemplet = "";
 	}
+	//去是否停用并行信用等级评估
+	String sIsInuse = Sqlca.getString(" select IsInuse  from code_library where codeno = 'UnusedOldEvaluateCard' and itemno = 'UnusedOldEvaluateCard' ");
+	if(sIsInuse == null) sIsInuse = "";
 	
 %> 
 <%/*END*/%>
@@ -145,14 +148,14 @@
 				<td nowrap> 模型： 
 					<select name="ModelNo" class="right">
 <% 
-						if (sModelType.equals("010")||sModelType.equals("012")||sModelType.equals("015"))	
+						if (sModelType.equals("010")||sModelType.equals("012")||sModelType.equals("015")||sModelType.equals("915")||sModelType.equals("910"))	
 						{
 							// "小企业评级模板"控制规则优化
 							if(sIsUseSmallTemplet.equals("1"))
 							{
 								out.print(HTMLControls.generateDropDownSelect(Sqlca,"select ModelNo,ModelName from EVALUATE_CATALOG where ModelType='"+sModelType+"' and ModelNo = '"+sDefaultModelNo+"'  order by ModelNo ",1,2,sDefaultModelNo));
 							}else{
-								out.print(HTMLControls.generateDropDownSelect(Sqlca,"select ModelNo,ModelName from EVALUATE_CATALOG where ModelType='"+sModelType+"' and ModelNo not like '3%'  order by ModelNo ",1,2,sDefaultModelNo));
+								out.print(HTMLControls.generateDropDownSelect(Sqlca,"select ModelNo,ModelName from EVALUATE_CATALOG where ModelType='"+sModelType+"' and ModelNo = '"+sDefaultModelNo+"' and ModelNo not like '30%'  order by ModelNo ",1,2,sDefaultModelNo));
 							}
 						}
 						else if(sModelType.equals("080")&&sCustomerType.equals("0107"))//同业授信限额
@@ -162,6 +165,10 @@
 						else if(sModelType.equals("080"))//其它客户授信限额
 						{
 							out.print(HTMLControls.generateDropDownSelect(Sqlca,"select ModelNo,ModelName from EVALUATE_CATALOG where ModelType='"+sModelType+"'  and ModelNo='CreditLine' order by ModelNo ",1,2,sDefaultModelNo));
+						}
+						else if((sModelType.equals("017") && !sIsInuse.equals("2")) || (sModelType.equals("917") && sIsInuse.equals("2")))
+						{
+							out.print(HTMLControls.generateDropDownSelect(Sqlca,"select ModelNo,ModelName from EVALUATE_CATALOG where ModelType='"+sModelType+"' and ModelNo = '"+sDefaultModelNo+"'  order by ModelNo ",1,2,sDefaultModelNo));
 						}
 						else
 						{

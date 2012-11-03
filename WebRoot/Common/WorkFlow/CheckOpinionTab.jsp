@@ -67,6 +67,8 @@
 	  	String sTabStrip[][] = new String[20][3];	  	
 		int initTab = 1;//设定默认的 tab ，数值代表第几个tab
 		ASResultSet rs = null;
+		String sNewEvaluateSerialNo = "";
+		String sIsInuse = "";
 		
 		//设定标题
 		sSql = 	" select CustomerName||'-'||getBusinessName(BusinessType), "+
@@ -96,13 +98,24 @@
 		sCustomerType = Sqlca.getString(sSql);
 		if(sCustomerType == null) sCustomerType="";
 		
+		//是否停用并行客户信用等级评估
+		sIsInuse = Sqlca.getString(" select IsInuse  from code_library where codeno = 'UnusedOldEvaluateCard' and itemno = 'UnusedOldEvaluateCard' ");
+		if (sIsInuse== null) sIsInuse="" ;
 		if(!sBusinessType.equals("3015") && !sApplyType.equals("DependentApply") && sObjectType.equals("CreditApply"))
 		{
 			sSql = " select SerialNo from Evaluate_Record where ObjectType ='Customer' "+
-			       " and ObjectNo ='"+sCustomerID+"'  order by AccountMonth desc fetch first 1 rows only ";
+			       " and ObjectNo ='"+sCustomerID+"'  order by AccountMonth desc,SerialNo desc fetch first 1 rows only ";
 			
 			sEvaluateSerialNo = Sqlca.getString(sSql);
 			if(sEvaluateSerialNo == null) sEvaluateSerialNo ="";
+			if(sIsInuse.equals("2"))
+			{
+				sSql = " select SerialNo from Evaluate_Record where ObjectType ='NewEvaluate' "+
+			       " and ObjectNo ='"+sCustomerID+"'  order by AccountMonth desc,SerialNo desc fetch first 1 rows only ";
+			
+				sNewEvaluateSerialNo = Sqlca.getString(sSql);
+				if(sNewEvaluateSerialNo == null) sNewEvaluateSerialNo ="";
+			}
 		}
 		
 
@@ -127,6 +140,12 @@
 			sItemName = "信用等级评估信息";
 			sAddStringArray = new String[] {"",sItemName,"doTabAction('Evaluate','"+sCustomerID+"')"};
 			sTabStrip = HTMLTab.addTabArray(sTabStrip,sAddStringArray);
+		}
+		if(!sNewEvaluateSerialNo.equals(""))
+		{
+			sItemName = "并行信用等级评估信息";
+			sAddStringArray = new String[] {"",sItemName,"doTabAction('NewEvaluate','"+sCustomerID+"')"};
+			sTabStrip = HTMLTab.addTabArray(sTabStrip,sAddStringArray);		
 		}
 		//根据定义组生成 tab
 		out.println(HTMLTab.genTabArray(sTabStrip,"tab_DeskTopInfo","document.all('tabtd')"));
@@ -181,6 +200,14 @@
 			sCompID = "EvaluateDetail";
 			sCompURL = "/Common/Evaluate/EvaluateDetail.jsp";
 			sParamString = "Action=display&CustomerID=<%=sCustomerID%>&ObjectType=Customer&ObjectNo=<%=sCustomerID%>&SerialNo=<%=sEvaluateSerialNo%>&Editable=<%=sEditFlag%>";
+			OpenComp(sCompID,sCompURL,sParamString,"<%=sIframeName%>");
+			setDialogTitle("<%=sTitle%>");
+			return true;
+		}else  if (sObjectType=="NewEvaluate") 
+		{ 			
+			sCompID = "EvaluateDetail";
+			sCompURL = "/Common/Evaluate/EvaluateDetail.jsp";
+			sParamString = "Action=display&CustomerID=<%=sCustomerID%>&ObjectType=NewEvaluate&ObjectNo=<%=sCustomerID%>&SerialNo=<%=sNewEvaluateSerialNo%>&Editable=<%=sEditFlag%>";
 			OpenComp(sCompID,sCompURL,sParamString,"<%=sIframeName%>");
 			setDialogTitle("<%=sTitle%>");
 			return true;

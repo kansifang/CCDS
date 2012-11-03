@@ -42,6 +42,8 @@
 	String sCertType = "",sCertID = "",sAttribute3 = "";
 	ASResultSet rs = null;//-- 存放结果集
 	String sIsUseSmallTemplet = ""; //--是否使用小企业评级模板
+	String sIsInuse = ""; //-- 是否停用并行客户信用等级评估
+	String sDate = "";//当前日期前730天（两年前）日期
 	
 	//获得组件参数,客户代码
     String sCustomerID =  DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("CustomerID"));
@@ -112,10 +114,23 @@
 		if(sIsUseSmallTemplet == null) sIsUseSmallTemplet = "";
 	}
 	
+	//录入公司客客户、个人客户、同业客户信息时判断，是否“停用并行客户信用等级评估”
+		sIsInuse = Sqlca.getString(" select IsInuse  from code_library where codeno = 'UnusedOldEvaluateCard' and itemno = 'UnusedOldEvaluateCard' ");
+		if (sIsInuse== null) sIsInuse="" ;
+		sDate = StringFunction.getRelativeDate(StringFunction.getToday(),-730);
+		
 	//通过显示模版产生ASDataObject对象doTemp
 	String sTempletNo = sCustomerInfoTemplet;	
 	ASDataObject doTemp = new ASDataObject(sTempletNo,Sqlca);
 	
+	//当sIsInuse值为2是设置“并行信用等级评估模板名称”，”并行本行即期信用等级“显示
+	if(sIsInuse.equals("2"))
+	{
+		doTemp.setVisible("NewCreditBelongName,NewCreditLevel",true);
+	}else
+	{
+		doTemp.setRequired("NewCreditBelongName",false);
+	}
 	if(sCertType.equals("Ind01") || sCertType.equals("Ind08"))
 	{
 		doTemp.setReadOnly("Sex,Birthday",true);
@@ -209,6 +224,8 @@
 	function saveRecord(sPostEvents)
 	{	
 		getEnterpriseScale();
+		//根据企业规摸，国标行业分类设定信用评级模板选择
+		setCreditTempletType();
 		var sCustomerType = "<%=sCustomerType.substring(0,2)%>";
 		if(vI_all("myiframe0")){
 			//录入数据有效性检查
@@ -365,8 +382,8 @@
 				sReturn=RunMethod("CustomerManage","CheckLoanCardNo",sCustomerName+","+sLoanCardNo);
 				if(typeof(sReturn) != "undefined" && sReturn != "" && sReturn == "Many") 
 				{
-					//alert(getBusinessMessage('227'));//该贷款卡编号已被其他客户占用！							
-					//return false;
+					alert(getBusinessMessage('227'));//该贷款卡编号已被其他客户占用！							
+					return false;
 				}						
 			}
 			
@@ -412,8 +429,8 @@
 					sReturn=RunMethod("CustomerManage","CheckLoanCardNo",sSuperCorpName+","+sSuperLoanCardNo);
 					if(typeof(sReturn) != "undefined" && sReturn != "" && sReturn == "Many") 
 					{
-						//alert(getBusinessMessage('228'));//该上级公司贷款卡编号已被其他客户占用！							
-						//return false;
+						alert(getBusinessMessage('228'));//该上级公司贷款卡编号已被其他客户占用！							
+						return false;
 					}						
 				}
 			}	
@@ -736,6 +753,120 @@
 		}
 	}
 	
+	/*~[Describe=弹出信用等级评估模板选择窗口，并置将返回的值设置到指定的域;InputParam=无;OutPutParam=无;]~*/
+	function selectNewCreditTempletType()
+	{	
+		if("<%=sCustomerType%>".substring(0,2)=='03')
+		{
+			sParaString = "CodeNo"+",IndCreditTempletType" +",ItemNo" + ",5";
+			setObjectValue("SelectNewTemplet",sParaString,"@NewCreditBelong@0@NewCreditBelongName@1",0,0,"");
+		}else{	
+			sParaString = "CodeNo"+",CreditTempletType" +",ItemNo" + ",2";
+			setObjectValue("SelectNewTemplet",sParaString,"@NewCreditBelong@0@NewCreditBelongName@1",0,0,"");
+			}
+	}
+	
+	/*~[Describe=公司客户根据给定规则设定评级模板选择规则;InputParam=无;OutPutParam=无;]~*/
+	function setCreditTempletType()
+	{
+	    sScope = getItemValue(0,getRow(),"Scope");// 企业规模 大型企业-2 中型企业-3 小型企业-4 微型企业-5 其它-9
+	    sIndustryType = getItemValue(0,getRow(),"IndustryType");//国标行业分类大类  房地产行业-K 制造业-C  批发和零售业-F	    
+	    sSetupDate = getItemValue(0,getRow(),"SetupDate");//企业成立时间
+	    sIsInuse = "<%=sIsInuse%>";//是否停用并行信用评级“1”-是“2”否-
+	    sIsGrantOrg = getItemValue(0,getRow(),"IsGrantOrg"); //是否担保机构
+	    if(sIsGrantOrg == "1")
+	    {
+	    	if(sIsInuse == "2")
+			{
+				setItemValue(0,getRow(),"NewCreditBelong","115");	
+				setItemValue(0,getRow(),"NewCreditBelongName","担保公司专家打分卡打分卡");	
+			}else
+			{
+				setItemValue(0,getRow(),"CreditBelong","115");	
+				setItemValue(0,getRow(),"CreditBelongName","担保公司专家打分卡打分卡");	
+			}
+	    }else if("<%=sCustomerType%>" == "0104") //事业单位
+		{
+			if(sIsInuse == "2")
+			{
+				setItemValue(0,getRow(),"NewCreditBelong","114");	
+				setItemValue(0,getRow(),"NewCreditBelongName","事业单位打分卡");	
+			}else
+			{
+				setItemValue(0,getRow(),"CreditBelong","114");	
+				setItemValue(0,getRow(),"CreditBelongName","事业单位打分卡");	
+			}
+		}else if(sSetupDate > "<%=sDate%>")
+		{
+			if(sIsInuse == "2")
+			{
+				setItemValue(0,getRow(),"NewCreditBelong","113");	
+				setItemValue(0,getRow(),"NewCreditBelongName","新建企业打分卡");
+			}else
+			{
+				setItemValue(0,getRow(),"CreditBelong","113");	
+				setItemValue(0,getRow(),"CreditBelongName","新建企业打分卡");	
+			}
+		}else if (sSetupDate <= "<%=sDate%>")
+	    {
+	    	if(sIsInuse == "2")
+	    	{
+		     	if(sIndustryType.indexOf("K")==0)
+		     	{
+		     		setItemValue(0,getRow(),"NewCreditBelong","112");	
+					setItemValue(0,getRow(),"NewCreditBelongName","房地产企业打分卡");	
+		     	}else if(sScope =="2" && sIndustryType.indexOf("K") != 0)
+		     	{
+		     		setItemValue(0,getRow(),"NewCreditBelong","111");	
+					setItemValue(0,getRow(),"NewCreditBelongName","大型企业打分卡");	
+		     	}else if(sScope =="5" && sIndustryType.indexOf("K") != 0)
+		     	{
+		     		setItemValue(0,getRow(),"NewCreditBelong","314");	
+					setItemValue(0,getRow(),"NewCreditBelongName","微型企业打分卡");		     	
+		     	}else if((sScope =="3" || sScope == "4" ) && sIndustryType.indexOf("C") == 0)
+		     	{
+		     		setItemValue(0,getRow(),"NewCreditBelong","311");	
+					setItemValue(0,getRow(),"NewCreditBelongName","制造类中小企业打分卡");		     	
+		     	}else if((sScope =="3" || sScope == "4" ) && sIndustryType.indexOf("F") == 0)
+		     	{
+		     		setItemValue(0,getRow(),"NewCreditBelong","312");	
+					setItemValue(0,getRow(),"NewCreditBelongName","商贸类中小企业打分卡");	
+		     	}else
+		     	{
+		     		setItemValue(0,getRow(),"NewCreditBelong","313");	
+					setItemValue(0,getRow(),"NewCreditBelongName","其他类中小企业打分卡");	
+		     	}
+	     	}else
+	     	{
+	     		if(sIndustryType.indexOf("K")==0)
+		     	{
+		     		setItemValue(0,getRow(),"CreditBelong","112");	
+					setItemValue(0,getRow(),"CreditBelongName","房地产企业打分卡");	
+		     	}else if(sScope =="2" && sIndustryType.indexOf("K") != 0)
+		     	{
+		     		setItemValue(0,getRow(),"CreditBelong","111");	
+					setItemValue(0,getRow(),"CreditBelongName","大型企业打分卡");	
+		     	}else if(sScope =="5" && sIndustryType.indexOf("K") != 0)
+		     	{
+		     		setItemValue(0,getRow(),"CreditBelong","314");	
+					setItemValue(0,getRow(),"CreditBelongName","微型企业打分卡");		     	
+		     	}else if((sScope =="3" || sScope == "4" ) && sIndustryType.indexOf("C") == 0)
+		     	{
+		     		setItemValue(0,getRow(),"CreditBelong","311");	
+					setItemValue(0,getRow(),"CreditBelongName","制造类中小企业打分卡");		     	
+		     	}else if((sScope =="3" || sScope == "4" ) && sIndustryType.indexOf("F") == 0)
+		     	{
+		     		setItemValue(0,getRow(),"CreditBelong","312");	
+					setItemValue(0,getRow(),"CreditBelongName","商贸类中小企业打分卡");	
+		     	}else
+		     	{
+		     		setItemValue(0,getRow(),"CreditBelong","313");	
+					setItemValue(0,getRow(),"CreditBelongName","其他类中小企业打分卡");	
+		     	}	     	
+	     	}
+	    }	
+	}
+	
 	/*~[Describe=弹出对应评分卡模型模板选择窗口，并置将返回的值设置到指定的域;InputParam=无;OutPutParam=无;]~*/
 	function selectAnalyseType(sModelType)
 	{		
@@ -958,10 +1089,15 @@
 			setItemValue(0,getRow(),"InputUserID","<%=CurUser.UserID%>");
 			setItemValue(0,getRow(),"InputUserName","<%=CurUser.UserName%>");
 		}
-		if("<%=sCustomerInfoTemplet%>" == "EnterpriseInfo03" && sCreditBelong == "")
+		if("<%=sCustomerInfoTemplet%>" == "EnterpriseInfo03" && sCreditBelong == "" && "<%=sIsInuse%>" == "2")
 		{
 		    setItemValue(0,getRow(),"CreditBelong","011");			
 			setItemValue(0,getRow(),"CreditBelongName","企业化管理的事业单位信用等级评估表");
+		}
+		if("<%=sCustomerType.substring(0,2)%>" == "03" && "<%=sIsInuse%>" == "2")
+		{
+		    setItemValue(0,getRow(),"CreditBelong","501");			
+			setItemValue(0,getRow(),"CreditBelongName","个人资信评估测算表");
 		}
 		if (sListingCorpOrNot=="") 
 		{

@@ -74,7 +74,8 @@
 	if(sSerialNo == null) sSerialNo = "";
 	if(sCustomerID == null) sCustomerID = "";
 	System.out.println("sAction:"+sAction+"@sObjectType:"+sObjectType+"@sObjectNo:"+sObjectNo+"&CustomerID:"+sCustomerID+"*ObjectNo:"+sObjectNo);
-	Evaluate eEvaluate    = new Evaluate(sObjectType,sObjectNo,sSerialNo,Sqlca);	
+	Evaluate eEvaluate    = new Evaluate(sObjectType,sObjectNo,sSerialNo,Sqlca);
+	//added by bllou 2012-10-01 评级调整，权重动态调整等处理类	
 	EvaluateExtraAction eea=new EvaluateExtraAction(eEvaluate);
 %>
 <%/*END*/%>
@@ -130,7 +131,7 @@
 	String sItemValueDisplayWidth = StringFunction.getProfileString(sModelTypeAttributes,"ItemValueDisplayWidth");
 	if(sItemValueDisplayWidth==null || sItemValueDisplayWidth.equals("")) sItemValueDisplayWidth="100";		
 	
-	if (sObjectType.equals("Customer")|| sObjectType.equals("MaxCreditLine")||sObjectType.equals("CustomerLimit")) //客户
+	if (sObjectType.equals("Customer")|| sObjectType.equals("MaxCreditLine")||sObjectType.equals("CustomerLimit") || sObjectType.equals("NewEvaluate")) //客户
 		sObjectName = Sqlca.getString("select CustomerName from CUSTOMER_INFO where CustomerID='"+sObjectNo+"'");
 	else //业务评估
 		sObjectName = Sqlca.getString("select CustomerName||'*'||getBusinessName(BusinessType) from BUSINESS_APPLY where SerialNo='"+sObjectNo+"'");
@@ -146,19 +147,20 @@
 				}
 			}while(eEvaluate.Data.next());	
 		}
+		//added by bllou 更新权重
+		eea.updateCoefficient();
+		eEvaluate.Record=null;
+		eEvaluate.Data=null;
+		//end bllou
 		eEvaluate.getRecord();
 		eEvaluate.getData(); 
 		sMessage =  "数据保存完成！";  		 
 		
 	if(sAction.equals("evaluate")) {
-		//added by bllou 更新权重
-		eea.updateCoefficient();
-		//end bllou
 		eEvaluate.evaluate();
 		eEvaluate.evaluate();
 		eEvaluate.getRecord();
 		eEvaluate.getData();  
-		
 		//得到系统评估结果、系统评估日期,更新最终评估结果
 		rs = Sqlca.getASResultSet("select EvaluateDate,EvaluateScore,EvaluateResult from EVALUATE_RECORD where ObjectType='" + sObjectType + "' and ObjectNo='" + sObjectNo + "' and SerialNo='"+ sSerialNo + "'");
 		if (rs.next()){	
@@ -175,7 +177,7 @@
 		       " where ObjectType='" + sObjectType + "' and ObjectNo='" + sObjectNo + "' and SerialNo='"+ sSerialNo + "'";
 		Sqlca.executeSQL(sSql);
 		
-		rs = Sqlca.getASResultSet("  select AccountMonth,CognResult from EVALUATE_RECORD Where ObjectNo='"+sObjectNo+"'and ObjectType = 'Customer' order by AccountMonth desc fetch first 1 rows only");
+		rs = Sqlca.getASResultSet("  select AccountMonth,CognResult from EVALUATE_RECORD Where ObjectNo='"+sObjectNo+"'and ObjectType = 'Customer' order by AccountMonth desc,SerialNo desc fetch first 1 rows only");
 		String sEvaDate1="",sEvaResult1="";
 		if (rs.next()){	
 			sEvaDate1 = rs.getString(1);
@@ -406,7 +408,7 @@
 <%/*~END~*/%>
 
 
-<body bgcolor="#DCDCDC" leftmargin="0" topmargin="0" onBeforeUnload="reloadOpener();" style="font-size:12px">
+<body bgcolor="#DCDCDC" leftmargin="0" topmargin="0" onBeforeUnload="reloadOpener();">
 
 <div id="Layer1" style="position:absolute; left:24px; top:9px; width:26px; height:20px; z-index:1"></div>
 <table border="0" width="95%" align="center">
@@ -527,7 +529,7 @@
 	 		sSql = "select ItemNo,ItemDescribe,ItemName from CODE_LIBRARY where CodeNo = '" + sValueCode + "' order by ItemNo";
 	 	%> 
             <td nowrap align="left" > 
-              <select name=<%=sItemName%> align="left" style="width:300;" onmouseover="FixWidth(this)">
+              <select name=<%=sItemName%> align="left" style="width:300;" ondblclick="FixWidth(this)">
                 <option value='0'> </option>
                 <%=HTMLControls.generateDropDownSelect(Sqlca,sSql,1,3,DataConvert.toString(eEvaluate.Data.getString("ItemValue")))%> 
               </select>
@@ -565,7 +567,7 @@
             <%
 	 	}	
             
-	 	//sDisplayItemScore="N";
+//sDisplayItemScore="N";
 		if(sDisplayItemScore!=null && sDisplayItemScore.equalsIgnoreCase("Y")){
 			if (sCoefficient != null&&sCoefficient.length()>0)
 			{
@@ -622,7 +624,6 @@
 			<%
 				if(!eEvaluate.ModelNo.equals("RiskEvaluate") && !eEvaluate.ModelNo.equals("080")) {
 					out.println("<FONT SIZE=\"4\">"+sEvaluateResult+"<B>"+DataConvert.toString(eEvaluate.EvaluateResult)+"</B></FONT>");
-					
 				}
 				if (eEvaluate.ModelNo.equals("080")){
 					out.println("<FONT SIZE=\"4\">"+sEvaluateResult+"</FONT>");
@@ -688,7 +689,6 @@
 		catch(e){
 		}
 	}
-
 </script>
 <script language="JavaScript">
 	//added by bllou 2012-9-19 	解决下拉菜单选项太长的问题
@@ -698,6 +698,7 @@
 	    newSelectObj = selectObj.cloneNode(true);
 	    newSelectObj.selectedIndex = selectObj.selectedIndex;
 	    newSelectObj.onmouseover = null;
+	    newSelectObj.ondblclick = null;
 	    
 	    var e = selectObj;
 	    var absTop = e.offsetTop;

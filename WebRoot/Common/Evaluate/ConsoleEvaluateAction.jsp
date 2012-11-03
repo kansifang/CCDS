@@ -39,6 +39,19 @@
 	String sModelNo      = DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("ModelNo"));
 	String sModelType    = DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("ModelType"));
 	//将空值转化为空字符串
+	//一个月份多比个人信用评级修改
+	String sIsInuse = Sqlca.getString(" select IsInuse  from code_library where codeno = 'UnusedOldEvaluateCard' and itemno = 'UnusedOldEvaluateCard' ");
+	if(sIsInuse == null) sIsInuse = "";
+	String sFlag = "";
+	if(sIsInuse.equals("2"))
+	{
+		sFlag = "NewEvaluate";
+	}else
+	{
+		sFlag = "Customer";
+	}
+	String sCustomerType = Sqlca.getString(" select customertype from customer_info where customerid = '"+sObjectNo+"' ");
+	if(sCustomerType == null) sCustomerType = "";
 	if(sActionType == null) sActionType = "";
 	if(sObjectType == null) sObjectType = "";
 	if(sObjectNo == null) sObjectNo = "";
@@ -48,7 +61,7 @@
 	if(sModelType == null) sModelType = "";	
 	if(sActionType.equals("add"))//新增
 	{
-		if (Evaluate.existEvaluate(sObjectType,sObjectNo,sAccountMonth,sModelNo,Sqlca))
+		if (Evaluate.existEvaluate(sObjectType,sObjectNo,sAccountMonth,sModelNo,Sqlca) && !(sCustomerType.startsWith("03") && sObjectType.equals("sFlag")))
 		{
 %>
 		<script language=javascript> 
@@ -59,7 +72,7 @@
 		}else
 		{
 			sSerialNo = Evaluate.newEvaluate(sObjectType,sObjectNo,sAccountMonth,sModelNo,StringFunction.getToday(),CurOrg.OrgID,CurUser.UserID,Sqlca);
-			if(sObjectType.equals("Customer")){
+			if(sObjectType.equals("Customer") || sObjectType.equals("NewEvaluate")){
 				//信用等级没有系统评级，不置评估时间
 				String sSql = " Update EVALUATE_RECORD Set EvaluateDate=''"+
 				       " where ObjectType='" + sObjectType + "' and ObjectNo='" + sObjectNo + "' and SerialNo='"+ sSerialNo + "'";

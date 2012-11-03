@@ -78,7 +78,12 @@
 	String sReportType = "";
 	double dCount = 0;
 	ASResultSet rs = null;
+	String sIsInuse="";
+	String sNewCognResult = "";
 	
+	//是否停用并行客户信用等级评估
+	sIsInuse = Sqlca.getString(" select IsInuse  from code_library where codeno = 'UnusedOldEvaluateCard' and itemno = 'UnusedOldEvaluateCard' ");
+	if (sIsInuse== null) sIsInuse="" ;
 	sSql =  " select getBusinessName(BusinessType) as BusinessTypeName,"+
 			"CustomerName,getItemName('OccurType',OccurType) as OccurTypeName,"+
 			"getItemName('VouchType',VouchType) as VouchTypeName "+
@@ -137,6 +142,8 @@
 				" getItemName('RateFloatType',FO.RateFloatType) as RateFloatTypeName,FO.BailSum,FO.BailRatio, getItemName('PhaseChoice',FO.PhaseChoice) as FOPhaseChoice,"+
 				" FO.SystemScore as SystemScore,FO.SystemResult as SystemResult,"+//系统评估得分，系统评估结果
 	 			" FO.CognScore as CognScore,FO.CognResult as CognResult,"+//人工评分，人工评定结果
+				" FO.NewSystemScore,FO.NewSystemResult, "+//并行系统评估得分，并行系统评估结果
+	 			" FO.NewCognScore,FO.NewCognResult, "+//并行人工评分，并行人工评定结果
 				" FO.PdgRatio,FO.PdgSum,FO.PhaseOpinion,FT.PhaseName,FT.UserName,FT.OrgName,FT.BeginTime,FT.EndTime "+
 				" from FLOW_TASK FT,FLOW_OPINION FO "+
 				" where FT.Serialno=FO.SerialNo "+				
@@ -184,7 +191,9 @@
 			" FT.BeginTime,FT.EndTime,FT.PhaseChoice,FO.PhaseOpinion,FO.PhaseOpinion1,FO.PhaseOpinion2,FO.PhaseOpinion3, "+
 			" FM.Attribute3 as OpinionRightType,FM.Attribute4 as OpinionRightPhases,FM.Attribute5 as OpinionRightRoles,"+
 			" FO.SystemScore as SystemScore,FO.SystemResult as SystemResult,"+//系统评估得分，系统评估结果
- 			" FO.CognScore as CognScore,FO.CognResult as CognResult"+//人工评分，人工评定结果
+ 			" FO.CognScore as CognScore,FO.CognResult as CognResult,"+//人工评分，人工评定结果
+			" FO.NewSystemScore,FO.NewSystemResult, "+//并行系统评估得分，并行系统评估结果
+ 			" FO.NewCognScore,FO.NewCognResult "+//并行人工评分，并行人工评定结果
 			" from FLOW_TASK FT,FLOW_OPINION FO,FLOW_MODEL FM "+
 			" where FT.Serialno=FO.SerialNo "+
 			" and FT.FlowNo=FM.FlowNo "+
@@ -279,6 +288,8 @@
 			sOpinionRightRoles = rs.getString("OpinionRightRoles");  //意见查看特权角色
 			sPhaseAction = rs.getString("PhaseAction");
 			sCognResult = rs.getString("CognResult");//认定结果
+			sNewCognResult = rs.getString("NewCognResult");//认定结果
+			if(sNewCognResult == null) sNewCognResult = "";
 			//将空值转化为空字符串
 			if(sOpinionRightType == null) sOpinionRightType = "";
 			if(sOpinionRightPhases == null) sOpinionRightPhases = "";
@@ -377,6 +388,12 @@
             <td width=50%><b>信用等级认定结果:</b><%=DataConvert.toString(sCognResult)%><input type=hidden value='信用等级认定结果:<%=DataConvert.toString(sCognResult)%>' name=<%="R"+String.valueOf(iRow)+"R"%>></td>
         </tr>
      <%} %>
+     <%if(!sNewCognResult.equals("") && sIsInuse.equals("2")){ %>
+        <tr id=<%=iRow++%>>            
+			<td width=50%><b>并行信用等级认定得分:</b><%=DataConvert.toMoney(rs.getDouble("NewCognScore"))%><input type=hidden value='并行信用等级认定得分:<%=DataConvert.toMoney(rs.getDouble("NewCognScore"))%>' name=<%="R"+String.valueOf(iRow)+"L"%>></td>
+            <td width=50%><b>并行信用等级认定结果:</b><%=DataConvert.toString(sNewCognResult)%><input type=hidden value='并行信用等级认定结果:<%=DataConvert.toString(sNewCognResult)%>' name=<%="R"+String.valueOf(iRow)+"R"%>></td>
+        </tr>
+     <%} %>
         <tr id=<%=iRow++%>>
             <td width=50%><b>收到时间:</b><%=DataConvert.toString(rs.getString("BeginTime"))%><input type=hidden value='收到时间:<%=DataConvert.toString(rs.getString("BeginTime"))%>' name=<%="R"+String.valueOf(iRow)+"L"%>></td>
             <td width=50%><b>完成时间:</b><%=DataConvert.toString(rs.getString("EndTime"))%><input type=hidden value='完成时间:<%=DataConvert.toString(rs.getString("EndTime"))%>' name=<%="R"+String.valueOf(iRow)+"R"%>></td>
@@ -461,6 +478,12 @@
         <tr id=<%=jRow++%>>            
 			<td width=50%><b>信用等级认定得分:</b><%=DataConvert.toMoney(rs.getDouble("CognScore"))%><input type=hidden value='信用等级认定得分:<%=DataConvert.toMoney(rs.getDouble("CognScore"))%>' name=<%="R"+String.valueOf(jRow)+"L"%>></td>
             <td width=50%><b>信用等级认定结果:</b><%=DataConvert.toString(sCognResult)%><input type=hidden value='信用等级认定结果:<%=DataConvert.toString(sCognResult)%>' name=<%="R"+String.valueOf(jRow)+"R"%>></td>
+        </tr>
+     <%} %>
+     <%if(!sNewCognResult.equals("") && sIsInuse.equals("2")){ %>
+        <tr id=<%=iRow++%>>            
+			<td width=50%><b>并行信用等级认定得分:</b><%=DataConvert.toMoney(rs.getDouble("NewCognScore"))%><input type=hidden value='并行信用等级认定得分:<%=DataConvert.toMoney(rs.getDouble("NewCognScore"))%>' name=<%="R"+String.valueOf(iRow)+"L"%>></td>
+            <td width=50%><b>并行信用等级认定结果:</b><%=DataConvert.toString(sNewCognResult)%><input type=hidden value='并行信用等级认定结果:<%=DataConvert.toString(sNewCognResult)%>' name=<%="R"+String.valueOf(iRow)+"R"%>></td>
         </tr>
      <%} %>
         <tr id=<%=jRow++%>>

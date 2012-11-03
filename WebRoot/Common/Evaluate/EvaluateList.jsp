@@ -140,7 +140,7 @@
 		sSql += " and C.ModelType='"+sModelType+"'";
 	}
 
-	sSql += " order by AccountMonth DESC";
+	sSql += " order by AccountMonth DESC,SerialNo desc ";
 	ASDataObject doTemp = new ASDataObject(sSql);
 	if (sModelType.equals("080"))
 	{
@@ -188,8 +188,10 @@
 	dwTemp.ReadOnly = "1"; //设置为只读
 	dwTemp.setPageSize(20);
 	Vector vTemp = dwTemp.genHTMLDataWindow("");
-	for(int i=0;i<vTemp.size();i++) out.print((String)vTemp.get(i));		
-	
+	for(int i=0;i<vTemp.size();i++) out.print((String)vTemp.get(i));
+	//取是否停用并行客户信用等级评估
+	String sIsInuse = Sqlca.getString(" select IsInuse  from code_library where codeno = 'UnusedOldEvaluateCard' and itemno = 'UnusedOldEvaluateCard' ");
+    if (sIsInuse== null) sIsInuse="" ;
 %> 
 
 <%/*END*/%>
@@ -230,6 +232,12 @@
 		sButtons[6][0] = "false";
 		sButtons[7][0] = "false";
 		
+	}
+	//当停用并行信用评级时屏蔽“并行客户信用等级评估”下的新增删除按钮
+	if(sObjectType.equals("NewEvaluate") && !sIsInuse.equals("2"))
+	{
+		sButtons[1][0] = "false";
+		sButtons[0][0] = "false";
 	}
 	%>
 <%/*~END~*/%>

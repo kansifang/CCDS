@@ -171,6 +171,11 @@
 		{
 			sObjectType = 'CustomerLimit';
 		}
+	    //add by hldu 并行信用等级评估设定CustomerType
+		if(sCurItemDescribe3 == "NewEvaluate" )
+		{
+			sObjectType = 'NewEvaluate';
+		}
 		//add end 
 		if(sCurItemDescribe2 == "Back")
 		{
