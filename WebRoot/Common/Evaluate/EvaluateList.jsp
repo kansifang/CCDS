@@ -73,14 +73,15 @@
 				             {"ModelTypeName","评估模型"},
 				             {"ModelName","评估模型"},
 				             {"CognDate","最终认定日期"},
-				             {"EvaluateScore","系统评估得分"},
-				             {"EvaluateResult","系统评估结果"},
-				             {"OrgName","评估单位"},
+				             {"EvaluateScore","客户经理评估得分"},
+				             {"EvaluateResult","客户经理评估结果"},
+				             {"OrgName","客户经理评估单位"},
 				             {"UserName","评估客户经理"},
-				             {"CognScore","人工认定得分"},
-				             {"CognResult","人工认定结果"},
-				             {"CognOrgName","最终认定单位"},
-				             {"CognUserName","最终认定人"}
+				             {"CognScore","最终评估得分"},
+				             {"CognResult","最终评估结果"},
+				             {"CognOrgName","最终评估单位"},
+				             {"CognUserName","最终评估人"},
+				             {"EvaluateYesNoName","评估状态"}
 						   }; 
 	String sHeaders1[][] = { {"EvaluateDate","评估日期"},
 	                         {"AccountMonth","会计月份"},
@@ -98,7 +99,7 @@
 	sSql = " select AccountMonth,C.ModelName,EvaluateScore,EvaluateResult,CognScore,CognResult,"+
 	       " ObjectType,ObjectNo,SerialNo,CognDate,R.ModelNo,OrgID,getOrgName(OrgID) as OrgName,"+
 	       " UserID,getUserName(UserID) as UserName,CognOrgID,getOrgName(CognOrgID) as CognOrgName,"+
-	       " CognUserID,getUserName(CognUserID) as CognUserName,R.FinishDate "+
+	       " CognUserID,getUserName(CognUserID) as CognUserName,R.FinishDate,getItemName('EvaluateYesNo',R.EvaluateYesNo) as EvaluateYesNoName,R.EvaluateYesNo as EvaluateYesNo"+
 	       " from EVALUATE_RECORD R,EVALUATE_CATALOG C" + 
 	       " where ObjectType = '"+sObjectType+"' "+
 	       " and ObjectNo = '"+sObjectNo+"' "+
@@ -140,27 +141,27 @@
 		sSql += " and C.ModelType='"+sModelType+"'";
 	}
 
-	sSql += " order by AccountMonth DESC,SerialNo desc ";
+	sSql += " order by AccountMonth DESC,SerialNo desc ";//change by hldu
 	ASDataObject doTemp = new ASDataObject(sSql);
 	if (sModelType.equals("080"))
 	{
 		doTemp.setHeader(sHeaders1);
 		//设置不可见项
-		doTemp.setVisible("EvaluateResult,CognScore,CognResult,CognOrgName,CognUserName,CognDate",false);
+		doTemp.setVisible("EvaluateResult,CognScore,CognResult,CognOrgName,CognUserName,CognDate,EvaluateYesNo,EvaluateYesNoName",false);
 		  
 	}
 	else
 	{
 		doTemp.setHeader(sHeaders);
-		doTemp.setVisible("CognScore,CognResult",false);
+	//	doTemp.setVisible("CognScore,CognResult",false);
 	}
 	//设不可见
-	doTemp.setVisible("ObjectType,ObjectNo,SerialNo,ModelNo,UserID,OrgID,CognUserID,CognOrgID,FinishDate",false);
+	doTemp.setVisible("ObjectType,ObjectNo,SerialNo,ModelNo,UserID,OrgID,CognUserID,CognOrgID,FinishDate,EvaluateYesNo",false);
 	if(sDisplayFinalResult==null || !sDisplayFinalResult.equalsIgnoreCase("Y"))
 	{
-		doTemp.setVisible("EvaluateScore,EvaluateResult,CognScore,CognResult",false);
+		doTemp.setVisible("EvaluateScore,EvaluateResult,CognScore,CognResult,EvaluateYesNo,EvaluateYesNoName",false);
 	}
-	doTemp.setVisible("CognDate,CognOrgName,CognUserName",false);
+	doTemp.setVisible("CognDate",false);
 	//设置宽度
 	doTemp.setHTMLStyle("ModelName","style={width:200px} ");
 	doTemp.setHTMLStyle("AccountMonth,CognDate,EvaluateScore,EvaluateResult,UserName,CognScore,CognResult","  style={width:80px}  ");
@@ -188,7 +189,9 @@
 	dwTemp.ReadOnly = "1"; //设置为只读
 	dwTemp.setPageSize(20);
 	Vector vTemp = dwTemp.genHTMLDataWindow("");
-	for(int i=0;i<vTemp.size();i++) out.print((String)vTemp.get(i));
+	for(int i=0;i<vTemp.size();i++) out.print((String)vTemp.get(i));		
+	
+	//add by hldu
 	//取是否停用并行客户信用等级评估
 	String sIsInuse = Sqlca.getString(" select IsInuse  from code_library where codeno = 'UnusedOldEvaluateCard' and itemno = 'UnusedOldEvaluateCard' ");
     if (sIsInuse== null) sIsInuse="" ;
@@ -222,10 +225,10 @@
 	{
 	    sButtons[3][0] = "false";
 	}
-	if (sModelType.equals("010") ||sModelType.equals("018")) {
+	if (sModelType.equals("010") ||sModelType.equals("018")|| sModelType.equals("910")) {  //add by hldu 增加 sModelType.equals("910")
 		sButtons[4][0] = "false";
 	}
-	if(sModelType.equals("015"))
+	if(sModelType.equals("015") || sModelType.equals("915")) //add by hldu 增加 sModelType.equals("915")
 	{
 		sButtons[1][0] = "false";
 		sButtons[5][0] = "true";
@@ -233,11 +236,13 @@
 		sButtons[7][0] = "false";
 		
 	}
+	//add by hldu
 	//当停用并行信用评级时屏蔽“并行客户信用等级评估”下的新增删除按钮
 	if(sObjectType.equals("NewEvaluate") && !sIsInuse.equals("2"))
 	{
 		sButtons[1][0] = "false";
 		sButtons[0][0] = "false";
+		sButtons[5][0] = "false";
 	}
 	%>
 <%/*~END~*/%>
@@ -291,6 +296,7 @@
 		var sSerialNo = getItemValue(0,getRow(),"SerialNo");
 		var sUserID       = getItemValue(0,getRow(),"UserID");
 		var sOrgID        = getItemValue(0,getRow(),"OrgID");
+		var sEvaluateYesNo = getItemValue(0,getRow(),"EvaluateYesNo");
 		
 		if (typeof(sSerialNo)=="undefined" || sSerialNo.length==0)
 		{
@@ -300,6 +306,12 @@
 			var sEditable="true";
 			if(sUserID!="<%=CurUser.UserID%>")
 				sEditable="false";
+			//added by bllou 2012-10-25 切换后 并行阶段模型也不再能测试
+			if("<%=sObjectType%>"=="NewEvaluate" && "<%=sIsInuse%>"!="2")
+				sEditable="false";
+			//added by hldu 2012-10-25 审查审批中的评级不允许编辑
+			if(!checkEvaluateRecord('1'))
+				sEditable="false";	
 			OpenComp("EvaluateDetail","/Common/Evaluate/EvaluateDetail.jsp","Action=display&CustomerID=<%=sCustomerID%>&ObjectType=<%=sObjectType%>&ObjectNo=<%=sObjectNo%>&SerialNo="+sSerialNo+"&Editable="+sEditable,"_blank",OpenStyle);
 		    reloadSelf();
 		}		
@@ -314,12 +326,16 @@
     		var sSerialNo = getItemValue(0,getRow(),"SerialNo");
     		var sUserID       = getItemValue(0,getRow(),"UserID");
     		var sOrgID        = getItemValue(0,getRow(),"OrgID");
-    		
     		if (typeof(sSerialNo)=="undefined" || sSerialNo.length==0)
     		{
     			alert(getHtmlMessage('1'));//请选择一条信息！
     		}else if(sUserID=='<%=CurUser.UserID%>')
     		{
+				if(!checkEvaluateRecord('2'))
+				{
+		 			alert("该评级记录在业务流程中使用，不允许删除！");
+					return;
+				}
 	          	if(confirm(getHtmlMessage('2')))
 	          	{
 	          	  	sReturn=PopPage("/Common/Evaluate/ConsoleEvaluateAction.jsp?Action=delete&ObjectType=<%=sObjectType%>&ObjectNo=<%=sObjectNo%>&SerialNo="+sSerialNo,"","dialogWidth=20;dialogHeight=20;resizable=yes;center:no;status:no;statusbar:no");
@@ -449,11 +465,16 @@
 	function cancelApply()
 	{
 		//获得类型、流水号
-		var ObjectType = "Customer";
+		var ObjectType = getItemValue(0,getRow(),"ObjectType");	
 		var SerialNo = getItemValue(0,getRow(),"SerialNo");		
 		if (typeof(SerialNo)=="undefined" || SerialNo.length==0)
 		{
 			alert(getHtmlMessage('1'));//请选择一条信息！
+			return;
+		}
+		if(!checkEvaluateRecord('2'))
+		{
+		 	alert("该评级记录在业务流程中使用，不允许删除！");
 			return;
 		}
 		
@@ -544,6 +565,25 @@
 		}		
 	} 
 	//add end
+	/*~[Describe=设置评级记录删除测算保存规则;InputParam=无;OutPutParam=无;]~*/
+	function checkEvaluateRecord(type)
+	{
+		var sSerialNo = getItemValue(0,getRow(),"SerialNo");
+		var sEvaluateYesNo = getItemValue(0,getRow(),"EvaluateYesNo");
+		//sReturn2值为0时审查审批中无用该记录签署意见
+		var sReturn2=RunMethod("信用等级评估","IsDeleteEvaluateRecord",sSerialNo+",<%=sObjectNo%>");
+		//edit
+    	if(type=='1'&& sReturn2 == 0 && (sEvaluateYesNo == "1"||sEvaluateYesNo == "3" || sEvaluateYesNo.length==0))
+    	{
+    		return true;
+    	}
+		//delete
+    	if(type=='2'&& sReturn2 == 0 && (sEvaluateYesNo == "3" || sEvaluateYesNo.length==0))
+    	{
+    		return true;
+    	}
+    	return false;
+	}
 	
 </script>
 <%/*~END~*/%>

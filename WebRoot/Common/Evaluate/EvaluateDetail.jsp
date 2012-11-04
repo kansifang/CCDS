@@ -131,7 +131,7 @@
 	String sItemValueDisplayWidth = StringFunction.getProfileString(sModelTypeAttributes,"ItemValueDisplayWidth");
 	if(sItemValueDisplayWidth==null || sItemValueDisplayWidth.equals("")) sItemValueDisplayWidth="100";		
 	
-	if (sObjectType.equals("Customer")|| sObjectType.equals("MaxCreditLine")||sObjectType.equals("CustomerLimit") || sObjectType.equals("NewEvaluate")) //客户
+	if (sObjectType.equals("Customer")|| sObjectType.equals("MaxCreditLine")||sObjectType.equals("CustomerLimit") || sObjectType.equals("NewEvaluate")) //客户 change by hldu 
 		sObjectName = Sqlca.getString("select CustomerName from CUSTOMER_INFO where CustomerID='"+sObjectNo+"'");
 	else //业务评估
 		sObjectName = Sqlca.getString("select CustomerName||'*'||getBusinessName(BusinessType) from BUSINESS_APPLY where SerialNo='"+sObjectNo+"'");
@@ -147,18 +147,18 @@
 				}
 			}while(eEvaluate.Data.next());	
 		}
-		//added by bllou 更新权重
-		eea.updateCoefficient();
-		eEvaluate.Record=null;
-		eEvaluate.Data=null;
-		//end bllou
 		eEvaluate.getRecord();
 		eEvaluate.getData(); 
 		sMessage =  "数据保存完成！";  		 
 		
 	if(sAction.equals("evaluate")) {
+		
 		eEvaluate.evaluate();
+		//added by bllou 更新权重
+		eea.updateCoefficient();
+		//end bllou
 		eEvaluate.evaluate();
+
 		eEvaluate.getRecord();
 		eEvaluate.getData();  
 		//得到系统评估结果、系统评估日期,更新最终评估结果
@@ -177,7 +177,7 @@
 		       " where ObjectType='" + sObjectType + "' and ObjectNo='" + sObjectNo + "' and SerialNo='"+ sSerialNo + "'";
 		Sqlca.executeSQL(sSql);
 		
-		rs = Sqlca.getASResultSet("  select AccountMonth,CognResult from EVALUATE_RECORD Where ObjectNo='"+sObjectNo+"'and ObjectType = 'Customer' order by AccountMonth desc,SerialNo desc fetch first 1 rows only");
+		rs = Sqlca.getASResultSet("  select AccountMonth,CognResult from EVALUATE_RECORD Where ObjectNo='"+sObjectNo+"'and ObjectType = 'Customer' order by AccountMonth desc,SerialNo desc fetch first 1 rows only"); //change by hldu
 		String sEvaDate1="",sEvaResult1="";
 		if (rs.next()){	
 			sEvaDate1 = rs.getString(1);
@@ -198,15 +198,16 @@
 		sMessage =  "测算完成！" ;
 	}
 	}
-	//取财务指标
-	sSql =  " select sum(nvl(EvaluateScore,0))*0.8 from EVALUATE_DATA where SerialNo='"+sSerialNo+"' and ItemNo like '1%'  ";
+	//取财务指标 
+	//added by bllou 2012-10-18 新同业模型 不像老模型存在 财务指标权重0.8，非财务指标权重0.2
+	sSql =  " select sum(nvl(EvaluateScore,0))*"+(eEvaluate.ModelNo.startsWith("21")?"1":"0.8")+" from EVALUATE_DATA where SerialNo='"+sSerialNo+"' and ItemNo like '1%'  ";
 	rs = Sqlca.getASResultSet(sSql);
 	while (rs.next()) {
 		sFinanceScore = sFinanceScore+DataConvert.toString(rs.getDouble(1));
 	}
 	rs.getStatement().close();
 	//取非财务指标
-	sSql =  " select sum(nvl(EvaluateScore,0))*0.2 from EVALUATE_DATA where SerialNo='"+sSerialNo+"' and ItemNo like '2%' ";
+	sSql =  " select sum(nvl(EvaluateScore,0))*"+(eEvaluate.ModelNo.startsWith("21")?"1":"0.2")+" from EVALUATE_DATA where SerialNo='"+sSerialNo+"' and ItemNo like '2%' ";
 	rs = Sqlca.getASResultSet(sSql);
 	while (rs.next()) {
 		sNotFinanceScore = sNotFinanceScore+DataConvert.toString(rs.getDouble(1));
@@ -515,9 +516,9 @@
           <tr bgcolor="#e9e9e9" height="35"> 
             <td nowrap ><%=sDisplayNo%></td>
 			<% if (sDisplayNo.trim().length() == 1)
-              out.print("<td nowrap ><B>"+myItemName+"</B></td>");
+              out.print("<td nowrap style='width:350;'><B>"+myItemName+"</B></td>");
 	       else 
-                out.print("<td nowrap>"+myItemName+"</td>");%>
+                out.print("<td nowrap style='width:350;'>"+myItemName+"</td>");%>
             <%
 	 	sValueCode   = eEvaluate.Data.getString("ValueCode"); 
 	 	sValueMethod = eEvaluate.Data.getString("ValueMethod"); 
@@ -529,7 +530,7 @@
 	 		sSql = "select ItemNo,ItemDescribe,ItemName from CODE_LIBRARY where CodeNo = '" + sValueCode + "' order by ItemNo";
 	 	%> 
             <td nowrap align="left" > 
-              <select name=<%=sItemName%> align="left" style="width:300;" ondblclick="FixWidth(this)">
+              <select name=<%=sItemName%> align="left" style="width:500;" onmousedown="FixWidth(this)">
                 <option value='0'> </option>
                 <%=HTMLControls.generateDropDownSelect(Sqlca,sSql,1,3,DataConvert.toString(eEvaluate.Data.getString("ItemValue")))%> 
               </select>
@@ -568,8 +569,10 @@
 	 	}	
             
 //sDisplayItemScore="N";
+		//bllou 20121012 多加个评级方法来判断是否显示
+		String sEvaluateMethod=eEvaluate.Data.getString("EvaluateMethod");
 		if(sDisplayItemScore!=null && sDisplayItemScore.equalsIgnoreCase("Y")){
-			if (sCoefficient != null&&sCoefficient.length()>0)
+			if (sCoefficient != null&&sCoefficient.length()>0&&sEvaluateMethod!=null&&sEvaluateMethod.length()>0)
 			{
 				
 				//取显示序号
@@ -698,8 +701,7 @@
 	    newSelectObj = selectObj.cloneNode(true);
 	    newSelectObj.selectedIndex = selectObj.selectedIndex;
 	    newSelectObj.onmouseover = null;
-	    newSelectObj.ondblclick = null;
-	    
+	    newSelectObj.onmousedown = null;
 	    var e = selectObj;
 	    var absTop = e.offsetTop;
 	    var absLeft = e.offsetLeft;
@@ -710,8 +712,8 @@
 		    	MaxTextLength= selectObj[i].text.length;
 		    }
 	    }
-	    if(MaxTextLength*12-300>0){
-	    	absLeft=absLeft-(MaxTextLength*12-300);
+	    if(MaxTextLength*7-300>0){
+	    	absLeft=absLeft-(MaxTextLength*7-300);
 	    }
 	    
 	    while(e = e.offsetParent)

@@ -82,7 +82,7 @@
 	doTemp.setAlign("Coefficient","3");
 	doTemp.setType("Coefficient","Number");
 	//小数为2，整数为5
-	doTemp.setCheckFormat("Coefficient","2");
+	doTemp.setCheckFormat("Coefficient,CoefficientBackup","19");
 	
 	doTemp.setFilter(Sqlca,"1","ItemNo","");
 	doTemp.setFilter(Sqlca,"2","ItemName","");
@@ -215,13 +215,12 @@
 			var sModelNo = getItemValue(0,getRow(),"ModelNo");
 			var sItemNo = getItemValue(0,getRow(),"ItemNo");
 			var sValueCode = getItemValue(0,getRow(),"ValueCode");
-			var sValueMethod = getItemValue(0,getRow(),"ValueMethod").length>0?"true":"false";
 			var sValueType = getItemValue(0,getRow(),"ValueType");
 			if("<%=Sqlca.getString("select RelativeCode from Code_Library where CodeNo='OperateModelNos' and ItemNo='010' and IsInUse='1'")%>".indexOf(sModelNo)>0&&sValueType.length>0){
 				document.getElementById("ListHorizontalBar").parentNode.style.display="";
 				document.getElementById("ListDetailAreaTD").parentNode.style.display="";
 			  	//OpenPage("/ImpawnManage/ShowInfoManage/ImpawnRightDocList.jsp?IMASerialno="+sIMASerialno+"&ImpawnID="+sImpawnID,"DetailFrame","");
-			  	OpenComp("EvaluateScoreConfigList","/Common/Configurator/EvaluateManage/EvaluateScoreConfigList.jsp","ModelNo="+sModelNo+"&ItemNo="+sItemNo+"&ValueCode="+sValueCode+"&ValueMethod="+sValueMethod+"&CodeNo=ScoreToItemValue","DetailFrame","");
+			  	OpenComp("EvaluateScoreConfigList","/Common/Configurator/EvaluateManage/EvaluateScoreConfigList.jsp","ModelNo="+sModelNo+"&ItemNo="+sItemNo+"&ValueCode="+sValueCode+"&CodeNo=ScoreToItemValue","DetailFrame","");
 
 			}else{
 				document.getElementById("ListHorizontalBar").parentNode.style.display="none";

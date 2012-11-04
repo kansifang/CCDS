@@ -56,6 +56,9 @@
 
 <%
 	/*~BEGIN~可编辑区~[Editable=false;CodeAreaID=List06;Describe=自定义函数;]~*/
+	String sIsInuse = "" ;
+	sIsInuse = Sqlca.getString(" select IsInuse  from code_library where codeno = 'UnusedOldEvaluateCard' and itemno = 'UnusedOldEvaluateCard' ");
+	if (sIsInuse== null) sIsInuse="" ;
 %>
 <script language=javascript>
 
@@ -303,6 +306,18 @@
 			alert("申请信息没有填写完整或处于暂存状态");
 			return;
 		}
+		//add by hldu
+		//个人客户业务种类和信用评级类型控制规则
+        if(sApplyType == "IndependentApply")
+        {
+        	sReturn = RunMethod("BusinessManage","CheckBusinessTypeAndEvaluate",sObjectNo+","+sObjectType+","+sCustomerID+","+sBusinessType);
+        	if(typeof(sReturn) != "undefined" && sReturn != "") 
+        	{
+        		alert(sReturn);
+        		return;
+        	}
+        }
+        // add end
 		//获取任务流水号
 		sTaskNo=RunMethod("WorkFlowEngine","GetUnfinishedTaskNo",sObjectType+","+sObjectNo+","+sFlowNo+","+sPhaseNo+","+"<%=CurUser.UserID%>");
 		if(typeof(sTaskNo)=="undefined" || sTaskNo.length==0 || sTaskNo=='Null' || sTaskNo=='null') {
@@ -623,11 +638,11 @@
 			return;
 		}
 		
-		sReturn = PopPage("/Common/WorkFlow/ButtonDialog2.jsp","","dialogWidth=18;dialogHeight=8;status:no;center:yes;help:no;minimize:no;maximize:no;border:thin;statusbar:no");
+		sReturn = PopPage("/Common/WorkFlow/ButtonDialog.jsp","","dialogWidth=18;dialogHeight=8;status:no;center:yes;help:no;minimize:no;maximize:no;border:thin;statusbar:no");
 		if(typeof(sReturn)=="undefined"  || sReturn.length==0 )
 		{
 			return;
-		}else if (sReturn == "_CONFIRM_") 
+		}else if (sReturn == "_CANCEL_") 
 		{
 			PopPage("/FormatDoc/DeleteReportAction.jsp?ObjectNo="+sObjectNo+"&ObjectType="+sObjectType,"","");
 		}	

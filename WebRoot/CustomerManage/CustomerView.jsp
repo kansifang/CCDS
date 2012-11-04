@@ -171,7 +171,7 @@
 		{
 			sObjectType = 'CustomerLimit';
 		}
-	    //add by hldu 并行信用等级评估设定CustomerType
+	    //add by hldu 信用等级评估(新模型)设定CustomerType
 		if(sCurItemDescribe3 == "NewEvaluate" )
 		{
 			sObjectType = 'NewEvaluate';

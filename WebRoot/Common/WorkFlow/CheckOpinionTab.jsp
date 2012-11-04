@@ -98,16 +98,18 @@
 		sCustomerType = Sqlca.getString(sSql);
 		if(sCustomerType == null) sCustomerType="";
 		
+		//add by hldu
 		//是否停用并行客户信用等级评估
 		sIsInuse = Sqlca.getString(" select IsInuse  from code_library where codeno = 'UnusedOldEvaluateCard' and itemno = 'UnusedOldEvaluateCard' ");
 		if (sIsInuse== null) sIsInuse="" ;
 		if(!sBusinessType.equals("3015") && !sApplyType.equals("DependentApply") && sObjectType.equals("CreditApply"))
 		{
 			sSql = " select SerialNo from Evaluate_Record where ObjectType ='Customer' "+
-			       " and ObjectNo ='"+sCustomerID+"'  order by AccountMonth desc,SerialNo desc fetch first 1 rows only ";
+			       " and ObjectNo ='"+sCustomerID+"'  order by AccountMonth desc,SerialNo desc fetch first 1 rows only ";// change by hldu
 			
 			sEvaluateSerialNo = Sqlca.getString(sSql);
 			if(sEvaluateSerialNo == null) sEvaluateSerialNo ="";
+			//add by hldu
 			if(sIsInuse.equals("2"))
 			{
 				sSql = " select SerialNo from Evaluate_Record where ObjectType ='NewEvaluate' "+
@@ -116,6 +118,7 @@
 				sNewEvaluateSerialNo = Sqlca.getString(sSql);
 				if(sNewEvaluateSerialNo == null) sNewEvaluateSerialNo ="";
 			}
+			//add end
 		}
 		
 
@@ -141,12 +144,14 @@
 			sAddStringArray = new String[] {"",sItemName,"doTabAction('Evaluate','"+sCustomerID+"')"};
 			sTabStrip = HTMLTab.addTabArray(sTabStrip,sAddStringArray);
 		}
+		//add by hldu 
 		if(!sNewEvaluateSerialNo.equals(""))
 		{
-			sItemName = "并行信用等级评估信息";
+			sItemName = "信用等级评估信息(新模型)";
 			sAddStringArray = new String[] {"",sItemName,"doTabAction('NewEvaluate','"+sCustomerID+"')"};
 			sTabStrip = HTMLTab.addTabArray(sTabStrip,sAddStringArray);		
 		}
+		//add end
 		//根据定义组生成 tab
 		out.println(HTMLTab.genTabArray(sTabStrip,"tab_DeskTopInfo","document.all('tabtd')"));
 
@@ -203,6 +208,7 @@
 			OpenComp(sCompID,sCompURL,sParamString,"<%=sIframeName%>");
 			setDialogTitle("<%=sTitle%>");
 			return true;
+		//add by hldu
 		}else  if (sObjectType=="NewEvaluate") 
 		{ 			
 			sCompID = "EvaluateDetail";
@@ -212,6 +218,7 @@
 			setDialogTitle("<%=sTitle%>");
 			return true;
 		}
+		//add end
 		else {
 			openObjectInFrame(sObjectType,sObjectNo,"002","<%=sIframeName%>");
 			return true;

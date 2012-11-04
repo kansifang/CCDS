@@ -88,9 +88,11 @@
 	    sIsUseSmallTemplet = Sqlca.getString("select IsUseSmallTemplet from ORG_INFO where OrgID = '"+CurOrg.OrgID+"' ");
 		if (sIsUseSmallTemplet == null) sIsUseSmallTemplet = "";
 	}
+	//add by hldu 
 	//去是否停用并行信用等级评估
 	String sIsInuse = Sqlca.getString(" select IsInuse  from code_library where codeno = 'UnusedOldEvaluateCard' and itemno = 'UnusedOldEvaluateCard' ");
 	if(sIsInuse == null) sIsInuse = "";
+	//add end
 	
 %> 
 <%/*END*/%>
@@ -108,7 +110,7 @@
 					<td>&nbsp;</td>
 				</tr>
 <%
-				if(sAccountMonthInputType.equals("select")){
+				if(sAccountMonthInputType.equals("select")&&!"113".equals(sDefaultModelNo)){//bllou 新建企业评级不建立在报表的基础上，所以，日期可以自由选择 2012-10-11){
 					if(sAccountMonthSelectSQL==null || sAccountMonthSelectSQL.equals(""))
 						throw new Exception("该评估类型("+sModelType+")会计月份输入方式为 select ，但是没有定义 AccountMonthSelectSQL"+"   sModelTypeAttributes:"+sModelTypeAttributes);
 %> 
@@ -148,14 +150,14 @@
 				<td nowrap> 模型： 
 					<select name="ModelNo" class="right">
 <% 
-						if (sModelType.equals("010")||sModelType.equals("012")||sModelType.equals("015")||sModelType.equals("915")||sModelType.equals("910"))	
+						if (sModelType.equals("010")||sModelType.equals("012")||sModelType.equals("015")||sModelType.equals("915")||sModelType.equals("910"))	// change by hldu
 						{
 							// "小企业评级模板"控制规则优化
 							if(sIsUseSmallTemplet.equals("1"))
 							{
 								out.print(HTMLControls.generateDropDownSelect(Sqlca,"select ModelNo,ModelName from EVALUATE_CATALOG where ModelType='"+sModelType+"' and ModelNo = '"+sDefaultModelNo+"'  order by ModelNo ",1,2,sDefaultModelNo));
 							}else{
-								out.print(HTMLControls.generateDropDownSelect(Sqlca,"select ModelNo,ModelName from EVALUATE_CATALOG where ModelType='"+sModelType+"' and ModelNo = '"+sDefaultModelNo+"' and ModelNo not like '30%'  order by ModelNo ",1,2,sDefaultModelNo));
+								out.print(HTMLControls.generateDropDownSelect(Sqlca,"select ModelNo,ModelName from EVALUATE_CATALOG where ModelType='"+sModelType+"' and ModelNo = '"+sDefaultModelNo+"' and ModelNo not like '30%'  order by ModelNo ",1,2,sDefaultModelNo));// change by hldu
 							}
 						}
 						else if(sModelType.equals("080")&&sCustomerType.equals("0107"))//同业授信限额
@@ -166,10 +168,12 @@
 						{
 							out.print(HTMLControls.generateDropDownSelect(Sqlca,"select ModelNo,ModelName from EVALUATE_CATALOG where ModelType='"+sModelType+"'  and ModelNo='CreditLine' order by ModelNo ",1,2,sDefaultModelNo));
 						}
+						//add by hldu 
 						else if((sModelType.equals("017") && !sIsInuse.equals("2")) || (sModelType.equals("917") && sIsInuse.equals("2")))
 						{
 							out.print(HTMLControls.generateDropDownSelect(Sqlca,"select ModelNo,ModelName from EVALUATE_CATALOG where ModelType='"+sModelType+"' and ModelNo = '"+sDefaultModelNo+"'  order by ModelNo ",1,2,sDefaultModelNo));
 						}
+						//add end
 						else
 						{
 							out.print(HTMLControls.generateDropDownSelect(Sqlca,"select ModelNo,ModelName from EVALUATE_CATALOG where ModelType='"+sModelType+"' order by ModelNo ",1,2,sDefaultModelNo));

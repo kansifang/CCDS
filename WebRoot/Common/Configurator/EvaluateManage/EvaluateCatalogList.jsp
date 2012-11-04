@@ -39,6 +39,7 @@
 	//获得组件参数	
 	String sType =  DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("Type"));
 	if(sType == null) sType = "";
+	
 	//获得页面参数	
 %>
 <%/*~END~*/%>
@@ -72,8 +73,8 @@
 		sSql += " Where ModelType = '080' ";
 	if(sType.equals("CreditLevel")) //信用等级评估	(公司客户和个人)
 		//sSql += " Where (ModelNo like '0%' or ModelNo like '5%') ";	
-		sSql += " Where (ModelType ='010' or ModelType = '015' or ModelType = '017') ";//added by bllou 加一个同业	
-	sSql += " order by ModelType,ModelNo ";
+		sSql += " Where (ModelType ='010' or ModelType = '015' or ModelType = '017' or ModelType = '910' or ModelType = '915' or ModelType = '917') ";//added by bllou 加一个同业	
+	sSql += " order by TransformMethod,ModelType,ModelNo ";
 	
 	ASDataObject doTemp = new ASDataObject(sSql);
 	doTemp.UpdateTable="EVALUATE_CATALOG";
@@ -210,6 +211,7 @@
 			as_save("myiframe0");  //如果单个删除，则要调用此语句
 		}
 	}
+	
 	</script>
 <%/*~END~*/%>
 
@@ -246,6 +248,7 @@
 	my_load(2,0,'myiframe0');
 	mySelectRow();
 	hideFilterArea();
+    
 </script>	
 <%/*~END~*/%>
 

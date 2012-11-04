@@ -96,9 +96,9 @@
 
 	//设置小数显示状态,
 	doTemp.setAlign("Coefficient","3");
-	doTemp.setType("Coefficient","Number");
+	doTemp.setType("Coefficient,CoefficientBackup","Number");
 	//小数为2，整数为5
-	doTemp.setCheckFormat("Coefficient","2");
+	doTemp.setCheckFormat("Coefficient,CoefficientBackup","19");
 	
 	doTemp.setUnit("ValueCode"," <input type=button class=inputdate value=... onclick=parent.SelectCode(\"ALL\")>");
 	doTemp.setUnit("ValueType","（例如：Number，String）");

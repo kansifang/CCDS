@@ -7,7 +7,7 @@
 	/*
 		Author: hldu
 		Tester:
-		Describe: 并行信用等级评估参数切换 
+		Describe: 启用新评分卡模型 
 		HistoryLog:
 	 */
 	%>
@@ -16,7 +16,7 @@
 
 <%/*~BEGIN~可编辑区~[Editable=true;CodeAreaID=Info01;Describe=定义页面属性;]~*/%>
 	<%
-	String PG_TITLE = "并行信用等级评估参数切换"; // 浏览器窗口标题 <title> PG_TITLE </title>
+	String PG_TITLE = "启用新评分卡模型"; // 浏览器窗口标题 <title> PG_TITLE </title>
 	%>
 <%/*~END~*/%>
 
@@ -36,13 +36,13 @@
 	String sHeaders[][] = { 
 		                     {"CODENO","UnusedOldEvaluateCard"},
                              {"ITEMNO","UnusedOldEvaluateCard"},
-	                         {"IsInuse","是否停用并行信用等级评估"},
+	                         {"IsInuse","是否停用信用等级评估(新模型)"},
 	                         {"inputuser","更新人"},
 	                         {"inputusername","更新人"},
 	                         {"inputorg","更新机构"},
 	                         {"inputorgname","更新机构"},
 	                         {"InputTime","登记日期"},						
-	                         {"UpdateTime","更新日期"}
+	                         {"UpdateTime","启用时间"}
 			              };
 
 	sSql = " select codeno,itemno,IsInuse,inputuser,getUserName(inputuser) as inputusername,inputorg,getOrgName(inputorg) as inputorgname ,InputTime,UpdateTime from code_library  where codeno = 'UnusedOldEvaluateCard' and itemno = 'UnusedOldEvaluateCard' "	;

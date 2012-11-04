@@ -189,6 +189,21 @@
 		sObjectNo = getItemValue(0,getRow(),"ObjectNo");		
 		sFlowNo = getItemValue(0,getRow(),"FlowNo");
 		sPhaseNo = getItemValue(0,getRow(),"PhaseNo");
+		//add by hldu
+		//个人客户在途业务种类和信用评级类型控制规则
+		sApplyType = getItemValue(0,getRow(),"ApplyType");
+		sBusinessType = getItemValue(0,getRow(),"BusinessType");
+		sCustomerID = RunMethod("BusinessManage","GetCustomerID",sObjectType+","+sObjectNo);			
+        if(sApplyType == "IndependentApply")
+        {
+        	sReturn = RunMethod("BusinessManage","CheckBusinessTypeAndEvaluate",sObjectNo+","+sObjectType+","+sCustomerID+","+sBusinessType);
+        	if(typeof(sReturn) != "undefined" && sReturn != "") 
+        	{
+        		alert(sReturn);
+        		return;
+        	}
+        }
+        // add end
 		
 		sCompID = "CheckOpinionTab";
 		sCompURL = "/Common/WorkFlow/CheckOpinionTab.jsp";

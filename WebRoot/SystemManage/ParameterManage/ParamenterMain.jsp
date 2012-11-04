@@ -33,9 +33,6 @@
 	String sComponentName;
 	
 	//获得组件参数	
-	//String sCustomerType = DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("CustomerType"));
-	//String sComponentName = DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("ComponentName"));
-	//String sCustomerListTemplet = DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("CustomerListTemplet"));
 	sComponentName	=DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("ComponentName"));	//获得页面参数	
 	PG_CONTENT_TITLE="&nbsp;&nbsp;"+sComponentName+"&nbsp;&nbsp;";
 
@@ -86,7 +83,7 @@
 		sCurItemDescribe3=sCurItemDescribe[2];  //代码表描述字段中用@分隔的第3个串，根据情况，还可以很多。
 		if(sCurItemDescribe1 != "null" && sCurItemDescribe1 != "root")
 		{
-			OpenComp(sCurItemDescribe2,sCurItemDescribe1,"ComponentName="+sCurItemName+"&ArgumentType="+getCurTVItem().id,"right");
+			OpenComp(sCurItemDescribe2,sCurItemDescribe1,"ComponentName="+sCurItemName+"&ArgumentType="+getCurTVItem().id+"&Type="+sCurItemDescribe3,"right");
 			setTitle(getCurTVItem().name);
 		}
 	}

@@ -37,6 +37,7 @@
 	String sEvaluateResult = "",sEvaluateDate = "",sOrgName = "",sUserName = "";
 	String sCognDate = "",sCognResult = "",sCognOrgName = "",sCognUserName = "",sRemark = "";
 	String sCustomerName = "",sSetupDate = "",sPreAccountMonth = "",CurYear = "",sIndustryType = "";
+	String sModelType = ""; //模型类型
 	float dEvaluateScore = 0.0f,dPreScore = 0.0f;
 	boolean  PreEvaluateabsent;  //判断前一期信用等级是否存在  
 	int  iYear = 0;
@@ -48,6 +49,10 @@
 	sObjectType = DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("ObjectType"));
 	sObjectNo   = DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("ObjectNo"));
 	sSerialNo   = DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("SerialNo"));
+	//add by hldu 获取模型类型
+	sModelType = DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("ModelType"));
+	if(sModelType == null)
+	sModelType = DataConvert.toRealString(iPostChange,(String)CurComp.compParentComponent.getParameter("ModelType"));
 	//将空值转化为空字符串
 	if(sObjectType == null) sObjectType = "";
 	if(sObjectNo == null) sObjectNo = "";
@@ -59,7 +64,7 @@
 <%/*~BEGIN~可编辑区~[Editable=true;CodeAreaID=List03;Describe=数据准备;]~*/%>
 <%
 	//当对象类型为Customer（客户），获取客户类型
-	if(sObjectType.equals("Customer"))
+	if(sObjectType.equals("Customer") || sObjectType.equals("NewEvaluate"))  //add by hldu 增加sObjectType.equals("NewEvaluate")
 	{
 		sCustomerType = Sqlca.getString("select CustomerType from CUSTOMER_INFO where CustomerID = '"+sObjectNo+"'");
 		if(sCustomerType == null) sCustomerType = "";
@@ -99,10 +104,12 @@
 		sRemark = StringFunction.replace(sRemark,"\\r\\n","");
 	}
 	//取得信用等级模版名称
-	if(sCustomerType.equals("03")) //个人
-		sModelName = Sqlca.getString("select ModelName from EVALUATE_CATALOG where ModelType='015' and ModelNo='"+sModelNo+"'");
-	else
-		sModelName = Sqlca.getString("select ModelName from EVALUATE_CATALOG where ModelType='010' and ModelNo='"+sModelNo+"'");
+	//if(sCustomerType.equals("03")) //个人
+	//	sModelName = Sqlca.getString("select ModelName from EVALUATE_CATALOG where ModelType='015' and ModelNo='"+sModelNo+"'");
+	//else
+	//	sModelName = Sqlca.getString("select ModelName from EVALUATE_CATALOG where ModelType='010' and ModelNo='"+sModelNo+"'");
+	//add by hldu 修改模板名称查询条件
+	sModelName = Sqlca.getString("select ModelName from EVALUATE_CATALOG where ModelType='"+sModelType+"' and ModelNo='"+sModelNo+"'");
 	if(sModelName == null) sModelName = "";
 	
 	if(sCustomerType.equals("03")) //个人
@@ -262,7 +269,7 @@ if(evaluate.Data.first())
 		int p = str.indexOf(".");         //小数点位置
 		int q = str.length() - p - 1;     //小数点后位数
 
-		if (q > l)
+		if (p!=-1 &&q > l)
        	{
 			//要保留的数字
 			String s1 = str.substring(0, p + l + 1);

@@ -36,9 +36,17 @@
 	String sModelNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("ModelNo")));
 	String sItemNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("ItemNo")));
 	String sValueCode = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("ValueCode")));
-	String sValueMethod = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("ValueMethod")));
 	//CreditLevelToTotalScore 评级配置   ScoreToItemValue 项目配置
 	String sCodeNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("CodeNo")));
+	String sCItemNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("CItemNo")));
+	String sCItemNoSql="";
+	if(sCItemNo.length()>0){
+		if(!"XX".equals(sCItemNo)){
+			sCItemNoSql=" and locate('"+sCItemNo+"',ItemNo)>0";
+		}
+	}else{
+		sCItemNoSql =" and IsInUse='1'";
+	}
 %>
 <%/*~END~*/%>
 
@@ -53,8 +61,8 @@
 							{"Attribute3","d"},
 							{"Attribute4","median"},
 							{"Attribute5","StDev"},
-							{"Attribute6","minScore"},
-							{"Attribute7","maxScore"},
+							{"Attribute6","LowerLimit"},
+							{"Attribute7","UpperLimit"},
 							{"IsInUse","是否有效"},
 							{"UpdateUserName","更新人"},
 							{"UpdateTime","更新时间"}
@@ -74,7 +82,8 @@
 						" from Code_Library "+
 						" where  CodeNo = '"+sCodeNo+"'"+
 						" and ItemName='"+sModelNo+"'"+
-						" and SortNo='"+sItemNo+"'";
+						" and SortNo='"+sItemNo+"'"+
+						sCItemNoSql;
 	String sHeaders1[][] = {
 							{"ItemNo","流水号"},
 							{"ItemDescribe","分值"},
@@ -111,12 +120,13 @@
 				" UpdateTime"+
 				" from Code_Library "+
 				" where  CodeNo = '"+sCodeNo+"'"+
-				" and ItemName='"+sModelNo+"'";
+				" and ItemName='"+sModelNo+"'"+
+				sCItemNoSql;
 	
 	//用sSql生成数据窗体对象
 	ASDataObject doTemp = null;
 	//设置表头,更新表名,键值,可见不可见,是否可以更新
-	if("311".equals(sModelNo)&&"1.TJMX".equals(sItemNo)){//制造业中小有统计模型公式
+	if("311".equals(sModelNo)&&sItemNo.endsWith("TJMX")){//制造业中小有统计模型公式
 			doTemp = new ASDataObject(sSql0);
 			doTemp.setHeader(sHeaders0);
 	}else{
@@ -149,7 +159,9 @@
 	doTemp.generateFilters(Sqlca);
 	doTemp.parseFilterData(request,iPostChange);
 	CurPage.setAttribute("FilterHTML",doTemp.getFilterHtml(Sqlca));
-	doTemp.appendHTMLStyle("","style=cursor:hand ondblclick=\"javascript:parent.viewAndEdit()\"");
+	if(sCItemNo.length()==0){
+		doTemp.appendHTMLStyle("","style=cursor:hand ondblclick=\"javascript:parent.viewAndEdit()\"");
+	}
 	//生成datawindow
 	ASDataWindow dwTemp = new ASDataWindow(CurPage,doTemp,Sqlca);
 	dwTemp.Style="1";      //设置DW风格 1:Grid 2:Freeform
@@ -174,9 +186,12 @@
 		//6.资源图片路径
 
 	String sButtons[][] = {
-			{"true","","Button","新增","新增入库抵押物信息","newRecord()",sResourcesPath},
-			{"true","","Button","删除","删除入库抵押物信息","deleteRecord()",sResourcesPath},
-			{"true","","Button","详情","查看入库抵押物详情","viewAndEdit()",sResourcesPath}
+			{(sCItemNo.length()==0?"true":"false"),"","Button","新增","新增","newRecord()",sResourcesPath},
+			{(sCItemNo.length()==0?"true":"false"),"","Button","删除","删除","deleteRecord()",sResourcesPath},
+			{(sCItemNo.length()==0?"true":"false"),"","Button","详情","查看","viewAndEdit()",sResourcesPath},
+			{(sCItemNo.length()==0?"true":"false"),"","Button","查看当前修改历史","查看修改历史","viewModifiedHis('Some')",sResourcesPath},
+			{(sCItemNo.length()==0?"true":"false"),"","Button","查看所有修改历史","查看修改历史","viewModifiedHis('All')",sResourcesPath},
+			{(sCItemNo.length()==0?"false":"true"),"","Button","返回","返回","goBack()",sResourcesPath}
 		};
 	%>
 <%/*~END~*/%>
@@ -206,16 +221,17 @@
 			alert(getHtmlMessage('1'));//请选择一条信息！
 		}else if(confirm(getHtmlMessage('2')))//您真的想删除该信息吗？
 		{
+			backupHis();
 			as_del('myiframe0');
    		    as_save('myiframe0');  //如果单个删除,则要调用此语句
-   		    reloadSelf();
+   		   // reloadSelf();
 		}
 	}
 
 	/*~[Describe=查看及修改押品详情;InputParam=无;OutPutParam=无;]~*/
 	function viewAndEdit()
 	{
-		var sItemNo = getItemValue(0,getRow(),"ItemNo");//--担保合同信息编号
+		var sItemNo = getItemValue(0,getRow(),"ItemNo");
 		if(typeof(sItemNo)=="undefined" || sItemNo.length==0) 
 		{
 			alert(getHtmlMessage('1'));//请选择一条信息！
@@ -225,14 +241,35 @@
 		OpenPage("/Common/Configurator/EvaluateManage/EvaluateScoreConfigInfo.jsp?CodeNo=<%=sCodeNo%>&CItemNo="+sItemNo,"_self","");
 		//reloadSelf();
 	}
-	
+   	function goBack(){
+		OpenPage("/Common/Configurator/EvaluateManage/EvaluateScoreConfigList.jsp","_self","");
+	}
 	</script>
 <%/*~END~*/%>
 
 
 <%/*~BEGIN~可编辑区~[Editable=false;CodeAreaID=List06;Describe=自定义函数;]~*/%>
 	<script language=javascript>
-	
+		function viewModifiedHis(flag)
+		{
+			var sItemNo='XX';
+			if(flag=='Some'){
+				sItemNo = getItemValue(0,getRow(),"ItemNo");
+				if(typeof(sItemNo)=="undefined" || sItemNo.length==0) 
+				{
+					alert(getHtmlMessage('1'));//请选择一条信息！
+					return;
+				}
+			}
+			//OpenComp("EvaluateScoreConfigList","/Common/Configurator/EvaluateManage/EvaluateScoreConfigList.jsp","ModelNo="+sModelNo+"&ItemNo="+sItemNo+"&ValueCode="+sValueCode+"&ValueMethod="+sValueMethod+"&CodeNo=ScoreToItemValue","DetailFrame","");
+		  	OpenPage("/Common/Configurator/EvaluateManage/EvaluateScoreConfigList.jsp?CItemNo="+sItemNo,"DetailFrame","");
+		}
+	    /*~[Describe=修改前保存一份备份;InputParam=无;OutPutParam=无;]~*/
+	   	function backupHis(){
+	   		var CodeNo = getItemValue(0,getRow(),"CodeNo");
+	   		var ItemNo = getItemValue(0,getRow(),"ItemNo");
+	   		RunMethod("SystemManage","InsertScoreConfigInfo",CodeNo+","+ItemNo);
+		}
 	</script>
 <%/*~END~*/%>
 

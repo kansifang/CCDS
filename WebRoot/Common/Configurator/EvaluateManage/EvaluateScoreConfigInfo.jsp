@@ -36,7 +36,6 @@
 	String sModelNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("ModelNo")));
 	String sItemNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("ItemNo")));
 	String sValueCode = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("ValueCode")));
-	String sValueMethod = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("ValueMethod")));
 	//CreditLevelToTotalScore 评级配置   ScoreToItemValue 项目配置
 	String sCodeNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("CodeNo")));
 	String sCItemNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("CItemNo")));
@@ -52,10 +51,10 @@
 							{"Attribute1","b"},
 							{"Attribute2","c"},
 							{"Attribute3","d"},
-							{"Attribute4","median"},
+							{"Attribute4","Median"},
 							{"Attribute5","StDev"},
-							{"Attribute6","minScore"},
-							{"Attribute7","maxScore"},
+							{"Attribute6","LowerLimit"},
+							{"Attribute7","UpperLimit"},
 							{"IsInUse","是否有效"},
 							{"UpdateUserName","更新人"},
 							{"UpdateTime","更新时间"}
@@ -128,7 +127,7 @@
 	//用sSql生成数据窗体对象
 	ASDataObject doTemp = null;
 	//设置表头,更新表名,键值,可见不可见,是否可以更新
-	if("311".equals(sModelNo)&&"1.TJMX".equals(sItemNo)){//制造业中小有统计模型公式
+	if("311".equals(sModelNo)&&sItemNo.endsWith("TJMX")){//制造业中小有统计模型公式
 			doTemp = new ASDataObject(sSql0);
 			doTemp.setHeader(sHeaders0);
 	}else{
@@ -206,13 +205,14 @@
 
 <%/*~BEGIN~可编辑区~[Editable=false;CodeAreaID=List06;Describe=自定义函数;]~*/%>
 	<script language=javascript>
+	var bIsInsert=false;
 	function saveRecord()
 	{
-		var patrn=/^(-?\d+)(\.\d{0,2})?$/;
+		var patrn=/^(-?\d+)(\.\d{0,16})?$/;
 		var sItemDescribe=getItemValue(0,0,"ItemDescribe");
 		if(sItemDescribe.length>0&&"<%=sCodeNo%>"=="ScoreToItemValue"){
 			if (patrn.exec(sItemDescribe)==null){
-				alert("分值必须为最多两位小数的数字！");
+				alert("分值必须为最多16位小数的数字！");
 				setItemValue(0,getRow(),"ItemDescribe","");
 				return false;
 			}
@@ -220,7 +220,7 @@
 		var sAttribute2=getItemValue(0,0,"Attribute2");
 		if(sAttribute2.length>0){
 			if(patrn.exec(sAttribute2)==null){
-				alert("下限边界值必须为最多两位小数的数字！");
+				alert("下限边界值必须为最多16位小数的数字！");
 				setItemValue(0,getRow(),"Attribute2","");
 				return false;
 			}
@@ -228,10 +228,13 @@
 		var sAttribute4=getItemValue(0,0,"Attribute4");
 		if(sAttribute4.length>0){
 			if(patrn.exec(sAttribute4)==null){
-				alert("上限边界值必须为最多两位小数的数字！");
+				alert("上限边界值必须为最多16位小数的数字！");
 				setItemValue(0,getRow(),"Attribute4","");
 				return false;
 			}
+		}
+		if(!bIsInsert){
+			backupHis();
 		}
 		as_save("myiframe0","");
 	}
@@ -248,6 +251,12 @@
 	 /*~[Describe=返回;InputParam=无;OutPutParam=无;]~*/
    	function goBack(){
 		OpenPage("/Common/Configurator/EvaluateManage/EvaluateScoreConfigList.jsp","_self","");
+	}
+    /*~[Describe=修改前保存一份备份;InputParam=无;OutPutParam=无;]~*/
+   	function backupHis(){
+   		var CodeNo = getItemValue(0,getRow(),"CodeNo");
+   		var ItemNo = getItemValue(0,getRow(),"ItemNo");
+   		RunMethod("SystemManage","InsertScoreConfigInfo",CodeNo+","+ItemNo);
 	}
 	</script>
 <%/*~END~*/%>
@@ -267,14 +276,14 @@
 	        setItemValue(0,0,"SortNo","<%=sItemNo%>");
 	        setItemValue(0,0,"InputUser","<%=CurUser.UserID%>");
 	        setItemValue(0,0,"InputUserName","<%=CurUser.UserName%>");
-	        setItemValue(0,0,"InputTime","<%=StringFunction.getToday()%>");
+	        setItemValue(0,0,"InputTime","<%=StringFunction.getToday()+"-"+StringFunction.getNow()%>");
 	        setItemValue(0,0,"UpdateUser","<%=CurUser.UserID%>");
 	        setItemValue(0,0,"UpdateUserName","<%=CurUser.UserName%>");
-	        setItemValue(0,0,"UpdateTime","<%=StringFunction.getToday()%>");
+	        setItemValue(0,0,"UpdateTime","<%=StringFunction.getToday()+"-"+StringFunction.getNow()%>");
 		    bIsInsert = true;
 		}else{
 			 setItemValue(0,0,"UpdateUser","<%=CurUser.UserID%>");
-		     setItemValue(0,0,"UpdateTime","<%=StringFunction.getToday()%>");
+		     setItemValue(0,0,"UpdateTime","<%=StringFunction.getToday()+"-"+StringFunction.getNow()%>");
 		}
    }
 	</script>
