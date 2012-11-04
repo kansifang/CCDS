@@ -249,8 +249,11 @@ public class ApplyTaskCheck extends Bizlet {
 			{
 				String sSerialNo ="";
 				
+				String sIsInuse = "";
+				//防止FinishEvaluate.java取字符串数组元素报错
+				String sNewSerialNo = "null";
 				sSql = " select SerialNo,EvaluateScore,EvaluateResult,CognScore,CognResult from Evaluate_Record where ObjectType ='Customer' "+
-				       " and ObjectNo ='"+sCustomerID+"' and (EvaluateResult <>'' and EvaluateResult is not null) order by SerialNo desc fetch first 1 rows only ";
+				       " and ObjectNo ='"+sCustomerID+"' and (EvaluateResult <>'' and EvaluateResult is not null) order by AccountMonth desc,SerialNo desc fetch first 1 rows only "; // change by hldu
 				rs = Sqlca.getASResultSet(sSql);
 				if(rs.next())
 				{
@@ -258,9 +261,27 @@ public class ApplyTaskCheck extends Bizlet {
 					if(sSerialNo == null) sSerialNo ="";
 				}
 				rs.getStatement().close();
+				//add by hldu 2012/10/16
+				//取是否停用并行信用等级评估
+				sIsInuse = Sqlca.getString(" select IsInuse  from code_library where codeno = 'UnusedOldEvaluateCard' and itemno = 'UnusedOldEvaluateCard' ");
+				if (sIsInuse== null) sIsInuse="" ;
+				if(sIsInuse.equals("2"))
+				{
+					sSql = " select SerialNo,EvaluateScore,EvaluateResult,CognScore,CognResult from Evaluate_Record where ObjectType ='NewEvaluate' "+
+			       	   " and ObjectNo ='"+sCustomerID+"' and (EvaluateResult <>'' and EvaluateResult is not null) order by AccountMonth desc,SerialNo desc fetch first 1 rows only ";
+					rs = Sqlca.getASResultSet(sSql);
+					if(rs.next())
+					{
+						sNewSerialNo = rs.getString("SerialNo");
+						if(sNewSerialNo == null) sNewSerialNo ="null";
+					}
+					rs.getStatement().close();
+				}
+				//add end
 				
 				if(!"".equals(sSerialNo))
 				{
+					sSerialNo = sSerialNo + "@"+sNewSerialNo ;//add by hldu
 					AmarInterpreter interpreter = new AmarInterpreter();
 				    interpreter.explain(Sqlca,"!WorkFlowEngine.FinishEvaluateBA("+sObjectType+","+sSerialNo+","+sObjectNo+")");
 				}

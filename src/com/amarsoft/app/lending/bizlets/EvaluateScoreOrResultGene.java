@@ -31,6 +31,19 @@ public class EvaluateScoreOrResultGene extends Bizlet {
 		String sSql = "";
 		double dValue = 0;
 		if("ScoreToItemValue".equals(sCodeNo)){
+			String sRemark=Sqlca.getString("select Remark from Evaluate_Model where ModelNo='"+sModelNo+"' and ItemNo='"+sEItemNo+"'");
+			if("@true@".equals(sRemark)){//存在分子分母同为负数或异常值得到正值的情况
+				String sReturn=Sqlca.getString("select min(ItemDescribe) " +
+								"from Code_Library "+
+								" where CodeNo = '"+sCodeNo+"'"+
+								" and ItemName='"+sModelNo+"'"+
+								" and SortNo='"+sEItemNo+"'"+
+								" and IsInUse='1'");
+				//既然达到目的了Evaluaet_Model里面的Remark的 @true@就去掉吧
+				Sqlca.executeSQL("update Evaluate_Model set Remark=null where ModelNo='"+sModelNo+"' and ItemNo='"+sEItemNo+"'");
+				//异常值设置为0，原来是取最低分，没下面的内容
+				return "0";
+			}
 			dValue =DataConvert.toDouble(sItemValue);
 			sSql=" and SortNo='"+sEItemNo+"'";
 		}else if("CreditLevelToTotalScore".equals(sCodeNo)){

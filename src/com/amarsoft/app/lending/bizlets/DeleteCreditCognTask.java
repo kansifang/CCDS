@@ -23,7 +23,7 @@ public class DeleteCreditCognTask extends Bizlet {
 		if(sDeleteType.equals("DeleteTask"))
 		{
 			//删除行用等级认定申请信息2009-04-03
-			if(sObjectType.equals("Customer"))
+			if(sObjectType.equals("Customer") || sObjectType.equals("NewEvaluate")) // add by hldu "NewEvaluate"
 			{
 				//删除风险度评估明细信息
 				deleteCreditCognTableData("Evaluate_Data",sObjectType,sObjectNo,Sqlca);

@@ -13,6 +13,7 @@ package com.amarsoft.app.lending.bizlets;
 
 import com.amarsoft.are.sql.ASResultSet;
 import com.amarsoft.are.sql.Transaction;
+import com.amarsoft.are.util.DataConvert;
 import com.amarsoft.are.util.StringFunction;
 import com.amarsoft.biz.bizlet.Bizlet;
 
@@ -35,6 +36,9 @@ public class FinishClassify extends Bizlet {
 		String sClassifyOrgID = "";//人工认定机构
 		String sContractNo = "";//合同流水号
 		String sBCClassifyResult = "";//合同分类结果
+		String sCustomerID = "";//客户编号
+		String sCustomerType = "";//客户类型
+		int iCount = 0;//复合条件的记录条数
 		double dBusinessBalance = 0.00;//合同余额
 		double dSUM1=0.00,dSUM2=0.00,dSUM3=0.00,dSUM4=0.00,dSUM5=0.00;
 		//定义数据集
@@ -120,6 +124,32 @@ public class FinishClassify extends Bizlet {
 			" ClassifyUserID='"+sClassifyUserID+"',ClassifyOrgID='"+sClassifyOrgID+"' "+
 			" WHERE SerialNo='"+sObjectNo+"'";
 		Sqlca.executeSQL(sSql);
+		//add by hldu 2012/10/16
+		//取该客户编号
+		sSql = " select CustomerID ,getCustomerType(CustomerID) as CustomerType from Business_Contract where serialno = '"+sContractNo+"' ";
+		rs = Sqlca.getASResultSet(sSql);
+		if(rs.next())
+		{
+			sCustomerID = rs.getString("CustomerID");
+			if(sCustomerID == null) sCustomerID = "";
+			sCustomerType = rs.getString("CustomerType");
+			if(sCustomerType == null) sCustomerType = "";
+		}
+		rs.getStatement().close();
+		//如果该客户有风险分类为次级、可疑、损失、次级1、次级2的记录时，更新客户信息中 本行即期信用等级为D
+		iCount = DataConvert.toInt(Sqlca.getString(" select count(*) from CLASSIFY_RECORD where ObjectNo in "+
+				                                   "(select serialno from Business_Contract where CustomerID = '"+sCustomerID+"' ) and (finallyresult like '03%' or   finallyresult like '04%'  or  finallyresult like '05%') "));
+		if(iCount > 0)
+		{
+			if(sCustomerType.substring(0, 2).equals("01"))
+			{
+				Sqlca.executeSQL(" update Ent_Info set CreditLevel = 'D' where CustomerID = '"+sCustomerID+"' ");
+			}else
+			{
+				Sqlca.executeSQL(" update Ind_Info set CreditLevel = 'D' where CustomerID = '"+sCustomerID+"' ");
+			}
+		}
+		//add end 
 		return "1";
 
 	}

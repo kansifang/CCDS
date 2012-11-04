@@ -23,10 +23,9 @@ public class EvaluateExtraAction {
 	private String sSql="";
 	private ASResultSet rs;
 	
-	private String [][]CreditLevel={{"10","AAA"},{"9","AA"},{"8","A"},
-									{"7","BBB"},{"6","BB"},{"5","B"},
-									{"4","CCC"},{"3","CC"},{"2","C"},
-									{"1","D"}};
+	private String [][]CreditLevel={{"9","AAA"},{"8","AA"},{"7","A"},
+									{"6","BBB"},{"5","BB"},{"4","B"},
+									{"3","CCC"},{"2","CC"},{"1","C"}};
 	private  Evaluate eEvaluate=null;
 	
 	private boolean hasEvaluateAdjust=false;
@@ -96,11 +95,11 @@ public class EvaluateExtraAction {
 					" where ObjectType='"+this.eEvaluate.ObjectType+"'" +
 					" and ObjectNo='"+this.eEvaluate.ObjectNo+"'" +
 					" and SerialNo='"+this.eEvaluate.SerialNo+"'" +
-					" and ItemNo like '"+this.PJTZItemNo+"'";
+					" and ItemNo like '"+this.PJTZItemNo+"%'";
 			rs =Sqlca.getASResultSet(sSql);
 			while(rs.next()){
 				String sItemValue=DataConvert.toString(rs.getString(1));
-				if(this.PJTZValue.contains(sItemValue)){
+				if(sItemValue.length()>0&&this.PJTZValue.contains(sItemValue)){
 					AdjustValue+=sItemValue+"@";
 				}
 			}
@@ -136,8 +135,8 @@ public class EvaluateExtraAction {
 	}
 	public void updateCoefficient() throws Exception{
 		//评级模型每一块内的权重*块的权重
-		boolean isAutoC=Sqlca.conn.getAutoCommit();
-		Sqlca.conn.setAutoCommit(false);
+		//boolean isAutoC=Sqlca.conn.getAutoCommit();
+		//Sqlca.conn.setAutoCommit(false);
 		//获取块的权重
 		for(int i=0;i<this.QZTZItemNo.length;i++){
 			sSql="select ItemValue from EVALUATE_DATA " +
@@ -151,15 +150,25 @@ public class EvaluateExtraAction {
 				if(sItemValue.length()>0){
 					if(this.QZTZCodeNo[i]!=null&&this.QZTZCodeNo[i].contains("@")){//形式为：@211@非银行类打分卡:1.2.3:=Double(0.0)@%@1.1
 						String []aItemValueWAndCo=this.QZTZCodeNo[i].split("@");
-						ASResultSet rs0=Sqlca.getASResultSet(sSql+" and Double(ItemValue) "+aItemValueWAndCo[0]);
+						String sss= sSql+" and Double(ItemValue) "+aItemValueWAndCo[0];
+						ASResultSet rs0=Sqlca.getASResultSet(sss);
+						String sSql2="";
 						if(rs0.next()){
-							String sSql2="update Evaluate_Model" +
+							sSql2="update Evaluate_Model" +
 										" set Coefficient=CoefficientBackup*"+aItemValueWAndCo[2]+
 										" where ModelNo='"+this.eEvaluate.ModelNo+"'" +
 										" and ItemNo like '"+aItemValueWAndCo[1]+"'"+
 										" and length(Coefficient)>0";
 							Sqlca.executeSQL(sSql2);
+						}else{
+							sSql2="update Evaluate_Model" +
+										" set Coefficient=CoefficientBackup"+
+										" where ModelNo='"+this.eEvaluate.ModelNo+"'" +
+										" and ItemNo like '"+aItemValueWAndCo[1]+"'"+
+										" and length(Coefficient)>0";
+							Sqlca.executeSQL(sSql2);
 						}
+						rs0.getStatement().close();
 						continue;
 					}
 					String sSql1="select Attribute1 from Code_Library" +
@@ -187,8 +196,10 @@ public class EvaluateExtraAction {
 			}
 			rs.getStatement().close();
 		}
-		Sqlca.conn.commit();
-		Sqlca.conn.setAutoCommit(isAutoC);
+		//Sqlca.conn.commit();
+		//Sqlca.conn.setAutoCommit(isAutoC);
+		this.eEvaluate.getRecord();
+		this.eEvaluate.getData(); 
 	}
 	public boolean isHasEvaluateAdjust() {
 		return hasEvaluateAdjust;
