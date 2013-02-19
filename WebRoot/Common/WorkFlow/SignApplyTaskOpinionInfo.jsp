@@ -62,6 +62,42 @@
 
 <%/*~BEGIN~可编辑区~[Editable=true;CodeAreaID=List03;Describe=定义数据对象;]~*/%>
   <%	
+  //added by bllou 2013-02-19 获取上一个审查人员的审查意见
+  	sSql = 	" select "+
+			" FO.EvaluateSerialNo,"+
+			" FO.SystemScore,FO.SystemResult,FO.CognScore,FO.CognResult,"+
+			" FO.NewSystemScore,FO.NewSystemResult,FO.NewCognScore,FO.NewCognResult"+
+			" from BUSINESS_APPLY BA,FLOW_OPINION FO "+
+			" where BA.SerialNo = '"+sObjectNo+"'"+
+			" and FO.ObjectType='CreditApply'"+
+			" and BA.SerialNo = FO.ObjectNo "+
+			" order by FO.OpinionNo DESC";
+  	rs = Sqlca.getASResultSet(sSql);
+  	String OldESOrNewES="",
+  			SystemScore="",SystemResult="",CognScore="",CognResult="",
+  			NewSystemScore="",NewSystemResult="",NewCognScore="",NewCognResult="";
+	if(rs.next()){
+		OldESOrNewES = rs.getString("EvaluateSerialNo");
+		SystemScore = rs.getString("SystemScore");
+		SystemResult = rs.getString("SystemResult");
+		CognScore = rs.getString("CognScore");
+		CognResult = rs.getString("CognResult");
+		NewSystemScore = rs.getString("NewSystemScore");
+		NewSystemResult = rs.getString("NewSystemResult");
+		NewCognScore = rs.getString("NewCognScore");
+		NewCognResult = rs.getString("NewCognResult");
+		if(OldESOrNewES == null) OldESOrNewES = "";
+		if(SystemScore == null) SystemScore = "";
+		if(SystemResult == null) SystemResult = "";
+		if(CognScore == null) CognScore = "";
+		if(CognResult == null) CognResult = "";
+		if(NewSystemScore == null) NewSystemScore = "";
+		if(NewSystemResult == null) NewSystemResult = "";
+		if(NewCognScore == null) NewCognScore = "";
+		if(NewCognResult == null) NewCognResult = "";
+	}
+	rs.getStatement().close();
+	//end 
 	//根据对象类型和对象编号获取相应的业务信息
 	sSql = 	" select CustomerID,CustomerName,BusinessCurrency,BusinessSum, "+
 			" BaseRate,RateFloatType,RateFloat,BusinessRate,BailCurrency, "+
@@ -411,11 +447,13 @@
 	if(("3015,3050,3060").indexOf(sBusinessType) == -1 && !sApplyType.equals("DependentApply") 
 		&& sObjectType.equals("CreditApply"))
 	{
-		//add by hldu
+		//add by hldu bllou 修改
+		ASMethod AuthMethod = new ASMethod("BusinessManage","CheckApplyLowRisk",Sqlca);
+		int iRight = AuthMethod.execute(sObjectNo).intValue();//iRight>0该笔业务为低风险业务
 		if(sIsInuse.equals("2"))
 		{
 			doTemp.setReadOnly("NewSystemScore,NewSystemResult,NewCognResult",true);
-			if(!(sBusinessType.equals("1056") || sBusinessType.equals("1054")) && !sSmallEntFlag.equals("1") && !sCustomerType.startsWith("03"))
+			if(!(sBusinessType.equals("1056") || sBusinessType.equals("1054")) && !sSmallEntFlag.equals("1") && !sCustomerType.startsWith("03") && iRight == 0)
 					doTemp.setRequired("NewCognScore,NewCognResult,NewSystemScore,NewSystemResult",true);
 			doTemp.setVisible("NewSystemScore,NewCognScore,NewSystemResult,NewCognResult",true);
 			doTemp.setHTMLStyle("NewCognScore","	onChange=\"javascript:parent.setResult(\\'New\\')\"	");//added by bllou 2012-10-17 并行期间用New
@@ -424,7 +462,7 @@
 		}
 		//add end
 		doTemp.setReadOnly("SystemScore,SystemResult,CognResult",true);
-		if(!(sBusinessType.equals("1056") || sBusinessType.equals("1054")) && !sSmallEntFlag.equals("1")&& !sCustomerType.startsWith("03"))
+		if(!(sBusinessType.equals("1056") || sBusinessType.equals("1054")) && !sSmallEntFlag.equals("1")&& !sCustomerType.startsWith("03") && iRight == 0)
 			doTemp.setRequired("CognScore,CognResult,SystemScore,SystemResult",true);
 		doTemp.setVisible("SystemScore,CognScore,SystemResult,CognResult",true);
 		//人工认定分数
@@ -519,12 +557,16 @@
 			{"true","","Button","删除","删除意见","deleteRecord()",sResourcesPath},
 			{"false","","Button","获取信用评级","获取信用评级","getEvaluate()",sResourcesPath},
 			{"false","","Button","意见汇总","意见汇总","OpinionSummary()",sResourcesPath},
+			{"false","","Button","进行信用评级","进行信用评级","evaluate('Customer')",sResourcesPath},
+			{"false","","Button","进行信用评级（新模型）","进行信用评级（新模型）","evaluate('NewEvaluate')",sResourcesPath},
 		};
 
 	if( ("3015,3050,3060").indexOf(sBusinessType) == -1 && !sApplyType.equals("DependentApply") && 
 		sObjectType.equals("CreditApply"))
 		{
 			sButtons[2][0] = "true";
+			sButtons[4][0] = "true";
+			sButtons[5][0] = "true";
 		}
 	
 	if((sFlowNo.equals("EntCreditFlowTJ01")&&("0050,0170,0300").indexOf(sPhaseNo)>-1) || (sFlowNo.equals("IndCreditFlowTJ01")&&("0050,0170,0300").indexOf(sPhaseNo)>-1))
@@ -678,6 +720,15 @@
 	 	else if(confirm("你确实要删除意见吗？"))
 	 	{
 	   		sReturn= RunMethod("BusinessManage","DeleteSignOpinion",sSerialNo+","+sOpinionNo);
+	   		var sEvaluateSerialNo=getItemValue(0,getRow(),"EvaluateSerialNo");
+		    var sObjectNo = getItemValue(0,getRow(),"CustomerID")+getItemValue(0,getRow(),"OpinionNo");
+	   		var sReturn1=PopPage("/Common/Evaluate/ConsoleEvaluateAction.jsp?Action=delete&ObjectType=Customer&ObjectNo="+sObjectNo+"&SerialNo="+sEvaluateSerialNo,"","dialogWidth=20;dialogHeight=20;resizable=yes;center:no;status:no;statusbar:no");
+	   		var sReturn2=PopPage("/Common/Evaluate/ConsoleEvaluateAction.jsp?Action=delete&ObjectType=NewEvaluate&ObjectNo="+sObjectNo+"&SerialNo="+sEvaluateSerialNo,"","dialogWidth=20;dialogHeight=20;resizable=yes;center:no;status:no;statusbar:no");
+    		if(sReturn=="success"&&sReturn1=="success"&&sReturn2=="success")
+    		{
+    			alert(getHtmlMessage('7'));//信息删除成功！
+    			reloadSelf();
+    		}
 	   		if (sReturn==1)
 	   		{
 	    		alert("意见删除成功!");
@@ -709,35 +760,72 @@
 	   			return;
 	   		}
 	    	EvaluateResultMember = EvaluateResult.split('@');
-			dEvaluateScore = EvaluateResultMember[0];
-			sEvaluateResult = EvaluateResultMember[1];
-			dCognScore = EvaluateResultMember[2];
-			sCognResult = EvaluateResultMember[3];
-	   		sEvaluateSerialNo = EvaluateResultMember[4];
-	 		setItemValue(0,getRow(),"SystemScore",roundOff(dEvaluateScore,2));
-	 		setItemValue(0,getRow(),"SystemResult",sEvaluateResult);
-	 		setItemValue(0,getRow(),"CognScore",roundOff(dCognScore,2));
-	 		setItemValue(0,getRow(),"CognResult",sCognResult);
-	 		//add by hldu
-	 		if("<%=sIsInuse%>" == "2")
-	 		{
-	 			dNewEvaluateScore = EvaluateResultMember[5];
-				sNewEvaluateResult = EvaluateResultMember[6];
-				dNewCognScore = EvaluateResultMember[7];
-				sNewCognResult = EvaluateResultMember[8];
-				sNewEvaluateSerialNo = EvaluateResultMember[9];
-				
-				setItemValue(0,getRow(),"NewSystemScore",roundOff(dNewEvaluateScore,2));
-	 			setItemValue(0,getRow(),"NewSystemResult",sNewEvaluateResult);
-	 			setItemValue(0,getRow(),"NewCognScore",roundOff(dNewCognScore,2));
-	 			setItemValue(0,getRow(),"NewCognResult",sNewCognResult);
-	 		}
-	 		setItemValue(0,getRow(),"EvaluateSerialNo",sEvaluateSerialNo+"@"+sNewEvaluateSerialNo);
-	 		//add end
+	    	//added by bllou 2012-11-08 校验一下长度一面越界
+	    	if(EvaluateResultMember.length>=5){
+	    		dEvaluateScore = EvaluateResultMember[0];
+				sEvaluateResult = EvaluateResultMember[1];
+				dCognScore = EvaluateResultMember[2];
+				sCognResult = EvaluateResultMember[3];
+	   			sEvaluateSerialNo = EvaluateResultMember[4];
+	   			
+	 			setItemValue(0,getRow(),"SystemScore",roundOff(dEvaluateScore,2));
+	 			setItemValue(0,getRow(),"SystemResult",sEvaluateResult);
+	 			setItemValue(0,getRow(),"CognScore",roundOff(dCognScore,2));
+	 			setItemValue(0,getRow(),"CognResult",sCognResult);
+	 			//add by hldu
+		 		if("<%=sIsInuse%>" == "2")
+		 		{
+		 			dNewEvaluateScore = EvaluateResultMember[5];
+					sNewEvaluateResult = EvaluateResultMember[6];
+					dNewCognScore = EvaluateResultMember[7];
+					sNewCognResult = EvaluateResultMember[8];
+					sNewEvaluateSerialNo = EvaluateResultMember[9];
+					
+					setItemValue(0,getRow(),"NewSystemScore",roundOff(dNewEvaluateScore,2));
+		 			setItemValue(0,getRow(),"NewSystemResult",sNewEvaluateResult);
+		 			setItemValue(0,getRow(),"NewCognScore",roundOff(dNewCognScore,2));
+		 			setItemValue(0,getRow(),"NewCognResult",sNewCognResult);
+		 		}
+		 		setItemValue(0,getRow(),"EvaluateSerialNo",sEvaluateSerialNo+"@"+sNewEvaluateSerialNo);
+		 		//add end
+	    	}
 	 	}
-	 	
 	} 
-	
+    /*~[Describe=审查人员进行信用评价;InputParam=无;OutPutParam=无;]~added by bllou 2013-02-19 进行评级处理逻辑*/
+    function evaluate(ObjectType){
+    	var sOpinionNo = getItemValue(0,getRow(),"OpinionNo");
+    	var sObjectNo = getItemValue(0,getRow(),"CustomerID")+sOpinionNo;//客户号+C+OpinionNo作为Evaluate_Record中的ObjectType
+    	var sEvaluateSerialNo=getItemValue(0,getRow(),"EvaluateSerialNo");
+    	if(typeof(sEvaluateSerialNo)=="undefined" || sEvaluateSerialNo.length==0){
+    		var sLastEvaluateSerialNo="";
+        	//获取对应的信用评级 报表日期、评级模型号等信息
+        	var sColName = "Max(EvaluateSerialNo)";
+    		var sTableName = "Flow_Opinion";
+    		var sWhereClause="String@ObjectType@CreditApply@String@ObjectNo@<%=sObjectNo%>";
+        	sReturn=RunMethod("PublicMethod","GetColValue",sColName + "," + sTableName + "," + sWhereClause);
+        	if(sReturn != ""){			
+    			sReturn = sReturn.split('@');
+    			if(sReturn[1]!=="null"){
+    				sLastEvaluateSerialNo=sReturn[1];
+    			}else{
+    				alert("没有客户经理评级！");
+    				return;
+    			}
+    		}
+        	// 生成空的评级记录 
+        	//sEvaluateSerialNo=PopPage("/Common/Evaluate/ConsoleEvaluateAction.jsp?Action=add&ObjectType="+ObjectType+"&ObjectNo="+sObjectNo+"&ModelNo="+sModelNo+"&AccountMonth="+sAccountMonth,"","dialogWidth=20;dialogHeight=20;resizable=yes;center:no;status:no;statusbar:no");
+        	// 复制最进一条评级记录 
+        	sEvaluateSerialNo=PopPage("/Common/WorkFlow/CopyEvaluate.jsp?EvaluateSerialNo="+sLastEvaluateSerialNo+"&ObjectType="+ObjectType+"&ObjectNo="+sObjectNo,"","dialogWidth=20;dialogHeight=20;resizable=yes;center:no;status:no;statusbar:no");
+    	}
+		var sOpinionNo =PopComp("EvaluateDetail","/Common/Evaluate/EvaluateDetail.jsp","Action=display&ObjectType="+ObjectType+"&ObjectNo="+sObjectNo+"&SerialNo="+sEvaluateSerialNo+"&Editable=true");
+		if((typeof(sOpinionNo)=="undefined" || sOpinionNo.length==0 || sOpinionNo== 'Null' || sOpinionNo== 'null') )
+		{
+			//alert("请降低IE浏览器安全设置！");
+			return;
+		}
+		//将流水号置入对应字段
+		setItemValue(0,getRow(),"EvaluateSerialNo",sSerialNo);
+    }
 	function getTermDay()
 	{
 		sBusinessType = "<%=sBusinessType%>";
