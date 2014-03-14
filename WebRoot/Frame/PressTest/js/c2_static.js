@@ -1,0 +1,1 @@
+wlHttp.Post("http://localhost:8080/ALS6/Frame/PressTest/c2_static.htm")

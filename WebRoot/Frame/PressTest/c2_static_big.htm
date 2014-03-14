@@ -1,0 +1,2002 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Frameset//EN""http://www.w3.org/TR/REC-html40/frameset.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+
+<TITLE>
+静态测试页面
+</TITLE>
+</HEAD>
+<BODY BGCOLOR="white">
+<!--END RESERVED FOR FUTURE USE INCLUDE FILES-->
+      <p><a name="0"><span class="atitle">简介</span></a></p>
+      <p>性能是关系到随需应变型应用程序成功与否的关键。当那些应用程序使用 IBM? DB2 Universal Database? 作为数据存储时，至关重要的是，从一开始就应该知道有关如何在 DB2 UDB 上取得尽可能好的性能的基础知识。在本文中，我将给出关于调优 DB2 UDB V8 系统的一些比较深入的建议。</p>
+      <p>我们将谈论这一过程中自始至终存在的性能问题。您可以遵循从创建一个新数据库到运行应用程序这之间的流程。通过本文可以看到如何使用 DB2 自动配置实用程序来初始配置数据库管理器和数据库环境。接着，我将讨论创建缓冲池、表空间、表和索引的最佳实践。另外，您可能还想改变一些重要配置参数的初始值，以便更好地支持应用程序，因此我们还将简介这些配置参数。</p>
+      <p>我们将论述基于监视器（monitor）细节输出的调优，从而展示如何使用快照监视（snapshot monitoring）帮助调优 SQL、缓冲池和各种不同的数据库管理器以及数据库配置参数。接着，我们将进一步研究应用程序发送给 DB2 的 SQL。通过使用 Explain，可以生成 SQL 采用的访问计划（access plan），并寻找可以进一步优化的机会。我们将考察 Design Advisor 这样一个工具，它可以根据所提供的 SQL 负载推荐出新的索引，或者评估现有的索引。最后，我们还将讨论一些 DB2 SQL 选项。</p>
+      <p>此外，持续（on-going）维护对于维持最佳性能非常重要。所以我们将讨论一些可以帮助我们进行持续维护的实用程序。对于那些正使用 DB2 ESE Database Partitioning Feature (DPF) 的读者，我会用一节的篇幅谈论为使数据库高效运行而应该考虑的一些问题。有时候可能会存在某种外在的瓶颈（来自 DB2）而使您无法达到性能目标，本文列出了一些常见的瓶颈，以及用于监视这些瓶颈的实用程序。最后，本文列出了一些有价值的 IBM 资源，以帮助您发现有价值的 DB2 信息。</p>
+      <p>本文是为那些在 DB2 数据库管理方面有中级技能的人而写的。</p>
+      <p><a name="IDAEEEHF"><span class="smalltitle">读前须知</span></a></p>
+      <p>
+在开始性能调优过程之前，应确保您已经应用了最新的  DB2 修订包（fix pack）。修订包常常会带来性能的提高。我们要使用 DB2 FixPak 4 作为本文的基础。如果您使用的是 FP4 之前的版本，那么这种环境可能不能提供这里讨论的所有选项。</p>
+      <p>在进行调优时，最好是有一个关于数据库使用（即应用程序运行在 DB2 上的工作负载）的可再现场景，这样就可以利用这种可再现场景来量身定制调优效果。例如，如果工作负载在不同的运行期间所经历的时间上有 10% 的变化量，那么就很难知道调优的真正效果如何。此外，如果在两次运行中各自的工作负载不一样，也就难于衡量数据库管理器和数据库配置参数所发生的变化。</p>
+      <p>坚持跟踪所有的变化。这样有助于开发调优脚本或者建议，以作为供其他 DBA 参考的历史，同时也有助于防止遵循不良的变化。</p>
+      <p>在大多数小节的最后，都有一些指向 DB2 v8 HTML Documentation 中相关小节的链接。在线文档可以在
+      </p>
+      <br /><table border="0" cellspacing="0" cellpadding="0" width="100%"><tr><td><img width="100%" src="" height="1" alt=""/><br />
+      <img alt="" width="8" height="6" border="0" src=""/></td></tr></table><table class="no-print" cellspacing="0" cellpadding="0" align="right"><tr align="right"><td><img width="100%" height="4" src="" alt=""/><br /><table border="0" cellpadding="0" cellspacing="0"><tr><td valign="middle"><img width="16" src="" height="16" border="0" alt=""/><br /></td><td valign="top" align="right"><a href="#main" class="fbox"><b>回页首</b></a></td></tr></table></td></tr></table><br /><br /><p><a name="1"><span class="atitle">“十大”性能增强推动器</span></a></p>
+      <p>做了下面十件事情，您就几乎可以使数据库获得最佳性能。通常您会发现，通过大约 10% 的配置变化，就可以达到最佳性能的 90%。我将在下面适当的小节（在圆括号中标出）中详细讨论其中的每一条：</p>
+      <ol>
+        <li>确保有足够的磁盘（每个 CPU 有 6-10 个磁盘才是一个好的开端）。每个表空间的容器应该跨越所有可用的磁盘。有些表空间，例如 SYSCATSPACE 以及那些表数量不多的表空间，不需要展开到所有磁盘上，而那些具有大型用户或临时表的表空间则应该跨越所有磁盘。（
+          <a href="#tablespaces">表空间</a>）。
+        </li>
+        <li>缓冲池应该占用可用内存的大约 75% （OLTP） 或 50% （OLAP）（
+          <a href="#bufferpools">缓冲池</a>）。
+        </li>
+        <li>应该对所有表执行 runstats，包括系统编目表（
+          <a href="#runstats">Runstats</a>）。
+        </li>
+        <li>使用 Design Advisor 为 SQL 工作负载推荐索引和检查索引（
+          <a href="#design">Design
+Advisor</a>）。
+        </li>
+        <li>使用 Configuration Advisor 为应用程序环境配置数据库管理器和数据库（
+          <a href="#configurationadv">Configuration Advisor</a>）。
+        </li>
+        <li>日志记录应该在一个独立的高速驱动器上进行，该驱动器由 NEWLOGPATH
+数据库配置参数指定（
+          <a href="#experimenting">Experimenting</a>）。
+        </li>
+        <li>通过频繁的提交可以增加并发性（
+          <a href="#sqltuning">SQL 语句调优</a>）。
+        </li>
+        <li>应该增加 SORTHEAP，以避免排序溢出（
+          <a href="#configuration">DBM 和 DB 配置</a>）。
+        </li>
+        <li>对于系统编目表空间和临时表空间，表空间类型应该为 SMS，而对于其他表空间，表空间类型应为 DMS（ raw device 或者是文件）。运行 db2empfa，以便支持用于 SMS 表空间的多页（multi-page ）文件的空间分配。这将允许 SMS 表空间一次增长一个区段（Extend），而不是一页，从而可以加快那些大型的插入操作和溢出磁盘的排序操作（
+          <a href="#tablespaces">表空间</a>）。
+        </li>
+        <li>对于重复的语句，使用参数标记 （
+          <a href="#sqltuning">SQL 语句调优</a>）。
+        </li>
+      </ol>
+      <br /><table border="0" cellspacing="0" cellpadding="0" width="100%"><tr><td><img width="100%" src="" height="1" alt=""/><br /><img alt="" width="8" height="6" border="0" src=""/></td></tr></table><table class="no-print" cellspacing="0" cellpadding="0" align="right"><tr align="right"><td><img width="100%" height="4" src="" alt=""/><br /><table border="0" cellpadding="0" cellspacing="0"><tr><td valign="middle"><img width="16" src="" height="16" border="0" alt=""/><br /></td><td valign="top" align="right"><a href="#main" class="fbox"><b>回页首</b></a></td></tr></table></td></tr></table><br /><br /><p><a name="2"><span class="atitle">创建数据库</span></a></p>
+      <p>创建一个数据库时，系统会缺省地创建 3 个系统管理存储（System Managed Storage，SMS） 表空间（SYSCATSPACE、TEMPSPACE1 和 USERSPACE），以及一个 4 MB 的缓冲池（IBMDEFAULTBP），这些表空间和缓冲池的页面大小都是 4 KB 。根据下面的建议，先删除 TEMPSPACE1 和 USERSPACE 然后再重新创建它们，通常这是一种可取的做法。几乎在所有情况下， SYSCATSPACE 都不需要再作进一步的优化，但是如果将其容器展开到几个磁盘上，性能上可能会有少量提升。（
+        <a href="#container">稍后</a>讨论）。
+      </p>
+      <p>在创建数据库时，您可以利用自动配置选项来根据环境对数据库进行最初的配置。当应用程序以编程方式创建 DB2 数据库时，这样做很方便，因为可以将这些选项从应用程序提供给
+DB2。在自动配置数据库时不得不用到的另一个选项是更强大的 Configuration Advisor GUI，它不但可以配置数据库，而且还可以配置实例。不过，要使用
+Configuration Advisor，数据库必须首先存在。我们将在 
+        <a href="#configurationadv">随后的小节</a>中讨论
+Configuration Advisor。
+      </p>
+      <p>在
+        <a href="#清单1">清单 1</a>中，我们使用 CREATE DATABASE 命令的自动配置选项在 Windows 中创建了一个数据库，该数据库有一个跨越两个可用磁盘的 SYSCATSPACE。
+      </p>
+      <a name="清单1">
+        <b>清单 1. 使用自动配置选项创建数据库</b>
+      </a>
+      <br /> 
+      <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">
+create database prod1 catalog tablespace 
+    managed by system using ('c:\\proddb\\cattbs\\01','d:\\proddb\\cattbs\\02') 
+    extentsize 16 prefetchsize 32 
+    autocon图 using mem_percent 50 workload_type simple num_stmts 10 
+        tpm 20 admin_priority performance num_local_apps 2 num_remote_apps 
+        200 isolation CS bp_resizeable yes apply db and dbm</code></pre></td></tr></table><br /> 
+      <p>
+        <a href="#table1">表 1</a>显示了有效的自动配置输入关键字以及值：
+      </p>
+      <p><a name="table1"><span class="smalltitle">表 1. 自动配置选项</span></a></p>
+      <p>
+        <table border="1" cellpadding="3" cellspacing="0" width="70%"><tr valign="top"><td>
+              <b>关键字</b>
+            </td><td>
+              <b>有效值</b>
+            </td><td>
+              <b>缺省值</b>
+            </td><td>
+              <b>描述</b>
+            </td></tr><tr valign="top"><td>mem_percent</td><td>1-100</td><td>25</td><td>分配给数据库的物理存储空间的百分比。如果本服务器（不包括操作系统）上运行有其他应用程序，那么将其设为小于 100 的某个值</td></tr><tr valign="top"><td>workload_type</td><td>simple, mixed, complex</td><td>mixed</td><td>simple 型工作负载倾向于 I/O 密集型，并且大多数是事务处理（OLTP），而 complex 型工作负载则倾向于 CPU 密集型，并且大多数是查询（OLAP/DSS）</td></tr><tr valign="top"><td>num_stmts</td><td>1-1000000</td><td>25</td><td>每个工作单元包含的语句条数</td></tr><tr valign="top"><td>tpm</td><td>1-200000</td><td>60</td><td>每分钟的事务数。</td></tr><tr valign="top"><td>admin_priority</td><td>performance, recovery, both</td><td>both</td><td>优化以获得更好性能（每分钟更多的事务数）或更好的回复时间</td></tr><tr valign="top"><td>num_local_apps</td><td>0-5000</td><td>0</td><td>连接的本地应用程序的数目</td></tr><tr valign="top"><td>num_remote_apps</td><td>0-5000</td><td>100</td><td>连接的远程应用程序的数目</td></tr><tr valign="top"><td>isolation</td><td>RR, RS, CS, UR</td><td>RR</td><td>连接到该数据库的应用程序的隔离级别（Repeatable Read、Read Stability、Cursor Stability 和 Uncommitted Read）。</td></tr><tr valign="top"><td>bp_resizeable</td><td>yes, no</td><td>yes</td><td>是否可以在线更改缓冲池大小</td></tr></table>
+      <p><a name="configurationadv"><span class="smalltitle">Configuration Advisor</span></a></p>
+      <p>
+如果您在创建数据库的时候已经使用了自动配置，那么这一步就不是很重要了。Configuration Advisor 是一个 GUI 工具，它允许根据您针对一系列问题给出的回答自动配置数据库和实例。通过使用这种工具，常常可以取得相当可观的性能提升。这个工具可以从 Control Center 中通过右键单击数据库并选择 "Configuration Advisor" 来打开。当您回答完所有问题后，就可以生成结果，还可以选择应用结果。
+        <a href="#fig1">图 1</a>展示了结果页面的屏幕快照：
+      </p>
+      
+        <br /><a name="fig1"><b>图 1. Configuration Advisor Results 屏幕</b></a><br />
+        <img alt="Configuration Advisor Results 屏幕" height="481" src="" width="543"/>
+      <br />
+      <br /><table border="0" cellspacing="0" cellpadding="0" width="100%"><tr><td><img width="100%" src="" height="1" alt=""/><br /><img alt="" width="8" height="6" border="0" src=""/></td></tr></table><table class="no-print" cellspacing="0" cellpadding="0" align="right"><tr align="right"><td><img width="100%" height="4" src="" alt=""/><br /><table border="0" cellpadding="0" cellspacing="0"><tr><td valign="middle"><img width="16" src="" height="16" border="0" alt=""/><br /></td><td valign="top" align="right"><a href="#main" class="fbox"><b>回页首</b></a></td></tr></table></td></tr></table><br /><br /><p><a name="3"><span class="atitle">创建缓冲池</span></a></p>
+      <p>恰当地定义缓冲池是拥有一个运行良好的系统的关键之一。对于 32 位操作系统，知道共享存储器的界限十分重要，因为这种界限将限制数据库的缓冲池（即数据库的全局存储器），使其不能超出以下界限（64 位系统没有这样的界限）：</p>
+      <ul>
+        <li>AIX - 1.75 GB</li>
+        <li>Linux - 1.75 GB</li>
+        <li>Sun - 3.35 GB</li>
+        <li>HP-UX - approximately 800 MB</li>
+        <li>Windows - 2-3 GB （在 NT/2000 上的 boot.ini 中使用的是 ' 3GB' switch）</li>
+      </ul>
+      <p>用下面的公式计算近似的数据库全局存储器的使用：</p>
+      <a name="IDARLJHF">
+        <b>清单 2. 计算全局存储器的使用（共享存储器）</b>
+      </a>
+      <br /> 
+      <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">
+buffer pools + dbheap + util_heap_sz + pkgcachesz + aslheapsz + locklist + approx 10% overhead 
+</code></pre></td></tr></table><br /> 
+      <p>如果启用了
+        <b>INTRA_PARALLEL</b>，那么将 sheapthres_shr 的值加到总和中。
+      </p>
+      <p><a name="IDA3LJHF"><span class="smalltitle">确定有多少缓冲池</span></a></p>
+      <p>
+对于数据库中一个表空间所使用的每一种页面大小，都需要至少一个缓冲池。通常，缺省的 IBMDEFAULTBP 缓冲池是留给系统编目的。为处理表空间的不同页面大小和行为，须创建新的缓冲池。</p>
+      <p>对于初学者，一开始为每种页面大小使用一个缓冲池，对于 OLAP/DSS 类型的工作负载更是如此。DB2 在其缓冲池的自我调优方面十分擅长，并且会将经常被访问的行放入内存，因此一个缓冲池就足够了。（这一选择也避免了管理多个缓冲池的复杂性。）</p>
+      <p>如果时间允许，并且需要进行改进，那么您可能希望使用多个缓冲池。其思想是将访问最频繁的行放入一个缓冲池中。在那些随机访问或者很少访问的表之间共享一个缓冲池可能会给缓冲池带来“污染”，因为有时候要为一个本来可能不会再去访问的行消耗空间，甚至可能将经常访问的行挤出到磁盘上。如果将索引保留在它们自己的缓冲池中，那么在索引使用频繁的时候（例如，索引扫描）还可以显著地提高性能。</p>
+      <p>这与我们对表空间的讨论是紧密联系的，因为要根据表空间中表的行为来分配缓冲池。如果采用多缓冲池的方法，对于初学者来说使用 4 个缓冲池比较合适：</p>
+      <ul>
+        <li>一个中等大小的缓冲池，用于临时表空间。</li>
+        <li>一个大型的缓冲池，用于索引表空间。</li>
+        <li>一个大型的缓冲池，用于那些包含经常要访问的表的表空间。</li>
+        <li>一个小型的缓冲池，用于那些包含访问不多的表、随机访问的表或顺序访问的表的表空间。</li>
+      </ul>
+      <p>对于 DMS 只包含 LOB 数据的表空间，可以为其分配任何缓冲池，因为 LOB 不占用缓冲池空间。</p>
+      <p><a name="IDAMMJHF"><span class="smalltitle">确定为缓冲池分配的内存</span></a></p>
+      <p>千万不要为缓冲池分配多于所能提供的内存，否则就会招致代价不菲的 OS 内存分页（memory paging）。通常来讲，如果没有进行监控，要想知道一开始为每个缓冲池分配多少内存是十分困难的。</p>
+      <p>对于 OLTP 类型的工作负载，一开始将 75% 的可用内存分配给缓冲池比较合适。</p>
+      <p>对于 OLAP/DSS，经验法则告诉我们，应该将 50% 的可用内存分配给一个缓冲池（假设只有一种页面大小），而将剩下的 50% 分配给 SORTHEAP。</p>
+      <p><a name="IDAUMJHF"><span class="smalltitle">使用基于块（block-based）的缓冲池</span></a></p>
+      <p>倚重于预取技术的 OLAP 查询可以得益于基于块的缓冲池。缺省情况下，所有缓冲池都是基于页的，这意味着预取操作将把磁盘上相邻的页放入到不相邻的内存中。而如果采用基于块的缓冲池，则 DB2 将使用块 I/O 一次将多个页读入缓冲池中，这样可以显著提高顺序预取的性能。</p>
+      <p>一个基于块的缓冲池由标准页区和一个块区同时组成。CREATE 和 altER BUFFERPOOL SQL 语句的 NUMBLOCKPAGES 参数用于定义块内存的大小，而 BLOCKSIZE 参数则指定每个块的大小，即在一次块 I/O 中从一个磁盘读取的页的数量。</p>
+      <p>共享相同区段大小的表空间应该成为一个特定的基于块的缓冲池的专门用户。将 BLOCKSIZE 设置为等于正在使用该缓冲池的表空间的 EXTENT SIZE。</p>
+      <p>确定分配多少内存给缓冲区内的块区要更为复杂一些。如果要碰到大量的顺序预取操作，那么您很可能会想要更多基于块的缓冲池。NUMBLOCKPAGES 应该是 BLOCKSIZE 的倍数，并且不能大于缓冲池页面数量的 98%。先将它设小一点（不大于缓冲池总共大小的 15% 或刚好 15%）。在后面还可以根据快照监视（snapshot monitoring）对其进行调整。</p>
+      <p>
+        <a href="http://publib.boulder.ibm.com/infocenter/db2help/index.jsp">DB2 v8 Documentation:</a>
+      </p>
+      <ul>
+        <li>Concepts ==&gt; Administration ==&gt; Database objects ==&gt; Buffer Pool Management</li>
+        <li>Reference ==&gt; SQL ==&gt; SQL Statements ==&gt; CREATE BUFFERPOOL</li>
+        <li>Reference ==&gt; SQL ==&gt; SQL Statements ==&gt; altER BUFFERPOOL</li>
+        <li>Concepts ==&gt; Administration ==&gt; Performance tuning ==&gt; Operational performance ==&gt; Memory-use organization</li>
+      </ul>
+      <br /><table border="0" cellspacing="0" cellpadding="0" width="100%"><tr><td><img width="100%" src="" height="1" alt=""/><br /><img alt="" width="8" height="6" border="0" src=""/></td></tr></table><table class="no-print" cellspacing="0" cellpadding="0" align="right"><tr align="right"><td><img width="100%" height="4" src="" alt=""/><br /><table border="0" cellpadding="0" cellspacing="0"><tr><td valign="middle"><img width="16" src="" height="16" border="0" alt=""/><br /></td><td valign="top" align="right"><a href="#main" class="fbox"><b>回页首</b></a></td></tr></table></td></tr></table><br /><br /><p><a name="4"><span class="atitle">创建表空间</span></a></p>
+      <p>既然要为表空间分配缓冲池，
+        <a href="#bufferpools">关于缓冲池的上一节</a>就跟涉及表空间的性能问题十分相关。使用 DB2 Control Center 是创建和配置表空间的最容易的方法，也是我们推荐的方法（右键单击数据库的
+        <b>Table Spaces</b>文件夹并选择
+        <b>Create...</b>）。
+      </p>
+      <p><a name="IDAWNJHF"><span class="smalltitle">确定要创建的表空间的类型（DMS 或 SMS）</span></a></p>
+      <p>
+对于系统临时表空间和系统编目表空间，应该使用 
+        <i>System Managed Storage</i>(SMS)，因为它允许表空间动态地增长和收缩。如果有大量临时表要刷新到磁盘上（或者是没有足够的排序空间，或者是显式地创建临时表），则 DMS 会更有效一些。当使用 SMS 时，应该运行实用程序 'db2empfa'，这个实用程序将支持多页文件分配，从而一次一个区段地增长表空间，而不是一次一页地增长表空间。
+      </p>
+      <p>对于所有其他的表空间，应该使用
+        <i>Database Managed Storage</i>(DMS)。DMS 允许一个表跨越多个表空间（索引、用户数据和 LOB），这样就减少了在预取和更新操作时索引、用户和 LOB 数据之间的争用，从而缩短了数据访问的时间。通过使用 DMS raw 甚至还可以挤出额外的 5-10% 的性能提升。
+      </p>
+      <p><a name="IDABOJHF"><span class="smalltitle">确定页面大小</span></a></p>
+      <p>为了创建一个表，必须有一个表空间，其页面大小应足以容纳一行。您可以选择使用 4、8、16 或 32 KB 这几种页面大小。有时候必须使用较大的页面大小，以回避某些数据库管理器的限制。例如，表空间的最大尺寸与表空间的页面大小成比例。如果使用 4K 的页面大小，那么表空间的大小（每个分区）最大是 64 GB，如果使用 32K 的页面大小，那么最大是 512 GB。</p>
+      <p>对于执行随机更新操作的 OLTP 应用程序，采用较小的页面大小更为可取，因为这样消耗的缓冲池中的空间更少。</p>
+      <p>对于要一次访问大量连续行的 OLAP 应用程序，通常使用较大页面大小效果会更好些，因为这样可以减少在读取特定数量的行时发出的 I/O 请求的数量。较大的页面大小还允许您减少索引中的层数，因为在一页中可以保留更多的行指针。然而，也有例外情况。如果行长度小于页面大小的 255 分之 1，则每一页中都将存在浪费的空间，因为每页最多只能有 255 行（对于索引数据页不适用）。在这种情况下，采用较小的页面大小或许更合适一些。</p>
+      <p>例如，如果要使用 32K 的页面大小来存储平均大小为 100 字节的行，则一个 32 KB 的页只能存储 100 * 255 = 25500 byte （24.9 KB）。这意味着每 32 KB 中就有大约 7 KB 要浪费掉。</p>
+      <p><a name="IDAKOJHF"><span class="smalltitle">确定表空间的数量</span></a></p>
+      <p>
+与缓冲池一样，一开始应该为每种页面大小使用一个缓冲池。对于所使用的每种页面大小，必须存在一个具有匹配页面大小的系统临时表空间（以支持排序和重组）。然后将所有享用匹配页面大小的表空间指派给具有相同页面大小的缓冲池。</p>
+      <p>如果您还关心性能问题，并且有时间投入，那么可以使用 DMS 表空间，并且根据使用情况来组织表。另外，还要遵循前面给出的关于使用多个缓冲池的建议。</p>
+      <p>对于每种页面大小，创建一个：</p>
+      <ul>
+        <li>系统临时表空间。</li>
+        <li>用于索引的常规表空间。</li>
+        <li>用于频繁访问的表的常规表空间。</li>
+        <li>用于访问不多的表、随机访问的表以及顺序访问的表的常规表空间。</li>
+        <li>用于 LOB 数据的大型表空间。</li>
+      </ul>
+      <p><a name="container"><span class="smalltitle">容器布局</span></a></p>
+      <p>
+一开始最好是对于每个 CPU 分配 6-10 个磁盘给表空间。每个表空间应该跨越多个磁盘，也就是说，在每个可用磁盘上有一个（且不多于一个）容器。</p>
+      <p>有多少个表空间，就应该在每个磁盘上创建相同数量的逻辑卷（UNIX）。这样一来，每个表空间在每个磁盘上都有自己的逻辑卷（logical volume），用以放置容器。如果不是使用 raw device，那么就需要在每个逻辑卷内创建一个文件系统。</p>
+      <p><a name="IDA5OJHF"><span class="smalltitle">磁盘阵列和存储子系统</span></a></p>
+      <p>对于大型磁盘系统，应该使用单个容器。此外，还需要为表空间设置 DB2 Profile Registry 变量 DB2_PARALLEL_IO。这一点放在
+        <a href="#registry">概要注册表</a>一节中讨论。
+      </p>
+      <p><a name="IDAKPJHF"><span class="smalltitle">区段大小</span></a></p>
+      <p>
+Extent Size 指定在跳到下一个容器之前，可以写入到一个容器中的 PAGESIZE 页面的数量，这个参数是在创建表空间时定义的（之后不能轻易修改）。处理较小的表时，使用较小的区段效率会更高一些。</p>
+      <p>下面的经验法则是建立在表空间中每个表的平均大小的基础上的：</p>
+      <ul>
+        <li>如果小于 25 MB，Extent Size 为 8</li>
+        <li>如果介于 25 到 250 MB 之间，则 Extent Size 为 16</li>
+        <li>如果介于 250 MB 到 2 GB 之间，则 Extent Size 为 32</li>
+        <li>如果大于 2 GB，则 Extent Size 为 64</li>
+      </ul>
+      <p>对于 OLAP 数据库和大部分都要扫描（仅限于查询）的表，或者增长速度很快的表，应使用较大的值。</p>
+      <p>如果表空间驻留在一个磁盘阵列上，则应将区段大小设置成条纹大小（也就是说，写入到阵列中一个磁盘上的数据）。</p>
+      <p><a name="IDAYPJHF"><span class="smalltitle">预取大小</span></a></p>
+      <p>
+通过使用 altER TABLESPACE 可以轻易地修改预取大小。最优设置差不多是这样的： 
+        <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">
+ Prefetch Size = (# Containers of the table space on different physical disks) * Extent Size </code></pre></td></tr></table><br /> 
+      <p>如果表空间驻留在一个磁盘阵列上，则设置如下：
+ 
+        <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">
+  PREFETCH SIZE = EXTENT SIZE * (# of non-parity disks in array）。 </code></pre></td></tr></table><br /> 
+      <p>
+        <a href="http://publib.boulder.ibm.com/infocenter/db2help/index.jsp">DB2 v8 Documentation:</a>
+      </p>
+      <ul>
+        <li>Concepts ==&gt; Administration ==&gt; Database design ==&gt; Physical ==&gt; Table Space Design</li>
+        <li>Reference ==&gt; SQL ==&gt; SQL Statements ==&gt; CREATE TABLESPACE</li>
+        <li>Reference ==&gt; SQL ==&gt; SQL Statements ==&gt; altER TABLESPACE</li>
+      </ul>
+      <br /><table border="0" cellspacing="0" cellpadding="0" width="100%"><tr><td><img width="100%" src="" height="1" alt=""/><br /><img alt="" width="8" height="6" border="0" src=""/></td></tr></table><table class="no-print" cellspacing="0" cellpadding="0" align="right"><tr align="right"><td><img width="100%" height="4" src="" alt=""/><br /><table border="0" cellpadding="0" cellspacing="0"><tr><td valign="middle"><img width="16" src="" height="16" border="0" alt=""/><br /></td><td valign="top" align="right"><a href="#main" class="fbox"><b>回页首</b></a></td></tr></table></td></tr></table><br /><br /><p><a name="5"><span class="atitle">创建表</span></a></p>
+      <p><a name="IDAYQJHF"><span class="smalltitle">多维群集（Multidimensional clustering ，MDC）</span></a></p>
+      <p>
+MDC 提供了数据在多个维上的灵活的、连续的和自动的多维群集。它提升了查询的性能，并且减少了在插入、更新和删除期间对 REORG 和索引维护的需要。</p>
+      <p>多维群集从物理上把表数据同时沿着多个维群集起来，这与使用表上的多个独立的群集的索引类似。MDC 通常用于帮助提高对大型表的复杂查询的性能。这里不需要使用 REORG 来重新群集索引，因为 MDC 会自动地、动态地维护每个维上的群集。</p>
+      <p>对于一个 MDC，最合适的是那些具有范围、相等和连接谓词的访问多行的查询。千万不要使用具有惟一性的列作为一个维，因为这样会导致一个表不必要地变大。如果具有每种维值组合（即单元）的行不是很多，应避免使用太多的维。为获得最佳的性能，那么至少需要有足够的行来填满每个单元的块，也就是该表所在表空间的区段大小。</p>
+      <p>
+        <a href="http://publib.boulder.ibm.com/infocenter/db2help/index.jsp">DB2 v8 Documentation:</a>
+      </p>
+      <ul>
+        <li>Concepts ==&gt; Administration ==&gt; Database design ==&gt; Logical ==&gt; Multidimensional clustering (MDC)</li>
+        <li>Concepts ==&gt; Administration ==&gt; Database objects ==&gt; Tables ==&gt; Multidimensional clustering (MDC) tables</li>
+      </ul>
+      <p><a name="IDAHRJHF"><span class="smalltitle">物化查询表（MQT）</span></a></p>
+      <p>MQT 可用于提升使用 GROUP BY、GROUPING、RANK 或 ROLLUP OLAP 函数的查询的性能。MQT 的使用对用户来说是透明的，DB2 选择何时使用 MQT 来达到优化的目的。DB2 使用 MQT 在内部维护被查询的分组的总结结果，这样用户就可以直接访问 DB2 维护的分组，而不必去读动辄数 GB 的数据来寻找答案。这些 MQT 还可以在分区间复制，以避免这种信息在分区间的散播，从而帮助提升合并连接（collocated jion）的性能。</p>
+      <p><a name="IDANRJHF"><span class="smalltitle">CREATE TABLE 选项</span></a></p>
+      <p>
+对于 30 字节或更少字节的列，应避免使用 
+        <b>VARCHAR 数据</b>类型，因为这种情况下，VARCHAR 类型通常会浪费空间，所以建议使用 CHAR 类型。如果数据量很大，那么空间的浪费往往会对查询时间造成影响。
+      </p>
+      <p>当使用
+        <b>IDENTITY</b>或
+        <b>SEQUENCE</b>时，应至少使用缺省的大小为 20 的缓存（除非编号中的间隔很有干系）。这样一来，就不必在每次需要的时候请求 DBM 生成一个数字，同时也避免了在生成数字时要做的日志记录。
+      </p>
+      <p>当一个表使用很多空值和系统缺省值时，
+        <b>VALUE COMPRESSION</b>和
+        <b>COMPRESS SYSTEM DEFAULT</b>可以节省磁盘空间。系统缺省值是指在没有指定特定的值时，为某个数据类型而使用的缺省值。如果量很大，这样还可以帮助缩短查询时间。如果插入或者更新一个值，压缩的列只会招致很少的开销。
+      </p>
+      <p><a name="IDABSJHF"><span class="smalltitle">ALTER TABLE 选项</span></a></p>
+      <p>
+对于有大量插入操作的表，使用 
+        <b>APPEND ON</b>以避免在插入过程中搜索空闲空间，而只需将行附加在表的最后。如果要依赖于处于某种特殊顺序中的表，并且无法承受执行 REORG 的开销，那么应避免使用 APPEND ON。
+      </p>
+      <p>对于只读的表或者独占访问的表，将
+        <b>LOCKSIZE</b>设置为 TABLE。这样就避免了为行加锁时所费的时间，并且减少了所需的 LOCKLIST 数量。
+      </p>
+      <p>使用
+        <b>PCTFREE</b>来维护空闲空间，以助将来的 INSERT、LOAD 和 REORG 一臂之力。PCTFREE 的缺省值是 10；对于具有群集索引和插入量很大的表，可以尝试使用 20-35。如果使用 APPEND ON，则将 PCTFREE 设置为 0。
+      </p>
+      <p>使用
+        <b>VOLATILE</b>来鼓励索引扫描。易变（volatile）表明表的基数可以在很大的范围内显著变化，从一个很大的数一直到空。这样就促使优化器不管表的统计数字如何，都使用索引扫描，而不是使用表扫描。不过，只有在索引包含所有被引用的列，或者索引可以在索引扫描时应用谓词的情况下，上述情况才会出现。
+      </p>
+      <p>使用
+        <b>NOT LOGGED INITIALLY</b>将事务执行期间（也就是直到 COMMIT）的日志记录关闭掉。
+      </p>
+      <p>
+        <b>VALUE COMPRESSION</b>和
+        <b>COMPRESS SYSTEM DEFAULT</b>还可以用在 altER TABLE 命令中。
+      </p>
+      <p>
+        <a href="http://publib.boulder.ibm.com/infocenter/db2help/index.jsp">DB2 v8 Documentation:</a>
+      </p>
+      <ul>
+        <li>Reference ==&gt; SQL ==&gt; SQL Statements ==&gt; CREATE TABLE</li>
+        <li>Reference ==&gt; SQL ==&gt; SQL Statements ==&gt; altER TABLE</li>
+      </ul>
+      <br /><table border="0" cellspacing="0" cellpadding="0" width="100%"><tr><td><img width="100%" src="" height="1" alt=""/><br /><img alt="" width="8" height="6" border="0" src=""/></td></tr></table><table class="no-print" cellspacing="0" cellpadding="0" align="right"><tr align="right"><td><img width="100%" height="4" src="" alt=""/><br /><table border="0" cellpadding="0" cellspacing="0"><tr><td valign="middle"><img width="16" src="" height="16" border="0" alt=""/><br /></td><td valign="top" align="right"><a href="#main" class="fbox"><b>回页首</b></a></td></tr></table></td></tr></table><br /><br /><p><a name="6"><span class="atitle">创建索引</span></a></p>
+      <p>由于有了 Design Advisor，设计索引的负担已经消除。Design Advisor 用于为特定的 SQL 工作负载（即一组 SQL 语句）推荐和评估索引，
+        <a href="#design">很快</a>我们就将讨论这个工具。
+      </p>
+      <p>下面仍然是一些您应该知道的跟索引有关的问题：</p>
+      <ul>
+        <li>当要在一个合理的时间内结束查询时，应避免添加索引，因为索引会降慢更新操作的速度并消耗额外的空间。有时候还可能存在覆盖好几个查询的大型索引。</li>
+        <li>基数较大的列很适合用来做索引。</li>
+        <li>考虑到管理上的开销，应避免在索引中使用多于 5 个的列。</li>
+        <li>对于多列索引，将查询中引用最多的列放在定义的前面。</li>
+        <li>避免添加与已有的索引相似的索引。因为这样会给优化器带来更多的工作，并且会降慢更新操作的速度。相反，我们应该修改已有的索引，使其包含附加的列。例如，假设在一个表的 (c1,c2) 上有一个索引 i1。您注意到查询中使用了 "where c2=?"，于是又创建一个 (c2) 上的索引 i2。但是这个相似的索引没有添加任何东西，它只是 i1 的冗余，而现在反而成了额外的开销。</li>
+        <li>如果表是只读的，并且包含很多的行，那么可以尝试定义一个索引，通过 CREATE INDEX 中的 INCLUDE 子句使该索引包含查询中引用的所有列（被 INCLUDE 子句包含的列并不是索引的一部分，而只是作为索引页的一部分来存储，以避免附加的数据 FETCHES）。</li>
+      </ul>
+      <p><a name="IDA0TJHF"><span class="smalltitle">群集索引</span></a></p>
+      <p>
+我们可以创建群集索引来为表中的行排序，并且是按照所需结果集的物理顺序来排序。群集索引可以用 CREATE INDEX 语句的 CLUSTER 选项来创建。为获得最佳性能，应该在那些小型的数据类型（比如整型和 char(10)）、具有惟一性的列以及在范围搜索中经常要用到的列上创建索引。</p>
+      <p>群集索引允许对数据页采用更线性的访问模式，允许更有效的预取，并且有助于避免排序。这意味着插入操作要花更多的时间，但是查询操作会更快。当使用群集索引时，应考虑将数据页和索引页上的空闲空间增加到大约 15-35（而不是 PCTFREE 的缺省值 10），以允许大容量的插入。对于会受到大量插入操作的表，考虑使用单维的 MDC 表（或许是使用像 idcolumn/1000 或 INT(date)/100 这样的生成列）。这将导致对数据（在维上）的块索引，而不是按行索引。这样产生的索引会更小一些，并且在插入期间的日志内容也大大减少。</p>
+      <p><a name="IDABUJHF"><span class="smalltitle">CREATE INDEX 选项</span></a></p>
+      <p>
+对于只读表上的索引，使 
+        <b>PCTFREE</b>为 0，对于其他索引使 PCTFREE 为 10，以提供可用的空间，从而加快插入操作的速度。此外 ，对于有群集索引的表，这个值应该更大一些，以确保群集索引不会被分成太多的碎片。如果存在大量的插入操作，那么使用 15 ' 35 之间的值或许更合适一些。
+      </p>
+      <p>使用
+        <b>ALLOW REVERSE SCANS</b>以便可以对一个索引进行双向（bi-directionally）扫描，也就是说，可以对按升序排列的结果集和按降序排列的结果集进行更快速的检索。这样做还没有负面的性能影响，因为在为这个特性提供支持的过程中，并没有在内部改变索引的结构。
+      </p>
+      <p>可以使用
+        <b>INCLUDE</b>将其他没有被索引的列包括到索引页中来，以促进纯索引访问，并避免了从数据页取数据。
+      </p>
+可以使用 
+      <b>UNIQUE</b> 列来有效地实施一个列或一组列的惟一性。
+      <p>
+        <b>TYPE-2 INDEXES</b>可以大大减少 next-key 锁，允许索引列大于缺省的 255 字节，允许在线 REORG 和 RUNSTATS，并且支持新的多维群集功能。在 v8 中，所有新的索引都是以 type-2 类型创建的，只有已经在表上定义了（迁移前） type-1 索引的时候才是例外。可以使用 REORG INDEXES 将 type-1 索引转换为 type-2 索引。
+      </p>
+      <p>
+        <a href="http://publib.boulder.ibm.com/infocenter/db2help/index.jsp">DB2 v8 Documentation:</a>
+      </p>
+      <ul>
+        <li>Concepts ==&gt; Administration ==&gt; Performance tuning ==&gt; Operational performance ==&gt; Table and index management ==&gt; Index planning</li>
+        <li>Concepts ==&gt; Administration ==&gt; Performance tuning ==&gt; Operational performance ==&gt; Table and index management ==&gt; Performance tips for indexes</li>
+        <li>Reference ==&gt; SQL ==&gt; SQL Statements ==&gt; CREATE INDEX</li>
+      </ul>
+      <br /><table border="0" cellspacing="0" cellpadding="0" width="100%"><tr><td><img width="100%" src="" height="1" alt=""/><br /><img alt="" width="8" height="6" border="0" src=""/></td></tr></table><table class="no-print" cellspacing="0" cellpadding="0" align="right"><tr align="right"><td><img width="100%" height="4" src="" alt=""/><br /><table border="0" cellpadding="0" cellspacing="0"><tr><td valign="middle"><img width="16" src="" height="16" border="0" alt=""/><br /></td><td valign="top" align="right"><a href="#main" class="fbox"><b>回页首</b></a></td></tr></table></td></tr></table><br /><br /><p><a name="7"><span class="atitle">概要注册表配置</span></a></p>
+      <p>DB2 概要注册表变量通常要影响优化器和 DB2 引擎本身的行为。虽然概要注册表变量有很多，但是其中的大部分都有其非常特定的用途，因而在大部分的 DB2 环境中都不会用到。下面是一些常用的概要注册表变量。</p>
+      <p>
+        <a href="#tab2">表 2</a>列出了用于概要注册表一些基本管理命令：
+      </p>
+      <p><a name="tab2"><span class="smalltitle">表 2. 概要注册表管理</span></a></p>
+      <p>
+        <table border="1" cellpadding="3" cellspacing="0" width="70%"><tr valign="top"><td>
+              <b>命令</b>
+            </td><td>
+              <b>描述</b>
+            </td></tr><tr valign="top"><td>db2set -all</td><td>列出所有当前设置的 DB2 注册表变量</td></tr><tr valign="top"><td>db2set -g | -i
+              <b>variable</b>=
+              <b>value</b>
+            </td><td>设置指定的 DB2 注册表变量，使其或者处于全局（-g）级，或者处于实例（-i）级</td></tr></table>
+      <p>注意：在变量和值之间不要有空格，否则变量又会重新被设置成缺省值。</p>
+      <p>
+        <b>DB2_PARALLEL_IO</b>
+        <br />
+这将帮助促使对驻留在磁盘阵列上的任何表空间采用并行访问。如果所有表空间都在磁盘阵列上，则将该变量设置成等于 *。如果只有一些表空间在磁盘阵列上，则使用 "db2 list tablespaces" 检索这些表空间的 ID，并将该变量设置成这些 ID（使用逗号将各 ID 分隔开）。为获得最佳性能，应确保表空间的预取大小明显大于它的区段大小。
+      </p>
+      <p>
+        <b>DB2_EVALUNCOMMITTED</b>
+        <br />
+缺省值是 OFF，如果将其改为 ON，则会将锁操作推迟到谓词演算。启用这个变量对于减少从 Oracle 移植过来的应用程序中存在的锁争用十分有用。
+      </p>
+      <p>
+        <b>DB2_SKIPDELETED</b>
+        <br />
+缺省值是 OFF，如果将其改为 ON，则允许使用 CS 或 RS 的语句略过索引中被删除的键以及表中被删除的行。同样，启用这个变量对于减少从 Oracle 移植过来的应用程序中存在的锁争用十分有用。
+      </p>
+      <p>
+        <b>DB2_HASH_JOIN</b>
+        <br />
+缺省值是 Enabled。如果禁用 DB2_HASH_JOIN（NO），则 OLTP 可能受益。
+      </p>
+      <p>
+        <b>(AIX): DB2_FORCE_FCM_BP</b>
+        <br />
+缺省值是 NO。如果使用了 DB2 的 Database Partitioning Feature (DPF) 功能，并且有多个逻辑分区，那么将该变量设置为 YES 可以改善分区间的通信，代价是可供缓冲池使用的共享内存段要少掉一个。如果没有使用数据库分区功能，则应使用 NO 值。
+      </p>
+      <p>
+        <b>(AIX 4.3) DB2_MMAP_READ 和 DB2_MMAP_WRITE</b>
+        <br />
+缺省情况下两者都处于启用状态的。如果使用 AIX 4.3，32 位的 DB2，并且内存会限制增加缓冲池的大小，那么应将此变量设置成 OFF，以便多释放一个内存段。这样大约可以释放 256 MB 的共享内存（这样就可以将其中一部分用于缓冲池）。可以进行一些测试，以确信这一更改的确提升了性能，因为有时候对磁盘使用内存映射的读和写比起增加缓冲池大小来可以获得更好的性能，虽然这种做法并不常见。
+      </p>
+      <p>
+        <a href="http://publib.boulder.ibm.com/infocenter/db2help/index.jsp">DB2 v8 Documentation:</a>
+      </p>
+      <ul>
+        <li>Reference ==&gt; Registry and environment variables</li>
+      </ul>
+      <br /><table border="0" cellspacing="0" cellpadding="0" width="100%"><tr><td><img width="100%" src="" height="1" alt=""/><br /><img alt="" width="8" height="6" border="0" src=""/></td></tr></table><table class="no-print" cellspacing="0" cellpadding="0" align="right"><tr align="right"><td><img width="100%" height="4" src="" alt=""/><br /><table border="0" cellpadding="0" cellspacing="0"><tr><td valign="middle"><img width="16" src="" height="16" border="0" alt=""/><br /></td><td valign="top" align="right"><a href="#main" class="fbox"><b>回页首</b></a></td></tr></table></td></tr></table><br /><br /><p><a name="8"><span class="atitle">通过配置避免运行时错误</span></a></p>
+      <p>应用程序开始运行的时候，通常会暴露出与某些配置参数有关的问题。如果在应用程序运行期间没有收到任何错误或警告信息，那么就是安全的。如果收到了这样的信息，那么请参阅本文后面对
+        <a href="#configuration">数据库管理器和数据库配置</a>参数管理的讨论。如果没有足够的内存来处理 SQL，下面的一些配置参数就会出问题：
+      </p>
+      <p>
+        <b>MON_HEAP_SZ (DBM)</b>
+        <br />
+这是为数据库系统监视器（system monitor）数据分配的内存数量。当执行诸如快照监视或激活一个事件监视器之类的数据库监控活动时，就要从监视器堆中分配内存。如果没有足够的可用内存，并且 DB2 返回一个错误，则可以试着将这个值设为 256。如果还是遇到错误，一次一次地增加 256，直到错误消失。
+      </p>
+      <p>
+        <b>QUERY_HEAP_SZ (DBM)</b>
+        <br />
+这是为了将每个查询存储到代理的私有内存时可以分配的最大内存量。查询堆还可用于为块游标（blocking cursor）提供内存分配。查询堆的大小必须大于或等于 ASLHEAPSZ。如果收到 DB2 返回的一个错误，表明性能可能不是最优，而处于最低状态，那么可将此参数设为至少大于 ASLHEAPSZ 的五倍，这样就允许查询大于 ASLHEAPSZ，并且为 3 个或 4 个并发的块游标足够的内存。
+      </p>
+      <p>
+        <b>MAXAPPLS (DB)</b>
+        <br />
+该参数指定可以连接（包括本地连接和远程连接）到一个数据库的并发的应用程序的最大数目。在绝对最小值情况下，将此参数设置为 &gt;= (用户连接的数量）。要了解详细信息，请参阅本文后面对
+        <a href="#maxagents">MAXAGENTS</a>的讨论。
+      </p>
+      <p>
+        <b>STMTHEAP (DB)</b>
+        <br />
+语句堆用于在 SQL 语句的编译期间作为编译器的工作区。对于每一条要处理的 SQL 语句，都要从该区域分配和释放空间。如果收到警告信息或错误信息，那么可以按 256 逐次增加，直到错误消失。
+      </p>
+      <p>
+        <b>APPLHEAPSZ (DB)</b>
+        <br />
+应用程序堆是供数据库管理器代表某个特定代理使用的私有内存。当代理或子代理要为应用程序而初始化时，就要从这个堆中分配内存，并且所分配的内存数量是处理请求时所需的最小内存量，如果需要更多的内存，则最多可以从堆中分配由该参数指定的一个最大值那么多的内存。按 256 逐次增加，直到错误消失。
+      </p>
+      <br /><table border="0" cellspacing="0" cellpadding="0" width="100%"><tr><td><img width="100%" src="" height="1" alt=""/><br /><img alt="" width="8" height="6" border="0" src=""/></td></tr></table><table class="no-print" cellspacing="0" cellpadding="0" align="right"><tr align="right"><td><img width="100%" height="4" src="" alt=""/><br /><table border="0" cellpadding="0" cellspacing="0"><tr><td valign="middle"><img width="16" src="" height="16" border="0" alt=""/><br /></td><td valign="top" align="right"><a href="#main" class="fbox"><b>回页首</b></a></td></tr></table></td></tr></table><br /><br /><p><a name="9"><span class="atitle">为提高性能进行快照监视</span></a></p>
+      <p>使用快照监视来识别数据库在一段时间里的行为，显示一些诸如内存使用情况和锁的获得过程之类的信息。监控是用于微调配置和识别问题（例如语句执行时间较长）的一种方法。如果已经使用了 Configuration Advisor，那么这里可能无法在性能上获得什么好处。</p>
+      <p>要收集供分析的数据，最容易的方法是在应用程序运行的时候用一个脚本来执行抽样的快照监视。像
+        <a href="#清单3">清单 3</a>中或者
+        <a href="#清单4">清单 4</a>中显示的脚本将会收集您进入下一步之前所需的所有信息。首先在 60 秒的一段时间内运行该脚本，其中有几次间歇；这样应该可以对应用程序行为的一个较好的抽样，并且不会有太多的信息要处理。
+      </p>
+      <a name="清单3">
+        <b>清单 3. getsnap.ksh (UNIX)</b>
+      </a>
+      <br /> 
+      <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">
+#!/usr/bin/ksh
+#  take a snapshot after specified sleep period for a number of iterations
+#  parameters: (1) database name
+# 	       (2) directory for output
+#              (3) interval between iterations (seconds)
+#              (4) maximum number of iterations
+#	       
+#  Note: You may receive an error about the monitor heap being too small. You may 
+#        want to set mon_heap_sz to 2048 while monitoring.
+if [ $# -ne 4 ]
+  then echo "4 parameters required: dbname output_dir sleep_interval iterations"; exit
+fi
+dbname=$1
+runDir=$2
+sleep_interval=$3
+iterations=$4
+stat_interval=3
+stat_iterations=$(($sleep_interval/$stat_interval))
+if [[ -d $runDir ]]; then
+   echo "dir: $runDir already exists, either remove it or 使用 another directory name"
+   exit
+fi
+mkdir  $runDir
+cd     $runDir
+db2 update monitor switches using bufferpool on lock on sort on statement on \\
+    table on uow on
+# repeat the snapshot loop for the specified iterations
+let i=1
+while [ i -le $iterations ] 
+  do
+    if [ $i -le 9 ]
+    then 
+      i2="0$i"
+    else
+      i2="$i"
+    fi 
+    echo "Iteration $i2 (of $iterations) starting at `date`"
+    vmstat $stat_interval $stat_iterations &gt; vmstat_$i2
+    iostat $stat_interval $stat_iterations &gt; iostat_$i2
+    db2 -v reset monitor all
+    sleep $sleep_interval
+    db2 -v get snapshot for dbm &gt; snap_$i2
+    db2 -v get snapshot for all on $dbname &gt;&gt; snap_$i2
+    echo "Iteration $i2 (of $iterations) complete at `date`"
+    let i=$i+1
+  done 
+db2 update monitor switches using bufferpool off lock off sort off statement off \\
+    table off uow off 
+db2 terminate
+</code></pre></td></tr></table><br /> 
+      <p/>
+      <a name="清单4">
+        <b>清单 4. getsnap.bat (Windows)</b>
+      </a>
+      <br /> 
+      <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">
+@echo off
+REM
+REM  take a snapshot after specified sleep period for a number of iterations
+REM  parameters: (1) database name
+REM    	         (2) file name id
+REM              (3) interval between iterations (seconds)
+REM              (4) maximum number of iterations
+REM 	       
+REM   Note: You may receive an error about the monitor heap being too small. You may 
+REM         want to set mon_heap_sz to 2048 while monitoring.
+:CHECKINPUT
+IF ""=="%4" GOTO INPUTERROR
+GOTO STARTPRG
+:INPUTERROR
+echo %0 requires 4 parameters: dbname filename_id sleep_interval iterations
+echo e.g. "getsnap.bat sample 0302 60 3"
+GOTO END
+:STARTPRG
+SET dbname=%1
+SET fileid=%2
+SET sleep_interval=%3
+SET iterations=%4
+db2 update monitor switches using bufferpool on lock on sort on statement on table on uow on
+REM repeat the snapshot loop for the specified iterations
+SET i=1
+:SNAPLOOP
+    IF %i% LSS 10 SET i2=0%i%
+    IF %i% GTR 9 SET i2=%i%
+    echo Starting Iteration %i2% (of %iterations%) 
+    db2 -v reset monitor all
+    sleep %sleep_interval%
+    db2 -v get snapshot for dbm &gt; snap%i2%_%fileid%
+    db2 -v get snapshot for all on %dbname% &gt;&gt; snap%i2%_%fileid%
+    echo Completing Iteration %i2% (of %iterations%)
+    SET /a i+=1
+    IF %i% GTR %iterations% GOTO ENDLOOP
+    GOTO SNAPLOOP
+:ENDLOOP
+db2 update monitor switches using bufferpool off lock off sort off statement off table off uow off 
+db2 terminate
+:END
+</code></pre></td></tr></table><br /> 
+      <p>注意，这两个脚本在行为上稍有不同，但是都可以产生所需的快照输出。</p>
+      <p>在后面的一些小节中，快照监视可用作寻找 DBM 和 DB 配置参数的最优设置的一种方式。</p>
+      <p>
+        <a href="http://publib.boulder.ibm.com/infocenter/db2help/index.jsp">DB2 v8 Documentation:</a>
+      </p>
+      <ul>
+        <li>Reference ==&gt; System monitor ==&gt; Snapshot monitor</li>
+      </ul>
+      <p><a name="IDA2ZJHF"><span class="smalltitle">动态 SQL 语句</span></a></p>
+      <p>
+        <a href="#清单3">清单 3</a>和
+        <a href="#清单4">清单 4</a>中显示的脚本将发出一个 "get snapshot for all on
+        <b>dbname</b>" 命令，该命令包括 "get snapshot for dynamic SQL on
+        <b>dbname</b>" 命令的所有输出。如果您发现不会捕获很多的 SQL 语句，那么可以增加监控的历时。一条语句的输出的 "Dynamic SQL Snapshot Result" 部分看上去如
+        <a href="#清单5">清单 5</a>所示：
+      </p>
+      <a name="清单5">
+        <b>清单 5. 示例动态 SQL 快照</b>
+      </a>
+      <br /> 
+      <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">
+      Dynamic SQL Snapshot Result 
+ Database name                      = SAMPLE 
+ Database path                      = C:\\DB2\\NODE0000\\SQL00003\\
+        <span class="boldcode"> Number of executions           = 1</span>
+ Number of compilations             = 1  
+ Worst preparation time (ms)        = 1624  
+ Best preparation time (ms)         = 1624  
+ Internal rows deleted              = 0  
+ Internal rows inserted             = 0  
+        <span class="boldcode"> Rows read                      = 41</span>
+ Internal rows updated              = 0  
+ Rows written                       = 0  
+ Statement sorts                    = 0  
+        <span class="boldcode"> Total execution time (sec.ms)  = 0.134186</span>
+ Total user cpu time (sec.ms)       = 0.000000  
+ Total system cpu time (sec.ms)     = 0.000000  
+        <span class="boldcode"> Statement text                 = select * from sales</span>
+  		...
+      </code></pre></td></tr></table><br /> 
+      <p>您可以看到，在输出中可以搜索一些很有用的字符串。</p>
+      <p>
+        <b>"Number of executions"</b>- 可以帮助您找到应该调优的那些重要语句。它对于帮助计算语句的平均执行时间也很有用。
+      </p>
+      <p>对于执行时间很长的语句，单独执行一次或许对系统要求不多，但是累加起来的结果就会大大降低性能。应尽量理解应用程序如何使用该 SQL，或许只需对应用程序逻辑稍微重新设计一下就可以提高性能。</p>
+      <p>看看是否可以使用参数标记（parameter marker），以便只需为语句创建一个包，这一点也很管用。参数标记 可用作动态准备的语句（生成访问计划时）中的占位符。在执行的时候，就可以将值提供给这些参数标记 marker，从而使语句得以运行。</p>
+      <p>例如，要搜索执行得最频繁的语句：</p>
+      <p>UNIX:</p> 
+      <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">grep -n " Number of executions" 
+        <span class="boldcode">snap.out</span> | grep -v "= 0" | sort -k 5,5rn | more
+      </code></pre></td></tr></table><br /> 
+      <p>Windows:</p> 
+      <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">findstr /C:" Number of executions" 
+        <span class="boldcode">snap.out</span> | findstr /V /C:"= 0"
+      </code></pre></td></tr></table><br /> 
+      <p>
+        <b>"Rows read"</b>- 可帮助识别读取行数最多的 Dynamic SQL 语句。如果读取的行数很多，通常意味着要进行表扫描。如果这个值很高，也可能表明要进行索引扫描，扫描时选择性很小，或者没有选择性，这跟表扫描一样糟糕。
+      </p>
+      <p>您可用使用 Explain 来查看是否真的如此。如果有表扫描发生，那么可以对表执行一次 RUNSTATS，或者将 SQL 语句提供给 DB2 Design Advisor，以便令其推荐一个更好的索引，以此来进行弥补。如果是选择性很差的索引扫描，或许需要一个更好的索引。可以试试 Design Advisor。</p> 
+      <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">grep -n " Rows read" 
+        <span class="boldcode">snap.out</span> | grep -v "= 0" | sort -k 5,5rn
+      </code></pre></td></tr></table><br /> 
+      <p/> 
+      <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">findstr /C:" Rows read" 
+        <span class="boldcode">snap.out</span> | findstr /V /C:"= 0"
+      </code></pre></td></tr></table><br /> 
+      <p>
+        <b>"Total execution time"</b> - 这是将语句每次执行时间加起来得到的总执行时间。我们可以很方便地将这个数字除以执行的次数。如果发现语句的平均执行时间很长，那么可能是因为表扫描和/或出现锁等待（lock-wait）的情况。索引扫描和页面获取导致的大量
+I/O 活动也是一个原因。通过使用索引，通常可以避免表扫描和锁等待。锁会在提交的时候解除，因此如果提交得更频繁一些，或许可以弥补锁等的问题。
+      </p>
+ 
+      <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">grep -n " Total execution time" 
+        <span class="boldcode">snap.out</span> | grep -v "= 0.0" | sort -k 5,5rn | more
+      </code></pre></td></tr></table><br /> 
+      <p/> 
+      <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">findstr /C:" Total execution time" 
+        <span class="boldcode">snap.out</span> | findstr /V /C:"= 0.0" |sort /R
+      </code></pre></td></tr></table><br /> 
+      <p>
+        <b>"Statement text"</b>显示语句文本。如果注意到了重复的语句，这些语句除了 WHERE 子句中谓词的值有所不同以外，其他地方都是一致的，那么就可以使用参数标记，以避免重新编译语句。这样可以使用相同的包，从而帮助避免重复的语句准备，而这种准备的消耗是比较大的。还可以将语句文本输入到 Design Advisor 中，以便生成最优的索引。
+      </p> 
+      <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">grep -n " Statement text" 
+        <span class="boldcode">snap.out</span> | more
+      </code></pre></td></tr></table><br /> 
+      <p/> 
+      <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">findstr /C:"Statement text" 
+        <span class="boldcode">snap.out</span>
+      </code></pre></td></tr></table><br /> 
+      <p><a name="IDAG3JHF"><span class="smalltitle">缓冲池大小的设置</span></a></p>
+      <p>
+通过使用 "get snapshot for all on 
+        <b>dbname</b>" 可以为数据库上的每个缓冲池生成一个快照。
+        <a href="#清单6">清单 6</a>展示了那样一个快照：
+      </p>
+      <a name="清单6">
+        <b>清单 6. 示例缓冲池快照</b>
+      </a>
+      <br /> 
+      <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">
+             Bufferpool Snapshot
+Bufferpool name                            = IBMDEFAULTBP
+Database name                              = SAMPLE
+Database path                              = C:\\DB2\\NODE0000\\SQL00002\\
+Input database alias                       = SAMPLE
+Snapshot timestamp                         = 02-20-2004 06:24:45.991065
+        <span class="boldcode">Buffer pool data logical reads        = 370</span>
+        <br />
+        <span class="boldcode">Buffer pool data physical reads       = 54</span>
+Buffer pool temporary data logical reads   = 0
+Buffer pool temporary data physical reads  = 0
+Buffer pool data writes                    = 3
+        <span class="boldcode">Buffer pool index logical reads       = 221</span>
+        <br />
+        <span class="boldcode">Buffer pool index physical reads      = 94</span>
+Buffer pool temporary index logical reads  = 0
+Buffer pool temporary index physical reads = 0
+Total buffer pool read time (ms)           = 287
+Total buffer pool write time (ms)          = 1
+Asynchronous pool data page reads          = 9
+Asynchronous pool data page writes         = 0
+Buffer pool index writes                   = 0
+Asynchronous pool index page reads         = 0
+Asynchronous pool index page writes        = 0
+Total elapsed asynchronous read time       = 0
+Total elapsed asynchronous write time      = 0
+Asynchronous data read requests            = 3
+Asynchronous index read requests           = 0
+No victim buffers available                = 0
+Direct reads                               = 86
+Direct writes                              = 4
+Direct read requests                       = 14
+Direct write requests                      = 2
+Direct reads elapsed time (ms)             = 247
+Direct write elapsed time (ms)             = 56
+Database files closed                      = 0
+Data pages copied to extended storage      = 0
+Index pages copied to extended storage     = 0
+Data pages copied from extended storage    = 0
+Index pages copied from extended storage   = 0
+Unread prefetch pages                      = 0
+Vectored IOs                               = 3
+Pages from vectored IOs                    = 9
+        <span class="boldcode">Block IOs                             = 0</span>
+Pages from block IOs                       = 0
+Physical page maps                         = 0
+Node number                                = 0
+Tablespaces using bufferpool               = 4
+Alter bufferpool information:
+ Pages left to remove                      = 0
+        <span class="boldcode"> Current size                         = 250</span>
+ Post-alter size                           = 250
+      </code></pre></td></tr></table><br /> 
+      <p>为了判断一个缓冲池的效率，需要计算它的缓冲池命中率（BPHR）。您所需的重要信息在上面已经用粗体标出来了。如果可能的话，一个理想的 BPHR 在某些地方应超过 90%。公式如下：</p> 
+      <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">BPHR (%) = (1 - (("Buffer pool data physical reads" + "Buffer pool index physical reads") / 
+           ("Buffer pool data logical reads" + "Buffer pool index logical reads"))) * 100
+</code></pre></td></tr></table><br /> 
+      <p>在 IBMDEFAULTBP 缓冲池的
+        <a href="#清单6">以上快照</a>中，我们可以这样来计算 BPHR：
+      </p> 
+      <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">	
+        = (1-((54 + 94) / (370 + 221))) * 100
+	= (1-(148 / 591)) * 100
+	= (1- 0.2504) * 100
+	= 74.96
+</code></pre></td></tr></table><br /> 
+      <p>在这种情况下，BPHR 大约等于 75%。当前，缓冲池只有 250 * 4KB 页（1MB）。增加该缓冲池的大小，看看 BPHR 是否会随之增加，这样做是值得的。如果 BPHR 还是比较低，那么可能就需要像
+        <a href="#bufferpools">创建缓冲池</a>和
+        <a href="#tablespaces">创建表空间</a>这两节中讨论的那样重新设计逻辑布局。
+      </p>
+      <p>
+        <b>基于块的缓冲池的效率</b>
+        <br />
+如果是一个基于块的缓冲池，并且看到 "Block IOs" 的值较低，那么应考虑修改缓冲池，增加 NUMBLOCKPAGES 的大小。如果这时看到 "Block IOs" 的值更大了，则可以考虑将 NUMBLOCKPAGES 再增大一些。如果结果适得其反，则应减小 NUMBLOCKPAGES 的大小。
+      </p>
+      <p><a name="configuration"><span class="smalltitle">DBM 和 DB 配置</span></a></p>
+      <p>
+DB2 有几十个配置参数。很多参数都是由 DB2 自动配置的，而其他一些参数都有它们的缺省值，这些缺省值都被证明在大多数环境中能够发挥得很好。接下来，我们只描述那些常常需要另外进行配置的参数。</p>
+      <p>有些数据库管理器（即实例）配置参数可以在线更改（立即生效），而另一些参数则要求对实例实行再循环（即 DB2STOP 之后接着又是 DB2START）。对于数据库配置参数也是一样。有些参数的更改可以立即生效，而另一些参数则要求先停止数据库，再重新激活数据库。关于每种配置参数的文档都规定了参数是否可以在线配置。</p>
+      <p>数据库管理器和数据库配置文件的基本管理命令如
+        <a href="#table3">表 3</a>所示：
+      </p>
+      <p><a name="table3"><span class="smalltitle">表 3. 数据库管理器和数据库配置管理</span></a></p>
+      <p>
+        <table border="1" cellpadding="3" cellspacing="0" width="70%"><tr valign="top"><td>
+              <b>命令</b>
+            </td><td>
+              <b>描述</b>
+            </td></tr><tr valign="top"><td>GET DBM CFG [SHOW DETAIL]</td><td>列出数据库管理器配置文件中的当前值</td></tr><tr valign="top"><td>UPDATE DBM CFG USING
+              <b>config_param value</b>
+            </td><td>将指定的数据库管理器配置参数设置成指定的值</td></tr><tr valign="top"><td>GET DB CFG FOR
+              <b>db_name</b>[SHOW DETAIL]
+            </td><td>列出某个特定数据库的配置文件中的当前值</td></tr><tr valign="top"><td>UPDATE DB CFG FOR
+              <b>db_name</b>USING
+              <b>config_param value</b>
+            </td><td>将指定的数据库管理器配置参数设置成指定的值</td></tr></table>
+      <p>当您对一个配置参数作了更改时，就可以用下面的 DB2 CLP 命令查看该设置是否立即生效（在线）：</p> 
+      <code>GET DBM CFG SHOW DETAIL</code> 
+      <p/> 
+      <code>GET DB CFG FOR 
+        <span class="boldcode">dbname</span> SHOW DETAIL
+      </code> 
+      <p>例如，在接下来的情况中，MAX_QUERYDEGREE 和 MAXTOTFILOP 分别增加到了 3 和 19000。如果参数是在线配置的，则 Delayed Value 跟 Current Value 应该是一样的。否则，就需要重新启动实例，或者重新激活数据库。</p>
+      <a name="IDANBKHF">
+        <b>清单 7. Show Details 实例</b>
+      </a>
+      <br /> 
+      <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">
+          Database Manager Configuration
+     Node type = Enterprise Server Edition with local and remote clients
+ Description                                   Parameter   Current Value      Delayed Value
+-------------------------------------------------------------------------------------------
+ Maximum query degree of parallelism   (MAX_QUERYDEGREE) = 3                  3
+ Maximum total of files open               (MAXTOTFILOP) = 16000              19000
+</code></pre></td></tr></table><br /> 
+      <p>下面的配置参数中，有些是从共享内存分配空间的，所以应该记住 OS 的限制（在
+        <a href="#bufferpools">前面</a>已讨论）。您必须确保没有过度分配内存。如果过度分配内存，就会导致操作系统发生换页（page），这对于性能来说是灾难性的。
+      </p>
+      <p>
+        <a href="http://publib.boulder.ibm.com/infocenter/db2help/index.jsp">DB2 v8 Documentation:</a>
+      </p>
+      <ul>
+        <li>Reference ==&gt; Configuration parameters ==&gt; Database manager</li>
+        <li>Reference ==&gt; Configuration parameters ==&gt; Database</li>
+      </ul>
+      <p>
+        <a href="#清单8">清单 8</a>和
+        <a href="#清单9">清单 9</a>显示了一个数据库管理器和数据库快照的示例。顺着右边（顺带提一下），可以看到能根据输出进行调优的配置参数。
+      </p>
+      <a name="清单8">
+        <b>清单 8. 数据库管理器快照</b>
+      </a>
+      <br /> 
+      <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">
+            Database Manager Snapshot
+Node name                                      =
+Node type                                      = Enterprise Server Edition with  
+                                                 local and remote clients
+Instance name                                  = DB2
+Number of database partitions in DB2 instance  = 1
+Database manager status                        = Active
+Product name                                   = DB2 v8.1.4.341
+Service level                                  = s031027 (WR21326)
+        <span class="boldcode">Private Sort heap allocated               = 0                                (SHEAPTHRES</span>
+        <br />
+        <span class="boldcode">Private Sort heap high water mark         = 1024</span>
+        <br />
+        <span class="boldcode">Post threshold sorts                      = 0                                     and</span>
+        <br />
+        <span class="boldcode">Piped sorts requested                     = 0</span>
+        <br />
+        <span class="boldcode">Piped sorts accepted                      = 0                                  SORTHEAP)</span>
+        <br />
+Start Database Manager timestamp               = 02-17-2004 14:24:37.107003
+Last reset timestamp                           =
+Snapshot timestamp                             = 02-20-2004 06:19:53.272049
+        <span class="boldcode">Remote connections to db manager          = 0       (MAXAGENTS,MAXAPPLS,MAX_COORDAGENTS)</span>
+        <br />
+Remote connections executing in db manager     = 0
+        <span class="boldcode">Local connections                         = 1       (MAXAGENTS,MAXAPPLS,MAX_COORDAGENTS)</span>
+        <br />
+Local connections executing in db manager      = 0
+        <span class="boldcode">Active local databases                    = 1                                     (NUMDB)</span>
+        <br />
+        <span class="boldcode">High water mark for agents registered     = 8                                 (MAXAGENTS)</span>
+        <br />
+High water mark for agents waiting for a token = 0
+        <span class="boldcode">Agents registered                         = 8                                 (MAXAGENTS)</span>
+        <br />
+Agents waiting for a token                     = 0
+        <span class="boldcode">Idle agents                               = 6         (NUM_POOLAGENTS and NUM_INITAGENTS)</span>
+        <br />
+Committed private Memory (Bytes)               = 46645248
+Switch list for db partition number 0
+Buffer Pool Activity Information  (BUFFERPOOL) = ON  02-20-2004 06:18:57.403336
+Lock Information                        (LOCK) = ON  02-20-2004 06:18:57.403338
+Sorting Information                     (SORT) = ON  02-20-2004 06:18:57.403339
+SQL Statement Information          (STATEMENT) = ON  02-20-2004 06:18:57.403333
+Table Activity Information             (TABLE) = ON  02-20-2004 06:18:57.403335
+Take Timestamp Information         (TIMESTAMP) = ON  02-17-2004 14:24:37.107003
+Unit of Work Information                 (UOW) = ON  02-20-2004 06:18:57.403328
+        <span class="boldcode">Agents assigned from pool                 = 26        (NUM_POOLAGENTS and NUM_INITAGENTS)</span>
+        <br />
+        <span class="boldcode">Agents created from empty pool            = 10        (NUM_POOLAGENTS and NUM_INITAGENTS)</span>
+        <br />
+        <span class="boldcode">Agents stolen from another application    = 0                                 (MAXAGENTS)</span>
+High water mark for coordinating agents        = 8
+        <span class="boldcode">Max agents overflow                       = 0                                 (MAXAGENTS)</span>
+Hash joins after heap threshold exceeded       = 0
+Total number of gateway connections            = 0
+Current number of gateway connections          = 0
+Gateway connections waiting for host reply     = 0
+Gateway connections waiting for client request = 0
+Gateway connection pool agents stolen          = 0
+Node FCM information corresponds to            = 2
+Free FCM buffers                               = 4093
+        <span class="boldcode">Free FCM buffers low water mark           = 4087                       (FCM_NUM_BUFFERS)</span>
+Free FCM message anchors                       = 1279
+Free FCM message anchors low water mark        = 1276
+Free FCM connection entries                    = 1280
+Free FCM connection entries low water mark     = 1276
+Free FCM request blocks                        = 2031
+Free FCM request blocks low water mark         = 2026
+Number of FCM nodes                            = 4
+        <span class="boldcode">Node         Total Buffers       Total Buffers       Connection         (FCM_NUM_BUFFERS)
+Number       Sent                Received            Status
+-----------  ------------------  ------------------  -----------------
+          0          282                 275         Active
+          1           51                  48         Active
+          2            0                   0         Active
+          3            1                   1         Active
+</span>
+Memory usage for database manager:
+        <span class="boldcode">    Memory Pool Type                      = Backup/Restore/Util Heap      (UTIL_HEAP_SZ*)
+       Current size (bytes)               = 16384
+       High water mark (bytes)            = 16384
+       Maximum size allowed (bytes)       = 20660224
+    Memory Pool Type                      = Package Cache Heap              (PCKCACHESZ*)
+       Current size (bytes)               = 327680
+       High water mark (bytes)            = 327680
+       Maximum size allowed (bytes)       = 1071644672
+    Memory Pool Type                      = Catalog Cache Heap         (CATALOGCACHE_SZ*)
+       Current size (bytes)               = 81920
+       High water mark (bytes)            = 81920
+       Maximum size allowed (bytes)       = 1071644672 </span>
+    Memory Pool Type                           = Buffer Pool Heap
+       Current size (bytes)                    = 1179648
+       High water mark (bytes)                 = 1179648
+       Maximum size allowed (bytes)            = 1071644672
+        <span class="boldcode">    Memory Pool Type                   = Lock Manager Heap                    (LOCKLIST*)
+       Current size (bytes)               = 278528
+       High water mark (bytes)            = 278528
+       Maximum size allowed (bytes)       = 425984
+    Memory Pool Type                      = Database Heap                       (DBHEAP*)
+       Current size (bytes)               = 3342336
+       High water mark (bytes)            = 3342336
+       Maximum size allowed (bytes)       = 6275072
+    Memory Pool Type                      = Database Monitor Heap           (MON_HEAP_SZ)
+       Current size (bytes)               = 180224
+       High water mark (bytes)            = 425984
+       Maximum size allowed (bytes)       = 442368</span>
+    Memory Pool Type                           = Other Memory
+       Current size (bytes)                    = 8060928
+       High water mark (bytes)                 = 8159232
+       Maximum size allowed (bytes)            = 1071644672
+      </code></pre></td></tr></table><br /> 
+      <p>快照总是显示 Current size (bytes) = High water mark (bytes)，因为内存是在数据库激活的时候分配的。</p>
+      <a name="清单9">
+        <b>清单 9. 数据库快照</b>
+      </a>
+      <br /> 
+      <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">
+                          Database Snapshot
+Database name                              = SAMPLE
+Database path                              = C:\\DB2\\NODE0000\\SQL00002\\
+Input database alias                       = SAMPLE
+Database status                            = Active
+Catalog database partition number          = 0
+Catalog network node name                  =
+Operating system running at database server= NT
+Location of the database                   = Local
+First database connect timestamp           = 02-20-2004 06:19:00.847979
+Last reset timestamp                       =
+Last backup timestamp                      =
+Snapshot timestamp                         = 02-20-2004 06:23:17.252491
+        <span class="boldcode">High water mark for connections       = 1                (MAXAPPLS)</span>
+Application connects                       = 1
+Secondary connects total                   = 0
+        <span class="boldcode">Applications connected currently      = 1                 (AVG_APPLS)</span>
+Appls. executing in db manager currently   = 0
+Agents associated with applications        = 1
+Maximum agents associated with applications= 1
+Maximum coordinating agents                = 1
+Locks held currently                       = 0
+Lock waits                                 = 0
+Time database waited on locks (ms)         = 0
+        <span class="boldcode">Lock list memory in 使用 (Bytes)       = 1000    (LOCKLIST and MAXLOCKS)</span>
+Deadlocks detected                         = 0
+        <span class="boldcode">Lock escalations                      = 0         (LOCKLIST and MAXLOCKS)</span>
+        <br />
+        <span class="boldcode">Exclusive lock escalations            = 0          (LOCKLIST and MAXLOCKS)</span>
+Agents currently waiting on locks          = 0
+        <span class="boldcode">Lock Timeouts                         = 0                (LOCKTIMEOUT)</span>
+Number of indoubt transactions             = 0
+        <span class="boldcode">Total Private Sort heap allocated     = 0      (SHEAPTHRES and SORTHEAP)</span>
+        <br />
+        <span class="boldcode">Total Shared Sort heap allocated      = 0    (SHEAPTHRES_SHR and SORTHEAP)</span>
+        <br />
+        <span class="boldcode">Shared Sort heap high water mark      = 0   (SHEAPTHRES_SHR and SORTHEAP)</span>
+        <br />
+Total sorts                                = 0
+Total sort time (ms)                       = 0
+        <span class="boldcode">Sort overflows                        = 0              (SORTHEAP)</span>
+Active sorts                               = 0
+Buffer pool data logical reads             = 370
+Buffer pool data physical reads            = 54
+Buffer pool temporary data logical reads   = 0
+Buffer pool temporary data physical reads  = 0
+        <span class="boldcode">Asynchronous pool data page reads     = 9           (NUM_IOSERVERS)</span>
+        <br />
+        <span class="boldcode">Buffer pool data writes               = 3      (CHNGPGS_THRESH and NUM_IOCLEANERS)</span>
+        <br />
+        <span class="boldcode">Asynchronous pool data page writes    = 0      (CHNGPGS_THRESH and NUM_IOCLEANERS)</span>
+        <br />
+Buffer pool index logical reads            = 221
+Buffer pool index physical reads           = 94
+Buffer pool temporary index logical reads  = 0
+Buffer pool temporary index physical reads = 0
+        <span class="boldcode">Asynchronous pool index page reads    = 0         (NUM_IOSERVERS)</span>
+        <br />
+        <span class="boldcode">Buffer pool index writes              = 0      (CHNGPGS_THRESH and NUM_IOCLEANERS)</span>
+        <br />
+        <span class="boldcode">Asynchronous pool index page writes   = 0     (CHNGPGS_THRESH and NUM_IOCLEANERS)</span>
+Total buffer pool read time (ms)           = 287
+Total buffer pool write time (ms)          = 1
+Total elapsed asynchronous read time       = 0
+Total elapsed asynchronous write time      = 0
+Asynchronous data read requests            = 3
+Asynchronous index read requests           = 0
+No victim buffers available                = 0
+LSN Gap cleaner triggers                   = 0
+        <span class="boldcode">Dirty page steal cleaner triggers     = 0            (CHNGPGS_THRESH)</span>
+        <br />
+        <span class="boldcode">Dirty page threshold cleaner triggers = 0           (CHNGPGS_THRESH)</span>
+        <br />
+        <span class="boldcode">Time waited for prefetch (ms)         = 0            (NUM_IOSERVERS)</span>
+Unread prefetch pages                      = 0
+Direct reads                               = 86
+Direct writes                              = 4
+Direct read requests                       = 14
+Direct write requests                      = 2
+Direct reads elapsed time (ms)             = 247
+Direct write elapsed time (ms)             = 56
+        <span class="boldcode">Database files closed                 = 0          (MAXFILOP)</span>
+Data pages copied to extended storage      = 0
+Index pages copied to extended storage     = 0
+Data pages copied from extended storage    = 0
+Index pages copied from extended storage   = 0
+Host execution elapsed time                = 0.000039
+Commit statements attempted                = 6
+Rollback statements attempted              = 1
+Dynamic statements attempted               = 281
+Static statements attempted                = 7
+Failed statement operations                = 1
+Select SQL statements executed             = 4
+Update/Insert/Delete statements executed   = 0
+DDL statements executed                    = 2
+Internal automatic rebinds                 = 0
+Internal rows deleted                      = 0
+Internal rows inserted                     = 0
+Internal rows updated                      = 0
+Internal commits                           = 1
+Internal rollbacks                         = 0
+Internal rollbacks due to deadlock         = 0
+Rows deleted                               = 0
+Rows inserted                              = 0
+Rows updated                               = 0
+Rows selected                              = 336
+Rows read                                  = 375
+Binds/precompiles attempted                = 0
+        <span class="boldcode">Log space available to the database (Bytes)= 5095757   (LOGPRIMARY and LOGSECOND)</span>
+Log space used by the database (Bytes)     = 4243
+Maximum secondary log space used (Bytes)   = 0
+        <span class="boldcode">Maximum total log space used (Bytes)  = 6498    (LOGPRIMARY and LOGSECOND)</span>
+        <br />
+        <span class="boldcode">Secondary logs allocated currently    = 0      (LOGPRIMARY and LOGSECOND)</span>
+        <br />
+        <span class="boldcode">Log pages read                        = 0              (LOGBUFSZ)</span>
+        <br />
+        <span class="boldcode">Log pages written                     = 5              (LOGBUFSZ)</span>
+Appl id holding the oldest transaction     = 38
+        <span class="boldcode">Package cache lookups                 = 10        (PKGCACHESZ)</span>
+        <br />
+        <span class="boldcode">Package cache inserts                 = 8         (PKGCACHESZ)</span>
+        <br />
+        <span class="boldcode">Package cache overflows               = 0         (PKGCACHESZ)</span>
+        <br />
+        <span class="boldcode">Package cache high water mark (Bytes) = 191140    (PKGCACHESZ)</span>
+Application section lookups                = 281
+Application section inserts                = 6
+        <span class="boldcode">Catalog cache lookups                 = 18       (CATALOGCACHE_SZ)</span>
+        <br />
+        <span class="boldcode">Catalog cache inserts                 = 9        (CATALOGCACHE_SZ)</span>
+        <br />
+        <span class="boldcode">Catalog cache overflows               = 0        (CATALOGCACHE_SZ)</span>
+        <br />
+        <span class="boldcode">Catalog cache high water mark         = 0        (CATALOGCACHE_SZ)</span>
+Workspace Information
+ Shared high water mark                    = 0
+ Corresponding shared overflows            = 0
+ Total shared section inserts              = 0
+ Total shared section lookups              = 0
+ Private high water mark                   = 21102
+ Corresponding private overflows           = 0
+ Total private section inserts             = 6
+ Total private section lookups             = 6
+Number of hash joins                       = 0
+Number of hash loops                       = 0
+        <span class="boldcode">Number of hash join overflows         = 0         (SORTHEAP)</span>
+        <br />
+        <span class="boldcode">Number of small hash join overflows   = 0         (SORTHEAP)</span>
+      </code></pre></td></tr></table><br /> 
+      <p>有时候，为了某些问题使用 "grep" (UNIX) 和 "findstr" (Windows) 对快照输出执行初步的搜索非常方便。如果发现了什么东西，就可以通过打开快照输出并找到问题所在，以便作进一步调查。</p>
+      <p>例如，为了识别是否存在死锁：</p>
+      <p>UNIX:</p> 
+      <code>grep -n "Deadlocks detected" 
+        <span class="boldcode">snap.out</span> | grep -v "= 0" | more
+      </code> 
+      <p>Windows:</p> 
+      <code>findstr /C:"Deadlocks detected" 
+        <span class="boldcode">snap.out</span> | findstr /V /C:"= 0"
+      </code> 
+      <p>
+        <b>SHEAPTHRES (DBM)</b>
+        <br />
+这是实例中所有数据库的并发私有排序 所消耗的内存总量。另外传入的排序只能得到更少量的可用内存。对于 OLTP，一开始最好是使用大约 20000，而对于 OLAP 40000-60000 会工作得更好一些。
+      </p>
+      <p>当
+        <b>"Piped sorts accepted"</b>的值与
+        <b>"Piped sorts requested"</b> 比起来较低时，通过增加
+SHEAPTHRES 的大小，常常可以提高性能。如果 
+        <b>"Post threshold sorts"</b> （在 SHEAPTHRES
+已经被超出之后，请求堆的排序） 的值较高（也就是有两位数），应尝试增加 SHEAPTHRES 的大小。
+        <b>"Total Private Sort
+heap allocated"</b>应该小于 SHEAPTHRES。如果不是这样，则应增加 SHEAPTHRES。
+      </p>
+      <p>
+        <b>
+          <a name="maxagents">MAXAGENTS (DBM)</a>
+        </b>
+        <br />
+这是可用于接受对实例中所有数据库的应用程序请求的数据库管理器代理的最多数量。在受限内存（memory constrained）的环境中，这个参数对于限制数据库管理器的总内存使用量很有用，因为每个附加的代理都需要附加的内存。
+      </p>
+      <p>如果机器是受限内存的，那么可以增加 MAXAGENTS，直到
+        <b>"Agents stolen from another application"</b>为 0。此外，
+        <b>"Local connections"</b>+
+        <b>"Remote connections to db manager"</b>将指出连接到实例上的并发连接的数量。
+        <b>"High water mark for agents registered"</b>将报告在某一次连接到数据库管理器的代理曾出现的最大数量。
+        <b>"Max agents overflow"</b>报告当已经达到 MAXAGENTS 时，所收到的创建一个新代理的请求的次数。最后，
+        <b>"Agents Registered"</b>显示在被监控的数据库管理器实例中当前注册的代理的数量。
+      </p>
+      <p>
+        <b>NUMDB (DBM)</b>
+        <br />
+指定可以同时激活的本地数据库的数量。在生产系统中，建议每个实例有一个数据库，因此应该将这个值设为 1。否则，将其设为同时激活的数据库的最大数量。如果不确定的话，使用 
+        <b>"Active local databases"</b>。
+      </p>
+      <p>
+        <b>NUM_INITAGENTS 和 NUM_POOLAGENTS (DBM)</b>
+        <br />
+NUM_INITAGENTS 指定在 db2start 上的池中创建的空闲代理的数量，它可以帮助加快在开始使用数据库时的连接。NUM_POOLAGENTS 也是相关的，但是如果数据库已经运行了一段时间，那么它对性能会有更大的影响。当 Connections Concentrator 为 OFF（缺省值；MAX_CONNECTIONS = MAX_COORDAGENTS）时，NUM_POOLAGENTS 指定代理池的最大大小。当 Concentrator 为 ON （MAXCONNECTIONS &gt; MAX_COORDAGENTS）时，可以参考这个值来决定在系统工作负载较低时代理池应该有多大。
+      </p>
+      <p>NUM_INITAGENTS 和 NUM_POOLAGENTS 应该设为预期的并发实例级连接的平均数量，对于 OLAP 这个值通常比较低，而对于 OLTP 就要高一些。对于存在大量 ramp up 连接情况下的性能基准，将 NUM_INITAGENTS 设置成预期的连接数量（这将减少资源争用，从而显著地减少 ramp up 连接所需的时间）。在使用了连接池的 3 层环境中，NUM_INITAGENTS 和 NUM_POOLAGENTS 对性能的影响很小，因为即使在应用程序空闲的时候，应用服务器也会连续不断地维护连接。</p>
+      <p>
+        <b>"Idle agents"</b>显示了在代理池中空闲代理的数量，而
+        <b>"Agents assigned from pool"</b>则显示从代理池中将一个代理分配出去的次数。
+        <b>"Agents created from empty pool"</b>显示在空池情况下必须创建的代理的数量，这可能会让人误解为刚好在 db2start 之后。而在 db2start 之后，它只是显示被创建的代理的数量。如果
+        <b>"Agents created from empty pool"</b>/
+        <b>"Agents assigned from pool"</b>的比例比较高（5:1 或更大），则可能表明应该增加 NUM_POOLAGENTS。这也可能表明系统的总体工作负载太高。这时可以通过降低 MAXCAGENTS 来调整工作负载。如果这个比例较低，则暗示着 NUM_POOLAGENTS 可能被设得太高，有些代理就会浪费系统资源。
+      </p>
+      <p>
+        <b>FCM_NUM_BUFFERS (DBM)</b>
+        <br />
+只在有多个逻辑分区的 DPF 环境中使用。它指定用于内部通信的大小为 4 KB 的缓冲区的数量。如果没有使用 DPF，那么这个值甚至不会出现在快照输出中。此外，该信息将来自其上运行了快照的分区。例如，在 DBM 快照之前的那个快照中，
+        <b>"Node FCM information corresponds to"</b>显示了一个值 2，因此它是从 2 号分区那里得来的。"Get snapshot for dbm global" 可用于获得所有分区值的群集。
+      </p>
+      <p>DBM 快照的 FCM Node 部分可用于查看主要的分区间通信发生的地点，以用于调查的目的。如果通信量很大，则表明需要更多的 FCM 缓冲区内存，需要不同的分区键，或者需要不同的表来分派表空间。如果
+        <b>"Free FCM buffers low water mark"</b>小于 FCM_NUM_BUFFERS 的百分之 15，那么可以增加 FCM_NUM_BUFFERS，直到
+        <b>"Free FCM buffers low water mark"</b>大于或等于 FCM_NUM_BUFFERS 的百分之 15，以确保总有足够的 FCM 资源可供使用。
+      </p>
+      <p>
+        <b>AVG_APPLS (DB)</b>
+        <br />
+只有在应用程序发出复杂的 SQL（例如连接、函数、递归等等）时才更改它，否则让它一直为 1。这可以帮助估计在运行时可以为一个访问计划提供多少的缓冲池。它应该设为一个较低的值，即 
+        <b>"Applications connected currently"</b>的平均数量乘以复杂 SQL 的百分比。
+      </p>
+      <p>
+        <b>LOCKLIST 和 MAXLOCKS (DB)</b>
+        <br />
+对于每个数据库都有一个锁列表，该列表包含所有同时连接到数据库的应用程序所持有的锁。在 32 位的平台上，一个对象上的第一个锁要求占 72 字节，而其他的锁要求占 36 字节。在 64 位平台上，第一个锁要求占 112 字节，而其他锁要求占 56 字节。
+      </p>
+      <p>当一个应用程序使用的 LOCKLIST 的百分比达到 MAXLOCKS 时，数据库管理器将执行一次锁升级（lock escalation），在这个操作中将使得行锁换成单独的一个表锁。而且，如果
+LOCKLIST 快要耗尽，数据库管理器将找出持有一个表上的最多行锁的连接，并将这些行锁换成表锁，以释放 LOCKLIST 内存。锁整个表可以大大减少并发性，死锁的几率也增加了。</p>
+      <p>如果
+        <b>"Lock list memory in 使用 (Bytes)"</b>超出了定义的 LOCKLIST 大小的 50％，那么应增加 LOCKLIST 4 KB 大小的页面的数量。如果发生了
+        <b>"Lock escalations"</b>或
+        <b>鈥淓xclusive lock escalations鈥_</b>，则应该或者增加 LOCKLIST，或者增加 MAXLOCKS，抑或同时增加两者。
+      </p>
+      <p>关于锁的数据库快照部分包含大量有价值的信息。看看
+        <b>"Locks held currently"</b>、
+        <b>"Lock waits"</b>、
+        <b>"Time database waited on locks (ms)"</b>、
+        <b>"Agents currently waiting on locks"</b>和
+        <b>"Deadlocks detected"</b>中是否存在高值，如果有的话，就可能是差于最优访问计划、事务时间较长或者应用程序并发问题的症状。如果要发现死锁，那么需要创建一个针对死锁的事件监视器，事件监视器带有详细信息，以便查看当前正在发生的事情。
+      </p>
+      <p>要了解关于锁问题的详细信息，请参阅 Bill Wilkins 撰写的文章
+        <a href="/developerworks/db2/library/techarticle/0310wilkins/0310wilkins.html">Diagnosing and Resolving Lock Problems with DB2 Universal Database</a>。
+      </p>
+      <p>您可以做下列事情来减少锁：</p>
+      <ul>
+        <li>确保应用程序正在使用最低的隔离级别。</li>
+        <li>经常执行 COMMIT。</li>
+        <li>当执行很多更新时，在更新前显式地锁整个表（使用 LOCK TABLE 语句）。</li>
+        <li>尽量使用 Cursor Stability 隔离级别（缺省情况），以便减少被持有的共享锁的数量。（如果应用程序能够承受脏读，那么 Uncommitted Read 可以进一步减少锁。）</li>
+      </ul>
+      <p>
+        <b>LOCKTIMEOUT (DB)</b>
+        <br />
+指定应用程序在获得一个锁之前所等待的秒数。这可以帮助避免全局死锁的情况。如果该值为 -1，如果出现锁等待，则应用程序将会出现。Bill Wilkins
+        <a href="/developerworks/db2/library/techarticle/0310wilkins/0310wilkins.html">关于锁的文章</a>
+也以较大的篇幅包含了这一点。
+      </p>
+      <p>对于生产系统中的 OLAP，一开始为 60 （秒）比较好，对于 OLTP 大约为 10 秒比较好。对于开发环境，应该使用 -1，以识别和解决锁等待的情况。如果有大量的并发用户，可能需要增加
+OLTP 时间，以避免回滚。</p>
+      <p>如果
+        <b>"Lock Timeouts"</b>是一个较高的数，那么可能由以下原因造成：(1) LOCKTIMEOUT 的值太低，(2) 某个事务持有锁的时间有所延长，或者(3) 锁升级。
+      </p>
+      <p>
+        <b>SHEAPTHRES_SHR (DBM)</b>
+        <br />
+这是对一个实例中并发共享的排序可以消耗的内存总量的硬性限制。这个值只有在以下情况下才适用：(1) INTRA_PARALLEL=YES，或者 (2) Concentrator 在 （MAX_CONNECTIONS &gt; MAX_COORDAGENTS） 范围内。对于在 WITH HOLD 选项下使用游标的 排序，将从共享内存中为其分配内存。
+      </p>
+      <p>
+        <b>"Shared Sort heap high water mark"</b>显示一次最多可以分配的共享排序 内存。如果这个值总是远远低于 SHEAPTHRES_SHR，那么应该减少 SHEAPTHRES_SHR，以便为其他数据库函数节省内存。如果这个值刚好接近于 SHEAPTHRES_SHR，那么可能需要增加 SHEAPTHRES_SHR。
+        <b>"Total Shared Sort heap allocated"</b>是从排序堆空间中为所有排序 分配的总页数。如果元素值大于或等于 SHEAPTHRES_SHR，则意味着这些排序没有得到由 SORTHEAP 参数定义的完整排序堆空间。增加 SHEAPTHRES_SHR 的大小，以帮助避免这种情况。
+      </p>
+      <p>在设置时，应尽量使其为 SORTHEAP 的倍数。</p>
+      <p>
+        <b>SORTHEAP (DB)</b>
+        <br />
+这个参数指定为私有排序 使用的最大私有内存页数，或者指定为共享排序使用的最大共享内存页数。每个排序都有一个独立的排序堆，这是由数据库管理器在需要的时候分配的。
+      </p>
+      <p>通常大家都理解得很好的是，当一个排序所需的内存量超过了 SORTHEAP 时，就会发生 排序溢出。然而理解得不够好的一点是，如果统计信息已过时，或者数据有偏差，并且没有收集到发布统计信息，这时一旦 DB2 请求一个太小的堆，而实际的排序操作超出了所请求的量，就会发生溢出。因此，使统计信息保持时新十分重要。此外，应确保排序 不是一个丢失的索引的结果。</p>
+      <p>对于 OLTP，一开始最好是设为 128，对于 OLAP，则设置在 4096 - 8192 之间。如果有很多的
+        <b>"Sort overflows"</b>
+（两位数）那么很可能需要增加 SORTHEAP。如果 
+        <b>"Number of hash join overflows"</b> 不为 0，则按照
+256 逐次增加 SORTHEAP，直到它为 0。如果 
+        <b>"Number of small hash join overflows"</b>
+不为 0，则按 10% 的速度增加 SORTHEAP，直到小散列连接溢出数为 0。
+      </p>
+      <p>
+        <b>CHNGPGS_THRESH (DB)</b>
+        <br />
+使用这个参数来指定缓冲池中被更改页面所占的百分比，此时将启动异步的页面清除器将更改写入到磁盘，以便在缓冲池中为新的数据空出空间。在只读环境下，不使用页面清除器。在 OLTP 中，使用 20-40 这样的一个值应该可以提高性能（在更新活动庞大的情况下使用 20），因为使这个值更低一些将使 I/O Cleaners 在从脏缓冲池页面写出数据时更具有侵略性，但是每次做的工作却变少了。如果没有很多的 INSERT 或 UPDATE，则对于 OLTP 和 OLAP 来说，缺省的 60 应该就比较好了。
+      </p>
+      <p>如果
+        <b>"Dirty page steal cleaner triggers"</b>是一个两位数，则试着降低之。如果
+        <b>"Buffer pool data writes"</b>较高，而
+        <b>"Asynchronous pool data page writes"</b>较低，则试着降低这个参数。
+      </p>
+      <p>从 FixPak 4 起，有另一种页面清除算法，这种算法可以提高特定缓冲池的性能。您需要令概要注册表变量 DB2_USER_ALTERNATE_PAGE_CLEANING=YES，这样忽略 CHNGPGS_THRESH。确保 NUM_IOSERVERS 至少为 3，否则它会拖新算法的后腿。</p>
+      <p>
+        <b>NUM_IOCLEANERS (DB)</b>
+        <br />
+这个参数指定一个数据库的异步页面清除器的数量，异步页面清除器将更改后的页面从缓冲池写到磁盘。一开始将这个参数设为等于系统中 CPU 的数量。当触发了 I/O Cleaners 时，它们会同时启动，因此您不希望有那么多的清除器，以致影响性能和阻塞其他处理过程。
+      </p>
+      <p>如果 Asynchronous Write Percentage (AWP) 是 90% 或更高，则减少 NUM_IOCLEANERS，如果
+Asynchronous Write Percentage (AWP) 小于 90%，则增加 NUM_IOCLEANERS。</p>
+      <p>AWP = ((
+        <b>"Asynchronous pool data page writes"</b>+
+        <b>"Asynchronous pool index page writes</b>") * 100) / (
+        <b>"Buffer pool data writes"</b>+
+        <b>"Buffer pool index writes"</b>)
+      </p>
+      <p>
+        <b>NUM_IOSERVERS (DB)</b>
+        <br />
+I/O 服务器用于执行预取操作，而此参数则指定一个数据库的 I/O 服务器的最多数量。非预取 I/O 是从数据库代理调度的，因此不受此参数的约束。一开始将该参数设置为等于数据库所跨的物理磁盘数（即使是一个磁盘阵列中的许多磁盘或者一个逻辑卷中的许多磁盘） + 1 或 2，但是不大于 CPU 的 # 的 4-6 倍。
+      </p>
+      <p>如果您很快看到
+        <b>"Time waited for prefetch (ms)"</b>，那么您或许想添加一个 IO Server，以查看性能是否有提高。
+      </p>
+      <p>
+        <b>MAXFILOP (DB)</b>
+        <br />
+这个参数指定每个数据库代理所能打开的最大文件数。如果打开一个文件时被打开的文件数超出了这个值，则要关闭该代理正在使用的一些文件。过度的打开和关闭都会降低性能。SMS 表空间和 DMS 表空间文件容器都是视作文件来对待的。通常 SMS 使用的文件要更多一些。
+      </p>
+      <p>增加该参数的值，直到
+        <b>"Database files closed"</b>为 0。
+      </p>
+      <p>
+        <b>LOGPRIMARY、LOGSECOND 和 LOGFILSZ (DB)</b>
+        <br />
+LOGPRIMARY 指定要预先分配空间的主日志文件的数量，而 LOGSECOND 是按照需要来分配空间的。LOGFILSIZ 定义每个日志文件的大小。
+      </p>
+      <p>如果
+        <b>"Secondary logs allocated currently"</b>的值很大，那么就可能需要增加 LOGFILSIZ 或 LOGPRIMARY （但是要确保 LOGPRIMARY + LOGSECOND 不超过 256）。还可以使用
+        <b>"Maximum total log space used (Bytes)"</b>来帮助指出对日志文件空间（主日志 + 从日志）的依赖性。
+      </p>
+      <p>日志文件的大小对灾难恢复有一定的影响，因为在灾难恢复中要使用日志发送（log shipping）。日志文件比较大时，性能会更好些，但是可能潜在地增加丢失事务的程度。当主系统崩溃时，最近的日志文件及其事务可能无法发送到从系统，因为在失败之前没有关闭该文件。日志文件越大，随着日志文件的丢失，丢失事务的程度也越大。</p>
+      <p>
+        <b>LOGBUFSZ (DB)</b>
+        <br />
+这个参数允许指定用作在将日志记录写到磁盘之前的缓冲区的数据库堆（DBHEAP）的数量。当提交一个事务或者日志缓冲区已满的时候，就要将日志记录写入磁盘。对日志记录进行缓冲将导致将日志记录写入磁盘的活动不那么频繁，但每次要写的日志记录会更多。对于 OLTP，一开始以至少 256 页为佳，对于 OLAP，则以 128 页为佳。如果常常看到多于一对的 
+        <b>"Log pages read"</b>，那么可能需要增加这个值。如果发生了回滚，也可能要读取日志页。
+      </p>
+      <p>如果在试图增加 LOGBUFSZ 时收到一个错误，那么可以按相同数量增加 DBHEAP，然后再次尝试。</p>
+      <p>
+        <b>PKGCACHESZ (DB)</b>
+        <br />
+这个包缓存用作静态和动态 SQL 语句的缓存部分。缓冲包允许数据库管理器减少内部开销，因为它消除了在重新装载一个包时访问系统编目的需要；或者，对于动态 SQL，消除了重新编译的需要。
+      </p>
+      <p>PKGCACHESZ 应该大于
+        <b>"Package cache high water mark (Bytes)"</b>。如果
+        <b>"Package cache overflows"</b>不为 0，那么可以尝试通过增加 PKGCACHESZ 来使这个计数器变为 0。
+      </p>
+      <p>Package Cache Hit Ratio (PCHR) 应该尽可能接近 100%（而不从缓冲池中获取所需的内存）。用下面的公式来计算：</p>
+      <p>PCHR = (1-(
+        <b>"Package cache inserts"</b>/
+        <b>"Package cache lookups"</b>))*100
+      </p>
+      <p>
+        <b>CATALOGCACHE_SZ (DB)</b>
+        <br />
+这个参数用于缓存系统编目信息，例如 SYSTABLE、授权和 SYSROUTINES 信息。缓存编目信息十分重要，尤其是在使用 DPF 的情况下更是如此，因为不必为获得先前已经检索过的信息而访问系统编目（编目分区），从而减少了内部开销。
+      </p>
+      <p>不断增加该值，直到对于 OLTP 的 Catalog Cache Hit Ratio (CCHR) 达到 95% 或更好的值：</p>
+      <p>CCHR = (1-(
+        <b>"Catalog cache inserts"</b>/
+        <b>"Catalog cache lookups"</b>))*100
+      </p>
+      <p>如果
+        <b>"Catalog cache overflows"</b>的值大于 0，也要增加该参数的值。还可以使用
+        <b>"Catalog cache high water mark (Bytes)"</b>来确定编目缓存曾消耗过的最多内存。如果 High water mark 等于允许的 Maximum 大小，那么就需要增加编目缓存堆的大小。
+      </p>
+      <p><a name="experimenting"><span class="smalltitle">实验： DBM 和 DB 配置</span></a></p>
+      <p>
+下面的参数可能带来额外的性能。然而，快照中的特定监视器并不是直接报告出它们的影响。相反，可能需要一次更改一个参数，然后测量应用程序的总体性能。最好的测量方法是从几个快照中检查更改前后 SQL 的执行次数。</p>
+      <p>
+        <b>INTRA_PARALLEL (DBM)</b>
+        <br />
+该参数指定数据库管理器是否可以使用内部分区并行性（intra-partition parallelism）。缺省值 NO 对于并发连接较多的情况（主要是 OLTP）最好，而 YES 对于并发连接较少的情况以及复杂 SQL （OLAP/DSS）来说最好。混合的工作负载通常可以得益于 NO。
+      </p>
+      <p>当启用该参数时，就会导致从共享内存中分配排序内存。此外，如果并发程度显著增加的话，还可能导致过多的系统开销。如果系统是非 OLTP 的，则 CPU 数对分区数的比例是 4:1，而 CPU 负载运行的平均百分比是 50%，INTRA_PARALLEL 很可能会提高性能。</p>
+      <p>
+        <b>DFT_QUERYOPT (DB)</b>
+        <br />
+用于指定在编译 SQL 查询时所使用的缺省优化级别。对于混合的 OLTP/OLAP，使用 5 或 3 作为缺省值，对于 OLTP，使用一个更低的级别，而对于 OLAP，则使用一个更高的级别。对于简单的 SELECTS 或短的运行时查询（通常只需花不到 1 秒钟就可以完成），使用 1 或 0 也许比较合适。如果有很多的表，有很多相同列上的连接谓词，那么尝试级别 1 或 2。对于超过 30 秒钟才能完成的长时间运行的查询，或者如果要插入一个 UNION ALL VIEW（这是在 FixPak4 中加进来的），那么可以尝试使用级别 7。在大多数环境下都应该避免使用级别 9。
+      </p>
+      <p>
+        <b>UTIL_HEAP_SZ (DB)</b>
+        <br />
+该参数指定 BACKUP、RESTORE 和 LOAD 实用程序可以同时使用的最大内存数。如果正在使用 LOAD，那么对于每个 CPU 将 UTIL_HEAP_SZ 设置成至少 10000 页。
+      </p>
+      <p>
+        <b>NEWLOGPATH (DB)</b>
+        <br />
+该参数指定最长 242 个字节的一个字符串，用于更改日志文件写和存储的位置。这可以指向一个全限定路径名，或者指向元设备。将日志路径更改到一个独立的本地高速磁盘（只用于日志记录）可以显著地提高性能。
+      </p>
+      <br /><table border="0" cellspacing="0" cellpadding="0" width="100%"><tr><td><img width="100%" src="" height="1" alt=""/><br /><img alt="" width="8" height="6" border="0" src=""/></td></tr></table><table class="no-print" cellspacing="0" cellpadding="0" align="right"><tr align="right"><td><img width="100%" height="4" src="" alt=""/><br /><table border="0" cellpadding="0" cellspacing="0"><tr><td valign="middle"><img width="16" src="" height="16" border="0" alt=""/><br /></td><td valign="top" align="right"><a href="#main" class="fbox"><b>回页首</b></a></td></tr></table></td></tr></table><br /><br /><p><a name="10"><span class="atitle">进一步的 SQL 分析</span></a></p>
+      <p><a name="design"><span class="smalltitle">Design Advisor</span></a></p>
+      <p>
+如果有一个针对特定问题的查询或者一组查询，那么可以将该工作负载输入到 DB2 Design Advisor (db2advis) 中，由它去推荐一组有效的索引。如果不知道 SQL，也可以
+        <br />
+        <ul>
+          <li>使用快照捕获动态 SQL。</li>
+          <li>用一个语句事件监视器收集在一段时间内发出的所有 SQL。</li>
+          <li>从 SYSCAT.STATEMENTS 编目视图中提取静态 SQL。</li>
+        </ul>
+        <a href="#evmon">语句事件监视器</a>的使用将在本节稍后一点讨论。
+      <p>可以从 DB2 Control Center 使用 Design Advisor，或者从 CLP 命令行使用该工具。下面讨论这两种界面。</p>
+      <p>
+        <b>使用 DB2 Control Center</b>
+        <br />
+在 Control Center 中，展开对象树，直到发现感兴趣的数据库。右键单击数据库名，并从弹出菜单中选择 
+        <b>Design Advisor'</b>。现在您就可以通过查看最近执行的 SQL，检查包，或者手动地添加 SQL 语句来构造工作负载了。
+      </p>
+      <p>
+        <b>使用 DB2 CLP</b>
+        <br />
+当使用 CLP 时，输出被显示到屏幕，这可以捕捉到一个脚本中并执行。下面是一些常见的例子。
+      </p>
+      <p>要为一个特定的针对 'example' 数据库的 SQL 语句推荐索引，并且要在 1 分钟内标识出索引：</p> 
+      <code>db2advis -d sample -s "select count(*) from sales where region = 'Quebec'" -t 1</code> 
+      <p>要为多条语句推荐索引，我们可以构建一个文本文件，该文件看上去是这样的：</p> 
+      <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">
+db2advis -d sample -s "--#SET FREQUENCY 10
+SELECT * FROM SALES;
+--#SET FREQUENCY 2
+SELECT FIRSTNME FROM EMPLOYEE WHERE EMPNO = ?;</code></pre></td></tr></table><br /> 
+      <p>其中  frequency 是该 SQL 语句与输入文件中其他 SQL 语句相比其执行次数所占的比重。生成结果：</p> 
+      <code>db2advis -d 
+        <span class="boldcode">dbname</span> -i 
+        <span class="boldcode">sqlstmts_file</span> &gt; recindexes.out
+      </code> 
+      <p>由于输出显示到了屏幕上，我们使用一个重定向将索引定义捕捉到一个文件中，然后该文件就可以作为一个 DB2 脚本来运行了。</p>
+      <p>您还可以通过管道将动态 SQL 从一个快照发送到 Design Advisor 中：</p> 
+      <code>get snapshot for dynamic SQL on 
+        <span class="boldcode">dbname</span> write to file
+      </code> 
+      <p>这样将以一种内部文件格式保存快照。然后就可以用下列语句将结果插入到一个 Design Advisor 表中：</p> 
+      <code>insert into advise_workload(select 'myworkload',0,stmt_text,cast(generate_unique() as char(254)), num_executions, 1,1,0,0,cast(null as char) from table (snapshot_dyn_sql('
+        <span class="boldcode">dbname</span>', -1)) as snapshot_dyn_sql)
+      </code> 
+      <p>在一个工作负载中，每条 SQL 语句的缺省 frequency 是 1，缺省的 importance 也是 1。generate_unique() 函数将一个惟一的标识符指定给语句。用于可以将这两列更新为更有意义的值。要生成索引：</p> 
+      <code>db2advis -d 
+        <span class="boldcode">dbname</span> -w myworkload
+      </code> 
+      <p>一旦执行了  Design Advisor，它就会填充 advise_index 表。您可以通过下面的查询来查询这个表，以列出 Design Advisor 的所有建议：</p> 
+      <code>SELECT CAST(CREATION_TEXT as CHAR(200)) FROM ADVISE_INDEX</code> 
+      <p><a name="evmon"><span class="smalltitle">对 SQL 的事件监视</span></a></p>
+      <p>
+CREATE EVENT MONITOR 语句定义一个监视器，在使用数据库的时候，该监视器将记录所发生的某些事件。每个事件监视器的定义还会指定数据库应该将事件记录在哪里。我们可以创建事件监视器来记录跟下列类型的事件有关的信息：DATABASE、TABLES、DEADLOCKS [WITH DETAILS]、TABLESPACES、BUFFERPOOLS、CONNECTIONS STATEMENTS 和 TRANSACTIONS。</p>
+      <p>
+        <a href="#清单10">清单 10</a>和
+        <a href="#清单11">清单 11</a>展示了可用于收集事件监视器输出的脚本：
+      </p>
+      <a name="清单10">
+        <b>清单 10. getevmon.ksh (UNIX)</b>
+      </a>
+      <br /> 
+      <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">
+#!/usr/bin/ksh
+#  create an event monitor and capture its output
+#  parameters: (1) database name
+#              (2) monitor output file
+#              (3) interval between iterations (seconds)
+#  Note: You may receive an error about the monitor heap being too small. You may want to set 
+#        mon_heap_sz to 2048 while monitoring.
+if [ $# -ne 3 ]
+  then echo "Requires 3 Parameters: dbname monitor_output_file interval_in_#seconds"; exit 
+fi
+MON=evmon
+# "nonblocked" may cause loss of data but has less impact on system than default "blocked".
+MONTYPE=nonblocked
+SLEEP=$3
+DB=$1
+#EVENTS="deadlocks with details"
+#EVENTS="tables, statements, deadlocks with details, connections"
+EVENTS="statements"
+OUTFILE=$2
+OUTDIR="TMPEVMON"
+mkdir $OUTDIR
+chmod 777 $OUTDIR
+cd $OUTDIR
+db2 connect to $DB
+db2 -v drop event monitor $MON
+db2 -v create event monitor $MON for $EVENTS   \\
+    write to file "'`pwd`'" buffersize 64 $MONTYPE
+db2 -v set event monitor $MON state = 1
+echo ""
+echo "Event Monitor active at `date`; sleeping for $SLEEP seconds before turning it off."
+sleep $SLEEP
+db2 -v set event monitor $MON state = 0
+cd ..
+db2evmon -db $DB -evm $MON &gt; $OUTFILE
+db2 -v drop event monitor $MON 
+db2 terminate
+rm -fr $OUTDIR
+echo
+echo db2evmon output is in $OUTFILE
+</code></pre></td></tr></table><br /> 
+      <p/>
+      <a name="清单11">
+        <b>清单 11. getevmon.bat (Windows)</b>
+      </a>
+      <br /> 
+      <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">
+@echo off
+REM  create an event monitor and capture its output
+REM  parameters: (1) database name
+REM              (2) monitor output file
+REM              (3) interval to monitor for (seconds)
+REM  Note: You may receive an error about the monitor heap being too small. You may want to set 
+REM        mon_heap_sz to 2048 while monitoring.
+:CHECKINPUT
+IF ""=="%3" GOTO INPUTERROR
+GOTO STARTPRG
+:INPUTERROR
+echo %0 requires 3 parameters: dbname filename sleep_interval
+echo e.g. "%0 sample evmon0302.out 60"
+GOTO END
+:STARTPRG
+SET dbname=%1
+SET outfile=%2
+SET sleep_interval=%3
+SET MON=evmon
+REM "nonblocked" may cause loss of data but has less impact on system than default "blocked".
+SET MONTYPE=nonblocked
+REM SET EVENTS="deadlocks with details"
+REM SET EVENTS="tables, statements, deadlocks with details, connections"
+SET EVENTS="statements"
+SET OUTDIR="c:\\temp\\evmon"
+mkdir %OUTDIR%
+db2 connect to %dbname%
+db2 -v drop event monitor %MON%
+db2 -v create event monitor %MON% for %EVENTS% write to file '%OUTDIR%' buffersize 64 %MONTYPE%
+db2 -v set event monitor %MON% state = 1
+echo Sleeping for %sleep_interval% seconds before turning off.
+sleep %sleep_interval%
+db2 -v set event monitor %MON% state = 0
+db2evmon -db %dbname% -evm %MON% &gt; %OUTFILE%
+db2 -v drop event monitor %MON%
+db2 terminate
+rmdir /s /q %OUTDIR%
+echo db2evmon output is in %OUTFILE%
+:END
+</code></pre></td></tr></table><br /> 
+      <p>输出将包含所有动态 SQL 语句的文本。不过，对于静态 SQL 语句，输出将列出包名和节号。具有包名和节号的 db2expln 可用来提取语句文本，或者也可以查询 syscat.statements 视图来提取文本。</p>
+      <p>
+        <a href="#清单12">清单 12</a>展示了在语句事件监视器的输出中捕获到的一个事件：
+      </p>
+      <a name="IDANTKHF">
+        <b>清单 12. 示例语句事件监视器输出</b>
+      </a>
+      <br /> 
+      <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">
+42) Statement Event ...
+  Appl Handle: 16
+  Appl Id: *LOCAL.DB2.010746204025
+  Appl Seq number: 0003
+  Record is the result of a flush: FALSE
+  -------------------------------------------
+  Type     : Dynamic
+        <span class="boldcode">  Operation: Close</span>
+  Section  : 201
+  Creator  : NULLID  
+  Package  : SQLC2E03
+  Consistency Token  : AAAAAJHR
+  Package Version ID  :                                                                 
+  Cursor   : SQLCUR201
+  Cursor was blocking: TRUE
+  
+        <span class="boldcode">Text     : select * from staff</span>
+  -------------------------------------------
+  
+        <span class="boldcode">Start Time: 10-06-2003 17:27:38.800490</span>
+        <br />
+        <span class="boldcode">Stop Time:  10-06-2003 17:27:38.806619</span>
+        <br />
+        <span class="boldcode">Exec Time:  0.006129 seconds</span>
+  Number of Agents created: 1
+  
+        <span class="boldcode">user CPU:   Not Available</span>
+  System CPU: Not Available
+  Fetch Count: 35
+  Sorts: 0
+  Total sort time: 0
+  Sort overflows: 0
+  
+        <span class="boldcode">Rows read: 35</span>
+  Rows written: 0
+  Internal rows deleted: 0
+  Internal rows updated: 0
+  Internal rows inserted: 0
+  SQLCA:
+   
+        <span class="boldcode">sqlcode: 0</span>
+   sqlstate: 00000
+      </code></pre></td></tr></table><br /> 
+      <p>由于可能存在数千个语句事件，找出问题的最容易的方法是使用 grep (UNIX) 或 findstr (Windows)。下面是在输出中用于搜索的一些有用的字符串：</p>
+      <p>
+        <b>" sqlcode: -"</b>
+        <br />
+这对于发现错误很有用，例如发现 -911 RC 2，即死锁，又例如 RC 68，即锁超时。
+      </p> 
+      <code>grep -n " sqlcode: -" 
+        <span class="boldcode">stmtevmon_output</span>
+      </code>  
+      <code>findstr /C:" sqlcode: -" 
+        <span class="boldcode">stmtevmon_output</span>
+      </code> 
+      <p>
+        <b>" Rows read: "</b>
+        <br />
+这标识了一条语句读取的行数（没有将索引项或直接表读计算在内）。如果这个数字很大，则意味着需要一个索引，或者统计信息已过时。
+      </p> 
+      <code>grep -n " Rows read: " 
+        <span class="boldcode">stmtevmon_output</span> | grep -v ": 0" | sort -k 4,4rn | more
+      </code>  
+      <code>findstr /C:" Rows read: " 
+        <span class="boldcode">stmtevmon_output</span> | findstr /V /C:" Rows read: 0" | sort
+      </code> 
+      <p>
+        <b>" Exec Time: "</b>
+        <br />
+这是语句的实际执行时间，包括锁等待的时间。有时候，可以方便地从事件监视器数据的最后开始，向前搜索 "Exec Time"，并查看一条开销较大的
+SQL 语句是否存在某种模式或存在重复。然后可以用 EXPLAIN 检查 SQL 语句，看看是什么问题。
+      </p>
+ 
+      <code>grep -n " Exec Time: " 
+        <span class="boldcode">stmtevmon_output</span> | grep -v ":  0.0" | sort -k 4,4rn | more
+      </code>  
+      <code>findstr /C:" Exec Time: " 
+        <span class="boldcode">stmtevmon_output</span> | findstr /V /C:" Exec Time:  0.0" |sort
+      </code> 
+      <p>
+        <b>" Sort overflows:"</b>
+        <br />
+显示开销很大的 排序溢出发生在哪里。这可能表明需要使用索引、运行 RUNSTATS 或加大 SORTHEAP。
+      </p> 
+      <code>grep -n " Sort overflows:" 
+        <span class="boldcode">stmtevmon_output</span> | grep -v ": 0" | sort -k 4,4rn | more
+      </code>  
+      <code>findstr /C:" Sort overflows: " 
+        <span class="boldcode">stmtevmon_output</span> |findstr /V /C:" Sortoverflows: 0"|sort
+      </code> 
+      <p>
+        <b>" Fetch Count:"</b>
+        <br />
+对于查看对结果集执行了多少 fetch 操作很有用。这里并不是记录每个 FETCH 操作。DB2 通过加大该字段，在语句级上跟踪这些 FETCH 操作。可以用 FETCH FIRST 子句限制 FETCH 操作。
+      </p> 
+      <code>grep -n " Fetch Count:" 
+        <span class="boldcode">stmtevmon_output</span> | grep -v ": 0" | sort -k 4,4rn | more
+      </code>  
+      <code>findstr /C:" Fetch Count: " 
+        <span class="boldcode">stmtevmon_output</span> | findstr /V /C:" Fetch Count: 0" | sort
+      </code> 
+      <p>标识了想要进一步观察的一些元素之后，打开语句事件监视器的输出，并按您感兴趣的字符串进行搜索。一旦定位到语句，下面的一些字段将很有用：</p>
+      <p>
+        <b>" Operation: "</b>
+        <br />
+该字段可以提供一般语句流。它标识 Prepare、Open、Fetch、Close、Commit 等等。
+      </p>
+      <p>
+        <b>" Text     : "</b>
+        <br />
+这是用于动态 SQL 的语句文本。对于静态 SQL，查找 
+        <b>"Section  :"</b>和
+        <b>"Package  :"</b>。
+      </p>
+      <p>
+        <b>" Start Time: " 或 " Stop Time: " 或 " Time: "</b>
+        <br />
+这可以帮助标识起始时间、终止时间或者同时标识这两个时间。Stop time 和随后的 Start time 还可以说明语句之间的间歇时间有多长，如果您怀疑 DB2 在其他某个地方花费了时间（可能是存储过程开销），那么这一点就比较有用。
+      </p>
+      <p><a name="IDABXKHF"><span class="smalltitle">对访问计划的解释</span></a></p>
+      <p>
+SQL 解释工具是 SQL Compiler 的一部分，用于显示一条语句的访问计划，以及编译该语句时所在的环境。Explain 信息可以以很多方式来捕捉和显示。</p>
+      <p>这种信息可以帮助您：</p>
+      <ul>
+        <li>理解为一个查询选择的执行计划。</li>
+        <li>辅助设计应用程序的程序。</li>
+        <li>确定应何时重新捆绑应用程序。</li>
+        <li>辅助数据库设计。</li>
+      </ul>
+      <p>在获得一条 SQL 语句的解释数据之前，必须使用跟调用 explain 工具的授权 ID 相同的模式定义一组 explain 表。请查看
+DB2 安装目录下的 'qllib/misc/explain.ddl' 或 'qllib\\misc\\explain.ddl'，以找到 Explain
+Tables 的 DDL。</p>
+      <p>要清除 explain 表，发出：</p> 
+      <code>delete from 
+        <span class="boldcode">schema</span>.explain_instance
+      </code> 
+      <p>这样所有其他的 explain 表也将被清除，这是由于参照完整性连锁删除功能造成的。</p>
+      <p>当分析 explain 输出时，应识别是否出现下列情况：</p>
+      <ul>
+        <li>对相同的一组列和基本表使用的 ORDER BY、GROUP BY 或 DISTINCT 操作符将从索引或物化查询表（MQT）中受益，因为消除了排序。</li>
+        <li>代价较高的操作，例如大型排序、排序溢出以及对表的大量使用，都可以受益于更多的排序空间、更好的索引、更新的统计信息或不同的 SQL 。</li>
+        <li>表扫描也可以从索引中受益。</li>
+        <li>完全索引扫描或无选择性的索引扫描，其中不使用 start 和 stop 关键字，或者使用这两个关键字，但是有一个很宽的取值范围。</li>
+      </ul>
+      <p>
+        <b>Visual Explain</b>
+        <br />
+Visual Explain 使用起来非常简单和直观。它可以解释包含参数标记（记为 "?"）的语句，但是如果要与其他共享结果可能就比较困难，因为它是基于 GUI 的。在 Control Center 中，右键单击想要为其解释一条 SQL 语句的数据库，并选择 "Explain SQL'。您可以在 SQL 文本框中输入 SQL 语句，然后单击 "OK" 来生成图。
+        <a href="#fig2">图 2</a>展示了这种图的一个例子看上去的样子：
+      </p>
+      
+        <br /><a name="fig2"><b>图 2. Visual Explain Results 屏幕</b></a><br />
+        <img alt="Visual Explain Results 屏幕" height="432" src="" width="561"/>
+      <br />
+      <p>您可以通过双击任何节点来获得更详细的分析结果。</p>
+      <p>
+        <b>基于文本的 Explain</b>
+        <br />
+db2exfmt 和 db2expln 的 text-based 选项不易于读（一开始），但是与他人共享起来就容易多了，因为您可以简单地向他们发送输出文件。
+      </p>
+      <p>通用，在捕捉新数据之前清除 explain 表是一个好习惯。发出：</p> 
+      <code>delete from 
+        <span class="boldcode">schema</span>.explain_instance
+      </code> 
+      <p>最后所有其他 explain 表都将被清除，这是由于参照完整性的连锁删除功能造成的。</p>
+      <p>所有 explain 输出（包括 Visual Explain）都是从下往上读的。</p>
+      
+        <br /><a name="IDAGZKHF"><b>图 3. Text Explain 屏幕</b></a><br />
+        <img alt="Text Explain 屏幕" height="661" src="" width="522"/>
+      <br />
+      <p>这里不像 Visual Explain 那样将所有细节显示在不止一个屏幕上，而是将所有细节列在一个输出文件中。在上图中每个操作符都编了号，当您往下处理该文档时，每个操作符都将被详细解释。例如，图中的一个操作符可以作如下解释：</p>
+      <a name="IDAUZKHF">
+        <b>清单 13. 读 Text Explain 操作符</b>
+      </a>
+      <br /> 
+      <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">
+      5.7904	- # of rows returned (based on statistics calculation)
+      HSJOIN  	- type of operator
+      (   2)	- operator #
+      75.536      - cumulative timerons
+         3     	- I/O costs    
+</code></pre></td></tr></table><br /> 
+      <p>返回的行数、timeron (cost) 数和 I/O 都是优化器估计的，在某些情况下可能与实际数字不符。timeron 是 DB2 的度量单元，用于给出对数据库服务器在执行同一查询的两种计划时所需的资源或成本的粗略估计。估计时计算的资源包括处理器和 I/O 的加权成本。</p>
+      <p>您可以使用 db2exfmt 来解释单独一条语句。例如，</p>
+      <a name="IDA5ZKHF">
+        <b>清单 14. 为一条语句生成 Text Explain 输出</b>
+      </a>
+      <br /> 
+      <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">
+explain all for 
+        <span class="boldcode">SQL_statement</span>
+db2exfmt -d 
+        <span class="boldcode">dbname</span> -g tic -e 
+        <span class="boldcode">explaintableschema</span> -n % -s % -w -1 -# 0 -o 
+        <span class="boldcode">outfile</span>
+      </code></pre></td></tr></table><br /> 
+      <p>如果为用 ";" 隔开的几条 "explain all' 语句构建一个文本文件，就可以一次解释多条语句：</p>
+      <a name="IDAQ0KHF">
+        <b>清单 15. 为多条语句生成 Text Explain 输出</b>
+      </a>
+      <br /> 
+      <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">
+db2 -tf 
+        <span class="boldcode">file_with_statements</span>
+db2exfmt -d 
+        <span class="boldcode">dbname</span> -g tic -e 
+        <span class="boldcode">explaintableschema</span> -n % -s % -w % -# 0 -o 
+        <span class="boldcode">outfile</span>
+      </code></pre></td></tr></table><br /> 
+      <p>最后，如果想解释一个包中包含的静态 SQL，那么您将需要使用 db2expln 工具：</p> 
+      <code>db2expln -database 
+        <span class="boldcode">dbname</span> -schema 
+        <span class="boldcode">schema_name</span> -package 
+        <span class="boldcode">package</span> -output 
+        <span class="boldcode">outfile.txt</span>
+      </code> 
+      <p>
+        <a href="http://publib.boulder.ibm.com/infocenter/db2help/index.jsp">DB2 v8 Documentation:</a>
+      </p>
+      <ul>
+        <li>Concepts ==&gt; Administration ==&gt; Performance tuning ==&gt; SQL explain facility</li>
+        <li>Tutorials ==&gt; Tutorials (Visual Explain Tutorial)</li>
+      </ul>
+      <p><a name="sqltuning"><span class="smalltitle">SQL 语句调优</span></a></p>
+      <p>
+下面的这些技术可以用来从语句执行中挤出额外的性能：</p>
+      <p>使用 SELECT ...
+        <b>FOR UPDATE</b>保护在随后的 UPDATE 语句中可能被更新的那些行。这样一来，选中的所有行上安置了一个更新（U）锁。
+      </p>
+      <p>使用 SELECT '
+        <b>FOR READ ONLY</b>（或 FETCH ONLY）表明结果表是只读的。这意味着不能在随后放置的 UPDATE 或 DELETE 语句中引用游标。这可以帮助提高 FETCH 操作的性能，因为它允许 DB2 执行块操作（对于一个给定的 FETCH 请求返回多行给客户）。
+      </p>
+      <p>用 SELECT '
+        <b>OPTIMIZE FOR n ROWS</b>优化返回时间。这样可以使优化器快速地返回 N 行，而不是像缺省行为那样，最小化整个回答集的代价。此外，如果使用 READ ONLY 子句，这将影响在每个块中返回的行数（一个块中的行数不会大于 n）。这不会限制可以取的行数，但是如果要取多于 n 行的记录，就可能降低性能。为了使该子句对数据缓冲区有一定的影响， n * row size 的值不能超出通信缓冲区的大小（由 DBM CFG RQRIOBLK 或 ASLHEAPSZ 定义）。
+      </p>
+      <p>可以用 SELECT '
+        <b>FETCH FIRST n ROWS</b>来限制查询结果集的大小。
+      </p>
+      <p>大规模的 DELETE/Purging 可以通过 altER TABLE '
+        <b>ACTIVATE NOT LOGGED INITIALLY WITH EMPTY TABLE</b>来实现。由于该操作没有日志记录，如果哪个地方出了错，就不得不将表删除。一种更安全的方法是使用 Import 实用程序（带上 Replace 选项）和一个空文件。
+      </p>
+      <p>要减少锁等待或死锁出现的几率，可以频繁地使用
+        <b>commit</b>来释放锁。
+      </p>
+      <p>确保让重复的语句使用
+        <b>参数标记</b>。对于 OLTP，编译时间是比较可观的，因此用参数标记替换文字可以避免重复编译。当使用参数标记时，优化器假设值是均匀分布的，因此如果数据比较偏，则意味着所选择的访问计划不好。通常，正是 OLAP 这种类型的环境深受值的平均分布这一假设的毒害。
+      </p>
+      <p>为了拥有更好的粒度，更好的性能和并发性，应在语句级指定
+        <b>隔离级别</b>。DB2 支持 Uncommitted Read、Cursor Stability、Read Stability 和 Repeatable Read （UR、CS、RS 和 RR）。例如，SELECT * FROM STAFF WITH UR 将使用 Uncommitted Read （最小锁）执行 SELECT 语句。
+      </p>
+      <p>
+        <a href="http://publib.boulder.ibm.com/infocenter/db2help/index.jsp">DB2 v8 Documentation:</a>
+      </p>
+      <ul>
+        <li>Reference ==&gt; SQL ==&gt; Queries and subqueries ==&gt; select-statement</li>
+      </ul>
+      <p>
+        <b>在有偏差数据的情况下使用参数标记时，指定选择性</b>
+        <br />
+如果数据不是均匀分布的，那么指定选择性就十分有用。
+        <b>SELECTIVITY</b>指任何一行满足谓词（即为真）的概率。采用具有高度选择性的谓词是可取的。这种谓词将为以后的操作符返回更少的行，从而减少了为满足查询所需的 CPU 和 I/O。
+      </p>
+      <p>例如，对一个有 1,000,000 行的表执行一个选择性为 0.01 (1%) 的谓词操作，则意味着大约只有 10,000 行满足条件，而另外的 990,000 都不满足条件。</p>
+      <p>如果不是仅仅使用均匀分布的假设，而是人为地使用一个较低的选择性的值（例如 0.000001）来“保证”使用那一列上的索引，那么就可以影响优化器。如果预料到一个表要增长，并且希望确保能够坚持使用某些特定列上的索引，那么这一点就十分有用。如果想阻止 DB2 在某一特定列上使用索引，那么可以将 SELECTIVITY 设为 1。</p>
+      <p>有了这种技术，使用优化级别 5 （例如 DFT_QUERYOPT=5）就最具有可预测性。而且，首先必须设置注册表变量 DB2_SELECTIVITY=YES，然后，在使用 SELECTIVITY 子句之前重新启动实例。</p>
+      <p>您可以为下列谓词指定 SELECTIVITY 子句 ：</p>
+      <ul>
+        <li>基本谓词，其中至少有一个表达式包含主机变量/参数标记（基本谓词包括像 =、&lt;&gt;、&lt; 和 &lt;=, 这样的简单的比较符，但是不包括像
+IN、BETWEEN 和 IS NULL 这样的东西。）</li>
+        <li>其中的 MATCH 表达式、谓词表达式或换码表达式中包含主机变量/参数标记的 LIKE 谓词。</li>
+      </ul>
+      <p>selectivity 的值必须是在 0 到 1 整个范围内的一个数值常量（numeric literal）值。如果没有指定 SELECTIVITY，那么就会使用一个缺省值。如果
+SELECTIVITY 的值为 0.01，则意味着该谓词将过滤掉除表中所有行的 1% 之外的所有其他行。不过应该把提供 SELECTIVITY
+看作是最后一招。</p>
+      <p>例如：</p>
+      <a name="IDAP3KHF">
+        <b>清单 16. 指定 Selectivity 的例子</b>
+      </a>
+      <br /> 
+      <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">
+	SELECT c1, c2, c3, FROM T1, T2, T3
+		WHERE T1.x = T2.x AND
+			T2.y = T3.y AND
+			T1.x &gt;= ? selectivity 0.000001 AND
+			T2.y &lt; ? selectivity 0.5 AND
+			T3 = ? selectivity 1
+</code></pre></td></tr></table><br /> 
+      <p>
+        <a href="http://publib.boulder.ibm.com/infocenter/db2help/index.jsp">DB2 v8 Documentation:</a>
+      </p>
+      <ul>
+        <li>Reference ==&gt; SQL ==&gt; Language elements ==&gt; Predicates ==&gt; Search Conditions</li>
+      </ul>
+      <br /><table border="0" cellspacing="0" cellpadding="0" width="100%"><tr><td><img width="100%" src="" height="1" alt=""/><br /><img alt="" width="8" height="6" border="0" src=""/></td></tr></table><table class="no-print" cellspacing="0" cellpadding="0" align="right"><tr align="right"><td><img width="100%" height="4" src="" alt=""/><br /><table border="0" cellpadding="0" cellspacing="0"><tr><td valign="middle"><img width="16" src="" height="16" border="0" alt=""/><br /></td><td valign="top" align="right"><a href="#main" class="fbox"><b>回页首</b></a></td></tr></table></td></tr></table><br /><br /><p><a name="11"><span class="atitle">持续维护</span></a></p>
+      <p>接下来的一些技术对于维护数据库的最佳性能很有用。当您使用一个分了区的数据库时，应记住命令的作用范围。例如，RUNSTATS 命令只收集调用该命令时所在数据库分区上的表的统计信息，而 REORG 则可以操作数据库分区组中的所有分区。请参阅每个命令的文档的 鈥楽cope' 部分。</p>
+      <p><a name="IDAF4KHF"><span class="smalltitle">REORG 和 REORGCHK</span></a></p>
+      <p>
+REORG 将消除溢出的行，并从表和索引中删除的行那里收回空间，如果有很多的删除、更新或插入操作，这一命令就非常有用。该命令还可以用来将一个表放入到某个索引序列中（例如，在对群集索引的支持中就是如此）。REORG 命令可以在线执行和暂停。REORCHK 用于识别那些需要 REORG 的表和索引，也可用于收集数据库中所有表的统计信息。</p>
+      <p>收集更新后的统计信息，并标识是否需要重组表或索引：</p> 
+      <code>REORGCHK UPDATE STATISTICS ON TABLE ALL</code> 
+      <p>标识是否需要根据当前统计信息重组表或索引：</p> 
+      <code>REORGCHK CURRENT STATISTICS ON TABLE ALL</code> 
+      <p>标识为需要 REORG 的表将在 REORGCHK 输出的 reorg 列（F1 到 F8）中显示一个或多个星号。现在就可以真正地 REORG 被标识出的表。为了 REORG 一个表，不考虑顺序，只是简单地从伪删除的行收回空间，并消除溢出的行：</p> 
+      <code>REORG TABLE 
+        <span class="boldcode">schema.tablename</span>
+      </code> 
+      <p>为了在一个表的所有索引上执行 REORG：</p> 
+      <code>REORG INDEXES ALL FOR TABLE 
+        <span class="boldcode">schema.tablename</span>
+      </code> 
+      <p>为了根据特定的索引（ORDER BY 或一个群集索引）按物理序列对一个表排序：</p> 
+      <code>REORG TABLE 
+        <span class="boldcode">schema.tablename</span> INDEX 
+        <span class="boldcode">schema.indexname</span>
+      </code> 
+      <p>
+        <a href="http://publib.boulder.ibm.com/infocenter/db2help/index.jsp">DB2 v8 Documentation:</a>
+      </p>
+      <ul>
+        <li>Reference ==&gt; Commands ==&gt; Command Line Processor (CLP) ==&gt; REORG</li>
+        <li>Reference ==&gt; Commands ==&gt; Command Line Processor (CLP) ==&gt; REORGCHK</li>
+      </ul>
+      <p><a name="runstats"><span class="smalltitle">RUNSTATS</span></a></p>
+      <p>
+REORG（重组）表和索引之后，重新收集表和索引的统计信息总是可取的，这样优化器就可以创建最合适的访问计划。您可能发现执行一次抽样的 RUNSTATS （对于大型数据库会有更好的性能）或者执行一次后台运行。</p>
+      <p>为了标识之前是否已经对表和索引执行过 RUNSTATS：</p>
+      <a name="IDAZ5KHF">
+        <b>清单 17. 标识 Runstats 时间</b>
+      </a>
+      <br /> 
+      <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">
+SELECT char(tabname,40) 
+FROM syscat.tables  
+WHERE type = 鈥楾' 
+AND stats_time is null
+SELECT char(indname,40) 
+FROM syscat.indexes
+WHERE stats_time is null
+Or, to list runstat times (oldest first)
+SELECT char(tabname,40), stats_time
+FROM syscat.tables  
+WHERE type = 鈥楾' 
+ORDER by stats_time
+</code></pre></td></tr></table><br /> 
+      <p>对 System Catalog 表执行 RUNSTATS 也可以为这些表带来好处。</p>
+      <p>下面是一些有用的命令：</p>
+      <p><a name="table1"><span class="smalltitle">表 4. 一些有用的 Runstats 命令</span></a></p>
+      <p>
+        <table border="1" cellpadding="3" cellspacing="0" width="70%"><tr valign="top"><td>
+              <b>命令</b>
+            </td><td>
+              <b>描述</b>
+            </td></tr><tr valign="top"><td>RUNSTATS ON TABLE
+              <b>schema.table</b>
+            </td><td>收集一个特定表的统计信息</td></tr><tr valign="top"><td>RUNSTATS ON TABLE
+              <b>schema.table</b>AND INDEXES ALL
+            </td><td>收集一个特定表及其所有索引的统计信息</td></tr><tr valign="top"><td>RUNSTATS ON TABLE
+              <b>schema.table</b>AND SAMPLED DETAILED INDEXES ALL
+            </td><td>使用扩展的索引统计信息和 CPU 采样技术收集关于一个特定表的统计信息，这对于非常大型的索引（1+ 百万行）十分有用，因为 RUNSTATS 可用的时间是有限的。</td></tr><tr valign="top"><td>RUNSTATS ON TABLE
+              <b>schema.table</b>WITH DISTRIBUTION
+            </td><td>收集关于一个表（或者也可以是特定列）的附加统计信息，当数据不是均匀分布时，这个命令很有用。</td></tr></table>
+      <p>使用一条 SELECT 语句创建一个脚本也十分方便，只需将 SELECT 语句的结果通过管道发送到一个文件：</p>
+      <a name="IDAVBLHF">
+        <b>清单 18. 生成一个 Runstats CLP 脚本</b>
+      </a>
+      <br /> 
+      <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">
+	SELECT 'RUNSTATS ON TABLE  ' || rtrim(tabschema) || '.' 
+          || char(tabname,40) || 
+          ' AND DETAILED INDEXES ALL;' 
+	FROM syscat.tables 
+	WHERE type = 'T' 
+	ORDER BY tabschema, tabname;
+</code></pre></td></tr></table><br /> 
+      <p>
+        <a href="http://publib.boulder.ibm.com/infocenter/db2help/index.jsp">DB2 v8 Documentation:</a>
+      </p>
+      <ul>
+        <li>Reference ==&gt; Commands ==&gt; Command Line Processor (CLP) ==&gt; RUNSTATS</li>
+      </ul>
+      <p><a name="IDAECLHF"><span class="smalltitle">REBIND</span></a></p>
+      <p>
+执行了 REORG 和 RUNSTATS 之后，您需要 REBIND 所有的数据库包，以便静态 SQL 可以利用最新的系统统计信息。使用 DB2RBIND 重新绑定所有的数据库包：</p> 
+      <code>db2rbind 
+        <span class="boldcode">dbname</span> -l 
+        <span class="boldcode">logfile.out</span> ALL
+      </code> 
+      <p>可以用 REBIND 来重新绑定单独的包。</p>
+      <p>
+        <a href="http://publib.boulder.ibm.com/infocenter/db2help/index.jsp">DB2 v8 Documentation:</a>
+      </p>
+      <ul>
+        <li>Reference ==&gt; Commands ==&gt; System ==&gt; db2rbind</li>
+        <li>Reference ==&gt; Commands ==&gt; Command Line Processor (CLP) ==&gt; REBIND</li>
+      </ul>
+      <br /><table border="0" cellspacing="0" cellpadding="0" width="100%"><tr><td><img width="100%" src="" height="1" alt=""/><br /><img alt="" width="8" height="6" border="0" src=""/></td></tr></table><table class="no-print" cellspacing="0" cellpadding="0" align="right"><tr align="right"><td><img width="100%" height="4" src="" alt=""/><br /><table border="0" cellpadding="0" cellspacing="0"><tr><td valign="middle"><img width="16" src="" height="16" border="0" alt=""/><br /></td><td valign="top" align="right"><a href="#main" class="fbox"><b>回页首</b></a></td></tr></table></td></tr></table><br /><br /><p><a name="12"><span class="atitle">数据库分区功能（DPF）性能</span></a></p>
+      <p>DB2 v8.1 ESE 的数据库分区功能（DPF）允许在一个服务器内或跨越一个群集的服务器给数据库分区。这为支持非常大型的数据库、复杂的工作负载和增加的管理任务的并行性提供了更多的可伸缩性。下面的小节包含帮助您获得 DPF 方面的最佳性能的建议。</p>
+      <p><a name="IDABDLHF"><span class="smalltitle">何时分区？</span></a></p>
+      <p>在 64 位 DB2 出现以前，分区技术通常用于解决 32 位架构中关于共享内存的限制（大约每个数据库 2 GB）。利用内存的更好选择是使用一个大型的 SMP 64 位服务器，因为这种服务器可以避免分区的复杂性和开销。</p>
+      <p>然而，在某些情况下，分区也可以大大加快 Select、LOAD、BACKUP 和 RESTORE 的执行。每添加一个分区，就减少了每个分区上处理器要处理的数据量。通常，在分区数不多的小型数据库中，这种性能上的提高难于见到，因为散列行和发送数据的开销抵消了因处理更少数据而赚到的性能。</p>
+      <p>另一个分区的原因是克服对每个分区的一些 Database Manager 限制（例如，对于 4 K 的页面大小，每个分区上的表最大为 64GB）。</p>
+      <p><a name="IDAJDLHF"><span class="smalltitle">多少个分区？</span></a></p>
+      <p>
+这个问题难于回答，因为有些系统每个分区 1 个 CPU 的时候运行得最好，而其他一些系统每个分区需要 8 个或更多 CPU。这里的思想是让分配给每个分区的 CPU 都忙起来。对于一个给定的 SMP 机器，一开始最好是大约每个分区 4 个 CPU。如果发现 CPU 的利用率一直比较低（例如低于 40%），那么可能需要考虑增加更多的分区。</p>
+      <p>一般情况下，每台机器上的分区数越少越好，因为这样一来更容易本地旁路（local bypass）和并置（后面会解释）。</p>
+      <p><a name="IDAQDLHF"><span class="smalltitle">选择一个理想的分区键</span></a></p>
+      <p>
+通过选择一个适当的分区键，有助于确保平衡的数据分布和工作负载以及有效的表并置（table collocation）。</p>
+      <p>当选择一个分区键时，通常应记住下面几点：</p>
+      <ul>
+        <li>总是亲自指定分区键，而不是使用缺省值。</li>
+        <li>分区键必须是主键或惟一索引的子集。</li>
+        <li>有很多独特值的列是比较好的选择。如果一个列只有有限的几种独特值，那么就只能生成少量的散列数，这会增加偏差数据和非平衡工作负载出现的机会。</li>
+        <li>如果分区键由太多的列组成（通常指 4 列或更多列），则仅仅是生成散列数这一项就可能导致性能下降。</li>
+        <li>使用经常要连接的一组相同的列作为分区键，以增加合并连接（collocated join）的数量。</li>
+        <li>使用 Integer 类型的列比使用字符类型的列更有效，后者又比使用小数类型的列更有效。</li>
+      </ul>
+      <ul>
+        <li>Reference ==&gt; SQL ==&gt; Language elements ==&gt; Data types ==&gt; Partition-compatible data types</li>
+      </ul>
+      <p><a name="IDAEELHF"><span class="smalltitle">表并置</span></a></p>
+      <p>
+表并置允许本地处理查询（在相同的逻辑分区内），这样可以避免在参与的各分区间不必要的数据移动。为了帮助确保表并置，使用连接的列作为分区键，并将那些连接的表放入到共享相同分区组的表空间中。连接的表的分区键应该有相同的列数和相应的数据类型。</p>
+      <p>如果有些表不能按照跟它们通常连接的表相同的键来分区，而那些表的大小适中并且是只读的，那么采用复制的物化查询表或许是提高性能的一个有效的解决办法。这样就允许将整个表（或表的一部分）内容复制到数据库分区组中的每个分区上。然而，如果这个表要频繁更新，那么这样就可能降低性能，因为要增加资源的使用。</p>
+      <p>为了创建一个简单的复制的 MQT，使用下列语法：</p> 
+      <code>CREATE TABLE 
+        <span class="boldcode">replicated_table</span> AS (SELECT * FROM 
+        <span class="boldcode">source_table</span>) DATA INITIALLY DEFERRED REFRESH IMMEDIATE REPLICATED
+      </code> 
+      <p>要了解关于 MQT 的更多信息，请参阅关于对表的讨论的适当小节。</p>
+      <p>如果正在使用 AIX，并且启用了 DB2 概要注册表变量 DB2_FORCE_FCM_BP=YES，那么，当使用多个逻辑分区（即在同一台机器上）时，在分区间传输的数据是通过共享内存处理的，这样就会非常的快。</p>
+      <p>
+        <a href="http://publib.boulder.ibm.com/infocenter/db2help/index.jsp">DB2 v8 Documentation:</a>
+      </p>
+      <ul>
+        <li>Release information ==&gt; Version 8.1 ==&gt; New features ==&gt; Performance enhancements ==&gt; Materialized query tables</li>
+        <li>Reference ==&gt; SQL ==&gt; Functions ==&gt; Scalar ==&gt; DBPARTITIONNUM</li>
+      </ul>
+      <p><a name="IDA3ELHF"><span class="smalltitle">重新平衡数据</span></a></p>
+      <p>
+使用 REDISTRIBUTE DATABASE PARTITION GROUP 重新平衡各分区间的数据，并更新 hash 分区映射，使其更加平衡。如果已经添加了一个分区，或者发现当前分区之间存在不平衡的数据量，那么这样做就比较有用。</p>
+      <p>您可以使用 HASHEDVALUE 和 DBPARTITIONNUM SQL 函数来确定当前数据在 hash 分区或数据库分区之间的分布。应避免让太多的数据集中在一个或多个分区，或者让太少的数据分布在一个或多个分区。PARTITION 函数返回表中每一行的分区映射索引，而 DBPARTITIONNUM 函数则返回该行所在的分区号。例如，为了发现一个表的当前分布：</p> 
+      <code>SELECT DBPARTITIONNUM(
+        <span class="boldcode">column</span>), COUNT(*) FROM 
+        <span class="boldcode">table</span> GROUP BY DBPARTITIONNUM(
+        <span class="boldcode">column</span>)
+      </code> 
+      <ul>
+        <li>Reference ==&gt; Commands ==&gt; Command Line Processor (CLP) ==&gt; REDISTRIBUTE DATABASE PARTITION GROUP</li>
+      </ul>
+      <br /><table border="0" cellspacing="0" cellpadding="0" width="100%"><tr><td><img width="100%" src="" height="1" alt=""/><br /><img alt="" width="8" height="6" border="0" src=""/></td></tr></table><table class="no-print" cellspacing="0" cellpadding="0" align="right"><tr align="right"><td><img width="100%" height="4" src="" alt=""/><br /><table border="0" cellpadding="0" cellspacing="0"><tr><td valign="middle"><img width="16" src="" height="16" border="0" alt=""/><br /></td><td valign="top" align="right"><a href="#main" class="fbox"><b>回页首</b></a></td></tr></table></td></tr></table><br /><br /><p><a name="13"><span class="atitle">利用率和瓶颈</span></a></p>
+      <p>下面指出处于 DB2 调优领域之外的一些潜在的问题，这些问题同样能大大降低数据库的性能。</p>
+      <p><a name="IDA2FLHF"><span class="smalltitle">CPU 利用率</span></a></p>
+      <p>
+如果一个系统中 CPU 的总利用率（用户 + 系统）大于 80%，则认为该系统是 CPU 限制的（CPU bound）。经验法则是，保持 CPU 利用率（大部分情况下）低于 80%，这样可以为处理突然增加的大量活动预留 CPU 的处理能力。如果系统是 CPU 限制的，那么就很难总结出问题所在。这可以是从无效率的访问计划到需要更多 CPU 资源的并发连接过多的任何问题。</p>
+      <p>在 Unix 中，用 vmstat （例如 "vmstat 3"）进行监视。在 Windows 中，用 Perfmon.exe 或 Task Manager 进行监视。忽略在遇到短的突发事件（1-3 秒）时 100% 运行的 CPU，而关注长期的平均 CPU 利用情况。</p>
+      <p>
+        <a href="#清单19">清单 19</a>展示了来自 RedHat 8.0 Linux 的某个输出，其中重要的列用粗体强调。您需要观察的列是用户 CPU 利用率（us）和系统 CPU 利用率（sy）。id 列显示了空闲时间。每次都应该忽略掉第一行。这里我们看到的系统有相当高的用户 CPU 利用率，而系统利用率则一般。
+      </p>
+      <a name="清单19">
+        <b>清单 19. 示例 vmstat 输出</b>
+      </a>
+      <br /> 
+      <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">
+[db2inst1@65658161 db2inst1]$ vmstat 3
+   procs                      memory    swap          io     system         
+        <span class="boldcode">cpu</span>
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    
+        <span class="boldcode">cs  us  sy  id</span>
+ 0  0  0      0 704388  65460 165592   0   0     0    21   20     9  
+        <span class="boldcode"> 2   2   6</span>
+ 0  1  1      0 642096  65660 206060   0   0   515  2149  911  1047  
+        <span class="boldcode">18   9  72</span>
+ 2  1  0      0 639712  65668 208292   0   0   139  2287  862   938  
+        <span class="boldcode">30  10  60</span>
+ 1  0  0      0 629772  65692 215496   0   0     0   581  568   422  
+        <span class="boldcode">94   1   4</span>
+ 1  0  0      0 625764  65696 218956   0   0     0  1809  612   423  
+        <span class="boldcode">91   1   8</span>
+ 1  0  0      0 623752  65704 220752   0   0    11  1741  712   549  
+        <span class="boldcode">85   8   7</span>
+ 0  0  0      0 633548  65712 217768   0   0    11  1264  728   700  
+        <span class="boldcode">17   4  79</span>
+ 1  0  0      0 633556  65712 217768   0   0     0    87  621   280  
+        <span class="boldcode"> 5   7  88</span>
+ 0  0  0      0 633556  65712 217768   0   0     0     0  519   150  
+        <span class="boldcode"> 0   0 100</span>
+ 1  0  0      0 633556  65712 217768   0   0     0     0  523   154  
+        <span class="boldcode"> 0   0 100</span>
+      </code></pre></td></tr></table><br /> 
+      <p>高的 CPU 利用率有时候要归因于对大型表的过度表扫描或索引扫描。通过分析
+        <b>"rows read"</b>值（在 SQL 快照中）很高的 SQL 语句，寻找建立索引的可能性。
+      </p>
+      <p>还可以在进程级上进行监视，以更好地了解是什么正在消耗 CPU。在 UNIX 上用 ps （例如 "ps uax"）进行监视，在 Windows 则用 Perfmon.exe 或 Task Manager 进行监视。忽略掉突发的（1 到 3 秒）100% 利用率的情况，只关注长期的平均值。</p>
+      <p>例如，在 RedHat Linux 8.0 上，我们可以通过发出 "ps uax" 查看每个进行占用多少的 CPU：</p>
+      <a name="IDAPHLHF">
+        <b>清单 20. 示例 ps 输出</b>
+      </a>
+      <br /> 
+      <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">
+[db2inst1@65658161 tmp]$ ps uax
+user       PID 
+        <span class="boldcode">%CPU</span> %MEM   VSZ  RSS TTY      STAT START   TIME COMMAND
+db2inst1  9967 
+        <span class="boldcode"> 0.0</span>  2.5 123416 26620 ?      S    Feb15   0:00 db2agent (idle)
+db2inst1 10020 
+        <span class="boldcode"> 2.1</span>  7.4 435200 76952 ?      R    Feb15   2:12 db2agent (TEST1)
+db2inst1  3643 
+        <span class="boldcode"> 0.1</span>  3.9 249544 41220 ?      S    13:17   0:00 db2loggw (TEST1)
+db2inst1  3649 
+        <span class="boldcode"> 0.0</span>  4.0 249540 41320 ?      S    13:17   0:00 db2pclnr
+      </code></pre></td></tr></table><br /> 
+      <p><a name="IDAFILHF"><span class="smalltitle">磁盘利用率</span></a></p>
+      <p>
+如果一个系统中磁盘利用率一般超过 45%，则认为该系统是 I/O 限制的。如果存在磁盘瓶颈，那么应确保表空间的容器分布在所有可用磁盘上。如果磁盘利用率仍然很高，那么很可能就需要更多的磁盘。</p>
+      <p>不幸的是，取决于所使用的操作系统，iostat 有不同格式的输出。在 UNIX 中，用 iostat （例如 "iostat 3"）进行监视，而在 Windows 中则用 Perfmon.exe 进行监视。忽略掉突发（1-3 秒）的利用率 100% 的情况，只关注长期的平均利用率。</p>
+      <p>如果使用的是 Linux 操作系统，则使用 "iostat –d –x 3" 命令以便支持扩展的磁盘信息，并寻找服务时间大于 50 ms（svctm）的磁盘，以及利用率超过 45% 的磁盘。由于格式的关系，下面的输出中省略了某些数据列。</p>
+      <a name="IDAOILHF">
+        <b>清单 21. 示例 iostat 输出</b>
+      </a>
+      <br /> 
+      <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">
+[db2inst1@65658161 tmp]$ iostat -d -x 3
+Linux 2.4.18-14 (65658161.torolab.ibm.com)      02/18/2004
+Device:     r/s   w/s  rsec/s  wsec/s    rkB/s    wkB/s  await 
+        <span class="boldcode"> svctm  %util</span>
+/dev/hda   0.01  2.25    0.19   41.81     0.09    20.91   0.60 
+        <span class="boldcode">  1.88   0.42</span>
+/dev/hda1  0.00  0.00    0.00    0.00     0.00     0.00 277.20 
+        <span class="boldcode">176.86   0.00</span>
+/dev/hda2  0.00  0.00    0.00    0.00     0.00     0.00   4.11 
+        <span class="boldcode">  4.11   0.00</span>
+/dev/hda3  0.01  2.25    0.19   41.81     0.09    20.91   0.58 
+        <span class="boldcode">  0.66   0.15</span>
+Device:     r/s   w/s  rsec/s  wsec/s    rkB/s    wkB/s  await 
+        <span class="boldcode"> svctm  %util</span>
+/dev/hda   0.00 383.67   0.00 5632.00     0.00  2816.00   8.10 
+        <span class="boldcode">  1.35  51.97</span>
+/dev/hda1  0.00  0.00    0.00    0.00     0.00     0.00   0.00 
+        <span class="boldcode">  0.00   0.00</span>
+/dev/hda2  0.00  0.00    0.00    0.00     0.00     0.00   0.00 
+        <span class="boldcode">  0.00   0.00</span>
+/dev/hda3  0.00 383.67   0.00 5632.00     0.00  2816.00   8.10 
+        <span class="boldcode">  2.16  82.93</span>
+      </code></pre></td></tr></table><br /> 
+      <p><a name="IDAKJLHF"><span class="smalltitle">内存和调页空间的利用率</span></a></p>
+      <p>
+从 DB2 的角度来看，如果一个系统发生了换页，则称该系统是内存限制的（memory bound） 的。一旦开始换页，性能通常就会急剧下降。</p>
+      <p>在 UNIX 中，使用 "lsps 鈥揳" 列出调页空间的特征，并且用 vmstat （例如 "vmstat 3"）进行监视。在 Windows 中，用 Perfmon.exe 或 Task Manager 进行监视。</p>
+      <p>例如，在 RedHat Linux 8.0 中，您需要注意交换（swap）信息。特别地，换入（si）和换出（so）列显示了从磁盘换入内存的空间大小和从内存换出到磁盘的空间大小，以 KB/sec 为单位（在 AIX 上是以 4K pages/sec 为单位的）。</p>
+      <a name="IDATJLHF">
+        <b>清单 22. 示例 iostat 输出</b>
+      </a>
+      <br /> 
+      <table bgcolor="#eeeeee" width="100%" cellpadding="5" cellspacing="0" border="1"><tr><td><pre><code class="section">
+[db2inst1@65658161 tmp]$ vmstat 3
+   procs                      memory  
+        <span class="boldcode">  swap</span>          io     system         cpu
+ r  b  w   swpd   free   buff  cache  
+        <span class="boldcode">si  so</span>    bi    bo   in    cs  us  sy  id
+ 0  0  0      0 675160  66088 175908  
+        <span class="boldcode"> 0   0</span>     0    21   22     9   2   2   6
+ 0  0  0      0 675096  66088 175908  
+        <span class="boldcode"> 0   2</span>     0    37  624   246   5   7  88
+ 2  0  0      0 665376  66088 183408  
+        <span class="boldcode"> 0   0</span>    11    88  666   826   6   8  85
+ 1  0  0      0 665376  66088 183408  
+        <span class="boldcode"> 1   0</span>     0    76  623   452   5   8  88
+ 2  0  0      0 654748  66096 191112  
+        <span class="boldcode"> 0   0</span>    79    48  619   847   2   4  94
+ 3  0  0      0 652760  66096 191192  
+        <span class="boldcode"> 0   0</span>    15    47  578   791   2   2  96
+      </code></pre></td></tr></table><br /> 
+      <p><a name="IDAMKLHF"><span class="smalltitle">网络利用率</span></a></p>
+      <p>
+虽然通常网络不是一个重大的瓶颈，但在这方面进行某些调优也可以提高性能。如果一个系统的 CPU 和 I/O 利用率都很低，则认为该系统是网络限制的（Network bound），并且在通过网络与 DB2 服务器进行通信时存在性能问题。在一个分了区的数据库中，如果分区策略产生了一些非合并连接，则可能导致最严重的性能下降。</p>
+      <p>在 UNIX 中可以用 netpmon （例如 "netpmon -O all -o netpmon.out"）进行监视，在 Windows 中可以用 Perfmon.exe 进行监视。</p>
+<BR>
+</BODY>
+</HTML>

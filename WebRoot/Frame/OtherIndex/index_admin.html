@@ -1,0 +1,197 @@
+<HTML>
+<HEAD>
+<TITLE>浦东发展银行风险管理系统</TITLE>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=gb2312">
+<STYLE type=text/css>.f9pt {
+	FONT-SIZE: 9pt; LINE-HEIGHT: 14pt
+}
+.loginInput {
+	width:100%;BORDER-BOTTOM: #999999 0px solid; BORDER-LEFT: #000000 0px solid; BORDER-RIGHT: black 0px solid; BORDER-TOP: black 0px solid; HEIGHT: 22px
+}
+A:hover {
+	COLOR: #000000; FONT-SIZE: 9pt; TEXT-DECORATION: underline
+}
+A:link {
+	COLOR: #999999; FONT-SIZE: 9pt; TEXT-DECORATION: none
+}
+A:visited {
+	COLOR: #999999; FONT-SIZE: 9pt; TEXT-DECORATION: none
+}
+</STYLE>
+<script language=javascript>
+<!--
+
+function over_change(index,src,clrOver){
+		if (!src.contains(event.fromElement)) 
+	 		{ 
+	 		src.style.cursor = 'hand';
+	 		src.background = clrOver;
+	 		}
+}
+
+function out_change(index,src,clrIn){
+		if (!src.contains(event.toElement))
+			{
+			src.style.cursor = 'default';
+			src.background = clrIn;
+			}
+}
+
+function chkForm(theForm){
+
+	if(theForm.UserID.value.length<1){
+		alert("请输入用户名！");
+		theForm.UserID.focus();
+		return false;
+	}
+	if(theForm.Password.value.length<1){
+		alert("请输入密码！");
+		theForm.Password.focus();
+		return false;
+	}
+	writeCookie("UserID",theForm.UserID.value, 240);
+	return true;
+}
+
+function doSubmit(){
+	if(chkForm(document.forms("LogonForm"))){
+		document.forms("LogonForm").submit();
+	}
+}
+
+
+function doReset(){
+	document.forms("LogonForm").UserID.value="";
+	document.forms("LogonForm").Password.value="";
+}
+
+function pressEnter(arg){
+	if(window.event.keyCode==13){
+		if(arg==2){
+			doSubmit();
+			return false;
+		}
+		else if(arg==1){
+			document.all("Password").focus();
+		}
+	}
+	else{
+		return true;
+	}
+}
+function writeCookie(name, value, hours)
+{
+  var expire = "";
+  if(hours != null)
+  {
+    expire = new Date((new Date()).getTime() + hours * 3600000);
+    expire = "; expires=" + expire.toGMTString();
+  }
+  document.cookie = name + "=" + escape(value) + expire;
+}
+function readCookie(name)
+{
+  var cookieValue = "";
+  var search = name + "=";
+  if(document.cookie.length > 0)
+  { 
+    offset = document.cookie.indexOf(search);
+    if (offset != -1)
+    { 
+      offset += search.length;
+      end = document.cookie.indexOf(";", offset);
+      if (end == -1) end = document.cookie.length;
+      cookieValue = unescape(document.cookie.substring(offset, end))
+    }
+  }
+  return cookieValue;
+}
+
+-->
+</script>
+</HEAD>
+<BODY BGCOLOR=#FFFFFF leftmargin="0" topmargin="0" style="overflow:scroll;overflow-x:hidden;overflow-y:hidden">
+<table width="100%" height="100%" border="0">
+  <tr>
+    <td><table width="100" border="0" cellspacing="0" cellpadding="0" align="center">
+        <tr> 
+          <td rowspan="3" align="right" valign="top"><img src="Resources/Public/pfbackgrd.jpg" width="350" height="296"></td>
+          <td>&nbsp;</td>
+          <td><p>&nbsp;</p>
+            <p>&nbsp;</p>
+            </td>
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+        </tr>
+        <tr> 
+          <td>&nbsp;</td>
+          <td bgcolor="#FFFFFF"> <form name="LogonForm" method="post" action="Logon_admin.jsp" onSubmit="return chkForm(this);">
+              <table width="66%" border="0" cellspacing="0" cellpadding="3">
+                <tr>
+                  <td height="5" colspan="2" nowrap class="f9pt" >&nbsp;</td>
+                </tr>
+                <tr> 
+                  <td colspan="2" nowrap class="f9pt" ><img src="Resources/Public/pfsysname.jpg" width="283" height="85"></td>
+                </tr>
+                <tr> 
+                  <td height="40" align="right" nowrap class="f9pt" > 
+                    <p>&nbsp;</p></td>
+                  <td height="40" nowrap>&nbsp;</tr>
+                <tr> 
+                  <td width="21%" class="f9pt" nowrap >&nbsp;&nbsp;用户:</td>
+                  <td width="79%" nowrap> <input type="text" name="UserID" size="20"  onFocus="this.style.backgroundColor='#EEEEEE'" onBlur="this.style.backgroundColor='#FFFFFF'" class="loginInput" onKeyPress="javascript:pressEnter(1);" value="system"> 
+                </tr>
+                <tr bgcolor="#999999" height="1" > 
+                  <td align="right" class="f9pt"></td>
+                  <td colspan="1"></td>
+                </tr>
+                <tr> 
+                  <td class="f9pt">&nbsp;&nbsp;密码:</td>
+                  <td colspan="1"> <input type="password" name="Password" size="20" onFocus="this.style.backgroundColor='#EEEEEE'" onBlur="this.style.backgroundColor='#FFFFFF'" class="loginInput" onKeyPress="javascript:pressEnter(2);" > 
+                  </td>
+                </tr>
+                <tr bgcolor="#999999" height="1" > 
+                  <td align="right" class="f9pt"></td>
+                  <td colspan="1"></td>
+                </tr>
+                <tr> 
+                  <td colspan="3" height="51"> <table border="0" cellpadding="3" cellspacing="0">
+                      <tr> 
+                        <td align="center" class="f9pt">&nbsp; </td>
+                        <td class="f9pt"> <table width="48" border="1" cellspacing="0" cellpadding="0" class="f9pt" background="Resources/Public/functionbg.gif" bordercolor='#DCDCDC'>
+                            <tr> 
+                              <td align="center" width="63" bordercolorlight='#999999' bordercolordark='#FFFFFF' onMouseOut=out_change(9,this,'Resources/Public/functionbg.gif') onMouseOver=over_change(9,this,'Resources/Public/functionbg_hover.gif') onClick="doSubmit();">登录</td>
+                            </tr>
+                          </table></td>
+                        <td class="f9pt">&nbsp;</td>
+                        <td class="f9pt"> <table width="48" border="1" cellspacing="0" cellpadding="0" class="f9pt" background="Resources/Public/functionbg.gif" bordercolor='#DCDCDC'>
+                            <tr> 
+                              <td align="center" width="46" bordercolorlight='#999999' bordercolordark='#FFFFFF' onMouseOut=out_change(9,this,'Resources/Public/functionbg.gif') onMouseOver=over_change(9,this,'Resources/Public/functionbg_hover.gif') onClick="doReset();">取消</td>
+                            </tr>
+                          </table></td>
+                        <td nowrap class="f9pt">&nbsp;</td>
+                        <td nowrap class="f9pt"><a href="amar_obj_y.exe">下载控件</a> 
+                        </td>
+                      </tr>
+                    </table></td>
+                </tr>
+              </table>
+              <input type="hidden" value="1" name="StyleModel">
+            </form></td>
+          <td bgcolor="#FFFFFF">&nbsp;</td>
+        </tr>
+        <tr> 
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+        </tr>
+      </table></td>
+  </tr>
+</table>
+</BODY>
+</HTML>
+<script language="JavaScript" type="text/JavaScript">
+LogonForm.UserID.value=readCookie("UserID");
+LogonForm.UserID.focus();
+</script>
+
+

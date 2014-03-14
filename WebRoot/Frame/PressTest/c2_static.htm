@@ -1,0 +1,64 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Frameset//EN""http://www.w3.org/TR/REC-html40/frameset.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+
+<TITLE>
+静态测试页面
+</TITLE>
+</HEAD>
+<BODY BGCOLOR="white">
+<!--END RESERVED FOR FUTURE USE INCLUDE FILES-->
+      <p><a name="0"><span class="atitle">简介</span></a></p>
+      <p>性能是关系到随需应变型应用程序成功与否的关键。当那些应用程序使用 IBM? DB2 Universal Database? 作为数据存储时，至关重要的是，从一开始就应该知道有关如何在 DB2 UDB 上取得尽可能好的性能的基础知识。在本文中，我将给出关于调优 DB2 UDB V8 系统的一些比较深入的建议。</p>
+      <p>我们将谈论这一过程中自始至终存在的性能问题。您可以遵循从创建一个新数据库到运行应用程序这之间的流程。通过本文可以看到如何使用 DB2 自动配置实用程序来初始配置数据库管理器和数据库环境。接着，我将讨论创建缓冲池、表空间、表和索引的最佳实践。另外，您可能还想改变一些重要配置参数的初始值，以便更好地支持应用程序，因此我们还将简介这些配置参数。</p>
+      <p>我们将论述基于监视器（monitor）细节输出的调优，从而展示如何使用快照监视（snapshot monitoring）帮助调优 SQL、缓冲池和各种不同的数据库管理器以及数据库配置参数。接着，我们将进一步研究应用程序发送给 DB2 的 SQL。通过使用 Explain，可以生成 SQL 采用的访问计划（access plan），并寻找可以进一步优化的机会。我们将考察 Design Advisor 这样一个工具，它可以根据所提供的 SQL 负载推荐出新的索引，或者评估现有的索引。最后，我们还将讨论一些 DB2 SQL 选项。</p>
+      <p>此外，持续（on-going）维护对于维持最佳性能非常重要。所以我们将讨论一些可以帮助我们进行持续维护的实用程序。对于那些正使用 DB2 ESE Database Partitioning Feature (DPF) 的读者，我会用一节的篇幅谈论为使数据库高效运行而应该考虑的一些问题。有时候可能会存在某种外在的瓶颈（来自 DB2）而使您无法达到性能目标，本文列出了一些常见的瓶颈，以及用于监视这些瓶颈的实用程序。最后，本文列出了一些有价值的 IBM 资源，以帮助您发现有价值的 DB2 信息。</p>
+      <p>本文是为那些在 DB2 数据库管理方面有中级技能的人而写的。</p>
+      <p><a name="IDAEEEHF"><span class="smalltitle">读前须知</span></a></p>
+      <p>
+在开始性能调优过程之前，应确保您已经应用了最新的  DB2 修订包（fix pack）。修订包常常会带来性能的提高。我们要使用 DB2 FixPak 4 作为本文的基础。如果您使用的是 FP4 之前的版本，那么这种环境可能不能提供这里讨论的所有选项。</p>
+      <p>在进行调优时，最好是有一个关于数据库使用（即应用程序运行在 DB2 上的工作负载）的可再现场景，这样就可以利用这种可再现场景来量身定制调优效果。例如，如果工作负载在不同的运行期间所经历的时间上有 10% 的变化量，那么就很难知道调优的真正效果如何。此外，如果在两次运行中各自的工作负载不一样，也就难于衡量数据库管理器和数据库配置参数所发生的变化。</p>
+      <p>坚持跟踪所有的变化。这样有助于开发调优脚本或者建议，以作为供其他 DBA 参考的历史，同时也有助于防止遵循不良的变化。</p>
+      <p>在大多数小节的最后，都有一些指向 DB2 v8 HTML Documentation 中相关小节的链接。在线文档可以在
+      </p>
+      <br /><br /><br /><p><a name="1"><span class="atitle">“十大”性能增强推动器</span></a></p>
+      <p>做了下面十件事情，您就几乎可以使数据库获得最佳性能。通常您会发现，通过大约 10% 的配置变化，就可以达到最佳性能的 90%。我将在下面适当的小节（在圆括号中标出）中详细讨论其中的每一条：</p>
+      <ol>
+        <li>确保有足够的磁盘（每个 CPU 有 6-10 个磁盘才是一个好的开端）。每个表空间的容器应该跨越所有可用的磁盘。有些表空间，例如 SYSCATSPACE 以及那些表数量不多的表空间，不需要展开到所有磁盘上，而那些具有大型用户或临时表的表空间则应该跨越所有磁盘。（
+          <a href="#tablespaces">表空间</a>）。
+        </li>
+        <li>缓冲池应该占用可用内存的大约 75% （OLTP） 或 50% （OLAP）（
+          <a href="#bufferpools">缓冲池</a>）。
+        </li>
+        <li>应该对所有表执行 runstats，包括系统编目表（
+          <a href="#runstats">Runstats</a>）。
+        </li>
+        <li>使用 Design Advisor 为 SQL 工作负载推荐索引和检查索引（
+          <a href="#design">Design
+Advisor</a>）。
+        </li>
+        <li>使用 Configuration Advisor 为应用程序环境配置数据库管理器和数据库（
+          <a href="#configurationadv">Configuration Advisor</a>）。
+        </li>
+        <li>日志记录应该在一个独立的高速驱动器上进行，该驱动器由 NEWLOGPATH
+数据库配置参数指定（
+          <a href="#experimenting">Experimenting</a>）。
+        </li>
+        <li>通过频繁的提交可以增加并发性（
+          <a href="#sqltuning">SQL 语句调优</a>）。
+        </li>
+        <li>应该增加 SORTHEAP，以避免排序溢出（
+          <a href="#configuration">DBM 和 DB 配置</a>）。
+        </li>
+        <li>对于系统编目表空间和临时表空间，表空间类型应该为 SMS，而对于其他表空间，表空间类型应为 DMS（ raw device 或者是文件）。运行 db2empfa，以便支持用于 SMS 表空间的多页（multi-page ）文件的空间分配。这将允许 SMS 表空间一次增长一个区段（Extend），而不是一页，从而可以加快那些大型的插入操作和溢出磁盘的排序操作（
+          <a href="#tablespaces">表空间</a>）。
+        </li>
+        <li>对于重复的语句，使用参数标记 （
+          <a href="#sqltuning">SQL 语句调优</a>）。
+        </li>
+      </ol>
+      <br />
+<BR>
+</BODY>
+</HTML>

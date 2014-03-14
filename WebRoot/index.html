@@ -1,0 +1,286 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+	<HEAD>
+		<TITLE>文档管理系统</TITLE>
+		<META content="text/html; charset=GBK" http-equiv=Content-Type>
+		
+		<style type="text/css">
+			.wz {
+				LINE-HEIGHT: 22px; COLOR: #000000; FONT-SIZE: 12px; TEXT-DECORATION: none
+			}
+			.wzb {
+				LINE-HEIGHT: 20px; COLOR: #ffffff; FONT-SIZE: 12px; TEXT-DECORATION: none
+			}
+			.logonkuang {
+				BORDER-BOTTOM: #003c74 1px solid; BORDER-LEFT: #003c74 1px solid; PADDING-BOTTOM: 1px; BACKGROUND-COLOR: #e6faff; MARGIN: 1px; PADDING-LEFT: 1px; WIDTH: 70%; PADDING-RIGHT: 1px; HEIGHT: 18px; BORDER-TOP: #003c74 1px solid; BORDER-RIGHT: #003c74 1px solid; PADDING-TOP: 1px
+			}
+			.logonanniu {
+				BACKGROUND-IMAGE: url(../../images/teller/bj.jpg); BORDER-BOTTOM: #666666 1px; BORDER-LEFT: #666666 1px; WIDTH: 80px; HEIGHT: 18px; FONT-SIZE: 12px; BORDER-TOP: #666666 1px; BORDER-RIGHT: #666666 1px
+			}
+			.kuang {
+				BORDER-BOTTOM: #003c74 1px solid; BORDER-LEFT: #003c74 1px solid; PADDING-BOTTOM: 1px; BACKGROUND-COLOR: #e6faff; MARGIN: 1px; PADDING-LEFT: 1px; WIDTH: 120px; PADDING-RIGHT: 1px; HEIGHT: 18px; BORDER-TOP: #003c74 1px solid; BORDER-RIGHT: #003c74 1px solid; PADDING-TOP: 1px
+			}
+			.anniu {
+				BACKGROUND-IMAGE: url(../../images/teller/bj.jpg); BORDER-BOTTOM: 1px; BORDER-LEFT: 1px; WIDTH: 70px; HEIGHT: 20px; FONT-SIZE: 12px; BORDER-TOP: 1px; BORDER-RIGHT: 1px
+			}
+			
+		</style>
+
+		<script type="text/javascript">
+			<!--
+			
+			function chkForm(theForm){
+			
+				//防止拼凑用户名的BUG  add by xhgao 2009/04/03
+			    if(theForm.UserID.value.indexOf("=")>0 || theForm.UserID.value.indexOf("'")>0 || theForm.UserID.value.indexOf(" ")>0)
+				{
+				   alert("输入用户名错误");
+				   theForm.UserID.focus();
+				   return false;
+				}
+			
+				if(theForm.Password.value.length<1){
+					alert("请输入密码！");
+					theForm.Password.focus();
+					return false;
+				}
+				writeCookie("UserID",theForm.UserID.value, 240);
+				return true;
+			}
+			
+			function doSubmit(){
+				if(chkForm(document.forms["LogonForm"])){
+					document.forms["LogonForm"].submit();
+				}
+			}
+			
+			function doReset(){
+				document.forms["LogonForm"].UserID.value="";
+				document.forms["LogonForm"].Password.value="";
+			}
+			
+			function pressEnter(e,arg){
+				var keyCode = "";
+				if(window.event) // IE
+				{
+				  keyCode = e.keyCode;
+				}else if(e.which) // Netscape/Firefox/Opera
+			    {
+				  keyCode = e.which;
+			    }
+				if(keyCode==13){
+					if(arg==2){
+						doSubmit();
+						return false;
+					}
+					else if(arg==1){
+						document.forms["LogonForm"].Password.focus();
+					}
+				}
+				else{
+					return true;
+				}
+			}
+			function writeCookie(name, value, hours)
+			{
+			  var expire = "";
+			  if(hours != null)
+			  {
+			    expire = new Date((new Date()).getTime() + hours * 3600000);
+			    expire = "; expires=" + expire.toGMTString();
+			  }
+			  document.cookie = name + "=" + escape(value) + expire;
+			}
+			function readCookie(name)
+			{
+			  var cookieValue = "";
+			  var search = name + "=";
+			  if(document.cookie.length > 0)
+			  { 
+			    offset = document.cookie.indexOf(search);
+			    if (offset != -1)
+			    { 
+			      offset += search.length;
+			      end = document.cookie.indexOf(";", offset);
+			      if (end == -1) end = document.cookie.length;
+			      cookieValue = unescape(document.cookie.substring(offset, end))
+			    }
+			  }
+			  return cookieValue;
+			}
+			
+			-->
+		</script>
+
+	</HEAD>
+	<BODY onload=readCookie() leftMargin=0 topMargin=0 bgColor=#f8f8f8
+		target="_self">
+		<TABLE border=0 cellSpacing=0 cellPadding=0 width="100%" height="100%">
+			<TBODY>
+				<TR>
+					<TD align=middle>
+						<TABLE border=0 cellSpacing=1 cellPadding=10 width=1004
+							bgColor=#000000>
+							<TBODY>
+								<TR>
+									<TD bgColor=#ffffff>
+										<TABLE border=0 cellSpacing=0 cellPadding=1 width=981>
+											<TBODY>
+												<TR>
+													<TD height=596 width=979>
+														<TABLE border=0 cellSpacing=0 cellPadding=0 width="100%"
+															background=Resources/Public/index.gif>
+															<TBODY>
+																<TR>
+																	<TD>
+																		<TABLE id=__01 border=0 cellSpacing=0 cellPadding=0
+																			width=996 height=602>
+																			<TBODY>
+																				<TR>
+																					<TD height=25 colSpan=2>
+																						&nbsp;
+																					</TD>
+																				</TR>
+																				<TR>
+																					<TD height=27 width=613></TD>
+																					<TD height=77 rowSpan=3>
+																						&nbsp;
+																					</TD>
+																				</TR>
+																				<TR>
+																					<TD height=25 width=613></TD>
+																				</TR>
+																				<TR>
+																					<TD height=25 width=613></TD>
+																				</TR>
+																				<TR>
+																					<TD height=18 width=613></TD>
+																					<TD height=83 rowSpan=4 width=383></TD>
+																				</TR>
+																				<TR>
+																					<TD height=23 width=613></TD>
+																				</TR>
+																				<TR>
+																					<TD height=27 width=613></TD>
+																				</TR>
+																				<TR>
+																					<TD height=15 width=613></TD>
+																				</TR>
+																				<TR>
+																					<TD height=16 width=613></TD>
+																					<TD height=139 rowSpan=5 width=383></TD>
+																				</TR>
+																				<TR>
+																					<TD height=44 width=613></TD>
+																				</TR>
+																				<TR>
+																					<TD height=34 idth="613"></TD>
+																				</TR>
+																				<TR>
+																					<TD height=18 width=613></TD>
+																				</TR>
+																				<TR>
+																					<TD height=27 width=613></TD>
+																				</TR>
+																				<TR>
+																					<TD height=112 width=613></TD>
+																					<TD height=112 width=383>
+																						<TABLE class=wzb border=0 cellSpacing=0
+																							cellPadding=0 width="81%" align=center
+																							height="100%">
+																							<FORM method=post name=LogonForm action="Logon.jsp">
+																							<TBODY>
+																								<TR>
+																									<TD width="25%" height=21>
+																										<DIV style="COLOR: black" align=center>
+																											用户名
+																										</DIV>
+																									</TD>
+																									<TD width="80%">
+																										<INPUT 
+																											onKeyPress=pressEnter(event,1)
+																											onFocus=this.style.backgroundColor='#AAAAAA'
+																											onBlur=this.style.backgroundColor='#e6faff'
+																											id=TELLERNAME class=logonkuang
+																											name=UserID>
+																									</TD>
+																								</TR>
+																								<TR>
+																									<TD height=20>
+																										<DIV style="COLOR: black" align=center>
+																											密码
+																										</DIV>
+																									</TD>
+																									<TD>
+																										<INPUT 
+																											onKeyPress=pressEnter(event,2)
+																											onFocus=this.style.backgroundColor='#AAAAAA'
+																											onBlur=this.style.backgroundColor='#e6faff'
+																											id=TELLERPWD class=logonkuang type=password
+																											name=Password value='000000als6' >
+																									</TD>
+																								</TR>
+																								<TR>
+																									<TD height=23 colSpan=2>
+																										<TABLE width="80%" border=0 align="center"
+																											cellPadding=0 cellSpacing=0>
+																											<TBODY>
+																												<TR>
+																													<TD>
+																														<div align="center">
+																															<INPUT onclick=doSubmit() value=登陆
+																																type=button name=Submit22>
+																															&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+																															<INPUT onclick=doReset() value=取消
+																																type=button name=Submit222>
+																														</div>
+																													</TD>
+																												</TR>
+																											</TBODY>
+																										</TABLE>
+																									</TD>
+																								</TR>
+																								<TR>
+																									<TD height=23 colSpan=2>
+																										</LABEL>
+																										<DIV style="COLOR: black" align=center>
+																											<!--<a href="Frame/DownPrg/amar_obj_y.exe">下载控件</a>  -->
+																										</DIV>
+																									</TD>
+																								</TR>
+																								</FORM>
+																						</TABLE>
+																					</TD>
+																				</TR>
+																				<TR>
+																					<TD height=47 width=613></TD>
+																					<TD height=47>
+																						&nbsp;
+																					</TD>
+																				</TR>
+																				<TR>
+																					<TD height=119 colSpan=2>
+																						&nbsp;
+																					</TD>
+																				</TR>
+																		</TABLE>
+																	</TD>
+																</TR>
+														</TABLE>
+													</TD>
+												</TR>
+										</TABLE>
+									</TD>
+								</TR>
+						</TABLE>
+					</TD>
+				</TR>
+			</TBODY>
+		</TABLE>
+	</BODY>
+</HTML>
+
+<script language="JavaScript" type="text/JavaScript">
+	document.LogonForm.UserID.value=readCookie("UserID");
+	document.LogonForm.UserID.focus();
+</script>
