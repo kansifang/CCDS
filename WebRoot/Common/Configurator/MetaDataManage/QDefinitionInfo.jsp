@@ -68,8 +68,7 @@
 <%
 	String sDescribeCount = "";
 	String sUpdate0 = "";
-	if(sMethod.equals("2")) //2:update docContect
-	{
+	if(sMethod.equals("2")){ //2:update docContect
 		//html中如产生换行，会原封不懂存入数据库，读取时，setItemValue(0,0,"Column",sColumn)时 会造成
 		//setItemValue(0,0,"Column","zzz
 		//		yyy"),很显然，js和java的一个字符串换行而不加连接符是有问题，故在这处理掉
@@ -156,7 +155,7 @@
 			//5.事件
 			//6.资源图片路径
 		String sButtons[][] = {
-			{"true","","Button","保存","保存所有修改面","saveRecord()",sResourcesPath},
+			{"true","","Button","保存并返回","保存所有修改面","saveRecord()",sResourcesPath},
 			{"true","","Button","返回","返回列表页面","goBack()",sResourcesPath},
 			{"true","","Button","查询","维护数据库","handleDatabase()",sResourcesPath}
 			};
@@ -195,9 +194,10 @@
 			beforeInsert();
 		}
 		beforeUpdate();
-		as_save("myiframe0","reloadSelf();");
+		as_save("myiframe0","reloadSelf()");
 		
 		updateHtmlData();
+		//goBack();
 	}
 	/*~[Describe=返回列表页面;InputParam=无;OutPutParam=无;]~*/
 	function goBack()
@@ -312,6 +312,9 @@
 	//利用查询语句生成查询页面
 	function handleDatabase()
 	{
+		self.close();
+		//OpenComp("QDefinitionInfo","/Common/Configurator/MetaDataManage/QDefinitionInfo.jsp","docNo=<%=sDocNo%>&attachmentNo=<%=sDocNo%>&method=1&CompClientID=<%=sCompClientID%>","_self");
+
 		var iframe0 =document.frames("myiframe0");
 		//对表单内容进行编码，在服务端用DataConvert.toRealString(5,s)或DataConvert.decode(s,"GBK")进行解码
 		for(var i=0;i<DZ[0][1].length;i++){
@@ -325,7 +328,7 @@
 		form1.method='post';
 		form1.target = "_blank";
 		form1.submit();
-		reloadSelf();
+		//reloadSelf();
 	}
 	//-->
 	</script>
@@ -338,6 +341,7 @@
 %>
 <script language=javascript>	
 	bCheckBeforeUnload=false;
+	bNotCheckModified=true;
 	AsOne.AsInit();
 	init();
 	my_load(2,0,'myiframe0');

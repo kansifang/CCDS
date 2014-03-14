@@ -59,8 +59,8 @@
 	String sTempletFilter = "1=1";
 	
 	ASDataObject doTemp = new ASDataObject(sTempletNo,sTempletFilter,Sqlca);
-	doTemp.setEditStyle("FileName,Column,TableName,KeyColumn", "1");
-	doTemp.setHTMLStyle("FileName,Column,TableName,KeyColumn", "");
+	doTemp.setEditStyle("FileName,Column,TableName,KeyColumn,Remark", "1");
+	doTemp.setHTMLStyle("FileName,Column,TableName,KeyColumn,Remark", "");
 	//²éÑ¯
  	//doTemp.setColumnAttribute(sKeyColumn,"IsFilter","1");
 	doTemp.generateFilters(Sqlca);
@@ -80,33 +80,37 @@
 		ASResultSet rs1 = Sqlca.getResultSet("select ContentLength,AttachmentNo from Doc_Attachment"+
 									" where DocNo='"+sDocNo+"'");
 		while(rs1.next()){		
-				int iContentLength=DataConvert.toInt(rs1.getString("ContentLength"));
-				if (iContentLength>0){
-					String sColumn="";
-					String sAttachmentNo=rs1.getString("AttachmentNo");
-					byte bb[] = new byte[iContentLength];
-					int iByte = 0;		
-					java.io.InputStream inStream = null;
-					ASResultSet rs2 = Sqlca.getResultSet2("select DocContent from Doc_Attachment"+
-																" where DocNo='"+sDocNo+"' and AttachmentNo='"+sAttachmentNo+"'");
-					if(rs2.next()){
-						inStream = rs2.getBinaryStream("DocContent");
-						while(true){
-							iByte = inStream.read(bb);
-							if(iByte<=0)
-								break;
-							sColumn = sColumn + new String(bb,"GBK");
-						}
-						sColumn=sColumn.replaceAll("\"", "'");
-						if(StringFunction.isLike(sColumn, "%"+value+"%")){
-							sb.append("'"+sAttachmentNo+"',");
-						}
+			int iContentLength=DataConvert.toInt(rs1.getString("ContentLength"));
+			if (iContentLength>0){
+				String sColumn="";
+				String sAttachmentNo=rs1.getString("AttachmentNo");
+				byte bb[] = new byte[iContentLength];
+				int iByte = 0;		
+				java.io.InputStream inStream = null;
+				ASResultSet rs2 = Sqlca.getResultSet2("select DocContent from Doc_Attachment"+
+															" where DocNo='"+sDocNo+"' and AttachmentNo='"+sAttachmentNo+"'");
+				if(rs2.next()){
+					inStream = rs2.getBinaryStream("DocContent");
+					while(true){
+						iByte = inStream.read(bb);
+						if(iByte<=0)
+							break;
+						sColumn = sColumn + new String(bb,"GBK");
 					}
-					rs2.getStatement().close();
+					sColumn=sColumn.replaceAll("\"", "'");
+					if(StringFunction.isLike(sColumn, "%"+value+"%")){
+						sb.append("'"+sAttachmentNo+"',");
+					}
+				}
+				rs2.getStatement().close();
 			}
 		}
 		rs1.getStatement().close();	
-		sb.deleteCharAt(sb.lastIndexOf(","));
+		if(sb.indexOf(",")!=-1){
+			sb.deleteCharAt(sb.lastIndexOf(","));
+		}else{//Ã»ÓÐÆ¥Åä
+			sb.append("''");
+		}
 		sb.append(")");
 		dwTemp.DataObject.WhereClause="where DocNo='"+sDocNo+"' and AttachmentNo in"+sb.toString();
 	}

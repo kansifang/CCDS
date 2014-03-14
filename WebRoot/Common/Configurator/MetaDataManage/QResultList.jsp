@@ -14,7 +14,8 @@
 	String sColumn = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("R0F4")));
 	String sTableName = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("R0F5")));
 	String sKeyColumn = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("R0F6")));
-	
+	String sAttachmentNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("type")));
+	String sFilterColumn=sKeyColumn;
 	String PG_TITLE = sSelectName+"@WindowTitle"; // 浏览器窗口标题 <title> PG_TITLE </title>
 %>
 <%
@@ -30,7 +31,7 @@
 		int CCount=rs.getColumnCount();
 		StringBuffer sb=new StringBuffer("Select ");
 		for(int i=1;i<=CCount;i++){
-	sb.append(rs.getColumnName(i)+",");
+			sb.append(rs.getColumnName(i)+",");
 		}
 		sb.delete(sb.lastIndexOf(","),sb.length());
 		sb.append(" from "+sTableName+" where 1=1");
@@ -42,6 +43,42 @@
 		sSql=sSql.replaceAll("\\s", " ");
 		sSql=sSql.replaceAll("&lt;", "<");
 		sSql=sSql.replaceAll("&gt;", ">");
+	}else{//通过数据库查询出查询语句来执行查询
+		StringBuffer sb=new StringBuffer("");
+		ASResultSet rs1 = Sqlca.getResultSet("select ContentLength,Remark from Doc_Attachment"+
+								" where AttachmentNo='"+sAttachmentNo+"'");
+		
+		if(rs1.next()){	
+			String sFilterC=DataConvert.toString(rs1.getString("Remark"));
+			if(!"".equals(sFilterC)){
+				if(!"".equals(sFilterColumn)){
+					sFilterColumn+=","+sFilterC;
+				}else{
+					sFilterColumn=sFilterC;
+				}
+			}
+			int iContentLength=DataConvert.toInt(rs1.getString("ContentLength"));
+			if (iContentLength>0){
+				byte bb[] = new byte[iContentLength];
+				int iByte = 0;		
+				java.io.InputStream inStream = null;
+				ASResultSet rs2 = Sqlca.getResultSet2("select DocContent from Doc_Attachment"+
+						" where AttachmentNo='"+sAttachmentNo+"'");//注意是getResultSet2
+				if(rs2.next()){
+					inStream = rs2.getBinaryStream("DocContent");
+					while(true){
+						iByte = inStream.read(bb);
+						if(iByte<=0)
+							break;
+						sb.append(new String(bb,"GBK"));
+					}
+				}
+				rs2.getStatement().close();
+			}
+		}
+		rs1.getStatement().close();	
+		sSql=sb.toString().replaceAll("\"", "'");
+		sSql=sb.toString().replaceAll("&nbsp;", " ");
 	}
 	
 	ASDataObject doTemp = new ASDataObject(sSql);
@@ -52,7 +89,7 @@
 	//doTemp.setCheckFormat(sNumberColumn,"3");
 	//doTemp.setType(sStringColumn,"1");
 	//查询
- 	doTemp.setColumnAttribute(sKeyColumn,"IsFilter","1");
+ 	doTemp.setColumnAttribute(sFilterColumn,"IsFilter","1");
 	doTemp.generateFilters(Sqlca);
 	doTemp.parseFilterData(request,iPostChange);
 	CurPage.setAttribute("FilterHTML",doTemp.getFilterHtml(Sqlca));
