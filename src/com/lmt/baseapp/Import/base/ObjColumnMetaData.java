@@ -86,7 +86,7 @@ public class ObjColumnMetaData {
 		if(column==null||"".equals(column)){
 			return false;
 		}
-		if(this.columnName.contains(column.toUpperCase())){
+		if(this.columnName.equalsIgnoreCase(column)){
 			return true;
 		}
 		return false;
@@ -95,7 +95,7 @@ public class ObjColumnMetaData {
 		if(headName==null||"".equals(headName)){
 			return false;
 		}
-		if(this.columnHeadName.contains(headName)){
+		if(this.columnHeadName.equalsIgnoreCase(headName)){
 			return true;
 		}
 		return false;

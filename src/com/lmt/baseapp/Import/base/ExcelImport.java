@@ -73,8 +73,10 @@ public  class ExcelImport implements ObjImportImpl{
 			}
 			for (int i=0;i<workbook.getNumberOfSheets();i++) {
 				Sheet sheet=workbook.getSheetAt(i);
-				if(sheet.getRow(0)==null)
+				int rownum=sheet.getLastRowNum();
+				if(rownum==0){
 					continue;
+				}
 				this.ERS.setSheet(sheet);
 				//sheet标题头不符合要求就直接直接回退整个导入,没商量，完善去(此方法会报异常的)
 				this.ERS.checkMeta();

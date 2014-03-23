@@ -64,7 +64,7 @@
 				{"CodeName","配置名称"},
 				{"SortNo","文件类型"},
 				{"CodeDescribe","系统展示要素"},
-				{"CodeAttribute","文件要素"},
+				{"CodeAttribute","配置类型"},
 				{"Remark","备注"},
 				{"InputUserName","输入人"},
 				{"InputUser","输入人"},
@@ -100,8 +100,10 @@
 	doTemp.setHTMLStyle("CodeTypeOne","style={width:400px}");
 	doTemp.setHTMLStyle("CodeTypeTwo","style={width:400px}");
 	doTemp.setHTMLStyle("CodeName","style={width:400px}");
-	doTemp.setHTMLStyle("CodeDescribe"," style={width:460px} ");
-	doTemp.setHTMLStyle("CodeAttribute"," style={width:160px} ");
+	//doTemp.setHTMLStyle("CodeDescribe"," style={width:460px} ");
+	//doTemp.setHTMLStyle("CodeAttribute"," style={width:160px} ");
+	//doTemp.setDDDWCodeTable("CodeDescribe","01,导入对应配置,02,字段维护");
+	doTemp.setDDDWCodeTable("CodeAttribute","01,导入对应配置,02,字段维护");
 	doTemp.setHTMLStyle("InputUser,UpdateUser"," style={width:160px} ");
 	doTemp.setHTMLStyle("InputOrg"," style={width:160px} ");
 	doTemp.setHTMLStyle("InputTime,UpdateTime"," style={width:130px} ");
@@ -111,7 +113,7 @@
  	doTemp.setLimit("CodeTypeOne,CodeTypeTwo", 80);
 	doTemp.setReadOnly("CodeNo,SortNo,InputUserName,InputOrgName,UpdateUserName,InputTime,UpdateTime",true);
  	doTemp.setDDDWCode("SortNo","SModelFileType");
-	doTemp.setVisible("CodeTypeOne,CodeTypeTwo,CodeDescribe,CodeAttribute,InputUser,InputOrg,UpdateUser",false);    	
+	doTemp.setVisible("CodeTypeOne,CodeTypeTwo,InputUser,InputOrg,UpdateUser,CodeDescribe",false);    	
 	doTemp.setUpdateable("InputUserName,InputOrgName,UpdateUserName",false);
   			
 	ASDataWindow dwTemp = new ASDataWindow(CurPage,doTemp,Sqlca);

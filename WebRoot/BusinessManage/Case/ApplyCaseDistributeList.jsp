@@ -171,6 +171,8 @@
 	/*~[Describe=提交任务;InputParam=无;OutPutParam=无;]~*/
 	function doSubmit()
 	{
+		var XX=RunMethod("CheckCreditApply","getGuarantyLimit","201312080000037,1");
+		alert("LL"+XX+"MM");
 		//获得出账类型、出账流水号、流程编号、阶段编号
 		sObjectType = getItemValue(0,getRow(),"ObjectType");
 		sObjectNo = getItemValue(0,getRow(),"ObjectNo");

@@ -44,6 +44,7 @@
 	ASResultSet rs = null;//结果集
 	//获得组件参数：对象类型、对象编号、对象权限
 	String sCodeNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("CodeNo")));//"BatchColumnConfig";)
+	String sType = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("type")));//"BatchColumnConfig";)
 %>
 <%
 	/*~END~*/
@@ -57,41 +58,51 @@
 	String sHeaders[][] = {
 					{"ItemNo","流水号"},
 					{"ItemName","模板名称"},
-					{"ItemDescribe","案件要素"},
 					{"Attribute1","Excel案件要素"},
+					{"Attribute3","是否主标签"},
+					{"ItemDescribe","案件对应表要素"},
+					{"Attribute7","操作要素方式"},
+					{"Attribute6","要素所在表"},
+					{"ItemAttribute","要素注释"},
+					{"Attribute8","要素名称"},
 					{"Attribute2","要素类型"},
+					{"Attribute4","要素长度"},
+					{"Attribute5","要素精度"},
 					{"IsInUse","有效"},
 					{"UpdateUserName","更新人"},
 					{"UpdateTime","更新时间"}
 				};
 	sSql =  " select  CodeNo,ItemNo,ItemName,SortNo,"+
-		" getItemName('SModelColumns',ItemDescribe) as ItemDescribe,"+
-		" Attribute1,"+
-		" getItemName('DataType',Attribute2) as Attribute2,"+
-		" getItemName('YesNo',IsInUse) as IsInUse,"+
-		" getUserName(UpdateUser) as UpdateUserName,"+
-		" UpdateTime"+
-		" from Code_Library "+
-		" where  CodeNo = '"+sCodeNo+"'"+
-		" and IsInUse='1'"+
-		" order by ItemNo asc";
+			" Attribute1,getItemName('YesNo',Attribute3) as Attribute3,getItemName('SModelColumns',ItemDescribe) as ItemDescribe,"+
+			" getItemName('AlterType',Attribute7) as Attribute7,Attribute6,ItemAttribute,Attribute8,getItemName('DataType',Attribute2) as Attribute2,Attribute4,Attribute5,"+
+			" getItemName('YesNo',IsInUse) as IsInUse,"+
+			" getUserName(UpdateUser) as UpdateUserName,"+
+			" UpdateTime"+
+			" from Code_Library "+
+			" where  CodeNo = '"+sCodeNo+"'"+
+			" and IsInUse='1'"+
+			" order by ItemNo asc";
 	
 	//用sSql生成数据窗体对象
 	ASDataObject doTemp = null;
 	//设置表头,更新表名,键值,可见不可见,是否可以更新
 	doTemp = new ASDataObject(sSql);
 	doTemp.setHeader(sHeaders);
-	doTemp.setVisible("Attribute3,Attribute4",false);
 	doTemp.setRequired("Attribute5",true);
 	doTemp.setHTMLStyle("Attribute5"," style={width:1000px} ");
 	doTemp.UpdateTable= "Code_Library";
 	doTemp.setKey("CodeNo,ItemNo",true);
 	//设置格式
 	doTemp.setVisible("CodeNo,ItemName,SortNo",false);
+	if("01".equals(sType)){
+		doTemp.setVisible("Attribute7,Attribute6,ItemAttribute,Attribute8,Attribute4,Attribute5,Attribute7", false);
+	}else{
+		doTemp.setVisible("Attribute1,Attribute3,ItemDescribe", false);
+	}
 	//doTemp.setHTMLStyle("Attribute1,Attribute2,Attribute3,Attribute4"," style={width:auto} ");
 	//设置字段显示宽度	
 	//doTemp.appendHTMLStyle("Status"," style={width:90px} onDBLClick=parent.selectOrUnselect() ");
-	//doTemp.setColumnAttribute("OwnerName,GCSerialNo,GuarantyRightID,ImpawnID","IsFilter","1");
+	doTemp.setColumnAttribute("Attribute6","IsFilter","1");
 	doTemp.generateFilters(Sqlca);
 	doTemp.parseFilterData(request,iPostChange);
 	CurPage.setAttribute("FilterHTML",doTemp.getFilterHtml(Sqlca));
@@ -122,11 +133,11 @@
 			//6.资源图片路径
 
 		String sButtons[][] = {
-		{"true","","Button","新增","新增","newRecord()",sResourcesPath},
-		{"true","","Button","删除","删除","deleteRecord()",sResourcesPath},
-		{"true","","Button","详情","查看","viewAndEdit()",sResourcesPath},
-		{"true","","Button","查看当前修改历史","查看修改历史","viewModifiedHis('Some')",sResourcesPath},
-		{"true","","Button","查看所有修改历史","查看修改历史","viewModifiedHis('All')",sResourcesPath}
+				{"true","","Button","新增","新增","newRecord()",sResourcesPath},
+				{"true","","Button","删除","删除","deleteRecord()",sResourcesPath},
+				{"true","","Button","详情","查看","viewAndEdit()",sResourcesPath},
+				{"true","","Button","查看当前修改历史","查看修改历史","viewModifiedHis('Some')",sResourcesPath},
+				{"true","","Button","查看所有修改历史","查看修改历史","viewModifiedHis('All')",sResourcesPath}
 			};
 	%>
 <%
@@ -228,8 +239,9 @@
 <script	language=javascript>
 	AsOne.AsInit();
 	init();
+	bHighlightFirst = true;//自动选中第一条记录
 	my_load(2,0,'myiframe0');
-	
+	hideFilterArea();
 	//initRow();
 	//var bCheckBeforeUnload=false;
 </script>

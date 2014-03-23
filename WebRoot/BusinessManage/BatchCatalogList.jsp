@@ -70,7 +70,7 @@
 		{"CodeName","配置名称"},
 		{"SortNo","文件类型"},
 		{"CodeDescribe","系统展示要素"},
-		{"CodeAttribute","文件要素"},
+		{"CodeAttribute","配置类型"},
 		{"UpdateUserName","更新人"},
 		{"UpdateUser","更新人"},
 		{"UpdateTime","更新时间"}
@@ -82,20 +82,21 @@
 		   "getItemName('SModelFileType',SortNo) as SortNo,"+
 		   "CodeDescribe,CodeAttribute "+
 		   "from CODE_CATALOG "+
-		   "Where CodeNo like 'b%' ";
+		   "Where CodeNo like 'b%'";
 	ASDataObject doTemp = new ASDataObject(sSql);
 	//doTemp.multiSelectionEnabled=false;
 	doTemp.UpdateTable="CODE_CATALOG";
 	doTemp.setKey("CodeNo",true);
 	doTemp.setHeader(sHeaders);
-
-	//doTemp.setHTMLStyle("CodeNo"," style={width:160px} ");
+	doTemp.setDDDWCodeTable("CodeAttribute","01,导入对应配置,02,字段维护");
+	//doTemp.setHTMLStyle("CodeAttribute"," style={width:160px} ");
+	doTemp.setHTMLStyle("CodeNo,CodeName,SortNo,CodeDescribe,CodeAttribute"," style={width:120px;height:20px;overflow:auto;cursor:hand} onDBLClick=\"parent.viewConfigList()\"");
 	//查询
  	doTemp.setColumnAttribute("CodeNo","IsFilter","1");
 	doTemp.generateFilters(Sqlca);
 	doTemp.parseFilterData(request,iPostChange);
 	CurPage.setAttribute("FilterHTML",doTemp.getFilterHtml(Sqlca));
-   	doTemp.setVisible("SortNo,CodeDescribe,CodeAttribute",false);  
+   	doTemp.setVisible("CodeDescribe",false);  
    	
 	ASDataWindow dwTemp = new ASDataWindow(CurPage,doTemp,Sqlca);
 	dwTemp.Style="1";      //设置DW风格 1:Grid 2:Freeform
@@ -108,7 +109,7 @@
 	Vector vTemp = dwTemp.genHTMLDataWindow("");
 	for(int i=0;i<vTemp.size();i++) out.print((String)vTemp.get(i));
 	//added by bllou 2012-09-20 显示细项
-	CurPage.setAttribute("ShowDetailArea","true");
+	CurPage.setAttribute("ShowDetailArea","false");
 	CurPage.setAttribute("DetailAreaHeight","150");
 %>
 
@@ -250,10 +251,18 @@
 	function mySelectRow()
 	{
 		var sCodeNo = getItemValue(0,getRow(),"CodeNo");
+		var sType = getItemValue(0,getRow(),"CodeAttribute");
 		if(sCodeNo.length>0){
 			document.getElementById("ListHorizontalBar").parentNode.style.display="";
 			document.getElementById("ListDetailAreaTD").parentNode.style.display="";
-			OpenComp("BatchConfigList","/BusinessManage/BatchConfigList.jsp","CodeNo="+sCodeNo,"DetailFrame","");
+			OpenComp("BatchConfigList","/BusinessManage/BatchConfigList.jsp","CodeNo="+sCodeNo+"&type="+sType,"DetailFrame","");
+		}
+	}
+	function viewConfigList(){
+		var sCodeNo = getItemValue(0,getRow(),"CodeNo");
+		var sType = getItemValue(0,getRow(),"CodeAttribute");
+		if(sCodeNo.length>0){
+			popComp("BatchConfigList","/BusinessManage/BatchConfigList.jsp","CodeNo="+sCodeNo+"&type="+sType,"","");
 		}
 	}
 	</script>
@@ -270,7 +279,7 @@
 	bHighlightFirst = true;//自动选中第一条记录
 	my_load(2,0,'myiframe0');
 	mySelectRow();
-	hideFilterArea();
+	//hideFilterArea();
 </script>	
 <%
 		/*~END~*/

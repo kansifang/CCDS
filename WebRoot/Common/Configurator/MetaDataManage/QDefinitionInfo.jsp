@@ -312,7 +312,7 @@
 	//利用查询语句生成查询页面
 	function handleDatabase()
 	{
-		self.close();
+		//self.close();
 		//OpenComp("QDefinitionInfo","/Common/Configurator/MetaDataManage/QDefinitionInfo.jsp","docNo=<%=sDocNo%>&attachmentNo=<%=sDocNo%>&method=1&CompClientID=<%=sCompClientID%>","_self");
 
 		var iframe0 =document.frames("myiframe0");

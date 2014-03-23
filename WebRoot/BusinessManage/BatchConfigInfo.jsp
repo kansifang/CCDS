@@ -36,6 +36,7 @@
 	//获得组件参数：对象类型、对象编号、对象权限
 	String sCodeNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("CodeNo")));
 	String sItemNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("ItemNo")));
+	String sType = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.compParentComponent.getParameter("type")));
 %>
 <%
 	/*~END~*/
@@ -49,10 +50,16 @@
 	String sHeaders[][] = {
 					{"ItemNo","流水号"},
 					{"ItemName","模板名称"},
-					{"ItemDescribe","案件要素"},
 					{"Attribute1","Excel案件要素"},
-					{"Attribute2","要素类型"},
 					{"Attribute3","是否主标签"},
+					{"ItemDescribe","案件对应表要素"},
+					{"Attribute6","要素所在表"},
+					{"ItemAttribute","要素注释"},
+					{"Attribute8","要素名称"},
+					{"Attribute2","要素类型"},
+					{"Attribute4","要素长度"},
+					{"Attribute5","要素精度"},
+					{"Attribute7","操作要素方式"},
 					{"IsInUse","有效"},
 					{"InputUserName","登记人"},
 					{"InputTime","登记时间"},
@@ -60,11 +67,9 @@
 					{"UpdateTime","更新时间"}
 				};
 	sSql =  " select  CodeNo,ItemNo,ItemName,SortNo,"+
-				" ItemDescribe,"+
-				" Attribute1,"+
-				" Attribute2,"+
-				" Attribute3,"+
-				" IsInUse,"+
+				" Attribute1,Attribute3,ItemDescribe,"+
+				" Attribute6,ItemAttribute,Attribute8,Attribute2,Attribute4,Attribute5,"+
+				" Attribute7,IsInUse,"+
 				" InputUser,getUserName(InputUser) as InputUserName,InputTime,"+
 				" UpdateUser,getUserName(UpdateUser) as UpdateUserName, UpdateTime"+
 				" from Code_Library "+
@@ -75,8 +80,6 @@
 	//设置表头,更新表名,键值,可见不可见,是否可以更新
 	doTemp = new ASDataObject(sSql);
 	doTemp.setHeader(sHeaders);
-	doTemp.setVisible("Attribute4",false);
-	doTemp.setHTMLStyle("Attribute5"," style={width:1000px} ");
 	doTemp.setDDDWSql("Attribute2","select ItemNo,ItemName from Code_Library where CodeNo='DataType' and ItemNo in('Number','String') and IsInUse='1'");
 	doTemp.setDDDWCode("Attribute3", "YesNo");
 	doTemp.UpdateTable = "Code_Library";
@@ -84,11 +87,21 @@
 	//设置格式
 	doTemp.setAlign("Attribute2,Attribute4,","1");
 	doTemp.setVisible("CodeNo,ItemName,SortNo,InputUser,UpdateUser",false);
+	if("01".equals(sType)){
+		doTemp.setVisible("Attribute7,Attribute6,ItemAttribute,Attribute8,Attribute4,Attribute5,Attribute7", false);
+	}else{
+		doTemp.setVisible("Attribute1,Attribute3,ItemDescribe", false);
+	}
+	//doTemp.setUnit("ItemAttribute", "<input class=\"inputdate\" value=\"增加要素\" type=button onClick=parent.alterColumnInDB()>");
 	//doTemp.setHTMLStyle("Attribute1,Attribute2,Attribute3,Attribute4"," style={width:auto} ");
-	doTemp.setDDDWCode("ItemDescribe","SModelColumns");
+	//doTemp.setDDDWCode("ItemDescribe","SModelColumns");
+	doTemp.setDDDWSql("ItemDescribe","select Attribute8,Attribute8 from Code_Catalog CC,Code_Library CL where CC.CodeAttribute='02' and CC.CodeNo=CL.CodeNo and CL.Attribute6=upper('Batch_Import')");
 	//doTemp.setHTMLStyle("ItemDescribe"," style={width:1000px} ");
 	doTemp.setDDDWCode("IsInUse","YesNo");
-	doTemp.setRequired("ItemDescribe,Attribute1,Attribute2,IsInUse",true);
+	//doTemp.setDDDWSql("Attribute5", "select table_name from sysibm.tables");
+	//System.out.println(Sqlca.conn.getMetaData().+"xxxxxxxxxxx");
+	doTemp.setDDDWCode("Attribute7", "AlterType");
+	//doTemp.setRequired("ItemDescribe,Attribute1,Attribute2,IsInUse",true);
 	//doTemp.setCheckFormat("InputTime,UpdateTime","3");
 	doTemp.setUpdateable("InputUserName,UpdateUserName",false);
 	doTemp.setReadOnly("ItemNo,InputUserName,UpdateUserName,InputTime,UpdateTime",true);
@@ -119,8 +132,8 @@
 			//5.事件
 			//6.资源图片路径
 		String sButtons[][] = {
-			{"true","","Button","新增","新增另一条记录","newRecord()",sResourcesPath},
-			{"true","","Button","保存","保存","saveRecord()",sResourcesPath},
+			{"true","","Button","保存并新增","新增另一条记录","saveRecord('newRecord()')",sResourcesPath},
+			{"true","","Button","保存","保存","saveRecord('')",sResourcesPath},
 			{"true","","Button","返回","返回列表页面","doReturn()",sResourcesPath}
 		};
 	%>
@@ -142,8 +155,27 @@
 %>
 	<script language=javascript>
 		var bIsInsert=false;
-		function saveRecord()
+		function saveRecord(sPostEvents)
 		{
+			//数据库表配置
+			if("<%=sType%>"=="02"){
+				var AlterType = getItemValue(0,getRow(),"Attribute7");
+				var ColumnType = getItemValue(0,getRow(),"Attribute2");
+				var ColumnLong = getItemValue(0,getRow(),"Attribute4");
+				var ColumnPrecision = getItemValue(0,getRow(),"Attribute5");
+				var ColumnTable = getItemValue(0,getRow(),"Attribute6");
+				var ColumnName = getItemValue(0,getRow(),"Attribute8");
+				if(ColumnName.length==0){
+					if(ColumnType=="String"){
+						ColumnName=ColumnType+ColumnLong;
+					}else{
+						ColumnName=ColumnType+ColumnLong+ColumnPrecision;
+					}
+				}
+				setItemValue(0,0,"Attribute8",ColumnName);
+				setItemValue(0,0,"Attribute6",ColumnTable.toUpperCase());
+				RunMethod("PublicMethod","AlterColumnInDB",AlterType+","+ColumnTable+","+ColumnName+","+ColumnType+","+ColumnLong+","+ColumnPrecision);
+			}
 			if (!ValidityCheck()) return;
 			if(bIsInsert){
 				beforeInsert();
@@ -151,12 +183,7 @@
 				backupHis();
 			}
 			beforeUpdate();
-			as_save("myiframe0","");
-		}
-		 /*~[Describe=保存并新增;InputParam=后续事件;OutPutParam=无;]~*/
-		function saveRecordAndAdd()
-		{
-	        as_save("myiframe0","newRecord()");
+			as_save("myiframe0",sPostEvents+"");
 		}
 		function newRecord()
 		{
@@ -238,6 +265,10 @@
 			as_add("myiframe0");//新增记录
 			setItemValue(0,0,"CodeNo","<%=sCodeNo%>");
 			setItemValue(0,0,"Attribute3","2");
+			setItemValue(0,0,"Attribute2","String");
+			setItemValue(0,0,"Attribute5","0");
+			setItemValue(0,0,"Attribute6","Batch_Import");
+			setItemValue(0,0,"Attribute7","AddColumn");
 	        setItemValue(0,0,"IsInUse","1");
 	        setItemValue(0,0,"InputUser","<%=CurUser.UserID%>");
 	        setItemValue(0,0,"InputUserName","<%=CurUser.UserName%>");
@@ -258,6 +289,12 @@
 		var sItemNo = PopPage("/Common/ToolsB/GetSerialNo.jsp?TableName="+sTableName+"&ColumnName="+sColumnName+"&Prefix="+sPrefix,"","resizable=yes;dialogWidth=0;dialogHeight=0;center:no;status:no;statusbar:no");
 		//将流水号置入对应字段
 		setItemValue(0,getRow(),sColumnName,sItemNo);
+	}
+	function randomNumber()
+	{
+		today = new Date();
+		num = Math.abs(Math.sin(today.getTime()));
+		return num;  
 	}
 	</script>
 <%

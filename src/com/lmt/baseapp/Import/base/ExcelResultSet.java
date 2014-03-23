@@ -39,8 +39,8 @@ public class ExcelResultSet extends ObjResultSet {
 			this.addColumn(rs.getString(1),rs.getString(2),rs.getString(3),"1".equals(rs.getString(4))?true:false);
 		}
 		//默认都有这个字段
-		this.addColumn("ImportIndex", "批量序列号","String",true,false);//记录批次内序列
 		this.addColumn("ImportNo", "批量号","String",true,false);//主要是为了区分批次之间
+		this.addColumn("ImportIndex", "批量序列号","String",true,false);//记录批次内序列
 		this.addColumn("ImportTime", "批量时间","String",true,false);//记录批次时间
 		//设置字段数
 	}
@@ -110,10 +110,14 @@ public class ExcelResultSet extends ObjResultSet {
 		for(int j=0;j<=RowNumMaxt;j++){
 			//解析文件每一条记录到结果集中
 			Row rr = this.sheet.getRow(j);
+			if(rr==null){
+				continue;
+			}
 			for (int i = 0; i <= rr.getLastCellNum(); ++i) {
 				Cell cell=rr.getCell(i);
-				if(cell==null)
+				if(cell==null){
 					continue;
+				}
 				String value=changeCellToString(cell);
 				if(this.containsHead(value)&&this.getColumnObjWH(value).isPrimaryKey()){
 					cr=j;
@@ -157,8 +161,8 @@ public class ExcelResultSet extends ObjResultSet {
 			}
 		}
 		//设置文件外的一些要素的值，譬如导入日期，此处设置显然是每天记录是不一样的
-		this.setString("ImportIndex", this.currentRow+"");
-		this.setString("ImportTime", StringFunction.getNow());
+		this.setString("ImportIndex", (this.currentRow+1)+"");
+		this.setString("ImportTime", StringFunction.getTodayNow());
 		return true;
 	}
 	//这里HSSFCell 有几种数据类型，如果想进行类型转换，再加一个方法进行转换，这里给的例子是都转换成String类型的数据

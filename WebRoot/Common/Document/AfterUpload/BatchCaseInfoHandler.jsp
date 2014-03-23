@@ -27,12 +27,13 @@
  		HashMap<String, String> mmReplace = new HashMap<String, String>();
  		HashMap<String, String> mmAutoSet = new HashMap<String, String>();
  		PreparedStatement ps1 = null,ps2 = null,ps3 = null,ps4 = null;
+ 		String sImportTableName="Batch_Import";
  		boolean isAutoCommit=false;
  		try {
 		 	isAutoCommit=Sqlca.conn.getAutoCommit();
 		 	Sqlca.conn.setAutoCommit(false);
 		 	//导入文件
-		 	 ExcelImport efih=new ExcelImport("Batch_Case_Import",Sqlca,sFiles,CurUser);
+		 	 ExcelImport efih=new ExcelImport(sImportTableName,Sqlca,sFiles,CurUser);
 		 	efih.action();
 		 	//解析文件
 		 	if(sType.equals("1")){//新增批次
