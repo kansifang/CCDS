@@ -42,6 +42,7 @@ public class ExcelResultSet extends ObjResultSet {
 		this.addColumn("ImportNo", "批量号","String",true,false);//主要是为了区分批次之间
 		this.addColumn("ImportIndex", "批量序列号","String",true,false);//记录批次内序列
 		this.addColumn("ImportTime", "批量时间","String",true,false);//记录批次时间
+		this.addColumn("ConfigNo", "配置号","String",true,false);//记录批次时间
 		//设置字段数
 	}
 	public boolean checkMeta()throws Exception{
@@ -102,6 +103,7 @@ public class ExcelResultSet extends ObjResultSet {
 		//设置文件外一些要素的值，此处设置的都是恒定值
 		SimpleDateFormat sdf=new SimpleDateFormat("'N"+CurUser.UserID+"'yyyyMMddhhmm");
 		this.setString("ImportNo",sdf.format(new Date())+"000000");
+		this.setString("ConfigNo",this.initWho);
 	}
 	private void initCurrentRow() throws Exception{
 		int cr=-1;

@@ -264,7 +264,7 @@
    		}else{
    			sDocNo=sDocNo.split("@")[1];
    		}
-   		popComp("FileChooseDialog","/Common/Document/FileChooseDialog.jsp","BatchNo="+sBatchNo+"&DocModelNo="+sDocType+"&DocNo="+sDocNo+"&Handler=BatchCaseInfoHandler&Message=批次导入成功&Type="+sType,"dialogWidth=650px;dialogHeight=250px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
+   		popComp("FileChooseDialog","/Common/Document/FileChooseDialog.jsp","BatchNo="+sBatchNo+"&ConfigNo="+sDocType+"&DocNo="+sDocNo+"&Handler=CaseInfoHandler&Message=批次导入成功&HandlerType="+sType,"dialogWidth=650px;dialogHeight=250px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
    		reloadSelf(); 
 	}
 	/*~[Describe=完成导入批量;InputParam=无;OutPutParam=无;]~*/

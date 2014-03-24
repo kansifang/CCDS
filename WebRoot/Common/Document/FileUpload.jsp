@@ -22,7 +22,7 @@
 %>
 
 <%!//根据相关参数得到保存文件的实际路径
-String getFullPath(String sDocNo, String sAttachmentNo,String sFileName,String sFileSavePath, String sFileNameType, ServletContext sc,String sLastDirPath) {
+String getFullPath(String sFileSavePath,String sDocNo, String sAttachmentNo,String sLastDirPath,String sFileName, String sFileNameType, ServletContext sc) {
 	java.io.File dFile=null;
 	String sBasePath = sFileSavePath;
 	if (!sFileSavePath.equals("")) {
@@ -35,11 +35,10 @@ String getFullPath(String sDocNo, String sAttachmentNo,String sFileName,String s
 		}catch (Exception e) {
 			System.out.println("！！保存附件文件路径["+sFileSavePath+"]无法创建！");
 		}
-	} else {
+	}else {
 		sBasePath = sc.getRealPath("/WEB-INF/Upload");
 		System.out.println("！！保存附件文件路径没有定义,文件保存在缺省目录["+sBasePath+"]！");
 	}
-		
 	String sFullPath= sBasePath+"/"+getMidPath(sDocNo,sAttachmentNo,sLastDirPath);
 	try {
 		dFile=new java.io.File(sFullPath);
@@ -49,22 +48,21 @@ String getFullPath(String sDocNo, String sAttachmentNo,String sFileName,String s
 	}catch (Exception e) {
 		System.out.println("！！保存附件文件完整路径["+sFullPath+"]无法创建！");
 	}
-
 	String sFullName=sFullPath+"/"+getFileName(sDocNo,sAttachmentNo,sFileName,sFileNameType);
 	return sFullName;
 }
-//根据相关参数得到中间部分的路径 yyyy/mm/dd
+//根据相关参数得到中间部分的路径 
 String getMidPath(String sDocNo, String sAttachmentNo,String lastDirPath) {
-	return sDocNo.substring(0,4)+"/"+sDocNo.substring(4,6)+"/"+sDocNo.substring(6,8)+"/"+lastDirPath;
+	return sDocNo+"/"+sAttachmentNo+("".equals(lastDirPath)?"":"/"+lastDirPath);
 }
 //根据相关参数得到完整文件名 docno_attachmentno_filename
 String getFileName(String sDocNo, String sAttachmentNo,String sShortFileName,String sFileNameType) {
 	String sFileName = "";
 	// 判断文件类型
 	if (sFileNameType.equalsIgnoreCase("MD5")) {
-		sFileName = getMD5String(sDocNo+sAttachmentNo);
+		sFileName = getMD5String(sDocNo+sAttachmentNo+sShortFileName);
 	} else {
-		sFileName = sDocNo + "_" + sAttachmentNo + "_" + sShortFileName;
+		sFileName = sDocNo+sAttachmentNo+sShortFileName;
 	}
 	return sFileName;
 }
@@ -87,20 +85,19 @@ String getMD5String(String srcKey){
 			myAmarsoftUpload.upload(); 
 			//调用页面传入参数
 			String sDocNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("DocNo")));
-			String sDocModelNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("DocModelNo")));
 			String sMessage = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("Message")));
 			String sHandlers = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("Handler")));
+			//这只是作为一个页面参数传递方式保留，实际中没什么意义
 			String sClearTable = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("ClearTable")));
 			//FileChooseDialog传入参数
 			StringBuffer sb=new StringBuffer();
-			
 			Files files=myAmarsoftUpload.getFiles();
 			com.lmt.frameapp.web.uad.File lfile=null;
 			for(int i=0;i<files.getCount()&&!(lfile=files.getFile(i)).isMissing();i++){
-		String sAttachmentNo = DBFunction.getSerialNoFromDB("DOC_ATTACHMENT","AttachmentNo","DocNo='"+sDocNo+"'","","000",new java.util.Date(),Sqlca);   
-		Sqlca.executeSQL("insert into DOC_ATTACHMENT(DocNo,AttachmentNo) values('"+sDocNo+"','"+sAttachmentNo+"')");
-		ASResultSet rs = Sqlca.getASResultSetForUpdate("SELECT DOC_ATTACHMENT.* FROM DOC_ATTACHMENT WHERE DocNo='"+sDocNo+"' and AttachmentNo='"+sAttachmentNo+"'");
-		if(rs.next()){
+				String sAttachmentNo = DBFunction.getSerialNoFromDB("DOC_ATTACHMENT","AttachmentNo","DocNo='"+sDocNo+"'","","000",new java.util.Date(),Sqlca);   
+				Sqlca.executeSQL("insert into DOC_ATTACHMENT(DocNo,AttachmentNo) values('"+sDocNo+"','"+sAttachmentNo+"')");
+				ASResultSet rs = Sqlca.getASResultSetForUpdate("SELECT DOC_ATTACHMENT.* FROM DOC_ATTACHMENT WHERE DocNo='"+sDocNo+"' and AttachmentNo='"+sAttachmentNo+"'");
+				if(rs.next()){
 	          		try{
 	              		java.util.Date dateNow = new java.util.Date();
 	              		SimpleDateFormat sdfTemp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -112,29 +109,30 @@ String getMD5String(String srcKey){
 	               		if(sFileSaveMode.equals("Disk")) {	                	
 		               		String sFileSavePath = CurConfig.getConfigure("FileSavePath");
 		               		String sFileNameType = CurConfig.getConfigure("FileNameType");
-		               		String sFullPath=getFullPath(sDocNo, sAttachmentNo,sFileName, sFileSavePath, sFileNameType, application,sDocModelNo);lfile.saveAs(sFullPath);
+		               		String sFullPath=getFullPath(sFileSavePath, sDocNo, sAttachmentNo,"",sFileName, sFileNameType, application);
+		               		lfile.saveAs(sFullPath);
 		               		//得到带相对路径的文件名
-		               		String sFilePath = getMidPath(sDocNo,sAttachmentNo,sDocModelNo)+"/"+getFileName(sDocNo,sAttachmentNo,sFileName,sFileNameType);
+		               		String sFilePath = getMidPath(sDocNo,sAttachmentNo,"")+"/"+getFileName(sDocNo,sAttachmentNo,sFileName,sFileNameType);
 							rs.updateString("FilePath",sFilePath); 
 							rs.updateString("FullPath",sFullPath);
 							sb.append(sFullPath).append("~");
 						}
-					dateNow = new java.util.Date();
-					String sEndTime=sdfTemp.format(dateNow);
-					rs.updateString("FileSaveMode",sFileSaveMode);  
-					rs.updateString("FileName",sFileName);  
-					rs.updateString("ContentType",DataConvert.toString(lfile.getContentType()));
-					rs.updateString("ContentLength",DataConvert.toString(String.valueOf(lfile.getSize())));
-					rs.updateString("BeginTime",sBeginTime);
-					rs.updateString("EndTime",sEndTime);
-					rs.updateString("InputUser",CurUser.UserID);
-					rs.updateString("InputOrg",CurUser.OrgID);
-					rs.updateRow();
-					rs.getStatement().close();
-					if(sFileSaveMode.equals("Table")) {//存放数据表中							
-						lfile.fileToField(Sqlca,"update DOC_ATTACHMENT set DocContent=? where DocNo='"+sDocNo+"' and AttachmentNo='"+sAttachmentNo+"'");
-					}	
-					myAmarsoftUpload = null;
+						dateNow = new java.util.Date();
+						String sEndTime=sdfTemp.format(dateNow);
+						rs.updateString("FileSaveMode",sFileSaveMode);  
+						rs.updateString("FileName",sFileName);  
+						rs.updateString("ContentType",DataConvert.toString(lfile.getContentType()));
+						rs.updateString("ContentLength",DataConvert.toString(String.valueOf(lfile.getSize())));
+						rs.updateString("BeginTime",sBeginTime);
+						rs.updateString("EndTime",sEndTime);
+						rs.updateString("InputUser",CurUser.UserID);
+						rs.updateString("InputOrg",CurUser.OrgID);
+						rs.updateRow();
+						rs.getStatement().close();
+						if(sFileSaveMode.equals("Table")) {//存放数据表中							
+							lfile.fileToField(Sqlca,"update DOC_ATTACHMENT set DocContent=? where DocNo='"+sDocNo+"' and AttachmentNo='"+sAttachmentNo+"'");
+						}	
+						myAmarsoftUpload = null;
 	                  }catch(Exception e){
 		               	out.println("An error occurs : " + e.toString());               
 		               	Sqlca.executeSQL("delete FROM doc_attachment WHERE DocNo='"+sDocNo+"' and AttachmentNo='"+sAttachmentNo+"'");
@@ -167,7 +165,7 @@ String getMD5String(String srcKey){
 	for(int i=0;i<handlers.length;i++){
 %>				
 			<script language=javascript>
-				sReturn+=PopPage("/Common/Document/AfterUpload/<%=handlers[i]%>.jsp?SerialNo=&File=<%=sb.toString()%>&ClearTable=<%=sClearTable%>","","dialogWidth=0;dialogHeight=0;minimize:yes");
+				sReturn+=PopPage("/Common/Document/AfterUpload/<%=handlers[i]%>.jsp?Files=<%=sb.toString()%>&ClearTable=<%=sClearTable%>","","dialogWidth=0;dialogHeight=0;minimize:yes");
 			</script>
 <%
 	}

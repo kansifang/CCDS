@@ -14,13 +14,13 @@
 	/*~END~*/
 %> 
 
-<%
- 	//调用页面传入参数
+<%	//注意 原始页面调用顺序是： FileChooseDialog——>FileUpload——>本页面，前两个父组件都是原始页面
+ 	//调用页面传入参数 
  		String sBatchNo =DataConvert.toString( DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("BatchNo")));
- 		String sType =DataConvert.toString( DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("Type")));
+		String sConfigNo =DataConvert.toString( DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("ConfigNo")));
+ 		String sHandlerType =DataConvert.toString( DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("HandlerType")));
  		//FileUpload传入参数
- 		String sClearTable =DataConvert.toString( DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("ClearTable")));
- 		String sFiles =DataConvert.toString( DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("File")));
+ 		String sFiles =DataConvert.toString( DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("Files")));
  		//定义变量：SQL语句、意见详情
  		String sSql = "",sMessage="";
  		ASResultSet rs=null;
@@ -33,31 +33,21 @@
 		 	isAutoCommit=Sqlca.conn.getAutoCommit();
 		 	Sqlca.conn.setAutoCommit(false);
 		 	//导入文件
-		 	 ExcelImport efih=new ExcelImport(sImportTableName,Sqlca,sFiles,CurUser);
+		 	 ExcelImport efih=new ExcelImport(sFiles,sConfigNo,sImportTableName,CurUser,Sqlca);
 		 	efih.action();
 		 	//解析文件
-		 	if(sType.equals("1")){//新增批次
-		 		if("true".equals(sClearTable)){
-		 			Sqlca.executeSQL("truncate table Impawn_Total_Import ");
-		 		}
+		 	if(sHandlerType.equals("1")){//新增批次
 		 		//新值批次到Batch_Case
 		 		//备份此批次
 		 		//String sSerialNo  = DBFunction.getSerialNo("Batch_Case","SerialNo",Sqlca);
+		 		String[]columnArray=Sqlca.getStringArray("select ItemDescribe from code_library where codeNo='"+sConfigNo+"' and IsInuse='1'");
+		 		String columns=StringFunction.toArrayString(columnArray, ",");
 		 		sSql="select "+
 		 				"'"+sBatchNo+"',"+
 		 				"'"+sBatchNo+"'||ImportIndex,"+
-		 				"DueNo,"+
-		 				"LCustomerName,"+
-		 				"LDate,"+
-		 				"LSum,"+	
-		 				"DCustomerName,"+
-		 				"ID,"+
-		 				"CardNo,"+
-		 				"PayBackSum,"+
-		 				"PayBackDate,"+
-		 				"Balance"+	
-		 				" from Batch_Case_Import "+
-		 				" where ImportNo like 'N"+CurUser.UserID+"%000000'";
+		 				columns+
+		 				" from Batch_Import "+
+		 				" where ImportNo like 'N"+CurUser.UserID+"%000000' and ConfigNo='"+sConfigNo+"'";
 		 		String insertSql="insert into Batch_Case("+
 		 					"BatchNo,"+
 		 					"SerialNo,"+
@@ -65,21 +55,12 @@
 		 					"LCustomerName,"+
 		 					"LDate,"+
 		 					"LSum,"+	
-		 					"DCustomerName,"+
-		 					"ID,"+
-		 					"CardNo,"+
-		 					"PayBackSum,"+
-		 					"PayBackDate,"+
-		 					"Balance)"+
+		 					"ID)"+
 		 					"("+sSql+")";
 		 		Sqlca.executeSQL(insertSql);
 		 		//导入后不允许对此批量再次导入，可以废掉，建批次重新导入
 		 		Sqlca.executeSQL("update Batch_Info set ImportFlag='1' where BatchNo='"+sBatchNo+"'");
-		 	}else if(sType.equals("2")){//更新批次
-		 		if("true".equals(sClearTable)){
-		 			Sqlca.executeSQL("truncate table Business_PutOut_Import ");
-		 			Sqlca.executeSQL("truncate table Business_PutOut_Temp ");
-		 		}
+		 	}else if(sHandlerType.equals("2")){//更新批次
 		 		//只更新包
 		 		sSql="select "+
 		 			"DueNo,"+

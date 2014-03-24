@@ -28,16 +28,17 @@ public  class ExcelImport implements ObjImportImpl{
 	// 装各下拉框
 	protected Transaction Sqlca = null;
 	private String[] files = null;
-	protected String fileName="";
+	protected String configNo="";
 	/**
 	 * 解析xls 将数据插入数据表中
 	 * @throws SQLException 
 	 */
-	public ExcelImport(String ImportTableName,Transaction Sqlca, String files,ASUser CurUser) throws SQLException {
-		this.Sqlca = Sqlca;
+	public ExcelImport(String files,String configNo,String ImportTableName,ASUser CurUser,Transaction Sqlca) throws SQLException {
 		this.files = files.split("~");
-		this.CurUser=CurUser;
+		this.configNo=configNo;
 		this.sImportTableName=ImportTableName;
+		this.CurUser=CurUser;
+		this.Sqlca = Sqlca;
 		this.ERS=new ExcelResultSet(Sqlca,CurUser);
 	}
 	public ExcelResultSet getERS() {
@@ -56,19 +57,18 @@ public  class ExcelImport implements ObjImportImpl{
 		//把上一批置上最新标志，刚刚导入的为N开头的
 		String sNImportNo=DBFunction.getSerialNo(this.sImportTableName,"ImportNo","'O"+CurUser.UserID+"'yyyyMMddhhmm","000000",new Date(),Sqlca);
 	 	Sqlca.executeSQL("update "+this.sImportTableName+" set ImportNo='"+sNImportNo+"' where ImportNo like 'N"+CurUser.UserID+"%000000'");
-
+	 	//初始化数据结构  一次导入对应一个模板定义，对应一个PS
+	 	this.ERS.setInitWho(this.configNo);//设置定义字段对应关系的配置号
+		//初始化head属性
+		this.ERS.initMeta();
+		//初始化PreparedStatement
+		this.prepare();
 		Workbook workbook = null;
 		for(String sFilePathName:this.files){
-			//一个文件对应一个模板定义，对应一个PS
-			this.fileName=StringFunction.getFileName(sFilePathName);
-			this.ERS.setInitWho(getModelNo(sFilePathName));//设置定义字段对应关系的配置号
-			//初始化head属性
-			this.ERS.initMeta();
-			//初始化PreparedStatement
-			this.prepare();
-			if(this.fileName.endsWith(".xls")){
+			String fileName=StringFunction.getFileName(sFilePathName);
+			if(fileName.endsWith(".xls")){
 				workbook = new HSSFWorkbook(new FileInputStream(new java.io.File(sFilePathName)));
-			}else if(this.fileName.endsWith(".xlsx")){
+			}else if(fileName.endsWith(".xlsx")){
 				workbook = new XSSFWorkbook(new FileInputStream(new java.io.File(sFilePathName)));
 			}
 			for (int i=0;i<workbook.getNumberOfSheets();i++) {
@@ -138,19 +138,18 @@ public  class ExcelImport implements ObjImportImpl{
 				ps.setDouble(i+1,this.getERS().getDouble(i));
 			}else{
 				ps.setString(i+1, this.getERS().getString(i));
-				System.out.println(this.getERS().getString(i));
 			}
 		}
 		this.iCount++;
 		ps.addBatch();
 	}
 	//1、一个文件对应一个MetaData
-	private String getModelNo(String sFilePathName){
+	//private String getModelNo(String sFilePathName){
 		//sFilePathName=/temp/als6/Upload/yyyy/mm/dd/modelno/docno_attachmentno_filename.*
-		String sTempPath=StringFunction.replace(sFilePathName, this.fileName,"");
+		   //String sTempPath=StringFunction.replace(sFilePathName, this.fileName,"");
 		//得到/temp/als6/Upload/yyyy/mm/dd/modelno/
-		sTempPath=sTempPath.substring(0,sTempPath.length()-1);
+		   //sTempPath=sTempPath.substring(0,sTempPath.length()-1);
 		//得到modelno
-		return StringFunction.getFileName(sTempPath);
-	}
+		   //return StringFunction.getFileName(sTempPath);
+	//}
 }
