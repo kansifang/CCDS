@@ -60,10 +60,10 @@
 <%
 	//通过显示模版产生ASDataObject对象doTemp
 	String[][] sHeaders = {
-							{"ReportType","报表类型"},							
+							{"ConfigNo","报表类型"},							
 							{"ReportDate","报表日期"}
 						  };
-	sSql = 	" select ReportType,ReportDate"+	
+	sSql = 	" select ConfigNo,ReportDate"+	
 				" from Batch_Import where 1 = 2 ";	
 	//通过SQL产生ASDataObject对象doTemp
 	ASDataObject doTemp = new ASDataObject(sSql);	
@@ -71,7 +71,7 @@
 	doTemp.setHeader(sHeaders);
 	
 	//设置必输项
-	doTemp.setRequired("ReportType,ReportDate",true);
+	doTemp.setRequired("ConfigNo,ReportDate",true);
 	//设置下拉框选择内容
 	if(sApplyType.equals("IndependentApply"))
 		doTemp.setDDDWCode("OccurType","OccurType");	
@@ -84,7 +84,7 @@
 	//注意,先设HTMLStyle，再设ReadOnly，否则ReadOnly不会变灰
 	doTemp.setHTMLStyle("InputDate"," style={width:80px}");
 	doTemp.setReadOnly("InputOrgName,InputUserName,InputDate",true);
-	doTemp.setDDDWSql("ReportType", "select CodeNo,CodeName from Code_Catalog where CodeNo like 'b%'");
+	doTemp.setDDDWSql("ConfigNo", "select CodeNo,CodeName from Code_Catalog where CodeNo like 'b%'");
 	ASDataWindow dwTemp = new ASDataWindow(CurPage,doTemp,Sqlca); 
 	dwTemp.Style="2";      //设置DW风格 1:Grid 2:Freeform
 	dwTemp.ReadOnly = "0"; //设置是否只读 1:只读 0:可写
@@ -179,9 +179,9 @@
     }
 	/*~[Describe=确认新增授信申请;InputParam=无;OutPutParam=申请流水号;]~*/
 	function doReturn(){
-		var sReportType= getItemValue(0,0,"ReportType");		
+		var sConfigNo= getItemValue(0,0,"ConfigNo");		
 		var sReportDate = getItemValue(0,0,"ReportDate");		
-		self.returnValue = sReportType+"@"+sReportDate;
+		self.returnValue = sConfigNo+"@"+sReportDate;
 		self.close();
 	}
 	

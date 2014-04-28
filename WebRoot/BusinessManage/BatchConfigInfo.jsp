@@ -171,7 +171,10 @@
 					}else{
 						ColumnName=ColumnType+ColumnLong+ColumnPrecision;
 					}
+					var date=new Date();
+					var prefix=date.getFullYear()+""+(date.getMonth()+1)+""+date.getDate()+""+date.getHours()+""+date.getMinutes()+""+date.getSeconds();
 				}
+				ColumnName=ColumnName+"_"+prefix;//给字段名字加上后缀以避免重复
 				setItemValue(0,0,"Attribute8",ColumnName);
 				setItemValue(0,0,"Attribute6",ColumnTable.toUpperCase());
 				RunMethod("PublicMethod","AlterColumnInDB",AlterType+","+ColumnTable+","+ColumnName+","+ColumnType+","+ColumnLong+","+ColumnPrecision);

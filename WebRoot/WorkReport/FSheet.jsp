@@ -43,7 +43,7 @@
 	//获得页面参数
 	
 	//获得组件参数
-	String sReportType = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)request.getParameter("DOFILTER_DF1_1_VALUE")));
+	String sConfigNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)request.getParameter("DOFILTER_DF1_1_VALUE")));
 	String sReportDate = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)request.getParameter("DOFILTER_3_1_VALUE")));
 %>
 <%
@@ -57,10 +57,10 @@
 <%
 	String sHeaders[][]	={};
 	String sS=",";
-	if("".equalsIgnoreCase(sReportType)){
+	if("".equalsIgnoreCase(sConfigNo)){
 		sS="";
 	}else{
-		sHeaders=Sqlca.getStringMatrix("select ItemDescribe,Attribute1 from Code_library where  CodeNo='"+sReportType+"' and IsInUse='1' order by ItemNo asc");
+		sHeaders=Sqlca.getStringMatrix("select ItemDescribe,Attribute1 from Code_library where  CodeNo='"+sConfigNo+"' and IsInUse='1' order by ItemNo asc");
 	  	for(int i=0;i<sHeaders.length;i++){
 	  		sS+=sHeaders[i][0]+",";
 	  	}
@@ -69,7 +69,7 @@
 	  	}
 	}
     	//定义SQL语句
-    String sSql = " SELECT  ReportType as 报表类型,ReportDate as 报表日期"+sS+
+    String sSql = " SELECT  ConfigNo as 报表类型,ReportDate as 报表日期"+sS+",ImportNo,ImportIndex,ImportTime,UserID"+
     	 " FROM Batch_Import" +
 		  " WHERE 1=1";
 	//产生ASDataObject对象doTemp
@@ -79,15 +79,15 @@
     //可更新的表
     doTemp.UpdateTable = "Batch_Import";
     //设置关键字
-	doTemp.setKey("ImportNo",true);
+	doTemp.setKey("ImportNo,ImportIndex",true);
 	//设置不可见项
     doTemp.setVisible("报表类型,ObjectNo,ObjectType,ImportFlag",false);
     //设置风格
     doTemp.setAlign("AttachmentCount","3");
-    if(!"".equalsIgnoreCase(sReportType)){
-    	doTemp.setHTMLStyle(2,"style={width:300px}");
+    if(!"".equalsIgnoreCase(sConfigNo)){
+    	doTemp.setHTMLStyle(2,"style={width:300px}");//项目加宽
 	}
-    doTemp.setHTMLStyle("DocTitle"," style={width:140px}");
+    doTemp.setHTMLStyle("ImportNo"," style={width:180px}");
     doTemp.setHTMLStyle("UserName,OrgName,AttachmentCount,InputTime,UpdateTime"," style={width:80px} ");
     doTemp.setDDDWSql("报表类型", "select CodeNo,CodeName from Code_Catalog where CodeNo like 'b%'");
    // doTemp.setCheckFormat("报表日期", "3");
@@ -105,7 +105,7 @@
     ASDataWindow dwTemp = new ASDataWindow(CurPage,doTemp,Sqlca);
 	dwTemp.Style="1";      //设置为Grid风格
 	dwTemp.ReadOnly = "1"; //设置为只读
-	dwTemp.iPageSize=10;
+	dwTemp.iPageSize=40;
 	//设置setEvent
 	dwTemp.setEvent("AfterDelete","!PublicMethod.DeleteColValue(Batch_Case,String@BatchNo@#BatchNo)");
 
@@ -163,7 +163,7 @@
 	function deleteRecord()
 	{
 		sUserID=getItemValue(0,getRow(),"UserID");//取文档录入人	
-		sBatchNo = getItemValue(0,getRow(),"BatchNo");
+		sBatchNo = getItemValue(0,getRow(),"ImportNo");
 		if (typeof(sBatchNo)=="undefined" || sBatchNo.length==0){
 			alert(getHtmlMessage(1));  //请选择一条记录！
 			return;
@@ -183,7 +183,7 @@
 	}
 	/*~[Describe=上传附件;InputParam=1导入2更新;OutPutParam=无;]~*/
 	function uploadDoc(){
-		var sBatchNo="<%=sReportType+sReportDate%>";
+		var sBatchNo="<%=sConfigNo+sReportDate%>";
 		var sDocTitle="S63";
     	if(typeof(sBatchNo)=="undefined" || sBatchNo.length==0){
         	alert(getHtmlMessage(1));  //请选择一条记录！
@@ -225,18 +225,18 @@
 		if(typeof(sReturn)=="undefined" || sReturn=="" || sReturn=="_CANCEL_") 
 			return;
 		sReturn = sReturn.split("@");
-		var sReportType=sReturn[0];
+		var sConfigNo=sReturn[0];
 		var sReportDate=sReturn[1];
-		var sBatchNo=sReportType+sReportDate;
+		var sBatchNo=sConfigNo+sReportDate;
    		var sDocNo=RunMethod("PublicMethod","GetColValue","Doc_Library.DocNo,Doc_Relative@Doc_Library,None@Doc_Relative.DocNo@Doc_Library.DocNo@String@ObjectType@Batch@String@ObjectNo@"+sBatchNo+"@String@DocAttribute@02");
    		if(sDocNo.length==0){
    			sDocNo = PopPage("/Common/ToolsB/GetSerialNo.jsp?TableName=Doc_Library&ColumnName=DocNo&Prefix=","","resizable=yes;dialogWidth=0;dialogHeight=0;center:no;status:no;statusbar:no");
-   			RunMethod("PublicMethod","InsertColValue","String@DocNo@"+sDocNo+"@String@ObjectType@Batch@String@ObjectNo@"+sReportType+"_"+sReportDate+",Doc_Relative");
-   			RunMethod("PublicMethod","InsertColValue","String@DocNo@"+sDocNo+"@String@DocTitle@"+sReportType+"_"+sReportDate+"_<%=StringFunction.getNow()%>@String@OrgID@<%=CurUser.OrgID%>@String@UserID@<%=CurUser.UserID%>@String@InputOrg@<%=CurUser.OrgID%>@String@InputUser@<%=CurUser.UserID%>@String@InputTime@<%=StringFunction.getToday()%>,Doc_Library");
+   			RunMethod("PublicMethod","InsertColValue","String@DocNo@"+sDocNo+"@String@ObjectType@Batch@String@ObjectNo@"+sConfigNo+"_"+sReportDate+",Doc_Relative");
+   			RunMethod("PublicMethod","InsertColValue","String@DocNo@"+sDocNo+"@String@DocTitle@"+sConfigNo+"_"+sReportDate+"_<%=StringFunction.getNow()%>@String@OrgID@<%=CurUser.OrgID%>@String@UserID@<%=CurUser.UserID%>@String@InputOrg@<%=CurUser.OrgID%>@String@InputUser@<%=CurUser.UserID%>@String@InputTime@<%=StringFunction.getToday()%>,Doc_Library");
    		}else{
    			sDocNo=sDocNo.split("@")[1];
    		}
-   		popComp("FileChooseDialog","/Common/Document/FileChooseDialog.jsp","DocModelNo="+sReportType+"&DocNo="+sDocNo+"&Handler=S63Handler&Message=批次导入成功&Type="+sType+"&ReportType="+sReportType+"&ReportDate="+sReportDate,"dialogWidth=650px;dialogHeight=250px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
+   		popComp("FileChooseDialog","/Common/Document/FileChooseDialog.jsp","DocModelNo="+sConfigNo+"&DocNo="+sDocNo+"&Handler=S63Handler&Message=批次导入成功&Type="+sType+"&ConfigNo="+sConfigNo+"&ReportDate="+sReportDate,"dialogWidth=650px;dialogHeight=250px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
    		reloadSelf(); 
 	}
 	/*~[Describe=完成导入批量;InputParam=无;OutPutParam=无;]~*/

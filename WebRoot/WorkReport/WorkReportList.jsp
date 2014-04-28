@@ -58,11 +58,11 @@
 										{"InputOrg","ËùÊô»ú¹¹"}
 									};
 		String sSql1 =  " select "+
-								" case when II.InspectType like '%010' then '2' else '1' end as IsFinished,"+
-								" II.SerialNo,II.ObjectType,II.InspectType,"+
-								" ReportDate,'A003' as EDocNo,"+
-								" getUserName(II.InputUserID) as InputUser,"+
-								" getOrgName(II.InputOrgId) as InputOrg"+
+							" case when II.InspectType like '%010' then '2' else '1' end as IsFinished,"+
+							" II.SerialNo,II.ObjectType,II.InspectType,"+
+							" ReportDate,'A003' as EDocNo,"+
+							" getUserName(II.InputUserID) as InputUser,"+
+							" getOrgName(II.InputOrgId) as InputOrg"+
 							" from Work_Report II "+
 							" where II.ObjectType='"+sObjectType+"' "+
 			                " order by II.ReportDate desc";

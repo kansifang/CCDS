@@ -29,13 +29,13 @@ public  class ExcelImport implements ObjImportImpl{
 	protected Transaction Sqlca = null;
 	private String[] files = null;
 	protected String configNo="";
+	private String Key="";//批量主键，标示不同类型批量
 	/**
 	 * 解析xls 将数据插入数据表中
 	 * @throws SQLException 
 	 */
-	public ExcelImport(String files,String configNo,String ImportTableName,ASUser CurUser,Transaction Sqlca) throws SQLException {
+	public ExcelImport(String files,String ImportTableName,ASUser CurUser,Transaction Sqlca) throws SQLException {
 		this.files = files.split("~");
-		this.configNo=configNo;
 		this.sImportTableName=ImportTableName;
 		this.CurUser=CurUser;
 		this.Sqlca = Sqlca;
@@ -53,14 +53,13 @@ public  class ExcelImport implements ObjImportImpl{
 	public void setPs(PreparedStatement ps) {
 		this.ps = ps;
 	}
-	public void action() throws Exception {
+	public void action(String configNo,String Key) throws Exception {
 		//把上一批置上最新标志，刚刚导入的为N开头的
-		String sNImportNo=DBFunction.getSerialNo(this.sImportTableName,"ImportNo","'O"+CurUser.UserID+"'yyyyMMddhhmm","000000",new Date(),Sqlca);
-	 	Sqlca.executeSQL("update "+this.sImportTableName+" set ImportNo='"+sNImportNo+"' where ImportNo like 'N"+CurUser.UserID+"%000000'");
+		String sNImportNo=DBFunction.getSerialNo(this.sImportTableName,"ImportNo","'O'yyyyMMdd","000000",new Date(),Sqlca);
+	 	Sqlca.executeSQL("update "+this.sImportTableName+" set ImportNo='"+sNImportNo+"' where ConfigNo='"+this.configNo+"' and Key='"+this.Key+"' and ImportNo like 'N%000000'");
 	 	//初始化数据结构  一次导入对应一个模板定义，对应一个PS
-	 	this.ERS.setInitWho(this.configNo);//设置定义字段对应关系的配置号
 		//初始化head属性
-		this.ERS.initMeta();
+		this.ERS.initMeta(configNo,Key);
 		//初始化PreparedStatement
 		this.prepare();
 		Workbook workbook = null;
@@ -80,6 +79,7 @@ public  class ExcelImport implements ObjImportImpl{
 				this.ERS.setSheet(sheet);
 				//sheet标题头不符合要求就直接直接回退整个导入,没商量，完善去(此方法会报异常的)
 				this.ERS.checkMeta();
+				//初始化必要的值
 				this.ERS.initPara();
 				while(this.ERS.next()){
 					//sheet即使有一条记录不符合要求就直接回退整个导入,没商量，完善去(此方法会报异常的)

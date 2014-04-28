@@ -1,4 +1,4 @@
-<%@ page import="com.amarsoft.biz.bizobj.*"%>
+<%@ page import="com.lmt.app.object.*"%>
 <%@ page contentType="text/html; charset=GBK"%>
 <%@ include file="/IncludeBeginMD.jsp"%>
 <%

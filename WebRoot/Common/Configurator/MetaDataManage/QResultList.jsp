@@ -77,8 +77,11 @@
 			}
 		}
 		rs1.getStatement().close();	
-		sSql=sb.toString().replaceAll("\"", "'");
-		sSql=sb.toString().replaceAll("&nbsp;", " ");
+		sSql=sb.toString().replaceAll("<.+?>", " ");
+		sSql=sSql.replaceAll("&nbsp;", " ");
+		sSql=sSql.replaceAll("\\s", " ");
+		sSql=sSql.replaceAll("&lt;", "<");
+		sSql=sSql.replaceAll("&gt;", ">");
 	}
 	
 	ASDataObject doTemp = new ASDataObject(sSql);

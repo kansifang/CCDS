@@ -31,21 +31,32 @@ public class ExcelResultSet extends ObjResultSet {
 		this.sheet = sheet;
 	}
 	//初始化metadata
-	public void initMeta() throws Exception {
+	public void initMeta(String configNo,String Key) throws Exception {
 		this.columns.clear();
 		//加载模板定义
-		ASResultSet rs=this.Sqlca.getASResultSet("select ItemDescribe,Attribute1,Attribute2,Attribute3 from Code_Library where CodeNo='"+this.initWho+"' and IsInUse='1'");
+		ASResultSet rs=this.Sqlca.getASResultSet("select ItemDescribe,Attribute1,Attribute2,Attribute3 from Code_Library where CodeNo='"+configNo+"' and IsInUse='1'");
 		while(rs.next()){
 			this.addColumn(rs.getString(1),rs.getString(2),rs.getString(3),"1".equals(rs.getString(4))?true:false);
 		}
 		//默认都有这个字段
-		this.addColumn("ImportNo", "批量号","String",true,false);//主要是为了区分批次之间
+		this.addColumn("ConfigNo", "配置号","String",true,false);//记录Excel要素和数据要素对应关系的配置信息号，同时标识同一种类型数据（大类）
+		this.addColumn("Key", "主键","String",true,false);//标识同一种类型数据进一步区分（小类），譬如同一种报表的不同期次，就把ReportDate传进来
+		this.addColumn("ImportNo", "批量号","String",true,false);//主要是为了区分批次之间（在大类+小类的前提下的最新和以前批次的区分）
 		this.addColumn("ImportIndex", "批量序列号","String",true,false);//记录批次内序列
 		this.addColumn("ImportTime", "批量时间","String",true,false);//记录批次时间
-		this.addColumn("ConfigNo", "配置号","String",true,false);//记录批次时间
-		//设置字段数
+		this.addColumn("UserID", "导入人","String",true,false);
+		//对这些值设恒定值
+		this.setString("ConfigNo",configNo);
+		this.setString("Key",Key);
+		SimpleDateFormat sdf=new SimpleDateFormat("'N'yyyyMMdd");
+		this.setString("ImportNo",sdf.format(new Date())+"000000");
+		this.setString("UserID",this.CurUser.UserID);
+		//初始化代码表(后期要改造成数据库配置形式)
+		this.setValueToCode(this.Sqlca);
+		//处理特殊字符
+		this.setaReplaceBWithAInValue(new String[][] { { "￥", ""},{ "\\$", "" }, { ",", "" }, { "\"", "" },{ "渤海银行", "" },{ "渤海银行股份有限公司", "" }});
 	}
-	public boolean checkMeta()throws Exception{
+	public boolean checkMeta() throws Exception{
 		//初始化开始行
 		this.initCurrentRow();
 		//校验上传文件是否为空
@@ -92,18 +103,10 @@ public class ExcelResultSet extends ObjResultSet {
 		}
 		return true;
 	}
-	//初始化各种指标值
+	//单个文件开始时需要初始化的各种值
 	public void initPara() throws Exception {
 		this.setRowCount(this.sheet.getLastRowNum()+1);
 		this.setEof(false);
-		//初始化代码表
-		this.setValueToCode(this.Sqlca);
-		//处理特殊字符
-		this.setaReplaceBWithAInValue(new String[][] { { "￥", "" },{ "\\$", "" }, { ",", "" }, { "\"", "" },{ "渤海银行", "" },{ "渤海银行股份有限公司", "" }});
-		//设置文件外一些要素的值，此处设置的都是恒定值
-		SimpleDateFormat sdf=new SimpleDateFormat("'N"+CurUser.UserID+"'yyyyMMddhhmm");
-		this.setString("ImportNo",sdf.format(new Date())+"000000");
-		this.setString("ConfigNo",this.initWho);
 	}
 	private void initCurrentRow() throws Exception{
 		int cr=-1;

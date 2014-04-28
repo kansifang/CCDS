@@ -21,7 +21,6 @@ public abstract class ObjResultSet {
 	protected ArrayList<ObjColumnMetaData> columns = new ArrayList<ObjColumnMetaData>();
 	protected String[][] aReplaceBWithAInValue = null;
 	protected boolean reInitPara=true;
-	protected String initWho="";
 	public ObjResultSet(Transaction sqlca) throws SQLException {
 		this.Sqlca = sqlca;
 	}
@@ -34,15 +33,6 @@ public abstract class ObjResultSet {
 	public void setReInitPara(boolean reInitPara) {
 		this.reInitPara = reInitPara;
 	}
-
-	public String getInitWho() {
-		return initWho;
-	}
-
-	public void setInitWho(String initWho) {
-		this.initWho = initWho;
-	}
-
 	public void setSqlca(Transaction sqlca) {
 		Sqlca = sqlca;
 	}
@@ -451,7 +441,7 @@ public abstract class ObjResultSet {
 			this.reInitPara=false;
 		}
 	}
-	public abstract void initMeta() throws Exception;
+	public abstract void initMeta(String configNo,String Key) throws Exception;
 	public abstract void initPara() throws Exception;
 	public abstract boolean next() throws Exception;
 }
