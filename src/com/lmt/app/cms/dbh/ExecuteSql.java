@@ -18,11 +18,12 @@ public class ExecuteSql  extends Bizlet{
 		sSql = sSql.replaceAll("!","-");
 		sSql = sSql.replaceAll("~DY~",">");
 		sSql = sSql.replaceAll("~XY~","<");
-		if(-1!=sSql.indexOf("Update")){//更新
-			int i= Sqlca.executeSQL(sSql);
+		String[] Sql=sSql.split("~~");
+		if(!"SELECT".equals(Sql[0].toUpperCase())){//更新
+			int i= Sqlca.executeSQL(Sql[1]);
 			return i+"";
 		}else{
-			rs = Sqlca.getASResultSet(sSql);
+			rs = Sqlca.getASResultSet(Sql[1]);
 			if(rs.next()){
 				if(rs.iColumnCount==1){
 					str = rs.getString(1);

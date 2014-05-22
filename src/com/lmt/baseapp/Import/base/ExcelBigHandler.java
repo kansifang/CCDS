@@ -1,29 +1,25 @@
 package com.lmt.baseapp.Import.base;
 
+import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.lmt.baseapp.user.ASUser;
 import com.lmt.baseapp.util.StringFunction;
-import com.lmt.frameapp.sql.ASResultSet;
 import com.lmt.frameapp.sql.Transaction;
 
 /**
- * sheet´¦ÀíÆ÷£¬¼´Õë¶ÔÃ¿Ò»¸öExcelÖĞµÄsheet,XMlReader¶¼»áµ÷ÓÃËüÀ´²»¶Ï´¦ÀíÓöµ½µÄÔªËØ£¬
- * ËùÒÔstartElement,endElementÒªÊµÏÖ£¬²¢ÇÒÕâÒ²ÊÇ»ñÈ¡ÔªËØÖµ´æÈ¡ÔªËØÖµµÄÊ±ºò£¨Õë¶Ôµ¥Ôª¸ñÔªËØc£©£¬
- * ¸üÊÇÓöµ½ĞĞÔªËØr£¬´¦ÀíÕâÒ»ĞĞÊı¾İµÄÊ±ºò
+ * sheetå¤„ç†å™¨ï¼Œå³é’ˆå¯¹æ¯ä¸€ä¸ªExcelä¸­çš„sheet,XMlReaderéƒ½ä¼šè°ƒç”¨å®ƒæ¥ä¸æ–­å¤„ç†é‡åˆ°çš„å…ƒç´ ï¼Œ
+ * æ‰€ä»¥startElement,endElementè¦å®ç°ï¼Œå¹¶ä¸”è¿™ä¹Ÿæ˜¯è·å–å…ƒç´ å€¼å­˜å–å…ƒç´ å€¼çš„æ—¶å€™ï¼ˆé’ˆå¯¹å•å…ƒæ ¼å…ƒç´ cï¼‰ï¼Œ
+ * æ›´æ˜¯é‡åˆ°è¡Œå…ƒç´ rï¼Œå¤„ç†è¿™ä¸€è¡Œæ•°æ®çš„æ—¶å€™
  * 
- * SAX¶ÁExcelÉú³ÉµÄxml¸ñÊ½£º 
+ * SAXè¯»Excelç”Ÿæˆçš„xmlæ ¼å¼ï¼š 
  * 
 1.<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">  
 2.    <dimension ref="A1:C2"/>  
@@ -68,22 +64,22 @@ public class ExcelBigHandler extends DefaultHandler {
 
 	private int curRow = 1;
 	private int curCol = 1;
-	private boolean listIsNull = true;//±íÊ¾rowlistÓĞÃ»ÓĞ³õÊ¼»¯£¬Ã»ÓĞµÄÓÃ¿Õ×Ö·û´®³õÊ¼»¯Ö®
-	protected int rows = 0;//×Ü¼ÇÂ¼Êı
-	protected int cols = 0;//×Ü¼ÇÂ¼Êı
-	private boolean allNull = true;//±íÊ¾Excelµ±Ç°ĞĞËùÓĞCell¶¼ÊÇ¿Õ
+	private boolean listIsNull = true;//è¡¨ç¤ºrowlistæœ‰æ²¡æœ‰åˆå§‹åŒ–ï¼Œæ²¡æœ‰çš„ç”¨ç©ºå­—ç¬¦ä¸²åˆå§‹åŒ–ä¹‹
+	protected int rows = 0;//æ€»è®°å½•æ•°
+	protected int cols = 0;//æ€»è®°å½•æ•°
+	private boolean allNull = true;//è¡¨ç¤ºExcelå½“å‰è¡Œæ‰€æœ‰Celléƒ½æ˜¯ç©º
 	public ExcelBigHandler(ExcelBigEntrance ebe,SharedStringsTable sst) throws SAXException {
 		this.record=ebe.getOR();
 		this.Sqlca =ebe.getSqlca();
 		this.HDB=ebe.getHDB();
 		this.sst=sst;
 	}
-	//ÖØĞ´
+	//é‡å†™
 	public void startElement(String uri, String localName, String name,
 			Attributes attributes) throws SAXException {
-		// c => cellµ¥Ôª¸ñ
+		// c => cellå•å…ƒæ ¼
 		if (name.equals("c")) {
-			// Print the cell reference Èç¹ûÏÂÒ»¸öÔªËØÊÇ SST µÄË÷Òı£¬Ôò½«nextIsString±ê¼ÇÎªtrue
+			// Print the cell reference å¦‚æœä¸‹ä¸€ä¸ªå…ƒç´ æ˜¯ SST çš„ç´¢å¼•ï¼Œåˆ™å°†nextIsStringæ ‡è®°ä¸ºtrue
 			// System.out.print(attributes.getValue("r") + " - ");
 			// Figure out if the value is an index in the SST
 			// <c r="A1" s="1" t="s">
@@ -101,22 +97,22 @@ public class ExcelBigHandler extends DefaultHandler {
 			 * <row r="1" spans="1:3"> <c r="A1" s="1" t="s"> <v>0</v> </c> <c
 			 * r="B1" s="1"/> <c r="C1" s="1"> <v>111.1</v> </c> </row>
 			 */
-			// ÉèÖÃĞĞºÅ
+			// è®¾ç½®è¡Œå·
 			curRow = Integer.parseInt(attributes.getValue("r"));
-			// ÒÔµÚÒ»ĞĞÎªĞĞÊı¾İ±ê×¼ »ñÈ¡ÁĞÊı(ºóÃæ¿ÉÒÔÆğÊ¼ĞĞÎª±ê×¼)
+			// ä»¥ç¬¬ä¸€è¡Œä¸ºè¡Œæ•°æ®æ ‡å‡† è·å–åˆ—æ•°(åé¢å¯ä»¥èµ·å§‹è¡Œä¸ºæ ‡å‡†)
 			if (curRow == 1) {
 				cols = getColumns(attributes.getValue("spans"));
 			}
 		} else if (name.equals("dimension")) {
 			// <dimension ref="A1:C2"/>
-			// »ñµÃ×Ü¼ÆÂ¼Êı
+			// è·å¾—æ€»è®¡å½•æ•°
 			String d = attributes.getValue("ref");
 			rows = getNumber(d.substring(d.indexOf(":") + 1, d.length()));
 		}
 		// Clear contents cache
 		lastContents = "";
 	}
-	//ÖØĞ´
+	//é‡å†™
 	public void endElement(String uri, String localName, String name)
 			throws SAXException {
 		// Process the last contents as required.
@@ -127,16 +123,17 @@ public class ExcelBigHandler extends DefaultHandler {
 			nextIsString = false;
 		}
 		// v => contents of a cell
-		// v => µ¥Ôª¸ñµÄÖµ£¬Èç¹ûµ¥Ôª¸ñÊÇ×Ö·û´®Ôòv±êÇ©µÄÖµÎª¸Ã×Ö·û´®ÔÚSST(SharedStringsTable sst =
-		// xr.getSharedStringsTable())ÖĞµÄË÷Òı
-		// ½«µ¥Ôª¸ñÄÚÈİ¼ÓÈërowlistÖĞ£¬ÔÚÕâÖ®Ç°ÏÈÈ¥µô×Ö·û´®Ç°ºóµÄ¿Õ°×·û
+		// v => å•å…ƒæ ¼çš„å€¼ï¼Œå¦‚æœå•å…ƒæ ¼æ˜¯å­—ç¬¦ä¸²åˆ™væ ‡ç­¾çš„å€¼ä¸ºè¯¥å­—ç¬¦ä¸²åœ¨SST(SharedStringsTable sst =
+		// xr.getSharedStringsTable())ä¸­çš„ç´¢å¼•
+		// å°†å•å…ƒæ ¼å†…å®¹åŠ å…¥rowlistä¸­ï¼Œåœ¨è¿™ä¹‹å‰å…ˆå»æ‰å­—ç¬¦ä¸²å‰åçš„ç©ºç™½ç¬¦
 		if (name.equals("v")) {
 			String value = lastContents.trim();
+			value=value.replaceAll("[Â \\s,]+", "");
 			if (allNull && !value.equals("")) {
 				allNull = false;
 			}
 			if (curCol <= cols) {
-				if(curRow==1){//Ä¬ÈÏµÚÒ»ĞĞÎª±êÌâĞĞ£¬ÔÚ´ËÉèÖÃ¼ÇÂ¼¼¯×Ö¶ÎÔÚÎÄ¼şÖĞµÄĞòºÅ£¨0¿ªÊ¼£©
+				if(curRow==1){//é»˜è®¤ç¬¬ä¸€è¡Œä¸ºæ ‡é¢˜è¡Œï¼Œåœ¨æ­¤è®¾ç½®è®°å½•é›†å­—æ®µåœ¨æ–‡ä»¶ä¸­çš„åºå·ï¼ˆ0å¼€å§‹ï¼‰
 					ObjColumn oc=record.getColumnObjWH(value);
 					if(oc!=null){
 						oc.setIndexInFile(curCol-1);
@@ -145,7 +142,9 @@ public class ExcelBigHandler extends DefaultHandler {
 					ObjColumn oc=record.getColumnObjWIF(curCol-1);
 					if(oc!=null){
 						if("Number".equals(oc.getColumnType())){
-							record.setDouble(curCol-1, new Double(value));
+							BigDecimal bd=new BigDecimal(value);
+							bd.setScale(6,BigDecimal.ROUND_HALF_UP);//å››èˆäº”å…¥ä¿6ä½
+							record.setDouble(curCol-1, bd.doubleValue());
 						}else{
 							record.setString(curCol-1, value);
 						}
@@ -153,17 +152,18 @@ public class ExcelBigHandler extends DefaultHandler {
 				}
 			}
 		} else {
-			if (name.equals("row") && !allNull&&curRow!=1) {//µÚÒ»ĞĞÊÇ±êÌâĞĞ£¬²»±£´æµ½Êı¾İ¿â
-				//ÉèÖÃÎÄ¼şÍâµÄÒ»Ğ©ÒªËØµÄÖµ£¬Æ©Èçµ¼ÈëÈÕÆÚ£¬´Ë´¦ÉèÖÃÏÔÈ»ÊÇÃ¿Ìì¼ÇÂ¼ÊÇ²»Ò»ÑùµÄ
+			if (name.equals("row") && !allNull&&curRow!=1) {//ç¬¬ä¸€è¡Œæ˜¯æ ‡é¢˜è¡Œï¼Œä¸ä¿å­˜åˆ°æ•°æ®åº“
+				//è®¾ç½®æ–‡ä»¶å¤–çš„ä¸€äº›è¦ç´ çš„å€¼ï¼Œè­¬å¦‚å¯¼å…¥æ—¥æœŸï¼Œæ­¤å¤„è®¾ç½®æ˜¾ç„¶æ˜¯æ¯å¤©è®°å½•æ˜¯ä¸ä¸€æ ·çš„
 				this.record.setString("ImportIndex", (curRow-1)+"");
 				this.record.setString("ImportTime", StringFunction.getTodayNow());
 				try {
 					this.HDB.saveToDB();
-					//(sheetIndex, curRow, rowlist);// ÕâÊ±¿ÉÒÔ´¦ÀíÒ»ĞĞÊı¾İÁË£¬Æ©Èç¿ÉÒÔPreparedStatementÖĞ£¬µ½Ò»¶¨¼ÇÂ¼²åÈëÊı¾İ¿â
+					//(sheetIndex, curRow, rowlist);// è¿™æ—¶å¯ä»¥å¤„ç†ä¸€è¡Œæ•°æ®äº†ï¼Œè­¬å¦‚å¯ä»¥PreparedStatementä¸­ï¼Œåˆ°ä¸€å®šè®°å½•æ’å…¥æ•°æ®åº“
 					allNull = true;
 				} catch (IllegalArgumentException ie) {
 					throw ie;
 				} catch (SQLException e) {
+					System.out.println(e.getNextException());
 					throw new SAXException(e);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -172,7 +172,7 @@ public class ExcelBigHandler extends DefaultHandler {
 			}
 		}
 	}
-	//ÖØĞ´
+	//é‡å†™
 	public void characters(char[] ch, int start, int length)
 			throws SAXException {
 		lastContents += new String(ch, start, length);
@@ -196,11 +196,54 @@ public class ExcelBigHandler extends DefaultHandler {
 		String number = spans.substring(spans.lastIndexOf(':') + 1,spans.length());
 		return Integer.parseInt(number);
 	}
-	private static int getNumberFromLetter(String column) {  
+	// æ€æƒ³ï¼š ä»å­—ç¬¦ä¸²çš„æœ€åä¸€ä½åˆ°ç¬¬ä¸€ä½ï¼Œä¹˜ä»¥26çš„å¹‚ï¼Œä¾æ¬¡ç›¸åŠ ï¼ˆnä¸ºå­—ç¬¦ä¸²é•¿åº¦-1ï¼‰ A,B,C AA ... 1,2,3,...27
+	//ç®—æ³•ï¼š 26^0 * ï¼ˆæœ€åä¸€ä½ ï¼‰ + 26 ^ 1 * ï¼ˆå‰ä¸€ä½ ï¼‰ + â€¦â€¦ + 26 ^ n * ï¼ˆç¬¬ä¸€ä½ï¼‰ã€‚
+
+	public static int getNumberFromLetter(String column) { 
         String c = column.toUpperCase().replaceAll("[0-9]", "");  
-        int number = (int) c.charAt(0) - 64;  
-        return number;  
+        int number = 0;
+        char[] cs = c.toCharArray();
+        for (int i =0; i<cs.length; i++)
+        {
+        	number += (cs[i]-64)*Math.pow(26,cs.length-1-i);
+        }
+        return number;
     } 
+	public static String getLetterFromNumber(int value)
+     {
+         String rtn = "";
+         List<Integer> iList = new ArrayList<Integer>();
+
+         //To single Int
+         while (value / 26 != 0 || value % 26 != 0)
+         {
+             iList.add(value % 26);
+             value /= 26;
+         }
+
+         //Change 0 To 26
+         for (int j = 0; j < iList.size() - 1; j++)
+         {
+             if (iList.get(j) == 0)
+             {
+                 iList.set(j+1, iList.get(j+1)-1);
+                 iList.set(j, 26);
+             }
+         }
+         //Remove 0 at last
+         if (iList.get(iList.size() - 1) == 0)
+         {
+             iList.remove(iList.size() - 1);
+         }
+
+         //To String
+         for (int j = iList.size() - 1; j >= 0; j--)
+         {
+             char c = (char)(iList.get(j) + 64);
+             rtn += c;
+         }
+         return rtn;
+     }
 	private static int getNumber(String column) {
 		String c = column.toUpperCase().replaceAll("[A-Z]", "");
 		return Integer.parseInt(c);
@@ -212,5 +255,12 @@ public class ExcelBigHandler extends DefaultHandler {
 
 	public boolean isAllNull() {
 		return allNull;
+	}
+	public static void main(String[] args) throws Exception {
+		//ExcelBigDateImport example = new ExcelBigDateImport();
+		//example.processOneSheet("C:\\20140101_162227865.xlsx");
+		// example.processAllSheets(args[0]);
+		//System.out.println(ExcelBigHandler.getNumberFromLetter("BD"));
+		System.out.println(ExcelBigHandler.getLetterFromNumber(10));
 	}
 }

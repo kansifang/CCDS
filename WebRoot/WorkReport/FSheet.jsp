@@ -60,7 +60,7 @@
 	if("".equalsIgnoreCase(sConfigNo)){
 		sS="";
 	}else{
-		sHeaders=Sqlca.getStringMatrix("select ItemDescribe,Attribute1 from Code_library where  CodeNo='"+sConfigNo+"' and IsInUse='1' order by ItemNo asc");
+		sHeaders=Sqlca.getStringMatrix("select ItemDescribe,Attribute1 from Code_Library where  CodeNo='"+sConfigNo+"' and IsInUse='1' order by SortNo asc");
 	  	for(int i=0;i<sHeaders.length;i++){
 	  		sS+=sHeaders[i][0]+",";
 	  	}
@@ -69,9 +69,9 @@
 	  	}
 	}
     	//定义SQL语句
-    String sSql = " SELECT  ConfigNo as 报表类型,Key as 报表日期"+sS+",ImportNo,ImportIndex,ImportTime,UserID"+
+    String sSql = " SELECT  ConfigNo as 报表类型,Key as 报表日期,ImportIndex as 序号"+sS+",ImportNo,ImportTime,UserID"+
     	 " FROM Batch_Import" +
-		  " WHERE 1=1";
+		  " WHERE 1=1 order by int(序号) asc";
 	//产生ASDataObject对象doTemp
     ASDataObject doTemp = new ASDataObject(sSql);
     //设置表头
@@ -81,13 +81,23 @@
     //设置关键字
 	doTemp.setKey("ImportNo,ImportIndex",true);
 	//设置不可见项
-    doTemp.setVisible("报表类型,ObjectNo,ObjectType,ImportFlag",false);
+    doTemp.setVisible("报表类型,报表日期,ObjectNo,ObjectType,ImportFlag",false);
     //设置风格
     doTemp.setAlign("AttachmentCount","3");
     if(!"".equalsIgnoreCase(sConfigNo)){
     	doTemp.setHTMLStyle(2,"style={width:300px}");//项目加宽
 	}
     doTemp.setHTMLStyle("ImportNo"," style={width:180px}");
+    doTemp.setHTMLStyle("报表日期"," style={width:50px}");
+    if(sHeaders.length!=0){
+    	doTemp.setHTMLStyle(DataConvert.toString(StringFunction.getAttribute(sHeaders,"合同流水号",1,0))," style={width:95px}");
+        doTemp.setHTMLStyle(DataConvert.toString(StringFunction.getAttribute(sHeaders,"客户名称",1,0))," style={width:250px}");
+        doTemp.setHTMLStyle(DataConvert.toString(StringFunction.getAttribute(sHeaders,"币种",1,0))," style={width:20px}");
+      //生成查询框
+        doTemp.setColumnAttribute(DataConvert.toString(StringFunction.getAttribute(sHeaders,"客户名称",1,0)),"IsFilter","1");
+    }
+    
+    doTemp.setHTMLStyle("序号"," style={width:25px}");
     doTemp.setHTMLStyle("UserName,OrgName,AttachmentCount,InputTime,UpdateTime"," style={width:80px} ");
     doTemp.setDDDWSql("报表类型", "select CodeNo,CodeName from Code_Catalog where CodeNo like 'b%'");
    // doTemp.setCheckFormat("报表日期", "3");

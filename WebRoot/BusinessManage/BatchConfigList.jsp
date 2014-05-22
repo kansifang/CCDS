@@ -68,6 +68,7 @@
 					{"Attribute2","要素类型"},
 					{"Attribute4","要素长度"},
 					{"Attribute5","要素精度"},
+					{"SortNo","序号"},
 					{"IsInUse","有效"},
 					{"UpdateUserName","更新人"},
 					{"UpdateTime","更新时间"}
@@ -81,7 +82,7 @@
 			" from Code_Library "+
 			" where  CodeNo = '"+sCodeNo+"'"+
 			" and IsInUse='1'"+
-			" order by ItemNo,Attribute8 asc";
+			" order by SortNo asc";
 	
 	//用sSql生成数据窗体对象
 	ASDataObject doTemp = null;
@@ -93,7 +94,7 @@
 	doTemp.UpdateTable= "Code_Library";
 	doTemp.setKey("CodeNo,ItemNo",true);
 	//设置格式
-	doTemp.setVisible("CodeNo,ItemName,SortNo",false);
+	doTemp.setVisible("CodeNo,ItemName",false);
 	if("01".equals(sType)){
 		doTemp.setVisible("Attribute7,Attribute6,ItemAttribute,Attribute8,Attribute4,Attribute5,Attribute7", false);
 	}else{
@@ -102,7 +103,7 @@
 	//doTemp.setHTMLStyle("Attribute1,Attribute2,Attribute3,Attribute4"," style={width:auto} ");
 	//设置字段显示宽度	
 	//doTemp.appendHTMLStyle("Status"," style={width:90px} onDBLClick=parent.selectOrUnselect() ");
-	doTemp.setColumnAttribute("Attribute6","IsFilter","1");
+	doTemp.setColumnAttribute("Attribute1,Attribute6,ItemDescribe,Attribute2,SortNo","IsFilter","1");
 	doTemp.generateFilters(Sqlca);
 	doTemp.parseFilterData(request,iPostChange);
 	CurPage.setAttribute("FilterHTML",doTemp.getFilterHtml(Sqlca));
@@ -136,6 +137,7 @@
 				{"true","","Button","新增","新增","newRecord()",sResourcesPath},
 				{"true","","Button","删除","删除","deleteRecord()",sResourcesPath},
 				{"true","","Button","详情","查看","viewAndEdit()",sResourcesPath},
+				{"01".equals(sType)?"true":"false","","Button","引入","引入类似配置","importConfig()",sResourcesPath},
 				{"true","","Button","查看当前修改历史","查看修改历史","viewModifiedHis('Some')",sResourcesPath},
 				{"true","","Button","查看所有修改历史","查看修改历史","viewModifiedHis('All')",sResourcesPath}
 			};
@@ -196,6 +198,51 @@
 		popComp("BatchConfigInfo","/BusinessManage/BatchConfigInfo.jsp","CodeNo="+sCodeNo+"&ItemNo="+sItemNo,"dialogWidth=40;dialogHeight=20;status:no;center:yes;help:no;minimize:no;maximize:no;border:thin;statusbar:no");
 		reloadSelf();
 	}
+	/*~[Describe=引入类似配置详情以节省功夫;InputParam=无;OutPutParam=无;]~*/
+	function importConfig()
+	{
+		var CodeNo="<%=sCodeNo%>";
+		var sParaString = "";
+		var sReturn=setObjectValue("SelectColumnConfig",sParaString,"",0,0,"");
+		if(typeof(sReturn)!=="undefined"){
+			var sSourceCodeNo = sReturn.split('@')[0];
+			sReturn=RunMethod("PublicMethod","ExecuteSql","[select~~select count(1) as count from Code_Library where CodeNo='"+sSourceCodeNo+"']");
+			if(sReturn==0){
+				alert("此配置下无配置信息！");
+				return;;
+			}
+			//被复制一次 Remark加1
+			RunMethod("PublicMethod","ExecuteSql","[update~~update Code_Library set Remark=nvl(Remark,0)#1 where CodeNo='"+sSourceCodeNo+"' and IsInUse='1']");
+			var sSql="[insert~~insert into "+
+				"Code_Library(CodeNo,ItemNo,"+
+				"Attribute1,"+//要素Excel标题
+				"Attribute3,"+//是否识别标签
+				"ItemDescribe,"+//要素对应表字段
+				"Attribute6,"+//要素所在表
+				"ItemAttribute,"+
+				"Attribute8,"+//要素名称
+				"Attribute2,"+//要素类型
+				"Attribute4,"+//要素长度
+				"+Attribute5,"+//要素精度
+				"+Attribute7,"+//操作要素方式
+				"IsInUse)"+
+				"(select '"+CodeNo+"','c'||Remark||ItemNo,"+
+				"Attribute1,"+
+				"Attribute3,"+
+				"ItemDescribe,"+
+				"Attribute6,"+
+				"ItemAttribute,"+
+				"Attribute8,"+
+				"Attribute2,"+
+				"Attribute4,"+
+				"+Attribute5,"+
+				"+Attribute7,"+
+				"IsInUse from Code_Library CL where CodeNo='"+sSourceCodeNo+"' and IsInUse='1'"+
+				" and not exists(select 1 from Code_Library CL2 where CL2.CodeNo='"+CodeNo+"' and CL2.ItemDescribe=CL.ItemDescribe and IsInUse='1'))]";
+			RunMethod("PublicMethod","ExecuteSql",sSql);
+		}
+		reloadSelf();
+	}
 	</script>
 <%
 	/*~END~*/
@@ -241,7 +288,7 @@
 	init();
 	bHighlightFirst = true;//自动选中第一条记录
 	my_load(2,0,'myiframe0');
-	hideFilterArea();
+	//hideFilterArea();
 	//initRow();
 	//var bCheckBeforeUnload=false;
 </script>

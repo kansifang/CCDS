@@ -56,7 +56,12 @@ public class ExcelBigEntrance implements EntranceImpl{
 				//System.out.println("");
 			}
 		}
-		this.HDB.end();
+		try{
+			this.HDB.end();
+		}catch(SQLException e){
+			System.out.println(e.getNextException());
+			throw e;
+		}
 	}
 
 	public XMLReader fetchSheetParser(SharedStringsTable sst,String configNo,String Key) throws Exception {

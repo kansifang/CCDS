@@ -1,2 +1,4 @@
 eclipse.preferences.version=1
 encoding//WebRoot/Resources/Include/IncludeHead.jsp=GBK
+encoding//src/com/lmt/baseapp/Import/base/DBHandler.java=UTF-8
+encoding//src/com/lmt/baseapp/Import/base/ExcelBigHandler.java=UTF-8

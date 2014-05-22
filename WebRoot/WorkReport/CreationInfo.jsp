@@ -164,17 +164,11 @@
 			as_add("myiframe0");//新增一条空记录			
 			sOccurType = "<%=sOccurType%>";
 			sOccurDate = "<%=sOccurDate%>";
-			if (typeof(sOccurType) == "undefined" || sOccurType.length == 0)
-				setItemValue(0,0,"OccurType","010");
-			else
-				setItemValue(0,0,"OccurType",sOccurType);
-			if (typeof(sOccurDate) == "undefined" || sOccurDate.length == 0)
-				setItemValue(0,0,"OccurDate","<%=StringFunction.getToday()%>");	
-			else
-				setItemValue(0,0,"OccurDate",sOccurDate);			
+			setItemValue(0,0,"ConfigNo","b20140519000001");
+			setItemValue(0,0,"ReportDate","<%=DateUtils.getRelativeMonth(DateUtils.getToday(),0,0)%>");
 			setItemValue(0,0,"InputOrgName","<%=CurOrg.OrgName%>");	
 			setItemValue(0,0,"InputUserName","<%=CurUser.UserName%>");	
-			setItemValue(0,0,"InputDate","<%=StringFunction.getToday()%>");			
+			setItemValue(0,0,"InputDate","<%=DateUtils.getToday()%>");			
 		}
     }
 	/*~[Describe=确认新增授信申请;InputParam=无;OutPutParam=申请流水号;]~*/

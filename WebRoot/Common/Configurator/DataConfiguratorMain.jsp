@@ -126,10 +126,9 @@
 %>
 	<script language="JavaScript">
 	startMenu();
-	expandNode('root');	
-	expandNode('0080');	
-	expandNode('0090');	
-	selectItem('0010');	
+	expandNode('0100');	
+	expandNode('0200');
+	selectItem('0100001');	
 	</script>
 <%
 	/*~END~*/

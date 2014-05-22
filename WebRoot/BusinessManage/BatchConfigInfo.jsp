@@ -60,6 +60,7 @@
 					{"Attribute4","要素长度"},
 					{"Attribute5","要素精度"},
 					{"Attribute7","操作要素方式"},
+					{"SortNo","序号"},
 					{"IsInUse","有效"},
 					{"InputUserName","登记人"},
 					{"InputTime","登记时间"},
@@ -74,7 +75,7 @@
 				" UpdateUser,getUserName(UpdateUser) as UpdateUserName, UpdateTime"+
 				" from Code_Library "+
 				" where  CodeNo = '"+sCodeNo+"'"+
-				" and ItemNo='"+sItemNo+"'";
+				" and ItemNo='"+sItemNo+"' order by SortNo asc";
 	//用sSql生成数据窗体对象
 	ASDataObject doTemp = null;
 	//设置表头,更新表名,键值,可见不可见,是否可以更新
@@ -87,7 +88,7 @@
 	//设置格式
 	doTemp.setAlign("Attribute2,Attribute4,","1");
 	doTemp.setRequired("Attribute2", true);
-	doTemp.setVisible("CodeNo,ItemName,SortNo,InputUser,UpdateUser,Attribute8",false);
+	doTemp.setVisible("CodeNo,ItemName,InputUser,UpdateUser,Attribute8",false);
 	if("01".equals(sType)){
 		doTemp.setVisible("Attribute6,ItemAttribute,Attribute7", false);
 	}else{
@@ -106,13 +107,14 @@
 	//doTemp.setRequired("ItemDescribe,Attribute1,Attribute2,IsInUse",true);
 	//doTemp.setCheckFormat("InputTime,UpdateTime","3");
 	doTemp.setUpdateable("InputUserName,UpdateUserName",false);
-	doTemp.setReadOnly("ItemNo,InputUserName,UpdateUserName,InputTime,UpdateTime,ItemDescribe",true);
+	doTemp.setReadOnly("ItemNo,InputUserName,UpdateUserName,InputTime,UpdateTime",true);
 	//设置字段显示宽度	
 	
 	//生成datawindow
 	ASDataWindow dwTemp = new ASDataWindow(CurPage,doTemp,Sqlca);
 	dwTemp.Style="2";      //设置DW风格 1:Grid 2:Freeform
 	dwTemp.ReadOnly = "0"; //设置是否只读 1:只读 0:可写
+	//dwTemp.setEvent("AfterInsert","!BusinessManage.InsertRelative(#SerialNo,#RelativeObjectType,#RelativeAgreement,APPLY_RELATIVE) + !WorkFlowEngine.InitializeFlow("+sObjectType+",#SerialNo,"+sApplyType+","+sFlowNo+","+sPhaseNo+","+CurUser.UserID+","+CurOrg.OrgID+")");
 	Vector vTemp = dwTemp.genHTMLDataWindow("");
 	for(int i=0;i<vTemp.size();i++) out.print((String)vTemp.get(i));
 %>
@@ -135,8 +137,8 @@
 			//6.资源图片路径
 		String sButtons[][] = {
 			{"true","","Button","保存并新增","新增另一条记录","saveRecord('newRecord()')",sResourcesPath},
-			{"true","","Button","保存","保存","saveRecord('')",sResourcesPath},
-			{"true","","Button","返回","返回列表页面","doReturn()",sResourcesPath}
+			{"true","","Button","保存","保存","saveRecord('doReturn()')",sResourcesPath},
+			{"false","","Button","返回","返回列表页面","doReturn()",sResourcesPath}
 		};
 	%>
 <%
@@ -162,7 +164,7 @@
 			if(bIsInsert){
 				beforeInsert();
 			}else{
-				backupHis();
+				//backupHis();
 			}
 			beforeUpdate();
 			var ColumnName=getItemValue(0,getRow(),"ItemDescribe");//Excel对应的表字段
@@ -182,7 +184,13 @@
 					RunMethod("PublicMethod","InsertColValue","String@CodeNo@b20140323000001@String@ItemNo@"+ItemNo+"@String@Attribute8@"+ColumnName+"@String@Attribute2@"+ColumnType+"@String@Attribute4@"+ColumnLong+"@String@Attribute5@"+ColumnPrecision+"@String@Attribute6@Batch_Import@String@Attribute7@AddColumn@String@IsInUse@1,Code_Library");
 				}
 			}
-			
+			var sortNo=getItemValue(0,getRow(),"SortNo").toUpperCase();
+			if(sortNo.length==1){
+				sortNo='00'+sortNo;
+			}else if(sortNo.length==2){
+				sortNo='0'+sortNo;
+			}
+			setItemValue(0,0,"SortNo",sortNo);
 			as_save("myiframe0",sPostEvents+"");
 		}
 		function addColumn(){
@@ -279,7 +287,7 @@
 	}
 	function selectColumn()
 	{		
-		sParaString = "CodeNo,b20140323000001";
+		sParaString = "CodeNo,b20140323000001,CurrCodeNo,<%=sCodeNo%>";
 		setObjectValue("SelectColumn",sParaString,"@ItemDescribe@2@Attribute2@3@Attribute4@4@Attribute5@5",0,0,"");			
 	}
    /*~[Describe=初始化选择标记;InputParam=无;OutPutParam=无;]~*/
@@ -294,6 +302,7 @@
 			setItemValue(0,0,"Attribute6","Batch_Import");
 			setItemValue(0,0,"Attribute7","AddColumn");
 	        setItemValue(0,0,"IsInUse","1");
+	        setItemValue(0,0,"SortNo","000");
 	        setItemValue(0,0,"InputUser","<%=CurUser.UserID%>");
 	        setItemValue(0,0,"InputUserName","<%=CurUser.UserName%>");
 	        setItemValue(0,0,"InputTime","<%=StringFunction.getToday()+"-"+StringFunction.getNow()%>");

@@ -35,6 +35,7 @@
  		try {
  		 	isAutoCommit=Sqlca.conn.getAutoCommit();
  		 	Sqlca.conn.setAutoCommit(false);
+ 		 	Sqlca.executeSQL("Delete from Batch_Import where ConfigNo='"+sConfigNo+"' and Key='"+sKey+"'");
  		 	//导入文件
  		 	EntranceImpl efih=new ExcelBigEntrance(sFiles,sImportTableName,CurUser,Sqlca);
  		 	efih.action(sConfigNo,sKey);

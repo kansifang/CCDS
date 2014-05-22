@@ -1,5 +1,6 @@
 package com.lmt.baseapp.Import.base;
 
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -7,7 +8,7 @@ import com.lmt.frameapp.sql.Transaction;
 /**
  * 
  * @author bllou 2012/08/13
- * @msg. ÀúÊ·ÑºÆ·ĞÅÏ¢µ¼Èë³õÊ¼»¯
+ * @msg. å†å²æŠ¼å“ä¿¡æ¯å¯¼å…¥åˆå§‹åŒ–
  */
 public class DBHandler{
 	private ObjRow or=null;
@@ -17,7 +18,7 @@ public class DBHandler{
 	// 
 	protected Transaction Sqlca = null;
 	/**
-	 * ½âÎöxls ½«Êı¾İ²åÈëÊı¾İ±íÖĞ
+	 * è§£æxls å°†æ•°æ®æ’å…¥æ•°æ®è¡¨ä¸­
 	 * @throws SQLException 
 	 */
 	public DBHandler(String ImportTableName,ObjRow or,Transaction Sqlca) throws Exception {
@@ -27,7 +28,7 @@ public class DBHandler{
 		initPS();
 	}
 	
-	public void initPS() throws Exception {
+	public void initPS() throws SQLException{
 		String column="",columnf="";
 		for(int i=0;i<or.getColumnTCount();i++){
 			column+=or.getColumnObjWI(i).getColumnName()+",";
@@ -43,28 +44,28 @@ public class DBHandler{
 				")";
 		this.ps= this.Sqlca.conn.prepareStatement(insertSql);
 	}
-	public void saveToDB() throws Exception {
-		//sheet¼´Ê¹ÓĞÒ»Ìõ¼ÇÂ¼²»·ûºÏÒªÇó¾ÍÖ±½Ó»ØÍËÕû¸öµ¼Èë,Ã»ÉÌÁ¿£¬ÍêÉÆÈ¥(´Ë·½·¨»á±¨Òì³£µÄ)
+	public void saveToDB() throws SQLException {
+		//sheetå³ä½¿æœ‰ä¸€æ¡è®°å½•ä¸ç¬¦åˆè¦æ±‚å°±ç›´æ¥å›é€€æ•´ä¸ªå¯¼å…¥,æ²¡å•†é‡ï¼Œå®Œå–„å»(æ­¤æ–¹æ³•ä¼šæŠ¥å¼‚å¸¸çš„)
 		//OHRI.checkObj();
 		//OHRI.optRow();
 		for(int j=0;j<or.getColumnTCount();j++){
 			String columnType=or.getColumnType(j);
 			if("Number".equals(columnType)){
-				System.out.println(or.getDouble(j));
+				System.out.println(or.getColumnObjWI(j).getColumnHeadName()+"@"+or.getDouble(j));
 				ps.setDouble(j+1, or.getDouble(j));
 			}else{
-				System.out.println(or.getString(j));
+				System.out.println(or.getColumnObjWI(j).getColumnHeadName()+"@"+or.getString(j));
 				ps.setString(j+1, or.getString(j));
 			}
 		}
 		this.iCount++;
 		ps.addBatch();
-		if (this.iCount >=500) {
+		if (this.iCount >=800) {
 			ps.executeBatch();
 			this.iCount=0;
 		}
 	}
-	public void end() throws Exception {
+	public void end() throws SQLException {
 		if(ps!=null){
 			// try{
 				ps.executeBatch();
@@ -81,13 +82,13 @@ public class DBHandler{
 	public void setPs(PreparedStatement ps){
 		this.ps = ps;
 	}
-	//1¡¢Ò»¸öÎÄ¼ş¶ÔÓ¦Ò»¸öMetaData
+	//1ã€ä¸€ä¸ªæ–‡ä»¶å¯¹åº”ä¸€ä¸ªMetaData
 	//private String getModelNo(String sFilePathName){
 		//sFilePathName=/temp/als6/Upload/yyyy/mm/dd/modelno/docno_attachmentno_filename.*
 		   //String sTempPath=StringFunction.replace(sFilePathName, this.fileName,"");
-		//µÃµ½/temp/als6/Upload/yyyy/mm/dd/modelno/
+		//å¾—åˆ°/temp/als6/Upload/yyyy/mm/dd/modelno/
 		   //sTempPath=sTempPath.substring(0,sTempPath.length()-1);
-		//µÃµ½modelno
+		//å¾—åˆ°modelno
 		   //return StringFunction.getFileName(sTempPath);
 	//}
 }
