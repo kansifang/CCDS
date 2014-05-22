@@ -81,7 +81,7 @@
 			" from Code_Library "+
 			" where  CodeNo = '"+sCodeNo+"'"+
 			" and IsInUse='1'"+
-			" order by ItemNo asc";
+			" order by ItemNo,Attribute8 asc";
 	
 	//用sSql生成数据窗体对象
 	ASDataObject doTemp = null;
@@ -89,7 +89,7 @@
 	doTemp = new ASDataObject(sSql);
 	doTemp.setHeader(sHeaders);
 	doTemp.setRequired("Attribute5",true);
-	doTemp.setHTMLStyle("Attribute5"," style={width:1000px} ");
+	doTemp.setHTMLStyle("ItemDescribe"," style={width:150px} ");
 	doTemp.UpdateTable= "Code_Library";
 	doTemp.setKey("CodeNo,ItemNo",true);
 	//设置格式
@@ -111,7 +111,7 @@
 	ASDataWindow dwTemp = new ASDataWindow(CurPage,doTemp,Sqlca);
 	dwTemp.Style="1";      //设置DW风格 1:Grid 2:Freeform
 	dwTemp.ReadOnly = "1"; //设置是否只读 1:只读 0:可写
-	dwTemp.setPageSize(10);
+	dwTemp.setPageSize(25);
 	Vector vTemp = dwTemp.genHTMLDataWindow("");
 	for(int i=0;i<vTemp.size();i++) out.print((String)vTemp.get(i));
 %>

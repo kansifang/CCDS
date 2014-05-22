@@ -11,7 +11,7 @@ import com.lmt.frameapp.sql.Transaction;
  * @author bllou 2012/08/13
  * @msg. 历史押品信息导入初始化
  */
-public abstract class TextImport implements ObjImportImpl {
+public abstract class TextImport implements EntranceImpl {
 	protected TextResultSet TRS = null;
 	protected int iCount = 0;
 	// 装各下拉框

@@ -1,20 +1,23 @@
 package com.lmt.baseapp.Import.impl;
 
-import com.lmt.baseapp.Import.base.ExcelImport;
-import com.lmt.baseapp.Import.base.ExcelResultSet;
+import java.sql.SQLException;
+import java.util.List;
+
+import com.lmt.baseapp.Import.base.ExcelHandler;
+import com.lmt.baseapp.Import.base.XxlsAbstract;
 import com.lmt.baseapp.user.ASUser;
 import com.lmt.frameapp.sql.Transaction;
 /**
  * @author bllou 2012/08/13
  * @msg. 历史押品信息导入初始化
  */
-public class BatchCaseExcelImport extends ExcelImport{
+public class DefaultBigExcelImport extends XxlsAbstract{
 	/**
 	 * 解析xls 将数据插入数据表中
 	 * @throws Exception 
 	 */
-	public BatchCaseExcelImport(Transaction Sqlca, String files,ASUser CurUser) throws Exception {
-		super(Sqlca, files,new ExcelResultSet(Sqlca,CurUser));
+	public DefaultBigExcelImport(Transaction Sqlca, String files,ASUser CurUser) throws Exception {
+		super(Sqlca, files,new ExcelHandler(Sqlca,CurUser));
 	}
 	public boolean checkObj() throws Exception{
 		boolean isPass=true;

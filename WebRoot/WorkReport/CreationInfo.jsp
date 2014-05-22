@@ -63,7 +63,7 @@
 							{"ConfigNo","报表类型"},							
 							{"ReportDate","报表日期"}
 						  };
-	sSql = 	" select ConfigNo,ReportDate"+	
+	sSql = 	" select ConfigNo,Key as ReportDate"+	
 				" from Batch_Import where 1 = 2 ";	
 	//通过SQL产生ASDataObject对象doTemp
 	ASDataObject doTemp = new ASDataObject(sSql);	

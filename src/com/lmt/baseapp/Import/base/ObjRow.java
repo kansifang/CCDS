@@ -1,9 +1,11 @@
 package com.lmt.baseapp.Import.base;
 
-import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
+import com.lmt.baseapp.user.ASUser;
 import com.lmt.frameapp.sql.ASResultSet;
 import com.lmt.frameapp.sql.Transaction;
 
@@ -11,62 +13,38 @@ import com.lmt.frameapp.sql.Transaction;
  * @author Administrator
  * 
  */
-public abstract class ObjResultSet {
-	protected Transaction Sqlca = null;
+public class ObjRow {
 	protected int columnTCount = 0;//列总数
-	protected int rowCount = 0;
-	protected int currentRow = 0;
-	protected boolean eof = false;
-	protected int rowSize = 0;
-	protected ArrayList<ObjColumnMetaData> columns = new ArrayList<ObjColumnMetaData>();
-	protected String[][] aReplaceBWithAInValue = null;
-	protected boolean reInitPara=true;
-	public ObjResultSet(Transaction sqlca) throws SQLException {
-		this.Sqlca = sqlca;
-	}
-	public Transaction getSqlca() {
-		return Sqlca;
-	}
-	public boolean isReInitPara() {
-		return reInitPara;
-	}
-	public void setReInitPara(boolean reInitPara) {
-		this.reInitPara = reInitPara;
-	}
-	public void setSqlca(Transaction sqlca) {
-		Sqlca = sqlca;
-	}
+	protected ArrayList<ObjColumn> columns = new ArrayList<ObjColumn>();
+	protected String[][] aReplaceBWithAInValue = null;//字段值中的A需要由B替换 譬如[['A','B'],['C','D']]
+	//初始化metadata
+	public ObjRow(String configNo,String Key,ASUser curUser,Transaction Sqlca) throws Exception {
+		this.columns.clear();
+		//加载模板定义
+		ASResultSet rs=Sqlca.getASResultSet("select ItemDescribe,Attribute1,Attribute2,Attribute3 from Code_Library where CodeNo='"+configNo+"' and IsInUse='1'");
+		while(rs.next()){
+			this.addColumn(rs.getString(1),rs.getString(2),rs.getString(3),"1".equals(rs.getString(4))?true:false);
+		}
+		//默认都有这个字段
+		this.addColumn("ConfigNo", "配置号","String",true,false);//记录Excel要素和数据要素对应关系的配置信息号，同时标识同一种类型数据（大类）
+		this.addColumn("Key", "主键","String",true,false);//标识同一种类型数据进一步区分（小类），譬如同一种报表的不同期次，就把ReportDate传进来
+		this.addColumn("ImportNo", "批量号","String",true,false);//主要是为了区分批次之间（在大类+小类的前提下的最新和以前批次的区分）
+		this.addColumn("ImportIndex", "批量序列号","String",true,false);//记录批次内序列
+		this.addColumn("ImportTime", "批量时间","String",true,false);//记录批次时间
+		this.addColumn("UserID", "导入人","String",true,false);
+		//对字段值中特殊字符处理方式
+		this.setaReplaceBWithAInValue(new String[][] { { "￥", "" },{ "\\$", "" }, { ",", "" }, { "\"", "" },{ "渤海银行", "" },{ "渤海银行股份有限公司", "" }});
 
-	public int getRowSize() {
-		return rowSize;
+		//对这些值设恒定值
+		this.setString("ConfigNo",configNo);
+		this.setString("Key",Key);
+		
+		SimpleDateFormat sdf=new SimpleDateFormat("'N'yyyyMMdd");
+		this.setString("ImportNo",sdf.format(new Date())+"000000");
+		this.setString("UserID",curUser.UserID);
+		//初始化代码表(后期要改造成数据库配置形式)
+		//this.setValueToCode(this.Sqlca);
 	}
-
-	public void setRowSize(int rowSize) {
-		this.rowSize = rowSize;
-	}
-
-	public int getRowCount() {
-		return rowCount;
-	}
-	public void setRowCount(int rowCount) {
-		this.rowCount = rowCount;
-	}
-	public int getCurrentRow() {
-		return currentRow;
-	}
-
-	public void setCurrentRow(int currentRow) {
-		this.currentRow = currentRow;
-	}
-
-	public boolean isEof() {
-		return eof;
-	}
-
-	public void setEof(boolean eof) {
-		this.eof = eof;
-	}
-
 	public String[][] getaReplaceBWithAInValue() {
 		return aReplaceBWithAInValue;
 	}
@@ -84,16 +62,16 @@ public abstract class ObjResultSet {
 	public void setColumnTCount() {
 		this.columnTCount = this.columns.size();
 	}
-	public ArrayList<ObjColumnMetaData> getColumns() {
+	public ArrayList<ObjColumn> getColumns() {
 		return columns;
 	}
 
-	public void setColumns(ArrayList<ObjColumnMetaData> columns) {
+	public void setColumns(ArrayList<ObjColumn> columns) {
 		this.columns = columns;
 	}
 
-	public ObjColumnMetaData getColumnObjWIF(int index) {
-		for (ObjColumnMetaData sC : this.columns) {
+	public ObjColumn getColumnObjWIF(int index) {
+		for (ObjColumn sC : this.columns) {
 			int iTemp = sC.getIndexInFile();
 			if (index == iTemp) {
 				return sC;
@@ -101,8 +79,8 @@ public abstract class ObjResultSet {
 		}
 		return null;
 	}
-	public ObjColumnMetaData getColumnObjWI(int index) {
-		for (ObjColumnMetaData sC : this.columns) {
+	public ObjColumn getColumnObjWI(int index) {
+		for (ObjColumn sC : this.columns) {
 			int iTemp = sC.getIndex();
 			if (index == iTemp) {
 				return sC;
@@ -110,8 +88,8 @@ public abstract class ObjResultSet {
 		}
 		return null;
 	}
-	public ObjColumnMetaData getHead(int index) {
-		for (ObjColumnMetaData sC : this.columns) {
+	public ObjColumn getHead(int index) {
+		for (ObjColumn sC : this.columns) {
 			int iTemp = sC.getIndexInFile();
 			if (index == iTemp) {
 				return sC;
@@ -126,7 +104,7 @@ public abstract class ObjResultSet {
 		if (column == null || column.equals("")) {
 			return null;
 		}
-		ObjColumnMetaData sC = this.getColumnObj(column);
+		ObjColumn sC = this.getColumnObj(column);
 		if (sC != null) {
 			return sC.getColumnHeadName();
 		}
@@ -134,17 +112,17 @@ public abstract class ObjResultSet {
 	}
 	public void setString(int indexInFile, String columnValue) {
 		String sTemp = "";
-		ObjColumnMetaData sC = this.getColumnObjWIF(indexInFile);
+		ObjColumn sC = this.getColumnObjWIF(indexInFile);
 		if (sC != null) {
 			sTemp = columnValue;
 			for (int i = 0; i < this.aReplaceBWithAInValue.length; i++) {
 				sTemp = sTemp.replaceAll(aReplaceBWithAInValue[i][0],aReplaceBWithAInValue[i][1]);
 			}
-			sC.setSColumnValue(sTemp);
+			sC.setSColumnValue(sTemp.trim());
 		}
 	}
 	public void setDouble(int indexInFile, Double columnValue) {
-		ObjColumnMetaData sC = this.getColumnObjWIF(indexInFile);
+		ObjColumn sC = this.getColumnObjWIF(indexInFile);
 		if (sC != null) {
 			sC.setDColumnValue(columnValue);
 		}
@@ -154,43 +132,43 @@ public abstract class ObjResultSet {
 		if (column==null||column.equals("")) {
 			return;
 		}
-		ObjColumnMetaData sC = this.getColumnObj(column);
+		ObjColumn sC = this.getColumnObj(column);
 		if (sC != null) {
 			sTemp = columnValue;
 			for (int i = 0; i < this.aReplaceBWithAInValue.length; i++) {
 				sTemp = sTemp.replaceAll(aReplaceBWithAInValue[i][0],aReplaceBWithAInValue[i][1]);
 			}
-			sC.setSColumnValue(sTemp);
+			sC.setSColumnValue(sTemp.trim());
 		}
 	}
 	public void setDouble(String column, double columnValue) {
 		if (column==null||column.equals("")) {
 			return;
 		}
-		ObjColumnMetaData sC = this.getColumnObj(column);
+		ObjColumn sC = this.getColumnObj(column);
 		if (sC != null) {
 			sC.setDColumnValue(columnValue);
 		}
 	}
 	public String getString(int index) {
-		ObjColumnMetaData sC = this.getColumnObjWI(index);
+		ObjColumn sC = this.getColumnObjWI(index);
 		if (sC != null) {
 			return sC.getSColumnValue();
 		}
 		return null;
 	}
 	public Double getDouble(int index) {
-		ObjColumnMetaData sC = this.getColumnObjWI(index);
+		ObjColumn sC = this.getColumnObjWI(index);
 		if (sC != null) {
 			return sC.getDColumnValue();
 		}
 		return null;
 	}
-	public ObjColumnMetaData getColumnObj(String column) {
+	public ObjColumn getColumnObj(String column) {
 		if (column == null || column.equals("")) {
 			return null;
 		}
-		for (ObjColumnMetaData sC : this.columns) {
+		for (ObjColumn sC : this.columns) {
 			if (sC.containsColumnName(column)) {
 				return sC;
 			}
@@ -198,24 +176,24 @@ public abstract class ObjResultSet {
 		return null;
 	}
 	public String getColumnTypeWIF(int indexInFile) {
-		ObjColumnMetaData sC = this.getColumnObjWIF(indexInFile);
+		ObjColumn sC = this.getColumnObjWIF(indexInFile);
 		if (sC != null) {
 			return sC.getColumnType();
 		}
 		return null;
 	}
 	public String getColumnType(int index) {
-		ObjColumnMetaData sC = this.getColumnObjWI(index);
+		ObjColumn sC = this.getColumnObjWI(index);
 		if (sC != null) {
 			return sC.getColumnType();
 		}
 		return null;
 	}
-	public ObjColumnMetaData getColumnObjWH(String head) {
+	public ObjColumn getColumnObjWH(String head) {
 		if (head == null || head.equals("")) {
 			return null;
 		}
-		for (ObjColumnMetaData sC : this.columns) {
+		for (ObjColumn sC : this.columns) {
 			if (sC.containsHeadName(head)) {
 				return sC;
 			}
@@ -227,7 +205,7 @@ public abstract class ObjResultSet {
 		if (head == null || head.equals("")) {
 			return null;
 		}
-		ObjColumnMetaData sC = this.getColumnObjWH(head);
+		ObjColumn sC = this.getColumnObjWH(head);
 		if (sC != null) {
 			return sC.getSColumnValue();
 		}
@@ -238,7 +216,7 @@ public abstract class ObjResultSet {
 		if (head == null || head.equals("")) {
 			return null;
 		}
-		ObjColumnMetaData sC = this.getColumnObjWH(head);
+		ObjColumn sC = this.getColumnObjWH(head);
 		if (sC != null) {
 			return sC.getColumnName();
 		}
@@ -248,7 +226,7 @@ public abstract class ObjResultSet {
 		if (column == null || column.equals("")) {
 			return null;
 		}
-		ObjColumnMetaData sC = this.getColumnObj(column);
+		ObjColumn sC = this.getColumnObj(column);
 		if (sC != null) {
 			return sC.getSColumnValue();
 		}
@@ -258,7 +236,7 @@ public abstract class ObjResultSet {
 		if (column == null || column.equals("")) {
 			return null;
 		}
-		ObjColumnMetaData sC = this.getColumnObj(column);
+		ObjColumn sC = this.getColumnObj(column);
 		if (sC != null) {
 			return sC.getDColumnValue();
 		}
@@ -269,7 +247,7 @@ public abstract class ObjResultSet {
 		if (column == null || column.equals("")) {
 			return null;
 		}
-		ObjColumnMetaData sC = this.getColumnObj(column);
+		ObjColumn sC = this.getColumnObj(column);
 		if (sC != null) {
 			return sC.getColumnValueToCode();
 		}
@@ -277,7 +255,7 @@ public abstract class ObjResultSet {
 	}
 
 	public void setValueCode(String column, HashMap<String, String> valueToCode) {
-		ObjColumnMetaData sC = this.getColumnObj(column);
+		ObjColumn sC = this.getColumnObj(column);
 		if (sC != null) {
 			sC.setColumnValueToCode(valueToCode);
 		}
@@ -285,7 +263,7 @@ public abstract class ObjResultSet {
 
 	public String getCodeWH(String head) {
 		String sDisplayValue = "";
-		ObjColumnMetaData sC = this.getColumnObjWH(head);
+		ObjColumn sC = this.getColumnObjWH(head);
 		if (sC != null) {
 			HashMap<String, String> valueToCode = sC.getColumnValueToCode();
 			sDisplayValue = this.getStringWH(head);
@@ -298,7 +276,7 @@ public abstract class ObjResultSet {
 
 	public String getCode(String column) {
 		String sDisplayValue = "";
-		ObjColumnMetaData sC = this.getColumnObj(column);
+		ObjColumn sC = this.getColumnObj(column);
 		if (sC != null) {
 			HashMap<String, String> valueToCode = sC.getColumnValueToCode();
 			sDisplayValue = this.getString(column);
@@ -314,7 +292,7 @@ public abstract class ObjResultSet {
 	 * @param EHTCcolumn
 	 * @return false 已存在 故没有添加 true 添加了
 	 */
-	public boolean addColumn(ObjColumnMetaData EHTCcolumn) {
+	public boolean addColumn(ObjColumn EHTCcolumn) {
 		String sNewColumn = EHTCcolumn.getColumnName();
 		if (this.containsColumn(sNewColumn)) {
 			System.out.println(sNewColumn + "字段已存在，不再添加本字段对象！");
@@ -330,23 +308,23 @@ public abstract class ObjResultSet {
 		return true;
 	}
 	public void addColumn(String columnName, String headName, int indexInFile) {
-		ObjColumnMetaData eh = new ObjColumnMetaData(columnName, "String",headName, indexInFile,this.columnTCount,false,false);
+		ObjColumn eh = new ObjColumn(columnName, "String",headName, indexInFile,this.columnTCount,false,false);
 		this.addColumn(eh);
 	}
 	public void addColumn(String columnName, String headName,String columnType,boolean outFileColumn,boolean primaryKey) {
-		ObjColumnMetaData eh = new ObjColumnMetaData(columnName,columnType,headName,0,this.columnTCount,outFileColumn,primaryKey);
+		ObjColumn eh = new ObjColumn(columnName,columnType,headName,-1,this.columnTCount,outFileColumn,primaryKey);
 		this.addColumn(eh);
 	}
 	public void addColumn(String columnName, String headName,String columnType,boolean primaryKey) {
-		ObjColumnMetaData eh = new ObjColumnMetaData(columnName,columnType,headName,0,this.columnTCount,false,primaryKey);
+		ObjColumn eh = new ObjColumn(columnName,columnType,headName,-1,this.columnTCount,false,primaryKey);
 		this.addColumn(eh);
 	}
 	public void addColumn(String columnName, String headName) {
-		ObjColumnMetaData eh = new ObjColumnMetaData(columnName,"String",headName,0,this.columnTCount,false,false);
+		ObjColumn eh = new ObjColumn(columnName,"String",headName,-1,this.columnTCount,false,false);
 		this.addColumn(eh);
 	}
 	public boolean containsIndexInFile(int indexInFile) {
-		ObjColumnMetaData sC = this.getColumnObjWIF(indexInFile);
+		ObjColumn sC = this.getColumnObjWIF(indexInFile);
 		if (sC != null) {
 			return true;
 		}
@@ -356,7 +334,7 @@ public abstract class ObjResultSet {
 		if (column == null || "".equals(column)) {
 			return false;
 		}
-		ObjColumnMetaData sC = this.getColumnObj(column);
+		ObjColumn sC = this.getColumnObj(column);
 		if (sC != null) {
 			return true;
 		}
@@ -367,7 +345,7 @@ public abstract class ObjResultSet {
 		if (head == null || "".equals(head)) {
 			return false;
 		}
-		ObjColumnMetaData sC = this.getColumnObjWH(head);
+		ObjColumn sC = this.getColumnObjWH(head);
 		if (sC != null) {
 			return true;
 		}
@@ -378,7 +356,7 @@ public abstract class ObjResultSet {
 		if (head == null || "".equals(head)) {
 			return 0;
 		}
-		ObjColumnMetaData sC = this.getColumnObjWH(head);
+		ObjColumn sC = this.getColumnObjWH(head);
 		if (sC != null) {
 			return sC.getIndexInFile();
 		}
@@ -388,7 +366,7 @@ public abstract class ObjResultSet {
 		if (column == null || "".equals(column)) {
 			return 0;
 		}
-		ObjColumnMetaData sC = this.getColumnObj(column);
+		ObjColumn sC = this.getColumnObj(column);
 		if (sC != null) {
 			return sC.getIndexInFile();
 		}
@@ -399,49 +377,24 @@ public abstract class ObjResultSet {
 		if (head == null || "".equals(head)) {
 			return;
 		}
-		ObjColumnMetaData sC = this.getColumnObjWH(head);
+		ObjColumn sC = this.getColumnObjWH(head);
 		if (sC != null) {
 			sC.setIndexInFile(index);
 		}
 	}
 
-	public void setColumnIndex(String column, int index) {
+	public void setIndexWithColumn(String column, int index) {
 		if (column == null || "".equals(column)) {
 			return;
 		}
-		ObjColumnMetaData sC = this.getColumnObj(column);
+		ObjColumn sC = this.getColumnObj(column);
 		if (sC != null) {
 			sC.setIndexInFile(index);
 		}
-	}
-
-	/**
-	 *把 从数据库中获取的显示值 代码值放入Map
-	 * 
-	 * @param rs
-	 * @param MapName
-	 * @throws Exception
-	 */
-	protected void getMaps(ASResultSet rs, HashMap<String, String> MapName)
-			throws Exception {
-		while (rs.next()) {
-			// 将名称作为key 编号为value
-			MapName.put(rs.getString(1), rs.getString(2));
-		}
-		rs.getStatement().close();
 	}
 
 	protected Exception toException(String message, Exception e) {
 		e.printStackTrace();
 		return new Exception(message);
 	}
-	protected void init()throws Exception{
-		if(this.reInitPara){
-			this.initPara();
-			this.reInitPara=false;
-		}
-	}
-	public abstract void initMeta(String configNo,String Key) throws Exception;
-	public abstract void initPara() throws Exception;
-	public abstract boolean next() throws Exception;
 }

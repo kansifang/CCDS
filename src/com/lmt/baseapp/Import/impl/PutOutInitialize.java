@@ -1,7 +1,6 @@
 package com.lmt.baseapp.Import.impl;
 
-import com.lmt.baseapp.Import.base.CopyInfoUtil;
-import com.lmt.baseapp.Import.base.ObjImportImpl;
+import com.lmt.baseapp.Import.base.EntranceImpl;
 import com.lmt.baseapp.user.ASUser;
 import com.lmt.frameapp.sql.Transaction;
 /**
@@ -13,7 +12,7 @@ public class PutOutInitialize {
 	// Text报表头和数据库对应的表
 	// 装各下拉框
 	private Transaction Sqlca = null;
-	private ObjImportImpl OII=null;
+	private EntranceImpl OII=null;
 	private ASUser CurUser=null;
 	/**
 	 * 解析xls 将数据插入数据表中

@@ -7,13 +7,12 @@
 %>
 	<%
 		/*
-			Author:
+			Author:   byhu  2004.12.06
 			Tester:
-			Content:示例模块主页面
+			Content: 基础配置
 			Input Param:
 			Output param:
 			History Log: 
-
 		 */
 	%>
 <%
@@ -27,8 +26,8 @@
 	/*~BEGIN~可编辑区~[Editable=true;CodeAreaID=Main01;Describe=定义页面属性;]~*/
 %>
 	<%
-		String PG_TITLE = "未命名模块"; // 浏览器窗口标题 <title> PG_TITLE </title>
-		String PG_CONTENT_TITLE = "&nbsp;&nbsp;未命名模块&nbsp;&nbsp;"; //默认的内容区标题
+		String PG_TITLE = "模型配置"; // 浏览器窗口标题 <title> PG_TITLE </title>
+		String PG_CONTENT_TITLE = "&nbsp;&nbsp;基础配置&nbsp;&nbsp;"; //默认的内容区标题
 		String PG_CONTNET_TEXT = "请点击左侧列表";//默认的内容区文字
 		String PG_LEFT_WIDTH = "200";//默认的treeview宽度
 	%>
@@ -61,24 +60,15 @@
 %>
 	<%
 		//定义Treeview
-		HTMLTreeView tviTemp = new HTMLTreeView(SqlcaRepository,CurComp,sServletURL,"未命名","right");
+		HTMLTreeView tviTemp = new HTMLTreeView(SqlcaRepository,CurComp,sServletURL,"系统模型配置","right");
 		tviTemp.ImageDirectory = sResourcesPath; //设置资源文件目录（图片、CSS）
 		tviTemp.toRegister = false; //设置是否需要将所有的节点注册为功能点及权限点
-		tviTemp.TriggerClickEvent=true; //是否选中时自动触发TreeViewOnClick()函数
+		tviTemp.TriggerClickEvent=true; //是否自动触发选中事件
 
 		//定义树图结构
-		String sFolder1=tviTemp.insertFolder("root","示例信息","",1);
-		tviTemp.insertPage(sFolder1,"所有的示例信息","",1);
-		tviTemp.insertPage(sFolder1,"我的示例信息","",2);
-		tviTemp.insertPage(sFolder1,"他的示例信息","",3);
-		//String sFolder2=tviTemp.insertFolder("root","示例信息2","",2);
-		//tviTemp.insertPage(sFolder2,"所有的示例信息","",1);
-		
-		
-		//另一种定义树图结构的方法：SQL
-		//String sSqlTreeView = "from EXAMPLE_INFO";
-		//tviTemp.initWithSql("SortNo","ExampleName","ExampleID","","",sSqlTreeView,"Order By SortNo",Sqlca);
-		//tviTemp.initWithCode("BusinessInspectMain",Sqlca);
+		String sSqlTreeView = "from CODE_LIBRARY where CodeNo='BizDataConfiguratorTree' and IsInUse='1' ";
+		sSqlTreeView += "and ItemNo not like '0020%' ";//视图filter
+		tviTemp.initWithSql("SortNo","ItemName","ItemNo","ItemDescribe","",sSqlTreeView,"Order By SortNo",Sqlca);
 		//参数从左至右依次为： ID字段,Name字段,Value字段,Script字段,Picture字段,From子句,OrderBy子句,Sqlca
 	%>
 <%
@@ -105,31 +95,16 @@
 	<script language=javascript> 
 	
 	/*~[Describe=treeview单击选中事件;InputParam=无;OutPutParam=无;]~*/
-
 	function TreeViewOnClick()
 	{
-		//如果tviTemp.TriggerClickEvent=true，则在单击时，触发本函数
-		var sCurItemID = getCurTVItem().id;
-		var sCurItemname = getCurTVItem().name;
-		
-		if(sCurItemname=='所有的示例信息'){
-			OpenComp("ExampleList","/Frame/CodeExamples/ExampleList.jsp","","right");
-
-		}
-		else if(sCurItemname=='我的示例信息'){
-			OpenComp("LoadExcelFileList","/Test/zywei/LoadExcelFileList.jsp","","right");						
-			//OpenComp("ExampleList","/Frame/CodeExamples/ExampleList.jsp","InputUser=<%=CurUser.UserID%>");						
-		}
-		else if(sCurItemname=='他的示例信息'){
-		alert("hello");
-
-		}
-		else{
-			return;
-		}
-		setTitle(getCurTVItem().name);
+        setTitle(getCurTVItem().name);
 	}
 
+	/*~[Describe=置右面详情的标题;InputParam=sTitle:标题;OutPutParam=无;]~*/
+	function setTitle(sTitle)
+	{
+		document.all("table0").cells(0).innerHTML="<font class=pt9white>&nbsp;&nbsp;"+sTitle+"&nbsp;&nbsp;</font>";
+	}	
 	
 	
 	/*~[Describe=生成treeview;InputParam=无;OutPutParam=无;]~*/
@@ -149,9 +124,12 @@
 <%
 	/*~BEGIN~可编辑区[Editable=true;CodeAreaID=Main06;Describe=在页面装载时执行,初始化;]~*/
 %>
-	<script language="javascript">
+	<script language="JavaScript">
 	startMenu();
-	expandNode('root');		
+	expandNode('root');	
+	expandNode('0080');	
+	expandNode('0090');	
+	selectItem('0010');	
 	</script>
 <%
 	/*~END~*/

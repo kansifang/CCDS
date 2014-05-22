@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 import com.lmt.frameapp.sql.ASResultSet;
 import com.lmt.frameapp.sql.Transaction;
-public abstract class TextResultSet extends ObjResultSet {
+public abstract class TextResultSet extends DefaultHandler {
 	private BufferedReader reader;
 	private boolean fixLengthMode = false;
 	private String separator = "";

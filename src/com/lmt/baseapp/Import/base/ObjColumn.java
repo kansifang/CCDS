@@ -3,19 +3,25 @@ package com.lmt.baseapp.Import.base;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class ObjColumnMetaData {
+public class ObjColumn {
 	private  String columnName=null;
 	private  String columnType="";
 	private  boolean primaryKey=false;//是否主键
-	private  int indexInFile=0;//字段在上传文件中对应列序号，从0开始
-	private  int index=0;//字段在ExcelResultset(即内存)中的序号，从0开始，
+	private  int indexInFile=-1;//字段在上传文件中对应列序号，从0开始
+	private  int index=-1;//字段在ExcelResultset(即内存)中的序号，从0开始，
 	private  int columnSize=0;
 	private  String columnSValue="";//字段是String情况下会有值
-	private  Double columnDValue=null;//字段是double情况下会有值
+	private  Double columnDValue=0.0;//字段是double情况下会有值
 	private  String columnHeadName=null;//字段在文件中的标题名
 	private  boolean outFileColumn=false;//不在文件中的字段，指的是导入文件时另外加的值，文件中不提供，但又有必要，比如导入号等，辅助性的东西
-	private  HashMap<String,String> columnValueToCode=new HashMap<String,String>();
-	public ObjColumnMetaData(String columnName,String columnHeadName,int indexInFile) {
+	private  HashMap<String,String> columnValueToCode=new HashMap<String,String>();//代码和代码值对应表
+	
+	public ObjColumn(String columnName, String columnType,HashMap<String, String> columnValueToCode) {
+		this.columnName = columnName.toUpperCase();
+		this.columnType = columnType;
+		this.columnValueToCode = columnValueToCode;
+	}
+	public ObjColumn(String columnName,String columnHeadName,int indexInFile) {
 		this.columnName=columnName;
 		this.columnHeadName=columnHeadName;
 		this.indexInFile = indexInFile;
@@ -29,7 +35,7 @@ public class ObjColumnMetaData {
 	 * @param index 字段序号
 	 * @param outFileColumn
 	 */
-	public ObjColumnMetaData(String columnName,String columnType,String columnHeadName,int indexInFile,int index,boolean outFileColumn,boolean primaryKey) {
+	public ObjColumn(String columnName,String columnType,String columnHeadName,int indexInFile,int index,boolean outFileColumn,boolean primaryKey) {
 		this.columnName = columnName.toUpperCase();
 		this.columnType = columnType;
 		this.primaryKey=primaryKey;
@@ -37,11 +43,6 @@ public class ObjColumnMetaData {
 		this.indexInFile = indexInFile;
 		this.index = index;
 		this.outFileColumn=outFileColumn;
-	}
-	public ObjColumnMetaData(String columnName, String columnType,HashMap<String, String> columnValueToCode) {
-		this.columnName = columnName.toUpperCase();
-		this.columnType = columnType;
-		this.columnValueToCode = columnValueToCode;
 	}
 	public void setColumnName(String columnName) {
 		this.columnName = columnName.toUpperCase();

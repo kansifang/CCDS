@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=GBK"%>
 <%@ include file="/IncludeBeginMD.jsp"%>
-<%@ page import="com.lmt.baseapp.Import.impl.*,com.lmt.baseapp.Import.base.CopyInfoUtil"%>
+<%@ page import="com.lmt.baseapp.Import.impl.*,com.lmt.baseapp.Import.impl.CopyInfoUtil"%>
 
 <%
 	/*~BEGIN~¿É±à¼­Çø~[Editable=true;CodeAreaID=Info00;Describe=×¢ÊÍÇø;]~*/

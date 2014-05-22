@@ -3,7 +3,6 @@ package com.lmt.baseapp.Import.impl;
 import java.sql.PreparedStatement;
 import java.util.HashMap;
 
-import com.lmt.baseapp.Import.base.CopyInfoUtil;
 import com.lmt.baseapp.Import.base.TextImport;
 import com.lmt.baseapp.user.ASUser;
 import com.lmt.baseapp.util.DBFunction;

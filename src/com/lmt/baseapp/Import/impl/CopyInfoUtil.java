@@ -3,12 +3,13 @@
 		Tester:
 		Describe: --对存在的数据进行相关操作
  */
-package com.lmt.baseapp.Import.base;
+package com.lmt.baseapp.Import.impl;
 
 import java.sql.PreparedStatement;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.lmt.baseapp.Import.base.DefaultHandler;
 import com.lmt.baseapp.util.StringFunction;
 import com.lmt.frameapp.sql.ASResultSet;
 import com.lmt.frameapp.sql.Transaction;
@@ -100,10 +101,10 @@ public class CopyInfoUtil {
 				sColumnSource = CopyInfoUtil.getColumnValueForSql(iFieldType,sValue);
 			}else if(mPurposeColToSourceCol != null&& mPurposeColToSourceCol.containsKey(sColumnPurpose)) {
 				sColumnSource = mPurposeColToSourceCol.get(sColumnPurpose);
-				sValue = rsSource instanceof ASResultSet?((ASResultSet)rsSource).getString(sColumnSource):((ObjResultSet) rsSource).getCode(sColumnSource);
+				sValue = rsSource instanceof ASResultSet?((ASResultSet)rsSource).getString(sColumnSource):((DefaultHandler) rsSource).getCode(sColumnSource);
 				//直接以源字段作为目标字段是否有对应关系
-			}else if((rsSource instanceof ASResultSet?((ASResultSet)rsSource).getColumnIndex(sColumnPurpose):((ObjResultSet) rsSource).getColumnIndex(sColumnPurpose))>0){
-				sValue = rsSource instanceof ASResultSet?((ASResultSet)rsSource).getString(sColumnPurpose):((ObjResultSet)rsSource).getCode(sColumnPurpose);
+			}else if((rsSource instanceof ASResultSet?((ASResultSet)rsSource).getColumnIndex(sColumnPurpose):((DefaultHandler) rsSource).getColumnIndex(sColumnPurpose))>0){
+				sValue = rsSource instanceof ASResultSet?((ASResultSet)rsSource).getString(sColumnPurpose):((DefaultHandler)rsSource).getCode(sColumnPurpose);
 				sColumnSource = sColumnPurpose;
 			}else{
 				continue;
@@ -174,8 +175,8 @@ public class CopyInfoUtil {
 		ASResultSet rsPurpose = Sqlca.getASResultSet(PurposeSelectClause);
 		if (ASResultSetOrobjResultSet instanceof ASResultSet) {
 			sPVVS = CopyInfoUtil.getElementsInfoForCopy((ASResultSet) ASResultSetOrobjResultSet, rsPurpose, sPurposePrimaryKey,sPurposeColumnExcept,mPurposeColToSourceCol, mColumnSetValuePurpose);
-		} else if (ASResultSetOrobjResultSet instanceof ObjResultSet) {
-			sPVVS = CopyInfoUtil.getElementsInfoForCopy((ObjResultSet) ASResultSetOrobjResultSet, rsPurpose, sPurposePrimaryKey,sPurposeColumnExcept,mPurposeColToSourceCol, mColumnSetValuePurpose);
+		} else if (ASResultSetOrobjResultSet instanceof DefaultHandler) {
+			sPVVS = CopyInfoUtil.getElementsInfoForCopy((DefaultHandler) ASResultSetOrobjResultSet, rsPurpose, sPurposePrimaryKey,sPurposeColumnExcept,mPurposeColToSourceCol, mColumnSetValuePurpose);
 		}
 		rsPurpose.getStatement().close();
 		int newPurposeCount=0;
@@ -245,10 +246,10 @@ public class CopyInfoUtil {
 			rsSource = Sqlca.getASResultSet((String) sSourceOrObjResultSet);
 		}else if (sSourceOrObjResultSet instanceof ASResultSet) {
 			rsSource = sSourceOrObjResultSet;
-		}else if (sSourceOrObjResultSet instanceof ObjResultSet) {
+		}else if (sSourceOrObjResultSet instanceof DefaultHandler) {
 			rsSource = sSourceOrObjResultSet;
 		}
-		while (rsSource instanceof ASResultSet?((ASResultSet)rsSource).next():((ObjResultSet)rsSource).next()){
+		while (rsSource instanceof ASResultSet?((ASResultSet)rsSource).next():((DefaultHandler)rsSource).next()){
 			sPVVS = CopyInfoUtil.getElementsInfoForCopy(rsSource,rsPurpose,sPurposePrimaryKey,sPurposeColumnExcept, mPurposeColToSourceCol,mColumnSetValuePurpose);
 			if(actionFlag == 1){
 				sSql = "insert into " + PurposeTableName +"("+sPVVS[0]+ ") values(" + sPVVS[2] + ")";
