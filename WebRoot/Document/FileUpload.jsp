@@ -165,7 +165,7 @@ String getMD5String(String srcKey){
 	for(int i=0;i<handlers.length;i++){
 %>				
 			<script language=javascript>
-				sReturn+=PopPage("/Document/Handlers/<%=handlers[i]%>.jsp?Files=<%=sb.toString()%>&ClearTable=<%=sClearTable%>","","dialogWidth=0;dialogHeight=0;minimize:yes");
+				sReturn+=PopPage("/Data/Process/<%=handlers[i]%>.jsp?Files=<%=sb.toString()%>&ClearTable=<%=sClearTable%>","","dialogWidth=0;dialogHeight=0;minimize:yes");
 			</script>
 <%
 	}

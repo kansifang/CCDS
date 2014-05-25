@@ -32,7 +32,7 @@ public class ExcelBigEntrance implements EntranceImpl{
 	public void actionBefore(String configNo,String Key) throws Exception {//批量主键，标示不同类型批量
 		//把上一批置上最新标志，刚刚导入的为N开头的
 		String sNImportNo=DBFunction.getSerialNo(this.sImportTableName,"ImportNo","'O'yyyyMMdd","000000",new Date(),Sqlca);
-	 	Sqlca.executeSQL("update "+this.sImportTableName+" set ImportNo='"+sNImportNo+"' where ConfigNo='"+configNo+"' and Key='"+Key+"' and ImportNo like 'N%000000'");
+	 	Sqlca.executeSQL("update "+this.sImportTableName+" set ImportNo='"+sNImportNo+"' where ConfigNo='"+configNo+"' and OneKey='"+Key+"' and ImportNo like 'N%000000'");
 	 	//初始化数据结构  一次导入对应一个模板定义，对应一个PS
 		//初始化head属性
 	 	this.OR=new ObjRow(configNo,Key,this.CurUser,this.Sqlca);

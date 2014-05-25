@@ -56,7 +56,8 @@ public class Counter {
 
         //这里每次运行的值都有可能不同,可能为1000
 
-        System.out.println("运行结果:Counter.count=" + Counter.count);
+        //System.out.println("运行结果:Counter.count=" + Counter.count);
+        
 
     }
 

@@ -29,9 +29,7 @@
 	<%
 	//获得组件参数	
 	String sSerialNo   = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("SerialNo")));
-	String sObjectType = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("ObjectType")));
-	String sReportDate = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("ReportDate")));
-    String sCurrentItemNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("CurrentItemNo")));
+	String sConfigNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("ConfigNo")));
 	%>
 <%/*~END~*/%>     
 
@@ -48,14 +46,13 @@
 	  	String sTabStrip[][] = new String[20][3];
 		int initTab = 1;//设定默认的 tab ，数值代表第几个tab
 		//获取
-		sSql = "select RelativeCode from Code_Library where CodeNo ='SynthesisManage' and ItemNo='"+sCurrentItemNo+"'";
-		sPurposeInspectItems = Sqlca.getString(sSql);
-		String[]aPurposeInspectItems=sPurposeInspectItems.split("@");
-		for(int i=0;i<aPurposeInspectItems.length;i++){
-			String []aItemName = aPurposeInspectItems[i].split(":");
-			sAddStringArray = new String[] {"",aItemName[0],"doTabAction('"+aItemName[1]+"')"};
+		sSql = "select AttachmentNo,FileName,Attribute1 from Doc_Attachment where DocNo ='"+sConfigNo+"' order by AttachmentNo asc";
+		ASResultSet rs = Sqlca.getResultSet(sSql);
+		while(rs.next()){
+			sAddStringArray = new String[] {"",rs.getString(2),"doTabAction('"+rs.getString(3).replaceAll("#AttachmentNo",rs.getString(1))+"')"};
 			sTabStrip = HTMLTab.addTabArray(sTabStrip,sAddStringArray);
 		}
+		
 		//设定标题
 		sTitle = "贷款用途报告";
 
@@ -92,9 +89,10 @@
   	{	
   	  	var sOpenUrl=ssOpenUrl;
   	    sOpenUrl=sOpenUrl.replace(/~/g,"\""); 
-  		sOpenUrl=sOpenUrl.replace(/#TargetJSP/g,"<%=sCurrentItemNo.substring(0,sCurrentItemNo.length()-3)%>");  
-  		sOpenUrl=sOpenUrl.replace("#ReportDate","<%=sReportDate%>");
-  		sOpenUrl=sOpenUrl.replace("#ObjectType","<%=sObjectType%>");
+  		sOpenUrl=sOpenUrl.replace(/#TargetJSP/g,"<%="sCurrentItemNo".substring(0,"sCurrentItemNo".length()-3)%>");  
+  		sOpenUrl=sOpenUrl.replace("#AttachmentNo","<%=sConfigNo%>");
+  		sOpenUrl=sOpenUrl.replace("#SerialNo","<%=sSerialNo%>");
+  		sOpenUrl=sOpenUrl.replace("#SerialNo","<%=sSerialNo%>");
   		sOpenUrl=sOpenUrl.replace("#SerialNo","<%=sSerialNo%>");
 		eval(sOpenUrl);
 		return true;

@@ -51,10 +51,10 @@ public class DBHandler{
 		for(int j=0;j<or.getColumnTCount();j++){
 			String columnType=or.getColumnType(j);
 			if("Number".equals(columnType)){
-				System.out.println(or.getColumnObjWI(j).getColumnHeadName()+"@"+or.getDouble(j));
+				//System.out.println(or.getColumnObjWI(j).getColumnHeadName()+"@"+or.getDouble(j));
 				ps.setDouble(j+1, or.getDouble(j));
 			}else{
-				System.out.println(or.getColumnObjWI(j).getColumnHeadName()+"@"+or.getString(j));
+				//System.out.println(or.getColumnObjWI(j).getColumnHeadName()+"@"+or.getString(j));
 				ps.setString(j+1, or.getString(j));
 			}
 		}

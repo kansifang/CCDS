@@ -94,13 +94,13 @@
                          <div  valign=middle class="groupboxmaxcontent" style="position:absolute; width: 100%;overflow:auto;visibility: inherit" id="window1">
 						<%
 							String sTableStyle = "valign=middle align=center cellspacing=0 cellpadding=0 border=0 width=95% height=95%";
-															String sTabHeadStyle = "";
-															String sTabHeadText = "<br>";
-															String sTopRight = "";
-															String sTabID = "tabtd";
-															String sIframeName = "DeskTopTab";
-															String sDefaultPage = sWebRootPath+"/Blank.jsp?TextToShow=正在打开页面，请稍候";
-															String sIframeStyle = "width=100% height=100% frameborder=0	hspace=0 vspace=0 marginwidth=0	marginheight=0 scrolling=no";
+							String sTabHeadStyle = "";
+							String sTabHeadText = "<br>";
+							String sTopRight = "";
+							String sTabID = "tabtd";
+							String sIframeName = "DeskTopTab";
+							String sDefaultPage = sWebRootPath+"/Blank.jsp?TextToShow=正在打开页面，请稍候";
+							String sIframeStyle = "width=100% height=100% frameborder=0	hspace=0 vspace=0 marginwidth=0	marginheight=0 scrolling=no";
 						%>
 						<%@include file="/Resources/CodeParts/Tab04.jsp"%>
                           </div>
@@ -129,27 +129,27 @@
 				                 <p>&nbsp</p><p>&nbsp</p><p>&nbsp</p><p>&nbsp</p><p>&nbsp</p><p>&nbsp</p>
 				                 <p>&nbsp</p><p>&nbsp</p><p>&nbsp</p><zhp>&nbsp</p><p>&nbsp</p><p>&nbsp</p><!--加空行解决滚动区域的问题-->
 				                 <%
-				                 	String sIsNew = "",sIsEject = "";
-				                 		                 		                  ASResultSet rs = null;
-				                 		                 		                  rs = Sqlca.getASResultSet("select BoardNo,BoardTitle,IsNew,IsEject from BOARD_LIST where IsPublish = '1' and (ShowToRoles is null or ShowToRoles in (select RoleID from USER_ROLE where UserID='"+CurUser.UserID+"')) order by BoardNo desc");
-				                 		                 		                  while(rs.next())
-				                 		                 		                  {
-				                 		                 		                    sIsNew = DataConvert.toString(rs.getString("IsNew"));
-				                 		                 		                    sIsEject = DataConvert.toString(rs.getString("IsEject"));
-				                 		                 		                    out.print("<li style='cursor:hand' >");
-				                 		                 		                    if(sIsEject.equals("1"))
-				                 		                 		                    {
-				                 		                 		                        out.print("<span onclick='javascript:openFile(\""+rs.getString(1)+"\")'>"+rs.getString(2)+"</span>");
-				                 		                 		                    }
-				                 		                 		                    else
-				                 		                 		                    {
-				                 		                 		                        out.print("<span>"+rs.getString(2)+"</span>");
-				                 		                 		                    }
-				                 		                 		                    if(sIsNew.equals("1")) out.print("<img src='"+sResourcesPath+"/new.gif' border=0>");
-				                 		                 		                    
-				                 		                 		                    out.print("<br><br>");
-				                 		                 		                  }
-				                 		                 		                  rs.getStatement().close();
+				                 	  String sIsNew = "",sIsEject = "";
+	           		                  ASResultSet rs = null;
+	           		                  rs = Sqlca.getASResultSet("select BoardNo,BoardTitle,IsNew,IsEject from BOARD_LIST where IsPublish = '1' and (ShowToRoles is null or ShowToRoles in (select RoleID from USER_ROLE where UserID='"+CurUser.UserID+"')) order by BoardNo desc");
+	           		                  while(rs.next())
+	           		                  {
+	           		                    sIsNew = DataConvert.toString(rs.getString("IsNew"));
+	           		                    sIsEject = DataConvert.toString(rs.getString("IsEject"));
+	           		                    out.print("<li style='cursor:hand' >");
+	           		                    if(sIsEject.equals("1"))
+	           		                    {
+	           		                        out.print("<span onclick='javascript:openFile(\""+rs.getString(1)+"\")'>"+rs.getString(2)+"</span>");
+	           		                    }
+	           		                    else
+	           		                    {
+	           		                        out.print("<span>"+rs.getString(2)+"</span>");
+	           		                    }
+	           		                    if(sIsNew.equals("1")) out.print("<img src='"+sResourcesPath+"/new.gif' border=0>");
+	           		                    
+	           		                    out.print("<br><br>");
+	           		                  }
+	           		                  rs.getStatement().close();
 				                 %>
 				                 <p>&nbsp</p><p>&nbsp</p><p>&nbsp</p><p>&nbsp</p><p>&nbsp</p><p>&nbsp</p>
 				                 <p>&nbsp</p><p>&nbsp</p><p>&nbsp</p><p>&nbsp</p><p>&nbsp</p><p>&nbsp</p>

@@ -37,8 +37,8 @@
 <%
 		//顾名思义，就是获取树菜单中的ItemNo，唯一一条记录配置了此报告的相关配置 
 		//其本身含义为：前两位表示01通用、02小企业、03个体户等，接着三位表示010用途检查报告、020客户检查报告，最后三位表示报告010未完成、020已完成
-		 String sCurItemID =DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("CurItemID"))); 
-	    String sObjectType =DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("CurItemDescribe3"))); 
+		String sCurItemID =DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("CurItemID"))); 
+	    String sType =DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("Type"))); 
 %>
 <%/*~END~*/%>
 
@@ -47,36 +47,36 @@
 <%
 		ASDataObject doTemp = null;
 		String sHeaders1[][] = {
-										{"ReportDate","报告日期"},
-										{"IsFinished","是否完成"},
-										{"BusinessTypeName","业务品种"},
-										{"SerialNo","流水号"},
-										{"Currency","币种"},
-										{"BusinessSum","合同金额"},
-										{"PutOutDate","合同生效日期"},
-										{"InputUser","检查人"},
-										{"InputOrg","所属机构"}
-									};
+									{"OneKey","报告日期"},
+									{"IsFinished","是否完成"},
+									{"BusinessTypeName","业务品种"},
+									{"SerialNo","流水号"},
+									{"Currency","币种"},
+									{"BusinessSum","合同金额"},
+									{"PutOutDate","合同生效日期"},
+									{"InputUser","检查人"},
+									{"InputOrg","所属机构"}
+								};
 		String sSql1 =  " select "+
-							" case when II.InspectType like '%010' then '2' else '1' end as IsFinished,"+
-							" II.SerialNo,II.ObjectType,II.InspectType,"+
-							" ReportDate,'A003' as EDocNo,"+
-							" getUserName(II.InputUserID) as InputUser,"+
-							" getOrgName(II.InputOrgId) as InputOrg"+
-							" from Work_Report II "+
-							" where II.ObjectType='"+sObjectType+"' "+
-			                " order by II.ReportDate desc";
+							//" case when II.InspectType like '%010' then '2' else '1' end as IsFinished,"+
+							" SerialNo,ConfigNo,"+
+							" OneKey,Type,"+
+							" getUserName(InputUserID) as InputUser,"+
+							" getOrgName(InputOrgId) as InputOrg"+
+							" from Batch_Report "+
+							" where Type='"+sType+"' "+
+			                " order by OneKey desc";
 		//由SQL语句生成窗体对象。
 		doTemp = new ASDataObject(sSql1);
 		doTemp.setHeader(sHeaders1);
 		//设置可更新的表
-		doTemp.UpdateTable = "Work_Report";
+		doTemp.UpdateTable = "Batch_Report";
 		//设置关键字
 		doTemp.setKey("SerialNo",true);
 		
 		//设置不可见项
-		doTemp.setVisible("BusinessType,ObjectType,CustomerID,InspectType,InputUserID,InputOrgID,IsFinished",false);
-		if("91".equals(sObjectType) || "92".equals(sObjectType)){
+		doTemp.setVisible("Type,BusinessType,ObjectType,CustomerID,InspectType,InputUserID,InputOrgID,IsFinished",false);
+		if("91".equals(sType) || "92".equals(sType)){
 			doTemp.setVisible("IsFinished",true);
 			doTemp.setColumnAttribute("IsFinished","IsFilter","1");
 			doTemp.setDDDWCode("IsFinished","YesNo");
@@ -87,6 +87,7 @@
 		doTemp.setAlign("BusinessSum,Balance","3");
 		doTemp.setType("BusinessSum,Balance","Number");
 		doTemp.setCheckFormat("BusinessSum,Balance","2");
+		doTemp.setDDDWSql("ConfigNo", "select DocNo,DocTitle from Doc_Library where DocNo like 'QDT%'");
 		//设置html格式
 	  	doTemp.setHTMLStyle("InspectType"," style={width:100px} ");
 	  	doTemp.setHTMLStyle("ObjectNo,CustomerName,BusinessTypeName"," style={width:120px} ");
@@ -145,26 +146,19 @@
 	//---------------------定义按钮事件------------------------------------
 	/*~[Describe=新增记录;InputParam=无;OutPutParam=无;]~*/
 	function newRecord(){
-		var sObjectType="<%=sObjectType%>";
-		var sAccountMonth = PopPage("/Common/ToolsA/SelectMonth.jsp?","","dialogWidth:350px;dialogHeight:350px;resizable:yes;scrollbars:no");
-		if(typeof sAccountMonth=='undefined'){
+		var sReturn = PopPage("/Data/Report/CreationInfo.jsp?","","dialogWidth:350px;dialogHeight:350px;resizable:yes;scrollbars:no");
+		if(typeof(sReturn)=='undefined'||sReturn==""||sReturn=="_CANCEL_"){
 			return;
 		}
-		//向检查表中插记录
-		var sSerialNo = PopPage("/Common/ToolsB/GetSerialNo.jsp?TableName=Work_Report&ColumnName=SerialNo&Prefix=","","resizable=yes;dialogWidth=0;dialogHeight=0;center:no;status:no;statusbar:no");
-		var sCol="String@SerialNo@"+sSerialNo+"@String@ObjectType@"+sObjectType;
-		sCol=sCol+"@String@InputOrgID@"+"<%=CurOrg.OrgID%>"+"@String@InputUserID@"+"<%=CurUser.UserID%>"+"@String@InputDate@"+"<%=StringFunction.getToday()%>"+"@String@ReportDate@"+sAccountMonth;
-		sCol=sCol+",Work_Report";
-		var sRV=RunMethod("PublicMethod","InsertColValue",sCol);
-		if(sRV==="TRUE"){
-			sCompID = "AfterLoanInspectTab";
-			sCompURL = "/BusinessManage/WorkReport/AfterLoanInspectTab.jsp";
-			sParamString = "SerialNo="+sSerialNo+"&ObjectType="+sObjectType+"&CurrentItemNo=<%=sCurItemID%>&ReportDate="+sAccountMonth;
-			OpenComp(sCompID,sCompURL,sParamString,"_blank",OpenStyle);
-			reloadSelf();
-		}else{
-			alert("新增失败！");
-		}
+		sReturn = sReturn.split("@");
+		var sSerialNo=sReturn[0];
+		var sConfigNo=sReturn[1];
+		var sKey=sReturn[2];
+		sCompID = "ReportTab";
+		sCompURL = "/Data/Report/ReportTab.jsp";
+		sParamString = "SerialNo="+sSerialNo+"&ConfigNo="+sConfigNo+"&OneKey="+sKey;
+		OpenComp(sCompID,sCompURL,sParamString,"_blank",OpenStyle);
+		reloadSelf();
 	}
 
 	/*~[Describe=删除记录;InputParam=无;OutPutParam=无;]~*/
@@ -195,14 +189,13 @@
 	function viewAndEdit()
 	{
 		var sSerialNo = getItemValue(0,getRow(),"SerialNo");
-		var sObjectType=getItemValue(0,getRow(),"ObjectType");
-		var sReportDate=getItemValue(0,getRow(),"ReportDate");
+		var sConfigNo=getItemValue(0,getRow(),"ConfigNo");
 		if(typeof(sSerialNo)=="undefined" || sSerialNo.length==0) {
 			alert(getHtmlMessage('1'));//请选择一条信息！
 		}else{
-			sCompID = "AfterLoanInspectTab";
-			sCompURL = "/BusinessManage/WorkReport/AfterLoanInspectTab.jsp";
-			sParamString = "SerialNo="+sSerialNo+"&ObjectType="+sObjectType+"&CurrentItemNo=<%=sCurItemID%>&ReportDate="+sReportDate;
+			sCompID = "ReportTab";
+			sCompURL = "/Data/Report/ReportTab.jsp";
+			sParamString = "SerialNo="+sSerialNo+"&ConfigNo="+sConfigNo;
 			OpenComp(sCompID,sCompURL,sParamString,"_blank",OpenStyle);
 		}
 	}

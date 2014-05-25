@@ -169,7 +169,7 @@
 	/*~[Describe=新增记录;InputParam=无;OutPutParam=无;]~*/
 	function newRecord()
 	{	        	
-        sReturn=popComp("BatchCatalogInfo","/BusinessManage/BatchCatalogInfo.jsp","","dialogWidth=35;dialogHeight=20;status:no;center:yes;help:no;minimize:no;maximize:no;border:thin;statusbar:no");
+        sReturn=popComp("BatchCatalogInfo","/Data/Define/BatchCatalogInfo.jsp","","dialogWidth=35;dialogHeight=20;status:no;center:yes;help:no;minimize:no;maximize:no;border:thin;statusbar:no");
         reloadSelf();
 	}
 	
@@ -183,7 +183,7 @@
 			alert(getHtmlMessage('1'));//请选择一条信息！
 			return ;
 		}
-	    popComp("BatchCatalogInfo","/BusinessManage/BatchCatalogInfo.jsp","CodeNo="+sCodeNo,"");
+	    popComp("BatchCatalogInfo","/Data/Define/BatchCatalogInfo.jsp","CodeNo="+sCodeNo,"");
 	    reloadSelf(); 
 	}
     
@@ -255,14 +255,14 @@
 		if(sCodeNo.length>0){
 			document.getElementById("ListHorizontalBar").parentNode.style.display="";
 			document.getElementById("ListDetailAreaTD").parentNode.style.display="";
-			OpenComp("BatchConfigList","/BusinessManage/BatchConfigList.jsp","CodeNo="+sCodeNo+"&type="+sType,"DetailFrame","");
+			OpenComp("BatchConfigList","/Data/Define/BatchConfigList.jsp","CodeNo="+sCodeNo+"&type="+sType,"DetailFrame","");
 		}
 	}
 	function viewConfigList(){
 		var sCodeNo = getItemValue(0,getRow(),"CodeNo");
 		var sType = getItemValue(0,getRow(),"CodeAttribute");
 		if(sCodeNo.length>0){
-			popComp("BatchConfigList","/BusinessManage/BatchConfigList.jsp","CodeNo="+sCodeNo+"&type="+sType,"","");
+			popComp("BatchConfigList","/Data/Define/BatchConfigList.jsp","CodeNo="+sCodeNo+"&type="+sType,"","");
 		}
 	}
 	</script>

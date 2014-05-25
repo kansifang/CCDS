@@ -60,13 +60,13 @@
 %>
 	<%
 		//定义Treeview
-		HTMLTreeView tviTemp = new HTMLTreeView(SqlcaRepository,CurComp,sServletURL,"系统模型配置","right");
+		HTMLTreeView tviTemp = new HTMLTreeView(SqlcaRepository,CurComp,sServletURL,"数据管理","right");
 		tviTemp.ImageDirectory = sResourcesPath; //设置资源文件目录（图片、CSS）
 		tviTemp.toRegister = false; //设置是否需要将所有的节点注册为功能点及权限点
 		tviTemp.TriggerClickEvent=true; //是否自动触发选中事件
 
 		//定义树图结构
-		String sSqlTreeView = "from CODE_LIBRARY where CodeNo='BizDataConfiguratorTree' and IsInUse='1' ";
+		String sSqlTreeView = "from CODE_LIBRARY where CodeNo='DataMain' and IsInUse='1' ";
 		sSqlTreeView += "and ItemNo not like '0020%' ";//视图filter
 		tviTemp.initWithSql("SortNo","ItemName","ItemNo","ItemDescribe","",sSqlTreeView,"Order By SortNo",Sqlca);
 		//参数从左至右依次为： ID字段,Name字段,Value字段,Script字段,Picture字段,From子句,OrderBy子句,Sqlca
@@ -126,9 +126,10 @@
 %>
 	<script language="JavaScript">
 	startMenu();
-	expandNode('0100');	
+	expandNode('root');		
 	expandNode('0200');
-	selectItem('0100001');	
+	expandNode('0300');
+	selectItem('0200001');	
 	</script>
 <%
 	/*~END~*/

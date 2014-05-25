@@ -59,8 +59,8 @@
 	String sTempletFilter = "1=1";
 	
 	ASDataObject doTemp = new ASDataObject(sTempletNo,sTempletFilter,Sqlca);
-	doTemp.setEditStyle("FileName,Column,TableName,KeyColumn,Remark", "1");
-	doTemp.setHTMLStyle("FileName,Column,TableName,KeyColumn,Remark", "");
+	doTemp.setEditStyle("FileName,Column,TableName,KeyColumn,Remark,Attribute1", "1");
+	doTemp.setHTMLStyle("FileName,Column,TableName,KeyColumn,Remark,Attribute1", "");
 	//查询
  	//doTemp.setColumnAttribute(sKeyColumn,"IsFilter","1");
 	doTemp.generateFilters(Sqlca);
@@ -173,7 +173,7 @@
 	function newRecord()
 	{
 		//as_add("myiframe0");//新增记录
-		popComp("QDefinitionInfo","/Common/Configurator/MetaDataManage/QDefinitionInfo.jsp","docNo=<%=sDocNo%>","");
+		popComp("QDefinitionInfo","/Data/Define/QDefinitionInfo.jsp","docNo=<%=sDocNo%>","");
 		reloadSelf();
 	}
 	function save(sPostEvents)
@@ -206,9 +206,9 @@
 			alert(getHtmlMessage('1'));//请选择一条信息！
 			return;
 		}
-		popComp("QDefinitionInfo","/Common/Configurator/MetaDataManage/QDefinitionInfo.jsp","docNo=<%=sDocNo%>&attachmentNo="+sAttachmentNo+"&method=1","");
-		//var styleValue=PopPage("/Common/Configurator/MetaDataManage/DatabaseStyleConvert.jsp?DatabaseID="+sDatabaseID,"","");
-		//OpenComp("TMetaDatabase","/Common/Configurator/MetaDataManage/DatabaseList.jsp","style="+styleValue,"right","")
+		popComp("QDefinitionInfo","/Data/Define/QDefinitionInfo.jsp","docNo=<%=sDocNo%>&attachmentNo="+sAttachmentNo+"&method=1","");
+		//var styleValue=PopPage("/Data/Define/DatabaseStyleConvert.jsp?DatabaseID="+sDatabaseID,"","");
+		//OpenComp("TMetaDatabase","/Data/Define/DatabaseList.jsp","style="+styleValue,"right","")
 		reloadSelf();
 	}
 	function handleDatabase()
@@ -239,9 +239,9 @@
 				"&tableName="+sTableName+
 				"&condition1="+sCondition1+"&condition2="+sCondition2+"&condition3="+sCondition3+"&condition4="+sCondition4+
 				"&keyColumn="+sKeyColumn+"&selectName="+sQName;
-		popComp("QResultList","/Common/Configurator/MetaDataManage/QResultList.jsp",paraString,"");
-		//var styleValue=PopPage("/Common/Configurator/MetaDataManage/DatabaseStyleConvert.jsp?DatabaseID="+sDatabaseID,"","");
-		//OpenComp("TMetaDatabase","/Common/Configurator/MetaDataManage/DatabaseList.jsp","style="+styleValue,"right","")
+		popComp("QResultList","/Data/Define/QResultList.jsp",paraString,"");
+		//var styleValue=PopPage("/Data/Define/DatabaseStyleConvert.jsp?DatabaseID="+sDatabaseID,"","");
+		//OpenComp("TMetaDatabase","/Data/Define/DatabaseList.jsp","style="+styleValue,"right","")
 		reloadSelf();
 	}
 	</script>

@@ -159,19 +159,24 @@ public class StringFunction
         Calendar calendar = Calendar.getInstance();
         return String.valueOf(Time.valueOf(String.valueOf(calendar.get(11)) + ":" + String.valueOf(calendar.get(12)) + ":" + String.valueOf(calendar.get(13))));
     }
-
+    //获取不在s2和s3之间的s1在s中的位置
     public static int indexOf(String s, String s1, String s2, String s3, int i)
     {
         int j;
         for(j = s.indexOf(s1, i); j >= 0 && getOccurTimes(s, s2, s3, i, j) != 0; j = s.indexOf(s1, j + s1.length()));
         return j;
     }
-
+    public static int lastIndexOf(String s, String s1, String s2, String s3, int i)
+    {
+        int j;
+        for(j = s.indexOf(s1, i); j >= 0 && getOccurTimes(s, s2, s3, i, j) != 0; j = s.indexOf(s1, j + s1.length()));
+        return j;
+    }
     public static int indexOf(String s, String s1, int i, int j)
     {
         return s.substring(i, j).indexOf(s1);
     }
-
+    //获取s中s1和s2成对字符串有几个
     public static int getOccurTimes(String s, String s1, String s2, int i, int j)
     {
         s = s.substring(i, j);
@@ -180,7 +185,7 @@ public class StringFunction
         else
             return getOccurTimes(s, s1) - getOccurTimes(s, s2);
     }
-
+    //获取s中si有几个
     public static int getOccurTimes(String s, String s1)
     {
         int i = 0;
@@ -951,6 +956,8 @@ label0:
     public static void main(String args[])
     {
         System.out.println(fixPID("150202760929122"));
+        System.out.println(StringFunction.getOccurTimes("xXxYYx2134Y","X" ,"Y", 0, 11));
+        System.out.println(StringFunction.indexOf("xXxYYx2134Y","2","X" ,"Y", 0));
     }
 
     private static int weight[] = {

@@ -155,7 +155,7 @@
 			//5.事件
 			//6.资源图片路径
 		String sButtons[][] = {
-			{"true","","Button","保存并返回","保存所有修改面","saveRecord()",sResourcesPath},
+			{"true","","Button","保存","保存所有修改面","saveRecord()",sResourcesPath},
 			{"true","","Button","返回","返回列表页面","goBack()",sResourcesPath},
 			{"true","","Button","查询","维护数据库","handleDatabase()",sResourcesPath}
 			};
@@ -181,7 +181,7 @@
 <%
 	/*~BEGIN~可编辑区~[Editable=false;CodeAreaID=Info06;Describe=定义按钮事件;]~*/
 %>
-	<script language=javascript src="<%=sWebRootPath%>/Common/Configurator/MetaDataManage/editor.js"> </script>
+	<script language=javascript src="<%=sWebRootPath%>/Data/Define/editor.js"> </script>
 	<script language=javascript>
 	var bIsInsert = false; //标记DW是否处于“新增状态”
 
@@ -301,9 +301,9 @@
 		objectArray[0].value=encodeURIComponent(objectArray[0].value,'UTF-8');
 		var form1=document.frames("myiframe0").document.forms("form1");
 		if(sStyle=="02"){
-			form1.action=sWebRootPath+"/Common/Configurator/MetaDataManage/QDefinitionInfo.jsp?CompClientID=<%=sCompClientID%>&docNo="+sDocNo+"&attachmentNo="+sAttachmentNo+"&method=2";
+			form1.action=sWebRootPath+"/Data/Define/QDefinitionInfo.jsp?CompClientID=<%=sCompClientID%>&docNo="+sDocNo+"&attachmentNo="+sAttachmentNo+"&method=2";
 		}else if(sStyle=="01"){
-			form1.action=sWebRootPath+"/Common/Configurator/MetaDataManage/QDefinitionInfo.jsp?CompClientID=<%=sCompClientID%>&docNo="+sDocNo+"&attachmentNo="+sAttachmentNo+"&method=1";
+			form1.action=sWebRootPath+"/Data/Define/QDefinitionInfo.jsp?CompClientID=<%=sCompClientID%>&docNo="+sDocNo+"&attachmentNo="+sAttachmentNo+"&method=1";
 		}
 		form1.method='post';
 		form1.target = "_parent";
@@ -313,7 +313,7 @@
 	function handleDatabase()
 	{
 		//self.close();
-		//OpenComp("QDefinitionInfo","/Common/Configurator/MetaDataManage/QDefinitionInfo.jsp","docNo=<%=sDocNo%>&attachmentNo=<%=sDocNo%>&method=1&CompClientID=<%=sCompClientID%>","_self");
+		//OpenComp("QDefinitionInfo","/Data/Define/QDefinitionInfo.jsp","docNo=<%=sDocNo%>&attachmentNo=<%=sDocNo%>&method=1&CompClientID=<%=sCompClientID%>","_self");
 
 		var iframe0 =document.frames("myiframe0");
 		//对表单内容进行编码，在服务端用DataConvert.toRealString(5,s)或DataConvert.decode(s,"GBK")进行解码
@@ -324,7 +324,7 @@
 			}
 		}
 		var form1=iframe0.document.forms("form1");
-		form1.action=sWebRootPath+"/Common/Configurator/MetaDataManage/QResultList.jsp?CompClientID=<%=sCompClientID%>";
+		form1.action=sWebRootPath+"/Data/Define/QResultList.jsp?CompClientID=<%=sCompClientID%>";
 		form1.method='post';
 		form1.target = "_blank";
 		form1.submit();

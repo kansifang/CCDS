@@ -64,7 +64,7 @@
 	String sTempletFilter = "1=1";
 	ASDataObject doTemp = new ASDataObject(sTempletNo,sTempletFilter,Sqlca);
 	//设置不可见项
-    doTemp.setVisible("DocNo,UserID,DocType,ObjectNo,ObjectType",false);
+    doTemp.setVisible("UserID,DocType,ObjectNo,ObjectType",false);
     //设置风格
    	doTemp.setEditStyle("DocKeyWord,DocAbstract,Remark", "1");
 	doTemp.setHTMLStyle("DocKeyWord,DocAbstract,Remark", "");
@@ -81,6 +81,8 @@
 	//设置setEvent
 	Vector vTemp = dwTemp.genHTMLDataWindow("QDT,All");
 	for(int i=0;i<vTemp.size();i++) out.print((String)vTemp.get(i));
+	CurPage.setAttribute("ShowDetailArea","false");
+	CurPage.setAttribute("DetailAreaHeight","150");
 %>
 <%
 	/*~END~*/
@@ -132,7 +134,7 @@
 	/*~[Describe=新增记录;InputParam=无;OutPutParam=无;]~*/
 	function newRecord()
 	{
-		OpenPage("/Common/Configurator/MetaDataManage/QDocumentInfo.jsp","_self","");
+		OpenPage("/Data/Define/QDocumentInfo.jsp","_self","");
 	}
 
 	/*~[Describe=删除记录;InputParam=无;OutPutParam=无;]~*/
@@ -169,7 +171,7 @@
     	}
     	else
     	{
-    		OpenPage("/Common/Configurator/MetaDataManage/QDocumentInfo.jsp?DocNo="+sDocNo,"_self","");
+    		OpenPage("/Data/Define/QDocumentInfo.jsp?DocNo="+sDocNo,"_self","");
         }
 	}
 	
@@ -185,11 +187,21 @@
     	}
     	else
     	{
-    		popComp("QDefinitionList","/Common/Configurator/MetaDataManage/QDefinitionList.jsp","docNo="+sDocNo);
+    		popComp("QDefinitionList","/Data/Define/QDefinitionList.jsp","docNo="+sDocNo);
       		reloadSelf();
       	}
 	}
-	
+	function mySelectRow()
+	{
+		//hideFilterArea();
+		var sCodeNo = getItemValue(0,getRow(),"DocNo");
+		var sType = getItemValue(0,getRow(),"CodeAttribute");
+		if(sCodeNo.length>0){
+			document.getElementById("ListHorizontalBar").parentNode.style.display="";
+			document.getElementById("ListDetailAreaTD").parentNode.style.display="";
+			OpenComp("QTabConfigList","/Data/Define/QTabConfigList.jsp","CodeNo="+sCodeNo+"&type="+sType,"DetailFrame","");
+		}
+	}
 	/*~[Describe=导出附件;InputParam=无;OutPutParam=无;]~*/
 	function exportFile()
 	{

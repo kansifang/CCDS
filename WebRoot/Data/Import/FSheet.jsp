@@ -69,7 +69,7 @@
 	  	}
 	}
     	//定义SQL语句
-    String sSql = " SELECT  ConfigNo as 报表类型,Key as 报表日期,ImportIndex as 序号"+sS+",ImportNo,ImportTime,UserID"+
+    String sSql = " SELECT  ConfigNo as 报表类型,OneKey as 报表日期,ImportIndex as 序号"+sS+",ImportNo,ImportTime,UserID"+
     	 " FROM Batch_Import" +
 		  " WHERE 1=1 order by int(序号) asc";
 	//产生ASDataObject对象doTemp
@@ -230,8 +230,8 @@
 	function ImportBatch(sType)
 	{
 		var sCompID = "CreationInfo";
-		var sCompURL = "/WorkReport/CreationInfo.jsp";
-		sReturn = popComp(sCompID,sCompURL,"","dialogWidth=50;dialogHeight=25;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
+		var sCompURL = "/Data/Import/CreationInfo.jsp";
+		var sReturn = popComp(sCompID,sCompURL,"","dialogWidth=50;dialogHeight=25;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
 		if(typeof(sReturn)=="undefined" || sReturn=="" || sReturn=="_CANCEL_") 
 			return;
 		sReturn = sReturn.split("@");
@@ -246,7 +246,7 @@
    		}else{
    			sDocNo=sDocNo.split("@")[1];
    		}
-   		popComp("FileChooseDialog","/Document/FileChooseDialog.jsp","ConfigNo="+sConfigNo+"&DocNo="+sDocNo+"&Handler=S63Handler&Message=批次导入成功&Type="+sType+"&ConfigNo="+sConfigNo+"&Key="+sReportDate,"dialogWidth=650px;dialogHeight=250px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
+   		popComp("FileChooseDialog","/Document/FileChooseDialog.jsp","ConfigNo="+sConfigNo+"&DocNo="+sDocNo+"&Handler=S63Handler&Message=批次导入成功&Type="+sType+"&ConfigNo="+sConfigNo+"&OneKey="+sReportDate,"dialogWidth=650px;dialogHeight=250px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
    		reloadSelf(); 
 	}
 	/*~[Describe=完成导入批量;InputParam=无;OutPutParam=无;]~*/

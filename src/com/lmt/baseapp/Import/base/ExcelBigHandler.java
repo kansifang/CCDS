@@ -260,7 +260,7 @@ public class ExcelBigHandler extends DefaultHandler {
 		//ExcelBigDateImport example = new ExcelBigDateImport();
 		//example.processOneSheet("C:\\20140101_162227865.xlsx");
 		// example.processAllSheets(args[0]);
-		//System.out.println(ExcelBigHandler.getNumberFromLetter("BD"));
-		System.out.println(ExcelBigHandler.getLetterFromNumber(10));
+		System.out.println(ExcelBigHandler.getNumberFromLetter("ZZZ"));
+		//System.out.println(ExcelBigHandler.getLetterFromNumber(10));
 	}
 }

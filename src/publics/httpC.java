@@ -34,6 +34,8 @@ public class httpC {
         int statusCode=httpClient.executeMethod(gm);
         System.out.println("response="+gm.getResponseBodyAsString());
         gm.releaseConnection();
+        String[][] SArray=new String[21][3];
+        System.out.println(SArray.length);
     }
 
 }

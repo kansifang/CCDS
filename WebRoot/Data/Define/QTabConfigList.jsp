@@ -95,11 +95,6 @@
 	doTemp.setKey("CodeNo,ItemNo",true);
 	//设置格式
 	doTemp.setVisible("CodeNo,ItemName",false);
-	if("01".equals(sType)){
-		doTemp.setVisible("Attribute7,Attribute6,ItemAttribute,Attribute8,Attribute4,Attribute5,Attribute7", false);
-	}else{
-		doTemp.setVisible("Attribute1,Attribute3,ItemDescribe", false);
-	}
 	//doTemp.setHTMLStyle("Attribute1,Attribute2,Attribute3,Attribute4"," style={width:auto} ");
 	//设置字段显示宽度	
 	//doTemp.appendHTMLStyle("Status"," style={width:90px} onDBLClick=parent.selectOrUnselect() ");
@@ -164,8 +159,8 @@
 	/*~[Describe=新增记录;InputParam=无;OutPutParam=无;]~*/
 	function newRecord()
 	{
-		//OpenPage("/BusinessManage/BatchConfigInfo.jsp?CodeNo=<%=sCodeNo%>","_self","");
-		popComp("BatchConfigInfo.jsp","/BusinessManage/BatchConfigInfo.jsp","CodeNo=<%=sCodeNo%>","dialogWidth=35;dialogHeight=20;status:no;center:yes;help:no;minimize:no;maximize:no;border:thin;statusbar:no");
+		//OpenPage("/Data/Define/BatchConfigInfo.jsp?CodeNo=<%=sCodeNo%>","_self","");
+		popComp("BatchConfigInfo.jsp","/Data/Define/BatchConfigInfo.jsp","CodeNo=<%=sCodeNo%>","dialogWidth=35;dialogHeight=20;status:no;center:yes;help:no;minimize:no;maximize:no;border:thin;statusbar:no");
 		reloadSelf();
 	}
 
@@ -195,7 +190,7 @@
 			alert(getHtmlMessage('1'));//请选择一条信息！
 			return;
 		}
-		popComp("BatchConfigInfo","/BusinessManage/BatchConfigInfo.jsp","CodeNo="+sCodeNo+"&ItemNo="+sItemNo,"dialogWidth=40;dialogHeight=20;status:no;center:yes;help:no;minimize:no;maximize:no;border:thin;statusbar:no");
+		popComp("BatchConfigInfo","/Data/Define/BatchConfigInfo.jsp","CodeNo="+sCodeNo+"&ItemNo="+sItemNo,"dialogWidth=40;dialogHeight=20;status:no;center:yes;help:no;minimize:no;maximize:no;border:thin;statusbar:no");
 		reloadSelf();
 	}
 	/*~[Describe=引入类似配置详情以节省功夫;InputParam=无;OutPutParam=无;]~*/
@@ -266,7 +261,7 @@
 				}
 			}
 			//OpenComp("EvaluateScoreConfigList","/Common/Configurator/EvaluateManage/EvaluateScoreConfigList.jsp","ModelNo="+sModelNo+"&ItemNo="+sItemNo+"&ValueCode="+sValueCode+"&ValueMethod="+sValueMethod+"&CodeNo=ScoreToItemValue","DetailFrame","");
-		  	PopPage("/BusinessManage/BatchConfigHisList.jsp?CodeNo="+sCodeNo+"&ItemNo="+sItemNo,"DetailFrame","dialogWidth=50;dialogHeight=30;status:no;center:yes;help:no;minimize:no;maximize:no;border:thin;statusbar:no");
+		  	PopPage("/Data/Define/BatchConfigHisList.jsp?CodeNo="+sCodeNo+"&ItemNo="+sItemNo,"DetailFrame","dialogWidth=50;dialogHeight=30;status:no;center:yes;help:no;minimize:no;maximize:no;border:thin;statusbar:no");
 		}
 	    /*~[Describe=修改前保存一份备份;InputParam=无;OutPutParam=无;]~*/
 	   	function backupHis(){
@@ -288,7 +283,7 @@
 	init();
 	bHighlightFirst = true;//自动选中第一条记录
 	my_load(2,0,'myiframe0');
-	//hideFilterArea();
+	hideFilterArea();
 	//initRow();
 	//var bCheckBeforeUnload=false;
 </script>

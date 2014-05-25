@@ -143,7 +143,7 @@
     	}
     	else
     	{
-			popComp("QDefinitionList","/Common/Configurator/MetaDataManage/QDefinitionList.jsp","docNo="+sDocNo);
+			popComp("QDefinitionList","/Data/Define/QDefinitionList.jsp","docNo="+sDocNo);
 			//reloadSelf();
 		}
 	}
@@ -151,7 +151,7 @@
 	/*~[Describe=返回列表页面;InputParam=无;OutPutParam=无;]~*/
 	function goBack()
 	{
-		OpenPage("/Common/Configurator/MetaDataManage/QDocumentList.jsp","_self","");
+		OpenPage("/Data/Define/QDocumentList.jsp","_self","");
 	}
 
 	</script>

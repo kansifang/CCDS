@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=GBK"%>
 <%@ include file="/IncludeBeginMD.jsp"%>
-<%@ page import="java.util.Date,com.lmt.baseapp.Import.base.*"%>
+<%@ page import="java.util.Date,com.lmt.baseapp.Import.base.*,com.lmt.baseapp.Import.impl.*"%>
 
 <%
 	/*~BEGIN~可编辑区~[Editable=true;CodeAreaID=Info00;Describe=注释区;]~*/
@@ -18,7 +18,7 @@
  	//调用页面传入参数
   		String sType =DataConvert.toString( DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("Type")));
  		String sConfigNo =DataConvert.toString( DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("ConfigNo")));
- 		String sKey =DataConvert.toString( DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("Key")));
+ 		String sKey =DataConvert.toString( DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("OneKey")));
   		String sReportDate =DataConvert.toString( DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("ReportDate")));
   		//FileUpload传入参数
   		String sClearTable =DataConvert.toString( DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("ClearTable")));
@@ -35,14 +35,17 @@
  		try {
  		 	isAutoCommit=Sqlca.conn.getAutoCommit();
  		 	Sqlca.conn.setAutoCommit(false);
- 		 	Sqlca.executeSQL("Delete from Batch_Import where ConfigNo='"+sConfigNo+"' and Key='"+sKey+"'");
+ 		 	Sqlca.executeSQL("Delete from Batch_Import where ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"'");
  		 	//导入文件
  		 	EntranceImpl efih=new ExcelBigEntrance(sFiles,sImportTableName,CurUser,Sqlca);
  		 	efih.action(sConfigNo,sKey);
  	 		//更新配置号和报表日期
  	 		//String sSerialNo  = DBFunction.getSerialNo("Batch_Case","SerialNo",Sqlca);
- 	 		//Sqlca.executeSQL("update "+sImportTableName+" set ReportDate='"+sReportDate+"' where ConfigNo='"+sConfigNo+"' and Key='"+sKey+"' and ImportNo like 'N%000000'");
- 	 		//计算总领增加额和比例
+ 	 		//Sqlca.executeSQL("update "+sImportTableName+" set ReportDate='"+sReportDate+"' where ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"' and ImportNo like 'N%000000'");
+ 		 	AfterImport.beforeProcess(sConfigNo, sKey, Sqlca);
+ 	 		AfterImport.process(sConfigNo, sKey, Sqlca,"归属条线");
+ 		 	AfterImport.process(sConfigNo, sKey, Sqlca,"经营类型(新)");
+ 		 	AfterImport.afterProcess(sConfigNo, sKey, Sqlca);
   		}catch (Exception e) {
  		 	sMessage=e.getMessage(); 	
  		 	out.println("An error occurs : " + e.toString());

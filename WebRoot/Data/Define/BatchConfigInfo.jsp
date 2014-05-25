@@ -94,18 +94,10 @@
 	}else{
 		doTemp.setVisible("Attribute1,Attribute3,ItemDescribe", false);
 	}
-	//doTemp.setUnit("ItemAttribute", "<input class=\"inputdate\" value=\"增加要素\" type=button onClick=parent.alterColumnInDB()>");
-	//doTemp.setHTMLStyle("Attribute1,Attribute2,Attribute3,Attribute4"," style={width:auto} ");
-	//doTemp.setDDDWCode("ItemDescribe","SModelColumns");
-	//doTemp.setDDDWSql("ItemDescribe","select Attribute8,Attribute8 from Code_Catalog CC,Code_Library CL where CC.CodeAttribute='02' and CC.CodeNo=CL.CodeNo and CL.Attribute6=upper('Batch_Import') order by Attribute8 asc");
 	doTemp.setUnit("ItemDescribe","<input type=button class=inputDate   value=\"...\" name=button1 onClick=\"javascript:parent.selectColumn();\"> ");
 	doTemp.setHTMLStyle("Attribute8"," style={width:200px} ");
 	doTemp.setDDDWCode("IsInUse","YesNo");
-	//doTemp.setDDDWSql("Attribute5", "select table_name from sysibm.tables");
-	//System.out.println(Sqlca.conn.getMetaData().+"xxxxxxxxxxx");
 	doTemp.setDDDWCode("Attribute7", "AlterType");
-	//doTemp.setRequired("ItemDescribe,Attribute1,Attribute2,IsInUse",true);
-	//doTemp.setCheckFormat("InputTime,UpdateTime","3");
 	doTemp.setUpdateable("InputUserName,UpdateUserName",false);
 	doTemp.setReadOnly("ItemNo,InputUserName,UpdateUserName,InputTime,UpdateTime",true);
 	//设置字段显示宽度	

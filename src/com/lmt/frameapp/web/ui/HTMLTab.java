@@ -13,18 +13,18 @@ public class HTMLTab
     {
     }
 
-    public static String[][] getTabArrayWithSql(String s, Transaction transaction)
+    public static String[][] getTabArrayWithSql(String sTabSql, Transaction transaction)
         throws Exception
     {
-        String as[][] = new String[50][3];
+        String sTab[][] = new String[50][3];
         int i = 0;
         ASResultSet LSResultSet = null;
-        String s1 = s;
+        String s1 = sTabSql;
         for(LSResultSet = transaction.getASResultSet(s1); LSResultSet.next();)
         {
-            as[i][0] = LSResultSet.getString(1);
-            as[i][1] = LSResultSet.getString(2);
-            as[i][2] = LSResultSet.getString(3);
+            sTab[i][0] = LSResultSet.getString(1);
+            sTab[i][1] = LSResultSet.getString(2);
+            sTab[i][2] = LSResultSet.getString(3);
             i++;
         }
 
@@ -32,36 +32,36 @@ public class HTMLTab
         String as1[][] = new String[i + 5][3];
         for(int j = 0; j < i; j++)
         {
-            as1[j][0] = as[j][0];
-            as1[j][1] = as[j][1];
-            as1[j][2] = as[j][2];
+            as1[j][0] = sTab[j][0];
+            as1[j][1] = sTab[j][1];
+            as1[j][2] = sTab[j][2];
         }
 
         return as1;
     }
 
-    public static String[][] addTabArray(String as[][], String as1[])
+    public static String[][] addTabArray(String sTabStrip[][], String sOneTabStrip[])
         throws Exception
     {
-        String as2[][] = new String[as.length][3];
+        String sTabStrip2[][] = new String[sTabStrip.length][3];
         int i = 0;
         do
         {
-            if(i >= as.length)
+            if(i >= sTabStrip.length)
                 break;
-            as2[i][0] = as[i][0];
-            as2[i][1] = as[i][1];
-            as2[i][2] = as[i][2];
-            if(as[i][1] == null || as[i][1].equals(""))
+            sTabStrip2[i][0] = sTabStrip[i][0];
+            sTabStrip2[i][1] = sTabStrip[i][1];
+            sTabStrip2[i][2] = sTabStrip[i][2];
+            if(sTabStrip[i][1] == null || sTabStrip[i][1].equals(""))
             {
-                as2[i][0] = as1[0];
-                as2[i][1] = as1[1];
-                as2[i][2] = as1[2];
+                sTabStrip2[i][0] = sOneTabStrip[0];
+                sTabStrip2[i][1] = sOneTabStrip[1];
+                sTabStrip2[i][2] = sOneTabStrip[2];
                 break;
             }
             i++;
         } while(true);
-        return as2;
+        return sTabStrip2;
     }
 
     public static String genTabArray(String as[][], String s, String s1)

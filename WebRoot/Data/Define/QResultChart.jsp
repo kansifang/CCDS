@@ -1,6 +1,8 @@
 <%@ page contentType="text/html;charset=GBK"%>
 <%@ include file="/IncludeBegin.jsp"%>
-
+<%@page import="com.lmt.app.display.PieChart" %>
+<%@page import="org.jfree.chart.ChartFactory,org.jfree.chart.ChartUtilities,
+org.jfree.chart.JFreeChart"%>
 <%
 	/*~BEGIN~可编辑区~[Editable=true;CodeAreaID=List02;Describe=定义变量，获取参数;]~*/
 %>
@@ -14,7 +16,7 @@
 	String sColumn = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("R0F4")));
 	String sTableName = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("R0F5")));
 	String sKeyColumn = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("R0F6")));
-	String sAttachmentNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("type")));
+	String sAttachmentNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("AttachmentNo")));
 	String sFilterColumn=sKeyColumn;
 	String PG_TITLE = sSelectName+"@WindowTitle"; // 浏览器窗口标题 <title> PG_TITLE </title>
 %>
@@ -26,86 +28,54 @@
 	/*~BEGIN~可编辑区~[Editable=true;CodeAreaID=List03;Describe=定义数据对象;]~*/
 %>
 <%
-	if("01".equals(sStyle)){
-		ASResultSet rs=Sqlca.getASResultSet("select * from "+sTableName);
-		int CCount=rs.getColumnCount();
-		StringBuffer sb=new StringBuffer("Select ");
-		for(int i=1;i<=CCount;i++){
-			sb.append(rs.getColumnName(i)+",");
-		}
-		sb.delete(sb.lastIndexOf(","),sb.length());
-		sb.append(" from "+sTableName+" where 1=1");
-		rs.getStatement().close();	
-		sSql = sb.toString();
-	}else if("02".equals(sStyle)){
-		sSql=sColumn.replaceAll("<.+?>", " ");
-		sSql=sSql.replaceAll("&nbsp;", " ");
-		sSql=sSql.replaceAll("\\s", " ");
-		sSql=sSql.replaceAll("&lt;", "<");
-		sSql=sSql.replaceAll("&gt;", ">");
-	}else{//通过数据库查询出查询语句来执行查询
-		StringBuffer sb=new StringBuffer("");
-		ASResultSet rs1 = Sqlca.getResultSet("select ContentLength,Remark from Doc_Attachment"+
-								" where AttachmentNo='"+sAttachmentNo+"'");
-		
-		if(rs1.next()){	
-			String sFilterC=DataConvert.toString(rs1.getString("Remark"));
-			if(!"".equals(sFilterC)){
-				if(!"".equals(sFilterColumn)){
-					sFilterColumn+=","+sFilterC;
-				}else{
-					sFilterColumn=sFilterC;
-				}
-			}
-			int iContentLength=DataConvert.toInt(rs1.getString("ContentLength"));
-			if (iContentLength>0){
-				byte bb[] = new byte[iContentLength];
-				int iByte = 0;		
-				java.io.InputStream inStream = null;
-				ASResultSet rs2 = Sqlca.getResultSet2("select DocContent from Doc_Attachment"+
-						" where AttachmentNo='"+sAttachmentNo+"'");//注意是getResultSet2
-				if(rs2.next()){
-					inStream = rs2.getBinaryStream("DocContent");
-					while(true){
-						iByte = inStream.read(bb);
-						if(iByte<=0)
-							break;
-						sb.append(new String(bb,"GBK"));
-					}
-				}
-				rs2.getStatement().close();
+	//1、通过数据库查询出查询语句来执行查询
+	StringBuffer sb=new StringBuffer("");
+	ASResultSet rs1 = Sqlca.getResultSet("select ContentLength,Remark from Doc_Attachment"+
+							" where AttachmentNo='"+sAttachmentNo+"'");
+	
+	if(rs1.next()){	
+		String sFilterC=DataConvert.toString(rs1.getString("Remark"));
+		if(!"".equals(sFilterC)){
+			if(!"".equals(sFilterColumn)){
+				sFilterColumn+=","+sFilterC;
+			}else{
+				sFilterColumn=sFilterC;
 			}
 		}
-		rs1.getStatement().close();	
-		sSql=sb.toString().replaceAll("<.+?>", " ");
-		sSql=sSql.replaceAll("&nbsp;", " ");
-		sSql=sSql.replaceAll("\\s", " ");
-		sSql=sSql.replaceAll("&lt;", "<");
-		sSql=sSql.replaceAll("&gt;", ">");
+		int iContentLength=DataConvert.toInt(rs1.getString("ContentLength"));
+		if (iContentLength>0){
+			byte bb[] = new byte[iContentLength];
+			int iByte = 0;		
+			java.io.InputStream inStream = null;
+			ASResultSet rs2 = Sqlca.getResultSet2("select DocContent from Doc_Attachment"+
+					" where AttachmentNo='"+sAttachmentNo+"'");//注意是getResultSet2
+			if(rs2.next()){
+				inStream = rs2.getBinaryStream("DocContent");
+				while(true){
+					iByte = inStream.read(bb);
+					if(iByte<=0)
+						break;
+					sb.append(new String(bb,"GBK"));
+				}
+			}
+			rs2.getStatement().close();
+		}
 	}
-	
-	ASDataObject doTemp = new ASDataObject(sSql);
-	doTemp.UpdateTable=sTableName;
-	doTemp.setKey(sKeyColumn,true);
-	//doTemp.setHeader(sHeaders);
-	//doTemp.setHTMLStyle("DatabaseID"," style={width:160px} ");
-	//doTemp.setCheckFormat(sNumberColumn,"3");
-	//doTemp.setType(sStringColumn,"1");
-	//查询
- 	doTemp.setColumnAttribute(sFilterColumn,"IsFilter","1");
-	doTemp.generateFilters(Sqlca);
-	doTemp.parseFilterData(request,iPostChange);
-	CurPage.setAttribute("FilterHTML",doTemp.getFilterHtml(Sqlca));
-	
-	//if(!doTemp.haveReceivedFilterCriteria()) doTemp.WhereClause+=" and 1=2";
-	ASDataWindow dwTemp = new ASDataWindow(CurPage,doTemp,Sqlca);
-	dwTemp.Style="1";      //设置DW风格 1:Grid 2:Freeform
-	dwTemp.ReadOnly = "1"; //设置是否只读 1:只读 0:可写
-	dwTemp.setPageSize(16);
-	
-	//生成HTMLDataWindow
-	Vector vTemp = dwTemp.genHTMLDataWindow("");
-	for(int i=0;i<vTemp.size();i++) out.print((String)vTemp.get(i));
+	rs1.getStatement().close();	
+	sSql=sb.toString().replaceAll("<.+?>", " ");
+	sSql=sSql.replaceAll("&nbsp;", " ");
+	sSql=sSql.replaceAll("\\s", " ");
+	sSql=sSql.replaceAll("&lt;", "<");
+	sSql=sSql.replaceAll("&gt;", ">");
+	//2、形如 ~s借据明细@归属条线e~ 的变量替换
+	sSql=StringUtils.replaceWithConfig(sSql, "~s", "e~", Sqlca);
+	sSql =StringFunction.replace(sSql, "~YH~", "\"");
+	response.setContentType("image/jpeg");
+	// 创建饼状图对象
+	JFreeChart jf = ChartFactory.createPieChart("占有统计", PieChart.getDataSet(sSql,Sqlca), true, true, true);
+	PieChart.setStyle(jf);
+	ChartUtilities.writeChartAsJPEG(response.getOutputStream(), jf, 400, 300);
+
 %>
 <%
 	/*~END~*/
@@ -149,7 +119,7 @@
 <%
 	/*~BEGIN~不可编辑区~[Editable=false;CodeAreaID=List05;Describe=主体页面;]~*/
 %>
-	<%@include file="/Resources/CodeParts/List05.jsp"%>
+	
 <%
 	/*~END~*/
 %>

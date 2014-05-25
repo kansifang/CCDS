@@ -3,7 +3,8 @@ package com.lmt.baseapp.util;
 import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.Statement;
+
+import com.lmt.frameapp.sql.Transaction;
 
 public class StringUtils
 {
@@ -110,7 +111,7 @@ public class StringUtils
   {
     return parseExcelColIndex(Integer.parseInt(sIndex));
   }
-
+  //把Excel中列序号转化为字母表示 1为A....
   public static String parseExcelColIndex(int iIndex)
   {
     String sExcelCol = "";
@@ -126,7 +127,28 @@ public class StringUtils
     }
     return sExcelCol;
   }
-
+  //把Excel中列序号转化为字母表示 1为A....
+  public static String replaceWithConfig(String s,String sStart,String sEnd,Transaction Sqlca) throws Exception
+  {
+    while(s.indexOf(sStart)!=-1&&s.indexOf(sEnd)!=-1){
+		int ss=s.indexOf(sStart);
+		int se=s.indexOf(sEnd);
+		String toReplaceS="";
+		if(se+2>s.length()){
+			toReplaceS=s.substring(ss,s.length());
+		}else{
+			toReplaceS=s.substring(ss, se+2);
+		}
+		String configContent=s.substring(ss+2, se);
+		String[] configContentA=configContent.split("@");
+		String sConfig="select ItemDescribe from Code_Library CL "+
+				"where Attribute1='"+configContentA[1].trim()+"' and IsInUse='1' "+
+				"and exists(select 1 from Code_Catalog CC where CC.CodeNo=CL.CodeNo and CC.CodeName='"+configContentA[0].trim()+"')";
+		String sReplaceS=Sqlca.getString(sConfig);
+		s =StringFunction.replace(s, toReplaceS, sReplaceS);
+	};
+    return s;
+  }
   public static String getOrgName(String sOrgID, Connection conn, String version) throws Exception
   {
     String sSql = "";

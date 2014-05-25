@@ -27,7 +27,7 @@ public class ObjRow {
 		}
 		//默认都有这个字段
 		this.addColumn("ConfigNo", "配置号","String",true,false);//记录Excel要素和数据要素对应关系的配置信息号，同时标识同一种类型数据（大类）
-		this.addColumn("Key", "主键","String",true,false);//标识同一种类型数据进一步区分（小类），譬如同一种报表的不同期次，就把ReportDate传进来
+		this.addColumn("OneKey", "主键","String",true,false);//标识同一种类型数据进一步区分（小类），譬如同一种报表的不同期次，就把ReportDate传进来
 		this.addColumn("ImportNo", "批量号","String",true,false);//主要是为了区分批次之间（在大类+小类的前提下的最新和以前批次的区分）
 		this.addColumn("ImportIndex", "批量序列号","String",true,false);//记录批次内序列
 		this.addColumn("ImportTime", "批量时间","String",true,false);//记录批次时间
@@ -37,7 +37,7 @@ public class ObjRow {
 
 		//对这些值设恒定值
 		this.setString("ConfigNo",configNo);
-		this.setString("Key",Key);
+		this.setString("OneKey",Key);
 		
 		SimpleDateFormat sdf=new SimpleDateFormat("'N'yyyyMMdd");
 		this.setString("ImportNo",sdf.format(new Date())+"000000");

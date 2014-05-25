@@ -142,7 +142,7 @@
 	/*~[Describe=新增记录;InputParam=无;OutPutParam=无;]~*/
 	function newRecord()
 	{
-        sReturn = popComp("EDOCTemplateInfo","/Common/EDOC/TemplateInfo.jsp","","");
+        sReturn = popComp("EDOCTemplateInfo","/Data/Define/TemplateInfo.jsp","","");
         reloadSelf();
 	}
 	
@@ -154,7 +154,7 @@
 			alert(getHtmlMessage('1'));//请选择一条信息！
 	        return ;
 		}
-	    sReturn=popComp("EDOCTemplateInfo","/Common/EDOC/TemplateInfo.jsp","EDocNo="+sEDocNo,"");
+	    sReturn=popComp("EDOCTemplateInfo","/Data/Define/TemplateInfo.jsp","EDocNo="+sEDocNo,"");
 	    if (typeof(sReturn)!='undefined' && sReturn.length!=0) 
 	    {
         	reloadSelf();
@@ -176,7 +176,7 @@
 			    return;
 			}
 		}
-		popComp("EDocTemplateChooseDialog","/Common/EDOC/TemplateChooseDialog.jsp","EDocNo="+sEDocNo+"&DocType=Fmt","dialogWidth=650px;dialogHeight=250px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
+		popComp("TemplateChooseDialog","/Data/Define/TemplateChooseDialog.jsp","EDocNo="+sEDocNo+"&DocType=Fmt","dialogWidth=650px;dialogHeight=250px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
 		reloadSelf();
 	}
 
@@ -195,7 +195,7 @@
 			    return;
 			}
 		}
-		popComp("TemplateChooseDialog","/Common/EDOC/TemplateChooseDialog.jsp","EDocNo="+sEDocNo+"&DocType=Def","dialogWidth=650px;dialogHeight=250px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
+		popComp("TemplateChooseDialog","/Data/Define/TemplateChooseDialog.jsp","EDocNo="+sEDocNo+"&DocType=Def","dialogWidth=650px;dialogHeight=250px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
 		reloadSelf();
 	}
 
@@ -207,7 +207,7 @@
 			alert(getHtmlMessage('1'));//请选择一条信息！
 	        return ;
 		}
-		popComp("TemplateState","/Common/EDOC/TemplateState.jsp","EDocNo="+sEDocNo);
+		popComp("TemplateState","/Data/Define/TemplateState.jsp","EDocNo="+sEDocNo);
 	}
 
 	/*~[Describe=删除记录;InputParam=无;OutPutParam=无;]~*/

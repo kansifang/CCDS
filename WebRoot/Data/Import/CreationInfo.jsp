@@ -61,9 +61,9 @@
 	//通过显示模版产生ASDataObject对象doTemp
 	String[][] sHeaders = {
 							{"ConfigNo","报表类型"},							
-							{"ReportDate","报表日期"}
+							{"OneKey","报表日期"}
 						  };
-	sSql = 	" select ConfigNo,Key as ReportDate"+	
+	sSql = 	" select ConfigNo,OneKey"+	
 				" from Batch_Import where 1 = 2 ";	
 	//通过SQL产生ASDataObject对象doTemp
 	ASDataObject doTemp = new ASDataObject(sSql);	
@@ -71,7 +71,7 @@
 	doTemp.setHeader(sHeaders);
 	
 	//设置必输项
-	doTemp.setRequired("ConfigNo,ReportDate",true);
+	doTemp.setRequired("ConfigNo,OneKey",true);
 	//设置下拉框选择内容
 	if(sApplyType.equals("IndependentApply"))
 		doTemp.setDDDWCode("OccurType","OccurType");	
@@ -80,7 +80,7 @@
 	//设置必输背景色
 	doTemp.setHTMLStyle("OccurType,OccurDate","style={background=\"#EEEEff\"} ");
 	//设置日期格式
-	doTemp.setCheckFormat("ReportDate","6");	
+	doTemp.setCheckFormat("OneKey","6");	
 	//注意,先设HTMLStyle，再设ReadOnly，否则ReadOnly不会变灰
 	doTemp.setHTMLStyle("InputDate"," style={width:80px}");
 	doTemp.setReadOnly("InputOrgName,InputUserName,InputDate",true);
@@ -139,7 +139,7 @@
 	function nextStep()
 	{
 		//发生日期
-		sOccurDate = getItemValue(0,getRow(),"ReportDate");		
+		sOccurDate = getItemValue(0,getRow(),"OneKey");		
 		if (typeof(sOccurDate) == "undefined" || sOccurDate.length == 0)
 		{
 			alert(getBusinessMessage('507'));//请选择发生日期！
@@ -165,7 +165,7 @@
 			sOccurType = "<%=sOccurType%>";
 			sOccurDate = "<%=sOccurDate%>";
 			setItemValue(0,0,"ConfigNo","b20140519000001");
-			setItemValue(0,0,"ReportDate","<%=DateUtils.getRelativeMonth(DateUtils.getToday(),0,0)%>");
+			setItemValue(0,0,"OneKey","<%=DateUtils.getRelativeMonth(DateUtils.getToday(),0,0)%>");
 			setItemValue(0,0,"InputOrgName","<%=CurOrg.OrgName%>");	
 			setItemValue(0,0,"InputUserName","<%=CurUser.UserName%>");	
 			setItemValue(0,0,"InputDate","<%=DateUtils.getToday()%>");			
@@ -174,7 +174,7 @@
 	/*~[Describe=确认新增授信申请;InputParam=无;OutPutParam=申请流水号;]~*/
 	function doReturn(){
 		var sConfigNo= getItemValue(0,0,"ConfigNo");		
-		var sReportDate = getItemValue(0,0,"ReportDate");		
+		var sReportDate = getItemValue(0,0,"OneKey");		
 		self.returnValue = sConfigNo+"@"+sReportDate;
 		self.close();
 	}
