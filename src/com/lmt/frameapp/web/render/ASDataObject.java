@@ -382,11 +382,12 @@ public class ASDataObject implements Cloneable {
 	public void parseColumns() {
 		int iPos = 0;
 		int iPosComma = 0;
+		int iPosT=0;
 		String sSelect = SelectClause.substring(6).trim();
 		do {
-			int iT1 = StringFunction.indexOf(sSelect, ",", "'", "'", iPos);
-			int iT2 = StringFunction.indexOf(sSelect, ",", "[", "]", iPos);
-			int iT3 = StringFunction.indexOf(sSelect, ",", "(", ")", iPos);
+			int iT1 = StringFunction.indexOf(sSelect, ",", "'", "'", iPosT);
+			int iT2 = StringFunction.indexOf(sSelect, ",", "[", "]", iPosT);
+			int iT3 = StringFunction.indexOf(sSelect, ",", "(", ")", iPosT);
 			if (iT1 >= 0 && iT2 >= 0 && iT3 >= 0) {
 				if (iT2 > iT1)
 					iPosComma = iT2;
@@ -394,6 +395,12 @@ public class ASDataObject implements Cloneable {
 					iPosComma = iT1;
 				if (iPosComma < iT3)
 					iPosComma = iT3;
+				if(iT3!=iT1||iT3!=iT2){//新加代码，逻辑是只有三者相等时，才能保证","同时不在'' [] ()之间
+					iPosT=iT3;
+					continue;
+				}else{
+					iPosT=iPosComma+1;
+				}
 			} else {
 				iPosComma = -1;
 			}

@@ -48,7 +48,7 @@
 		ASDataObject doTemp = null;
 		String sHeaders1[][] = {
 									{"OneKey","报告日期"},
-									{"IsFinished","是否完成"},
+									{"ConfigNo","维度配置号"},
 									{"BusinessTypeName","业务品种"},
 									{"SerialNo","流水号"},
 									{"Currency","币种"},
@@ -152,11 +152,9 @@
 		}
 		sReturn = sReturn.split("@");
 		var sSerialNo=sReturn[0];
-		var sConfigNo=sReturn[1];
-		var sKey=sReturn[2];
 		sCompID = "ReportTab";
 		sCompURL = "/Data/Report/ReportTab.jsp";
-		sParamString = "SerialNo="+sSerialNo+"&ConfigNo="+sConfigNo+"&OneKey="+sKey;
+		sParamString = "SerialNo="+sSerialNo;
 		OpenComp(sCompID,sCompURL,sParamString,"_blank",OpenStyle);
 		reloadSelf();
 	}
@@ -195,7 +193,7 @@
 		}else{
 			sCompID = "ReportTab";
 			sCompURL = "/Data/Report/ReportTab.jsp";
-			sParamString = "SerialNo="+sSerialNo+"&ConfigNo="+sConfigNo;
+			sParamString = "SerialNo="+sSerialNo;
 			OpenComp(sCompID,sCompURL,sParamString,"_blank",OpenStyle);
 		}
 	}

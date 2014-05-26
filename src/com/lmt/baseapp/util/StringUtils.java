@@ -127,27 +127,57 @@ public class StringUtils
     }
     return sExcelCol;
   }
-  //把Excel中列序号转化为字母表示 1为A....
-  public static String replaceWithConfig(String s,String sStart,String sEnd,Transaction Sqlca) throws Exception
+  //把s中以sStart开始sEnd结尾的字符串，用配置表中 ItemDescribe（真正的数据库字段）代替
+  public static String replaceWithConfig(String s,Transaction Sqlca) throws Exception
   {
-    while(s.indexOf(sStart)!=-1&&s.indexOf(sEnd)!=-1){
-		int ss=s.indexOf(sStart);
-		int se=s.indexOf(sEnd);
-		String toReplaceS="";
-		if(se+2>s.length()){
-			toReplaceS=s.substring(ss,s.length());
-		}else{
-			toReplaceS=s.substring(ss, se+2);
-		}
-		String configContent=s.substring(ss+2, se);
-		String[] configContentA=configContent.split("@");
+    while(s.indexOf("~s")!=-1&&s.indexOf("e~")!=-1){
+		String[]cc=getToReplace(s,"~s","e~");
+		String[] configContentA=cc[0].split("@");
 		String sConfig="select ItemDescribe from Code_Library CL "+
-				"where Attribute1='"+configContentA[1].trim()+"' and IsInUse='1' "+
-				"and exists(select 1 from Code_Catalog CC where CC.CodeNo=CL.CodeNo and CC.CodeName='"+configContentA[0].trim()+"')";
+						"where Attribute1='"+configContentA[1].trim()+"' "+
+						"and IsInUse='1' "+
+						"and exists(select 1 from Code_Catalog CC "+
+							"where CC.CodeNo=CL.CodeNo "+
+							"and CC.CodeName='"+configContentA[0].trim()+"')";
 		String sReplaceS=Sqlca.getString(sConfig);
-		s =StringFunction.replace(s, toReplaceS, sReplaceS);
+		s =StringFunction.replace(s, cc[1], sReplaceS);
 	};
     return s;
+  }
+  //把s中以#last1year，#last2year..等根据date计算上年末，上两年末..的字符串替换成真正的上年末，上两年末
+  public static String replaceWithRealDate(String s,String date) throws Exception{
+	while(s.indexOf("#last")!=-1&&s.indexOf("yearend")!=-1){//当包括下面的占位符时，越细致的占位符越先替换，所以放前面
+    	String[]cc=getToReplace(s,"#last","yearend");
+		int i=Integer.valueOf(cc[0]);
+		String sRealDate=StringFunction.getRelativeAccountMonth(date.substring(0, 4)+"/12","year",-i);
+		s =StringFunction.replace(s, cc[1], sRealDate);
+	};
+    while(s.indexOf("#last")!=-1&&s.indexOf("year")!=-1){
+    	String[]cc=getToReplace(s,"#last","year");
+		int i=Integer.valueOf(cc[0]);
+		String sRealDate=StringFunction.getRelativeAccountMonth(date,"year",-i);
+		s =StringFunction.replace(s, cc[1], sRealDate);
+	};
+	
+	while(s.indexOf("#last")!=-1&&s.indexOf("month")!=-1){
+    	String[]cc=getToReplace(s,"#last","month");
+		int i=Integer.valueOf(cc[0]);
+		String sRealDate=StringFunction.getRelativeAccountMonth(date,"month",-i);
+		s =StringFunction.replace(s, cc[1], sRealDate);
+	};
+    return s;
+  }
+  private static String[]getToReplace(String s,String sStart,String sEnd){
+	  	int ss=s.indexOf(sStart);
+		int se=s.indexOf(sEnd);
+		String toReplaceS="";
+		if(se+sEnd.length()>s.length()){
+			toReplaceS=s.substring(ss,s.length());
+		}else{
+			toReplaceS=s.substring(ss, se+sEnd.length());
+		}
+		String configContent=s.substring(ss+sStart.length(), se);
+		return new String[]{configContent,toReplaceS};
   }
   public static String getOrgName(String sOrgID, Connection conn, String version) throws Exception
   {

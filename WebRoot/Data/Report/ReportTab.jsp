@@ -29,7 +29,6 @@
 	<%
 	//获得组件参数	
 	String sSerialNo   = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("SerialNo")));
-	String sConfigNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("ConfigNo")));
 	%>
 <%/*~END~*/%>     
 
@@ -45,14 +44,25 @@
 	  	String sAddStringArray[] = null;
 	  	String sTabStrip[][] = new String[20][3];
 		int initTab = 1;//设定默认的 tab ，数值代表第几个tab
+		String sConfigNo="",sOneKey="";		
+		ASResultSet rs=Sqlca.getASResultSet("select ConfigNo,OneKey from Batch_Report where SerialNo='"+sSerialNo+"'");
+		if(rs.next()){
+			sConfigNo=DataConvert.toString(rs.getString(1));
+			sOneKey=DataConvert.toString(rs.getString(2));
+		}
+		rs.getStatement().close();
 		//获取
-		sSql = "select AttachmentNo,FileName,Attribute1 from Doc_Attachment where DocNo ='"+sConfigNo+"' order by AttachmentNo asc";
-		ASResultSet rs = Sqlca.getResultSet(sSql);
+		sSql = "select AttachmentNo,FileName,Attribute1,Attribute2 from Doc_Attachment where DocNo ='"+sConfigNo+"' order by AttachmentNo asc";
+		rs = Sqlca.getResultSet(sSql);
 		while(rs.next()){
-			sAddStringArray = new String[] {"",rs.getString(2),"doTabAction('"+rs.getString(3).replaceAll("#AttachmentNo",rs.getString(1))+"')"};
+			sAddStringArray = new String[] {"",rs.getString(2),"doTabAction('"+
+					rs.getString(3).replaceAll("#AttachmentNo",rs.getString(1))
+						.replaceAll("#Type", rs.getString(4))
+						.replaceAll("#OneKey", sOneKey)
+						+"')"};
 			sTabStrip = HTMLTab.addTabArray(sTabStrip,sAddStringArray);
 		}
-		
+		rs.getStatement().close();
 		//设定标题
 		sTitle = "贷款用途报告";
 

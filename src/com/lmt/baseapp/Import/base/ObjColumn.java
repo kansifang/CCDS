@@ -14,7 +14,7 @@ public class ObjColumn {
 	private  Double columnDValue=0.0;//字段是double情况下会有值
 	private  String columnHeadName=null;//字段在文件中的标题名
 	private  boolean outFileColumn=false;//不在文件中的字段，指的是导入文件时另外加的值，文件中不提供，但又有必要，比如导入号等，辅助性的东西
-	private  HashMap<String,String> columnValueToCode=new HashMap<String,String>();//代码和代码值对应表
+	private  HashMap<String,String> columnValueToCode=null;//代码和代码值对应表
 	
 	public ObjColumn(String columnName, String columnType,HashMap<String, String> columnValueToCode) {
 		this.columnName = columnName.toUpperCase();
@@ -44,8 +44,8 @@ public class ObjColumn {
 		this.index = index;
 		this.outFileColumn=outFileColumn;
 	}
-	public void setColumnName(String columnName) {
-		this.columnName = columnName.toUpperCase();
+	public void setColumnName(String columnEName) {
+		this.columnName = columnEName.toUpperCase();
 	}
 	public String getColumnName() {
 		return columnName;
@@ -83,11 +83,11 @@ public class ObjColumn {
 	public String getColumnHeadName() {
 		return columnHeadName;
 	}
-	public boolean containsColumnName(String column) {
-		if(column==null||"".equals(column)){
+	public boolean containsColumnName(String columnEName) {
+		if(columnEName==null||"".equals(columnEName)){
 			return false;
 		}
-		if(this.columnName.equalsIgnoreCase(column)){
+		if(this.columnName.equalsIgnoreCase(columnEName)){
 			return true;
 		}
 		return false;
@@ -117,6 +117,9 @@ public class ObjColumn {
 		return columnSValue;
 	}
 	public void setSColumnValue(String columnValue) {
+		if (columnValueToCode!=null&&columnValueToCode.containsKey(columnValue)) {
+			columnValue=columnValueToCode.get(columnValue);
+		}
 		this.columnSValue = columnValue;
 	}
 	public Double getDColumnValue() {

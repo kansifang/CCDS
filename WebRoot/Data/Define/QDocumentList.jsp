@@ -66,8 +66,9 @@
 	//设置不可见项
     doTemp.setVisible("UserID,DocType,ObjectNo,ObjectType",false);
     //设置风格
-   	doTemp.setEditStyle("DocKeyWord,DocAbstract,Remark", "1");
+   	doTemp.setEditStyle("DocKeyWord,DocAbstract,Remark,DocTitle", "1");
 	doTemp.setHTMLStyle("DocKeyWord,DocAbstract,Remark", "");
+	doTemp.setHTMLStyle("DocTitle", "style={width=200px}");
     //生成查询框
 	doTemp.setColumnAttribute("DocTypeName,DocTitle","IsFilter","1");
 	doTemp.generateFilters(Sqlca);

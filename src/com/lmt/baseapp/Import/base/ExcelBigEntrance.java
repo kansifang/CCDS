@@ -36,6 +36,7 @@ public class ExcelBigEntrance implements EntranceImpl{
 	 	//初始化数据结构  一次导入对应一个模板定义，对应一个PS
 		//初始化head属性
 	 	this.OR=new ObjRow(configNo,Key,this.CurUser,this.Sqlca);
+	 	this.OR.setValueToCode(Sqlca);
 		this.HDB=new DBHandler(sImportTableName,OR,Sqlca);
 	}
 	public void action(String configNo,String Key) throws Exception {

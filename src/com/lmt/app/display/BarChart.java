@@ -1,4 +1,4 @@
-package com.jfreechart;
+package com.lmt.app.display;
 
 import java.awt.Font;
 import java.io.File;
@@ -11,22 +11,24 @@ import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
 
-public class 柱状图 {
+import com.lmt.frameapp.sql.Transaction;
+
+public class BarChart {
 	/*
 	 * 程序入口
 	 */
 	public static void main(String[] args) {
 		// 创建柱状图对象
-		JFreeChart 柱状图 = ChartFactory.createBarChart3D("水果产量统计", "水果", "产量", 得到数据(), PlotOrientation.VERTICAL, true, true, true);
+		//JFreeChart 柱状图 = ChartFactory.createBarChart3D("水果产量统计", "水果", "产量", 得到数据(), PlotOrientation.VERTICAL, true, true, true);
 		// 给柱状图对象设置样式
-		setStyle(柱状图);
+		//setStyle(柱状图);
 		// 对柱状图对象生成图片
-		生成图片("D:\\柱状图.jpg",柱状图,800,600);
+		//生成图片("D:\\柱状图.jpg",柱状图,800,600);
 	}
 	/*
 	 * 得到数据
 	 */
-	public static DefaultCategoryDataset 得到数据(){
+	public static DefaultCategoryDataset getDataSet(String sSql,Transaction Sqlca){
 		// 创建柱状数据对象
 		DefaultCategoryDataset 柱状数据 = new DefaultCategoryDataset();
 		// 添加数据

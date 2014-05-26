@@ -164,12 +164,12 @@ public class ObjRow {
 		}
 		return null;
 	}
-	public ObjColumn getColumnObj(String column) {
-		if (column == null || column.equals("")) {
+	public ObjColumn getColumnObj(String columnEName) {
+		if (columnEName == null || columnEName.equals("")) {
 			return null;
 		}
 		for (ObjColumn sC : this.columns) {
-			if (sC.containsColumnName(column)) {
+			if (sC.containsColumnName(columnEName)) {
 				return sC;
 			}
 		}
@@ -254,13 +254,6 @@ public class ObjRow {
 		return null;
 	}
 
-	public void setValueCode(String column, HashMap<String, String> valueToCode) {
-		ObjColumn sC = this.getColumnObj(column);
-		if (sC != null) {
-			sC.setColumnValueToCode(valueToCode);
-		}
-	}
-
 	public String getCodeWH(String head) {
 		String sDisplayValue = "";
 		ObjColumn sC = this.getColumnObjWH(head);
@@ -274,12 +267,12 @@ public class ObjRow {
 		return sDisplayValue;
 	}
 
-	public String getCode(String column) {
+	public String getCode(String columnEName) {
 		String sDisplayValue = "";
-		ObjColumn sC = this.getColumnObj(column);
+		ObjColumn sC = this.getColumnObj(columnEName);
 		if (sC != null) {
 			HashMap<String, String> valueToCode = sC.getColumnValueToCode();
-			sDisplayValue = this.getString(column);
+			sDisplayValue = this.getString(columnEName);
 			if (valueToCode.containsKey(sDisplayValue)) {
 				return valueToCode.get(sDisplayValue);
 			}
@@ -396,5 +389,39 @@ public class ObjRow {
 	protected Exception toException(String message, Exception e) {
 		e.printStackTrace();
 		return new Exception(message);
+	}
+	// 主要是处理 在excel中的显示值和在数据库中是代码值的情况
+	/**
+	 * 将所有 sheet 中 通过下拉框选值的字段添加到map中 形如：男 1，女 2..
+	 * 
+	 * @throws Exception
+	 */
+	public void setValueToCode(Transaction Sqlca) throws Exception {
+		ASResultSet rs = null; // 结果集
+		HashMap<String, String> currencyMap = new HashMap<String, String>();
+		rs = Sqlca.getASResultSet("SELECT ItemName,ItemNo FROM Code_Library WHERE Codeno = 'Currency'");
+		getMaps(rs, currencyMap);
+		this.setValueCode("币种", currencyMap);
+	}
+	/**
+	 *把 从数据库中获取的显示值 代码值放入Map
+	 * 
+	 * @param rs
+	 * @param MapName
+	 * @throws Exception
+	 */
+	private void getMaps(ASResultSet rs, HashMap<String, String> MapName)
+			throws Exception {
+		while (rs.next()) {
+			// 将名称作为key 编号为value
+			MapName.put(rs.getString(1), rs.getString(2));
+		}
+		rs.getStatement().close();
+	}
+	private void setValueCode(String columnHeadName, HashMap<String, String> valueToCode) {
+		ObjColumn sC = this.getColumnObjWH(columnHeadName);
+		if (sC != null) {
+			sC.setColumnValueToCode(valueToCode);
+		}
 	}
 }

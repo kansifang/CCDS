@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=GBK"%>
 <%@ include file="/IncludeBegin.jsp"%>
-<%@page import="com.lmt.app.display.PieChart" %>
-<%@page import="org.jfree.chart.ChartFactory,org.jfree.chart.ChartUtilities,
+<%@page import="com.lmt.app.display.*" %>
+<%@page import="org.jfree.chart.ChartFactory,org.jfree.chart.ChartUtilities,org.jfree.chart.plot.*,
 org.jfree.chart.JFreeChart"%>
 <%
 	/*~BEGIN~可编辑区~[Editable=true;CodeAreaID=List02;Describe=定义变量，获取参数;]~*/
@@ -11,12 +11,16 @@ org.jfree.chart.JFreeChart"%>
 	String sSql="";
 	iPostChange=5;
 	//获得页面参数	
-	String sSelectName = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("R0F2")));
-	String sStyle =   DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("R0F3")));
-	String sColumn = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("R0F4")));
-	String sTableName = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("R0F5")));
-	String sKeyColumn = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("R0F6")));
+	
+	
 	String sAttachmentNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("AttachmentNo")));
+	//01列表 02 饼状图 03柱状图04折线图 
+	String sType =   DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("Type")));
+	String sOneKey =   DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("OneKey")));
+	
+	String sSelectName = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("R0F2")));
+	String sKeyColumn = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("R0F6")));
+	
 	String sFilterColumn=sKeyColumn;
 	String PG_TITLE = sSelectName+"@WindowTitle"; // 浏览器窗口标题 <title> PG_TITLE </title>
 %>
@@ -68,13 +72,65 @@ org.jfree.chart.JFreeChart"%>
 	sSql=sSql.replaceAll("&lt;", "<");
 	sSql=sSql.replaceAll("&gt;", ">");
 	//2、形如 ~s借据明细@归属条线e~ 的变量替换
-	sSql=StringUtils.replaceWithConfig(sSql, "~s", "e~", Sqlca);
+	sSql=StringUtils.replaceWithConfig(sSql,Sqlca);
+	sSql=StringUtils.replaceWithRealDate(sSql, sOneKey);
 	sSql =StringFunction.replace(sSql, "~YH~", "\"");
-	response.setContentType("image/jpeg");
-	// 创建饼状图对象
-	JFreeChart jf = ChartFactory.createPieChart("占有统计", PieChart.getDataSet(sSql,Sqlca), true, true, true);
-	PieChart.setStyle(jf);
-	ChartUtilities.writeChartAsJPEG(response.getOutputStream(), jf, 400, 300);
+	sSql =StringFunction.replace(sSql, "#OneKey",sOneKey);
+	ASDataObject doTemp = new ASDataObject(sSql);
+	
+	//处理sql语句中一个字段有多个  as 不能有效获得别名当做标题 ，以及 sql语句别名以数字开头时必须整个用双引号引起来，这也导致形成标题时双引号反而不能去掉
+	for (int i=0;i<doTemp.Columns.size();i++){
+		String sHeader=doTemp.getColumnAttribute(i, "Header");
+		if(sHeader.lastIndexOf(" as ")!=-1){
+			sHeader=sHeader.substring(sHeader.lastIndexOf(" as ")+3);
+		}
+		doTemp.setColumnAttribute(i, "Header", sHeader.replace("\"", ""));
+	}
+	doTemp.setKey(sKeyColumn,true);
+	//doTemp.setHeader(sHeaders);
+	doTemp.setHTMLStyle(0," style={width:260px} ");
+	//doTemp.setCheckFormat(sNumberColumn,"3");
+	//doTemp.setType(sStringColumn,"1");
+	//查询
+ 	doTemp.setColumnAttribute(sFilterColumn,"IsFilter","1");
+	doTemp.generateFilters(Sqlca);
+	doTemp.parseFilterData(request,iPostChange);
+	CurPage.setAttribute("FilterHTML",doTemp.getFilterHtml(Sqlca));
+	
+	//if(!doTemp.haveReceivedFilterCriteria()) doTemp.WhereClause+=" and 1=2";
+	ASDataWindow dwTemp = new ASDataWindow(CurPage,doTemp,Sqlca);
+	dwTemp.Style="1";      //设置DW风格 1:Grid 2:Freeform
+	dwTemp.ReadOnly = "1"; //设置是否只读 1:只读 0:可写
+	dwTemp.setPageSize(30);
+	
+	//生成HTMLDataWindow
+	Vector vTemp = dwTemp.genHTMLDataWindow("");
+	for(int i=0;i<vTemp.size();i++) out.print((String)vTemp.get(i));
+	//如果是图会覆盖上面的列表所以和上面不会冲突
+	if("02".equals(sType)){//饼状图
+		response.setContentType("image/jpeg");
+		// 创建饼状图对象
+		JFreeChart jf = ChartFactory.createPieChart("占有统计", PieChart.getDataSet(sSql,Sqlca), true, true, true);
+		PieChart.setStyle(jf);
+		ChartUtilities.writeChartAsJPEG(response.getOutputStream(), jf, 400, 300);
+	}else if("03".equals(sType)){//柱状图
+		response.setContentType("image/jpeg");
+		// 创建柱状图对象
+		JFreeChart jf = ChartFactory.createBarChart3D("统计", "水果", "产量", BarChart.getDataSet(sSql,Sqlca), PlotOrientation.VERTICAL, true, true, true);
+		// 给柱状图对象设置样式
+		BarChart.setStyle(jf);
+		// 对柱状图对象生成图片
+		ChartUtilities.writeChartAsJPEG(response.getOutputStream(), jf, 400, 300);
+	}else if("04".equals(sType)){//折线图
+		response.setContentType("image/jpeg");
+		// 创建折线图对象
+		JFreeChart jf = ChartFactory.createLineChart("统计", "时间", "", LineChart.getDataSet(sSql,Sqlca), PlotOrientation.VERTICAL, true, true, true);
+		// 给折线图对象设置样式
+		LineChart.setStyle(jf);
+		// 对折线图对象生成图片
+		ChartUtilities.writeChartAsJPEG(response.getOutputStream(), jf, 400, 300);
+	}
+	
 
 %>
 <%
@@ -103,7 +159,7 @@ org.jfree.chart.JFreeChart"%>
 			//{"false","","Button","更新","更新数据库","convertStyle()",sResourcesPath},
 			//{"true","","Button","保存","保存所有修改,并返回列表页面","save()",sResourcesPath},
 			};
-		if("02".equals(sStyle)){
+		if("02".equals(sType)){
 			sButtons[0][0]="false";
 			sButtons[1][0]="false";
 			sButtons[2][0]="false";
@@ -118,8 +174,9 @@ org.jfree.chart.JFreeChart"%>
 
 <%
 	/*~BEGIN~不可编辑区~[Editable=false;CodeAreaID=List05;Describe=主体页面;]~*/
-%>
 	
+%>
+	<%@include file="/Resources/CodeParts/List05.jsp"%>
 <%
 	/*~END~*/
 %>
@@ -133,13 +190,6 @@ org.jfree.chart.JFreeChart"%>
 	<script language=javascript>
 
 	//---------------------定义按钮事件------------------------------------
-	/*~[Describe=新增记录;InputParam=无;OutPutParam=无;]~*/
-	function newRecord()
-	{
-		//as_add("myiframe0");//新增记录
-		popComp("QResultInfo","/Common/Configurator/MetaDataManage/QResultInfo.jsp","tableName=<%=sTableName%>&keyColumn=<%=sKeyColumn%>","");
-		reloadSelf();
-	}
 	function save(sPostEvents)
 	{
 		as_save("myiframe0",sPostEvents);
@@ -161,25 +211,6 @@ org.jfree.chart.JFreeChart"%>
 			as_del("myiframe0");
 			as_save("myiframe0");  //如果单个删除，则要调用此语句
 		}
-	}
-
-	/*~[Describe=查看及修改详情;InputParam=无;OutPutParam=无;]~*/
-	function viewAndEdit()
-	{
-		var sKeyIDs="<%=sKeyColumn%>".split(",");
-		var keyID1 = getItemValue(0,getRow(),sKeyIDs[0].toUpperCase());
-		if (typeof(keyID1)=="undefined" || keyID1.length==0)
-		{
-			alert(getHtmlMessage('1'));//请选择一条信息！
-			return;
-		}
-		var KeyValues="";
-		for(var i=0;i<sKeyIDs.length;i++){
-			KeyValues+=getItemValue(0,getRow(),sKeyIDs[i].toUpperCase())+"@";
-		}
-		KeyValues=KeyValues.substring(0,KeyValues.length-1);
-		popComp("QResultInfo","/Common/Configurator/MetaDataManage/QResultInfo.jsp","tableName=<%=sTableName%>&keyColumn=<%=sKeyColumn%>&KeyValues="+KeyValues,"");
-		reloadSelf();
 	}
 	
 
@@ -226,6 +257,7 @@ org.jfree.chart.JFreeChart"%>
 	AsOne.AsInit();
 	init();
 	my_load(2,0,'myiframe0');
+	hideFilterArea();
 </script>	
 <%
 		/*~END~*/

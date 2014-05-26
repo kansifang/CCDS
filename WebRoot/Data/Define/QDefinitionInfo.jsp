@@ -242,7 +242,8 @@
 		{
 			as_add("myiframe0");//ÐÂÔö¼ÇÂ¼
 			setItemValue(0,0,"DocNo","<%=sDocNo%>");
-			setItemValue(0,0,"QStyle","01");
+			setItemValue(0,0,"QStyle","02");
+			setItemValue(0,0,"Attribute1","OpenComp(~QResultChart~,~/Data/Define/QResultChart.jsp~,~AttachmentNo=#AttachmentNo&Type=#Type&OneKey=#OneKey~,~TabContentFrame~,~~)");
 			bIsInsert = true;
 		}
 		setItemValue(0,0,"Column","<%=sColumn%>");

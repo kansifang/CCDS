@@ -1,4 +1,4 @@
-package com.jfreechart;
+package com.lmt.app.display;
 
 import java.awt.Font;
 import java.io.File;
@@ -11,38 +11,37 @@ import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.general.DefaultPieDataset;
 
-public class 折线图 {
+import com.lmt.frameapp.sql.ASResultSet;
+import com.lmt.frameapp.sql.Transaction;
+
+public class LineChart {
 	/*
 	 * 程序入口
 	 */
 	public static void main(String[] args) {
 		// 创建折线图对象
-		JFreeChart 折线图 = ChartFactory.createLineChart("水果销量统计", "时间", "销量", 得到数据(), PlotOrientation.VERTICAL, true, true, true);
+		//JFreeChart 折线图 = ChartFactory.createLineChart("水果销量统计", "时间", "销量", 得到数据(), PlotOrientation.VERTICAL, true, true, true);
 		// 给折线图对象设置样式
-		setStyle(折线图);
+		//setStyle(折线图);
 		// 对折线图对象生成图片
-		生成图片("D:\\折线图.jpg",折线图,800,600);
+		//生成图片("E:\\折线图.jpg",折线图,800,600);
 	}
 	/*
 	 * 得到数据
 	 */
-	public static CategoryDataset 得到数据(){
-		// 创建折线数据对象
-		DefaultCategoryDataset 折线数据 = new DefaultCategoryDataset();
+	public static CategoryDataset getDataSet(String sSql,Transaction Sqlca) throws Exception{
+		// 创建柱状数据对象
+		DefaultCategoryDataset PD = new DefaultCategoryDataset();
+		ASResultSet rs=Sqlca.getASResultSet(sSql);
 		// 添加数据
-		折线数据.addValue(12, "北京", (Integer)1);
-		折线数据.addValue(15, "北京", (Integer)2);
-		折线数据.addValue(13, "北京", (Integer)3);
-		折线数据.addValue(18, "北京", (Integer)1);
-		折线数据.addValue(16, "北京", (Integer)2);
-		折线数据.addValue(18, "西安", (Integer)3);
-		折线数据.addValue(16, "西安", (Integer)1);
-		折线数据.addValue(22, "西安", (Integer)2);
-		折线数据.addValue(20, "西安", (Integer)3);
-		折线数据.addValue(14, "西安", (Integer)1);
+		while(rs.next()){
+			PD.setValue(rs.getDouble(1), rs.getString(2),rs.getString(3));
+		}
 		// 返回数据
-		return 折线数据;
+		return PD;
+		// 创建折线数据对象
 	}
 	/*
 	 * 对图表对象设置样式
