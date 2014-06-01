@@ -110,14 +110,14 @@ public class AfterImportDuebillHandler{
 			isSeason=true;
 		}
 		String sSql="";
- 		//1、按条线计算增加额和比例等信息放入处理表中
+ 		//1、按各种维度汇总到处理表中
 		String groupColumns=groupBy.replaceAll(",","||'@'||");
 		groupColumns=("".equals(groupColumns)?"":groupColumns+",");
  		sSql="select "+
  				"ConfigNo,OneKey,'"+Dimension+"',"+groupColumns+
 				"round(sum(case when ~s借据明细@借据起始日e~ like '"+sKey+"%' then ~s借据明细@金额(元)e~ end)/10000,2) as BusinessSum,"+//按月投放金额
 				(isSeason==true?"round(sum(case when ~s借据明细@借据起始日e~ like '"+last2month+"%' or ~s借据明细@借据起始日e~ like '"+last1month+"%' or ~s借据明细@借据起始日e~ like '"+sKey+"%' then ~s借据明细@金额(元)e~ end)/10000,2)":"0")+","+//如果是季度末，计算按季投放金额
-				"round(sum(~s借据明细@金额(元)e~*~s借据明细@执行年利率(%)e~)/sum(~s借据明细@金额(元)e~),2) as Balance, "+//加权利率
+				"round(case when sum(~s借据明细@金额(元)e~)<>0 then sum(~s借据明细@金额(元)e~*~s借据明细@执行年利率(%)e~)/sum(~s借据明细@金额(元)e~) else 0 end,2) as Balance, "+//加权利率
 				"round(sum(~s借据明细@余额(元)e~)/10000,2) as Balance, "+
 				"count(distinct ~s借据明细@客户名称e~) "+
 				"from Batch_Import_Interim "+
