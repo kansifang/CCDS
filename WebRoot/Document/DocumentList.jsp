@@ -159,7 +159,7 @@
 	/*~[Describe=新增记录;InputParam=无;OutPutParam=无;]~*/
 	function newRecord()
 	{
-		OpenPage("/Common/Document/DocumentInfo.jsp?UserID="+"<%=CurUser.UserID%>","_self","");
+		OpenPage("/Document/DocumentInfo.jsp?UserID="+"<%=CurUser.UserID%>","_self","");
 	}
 
 	/*~[Describe=删除记录;InputParam=无;OutPutParam=无;]~*/
@@ -198,7 +198,7 @@
     	}
     	else
     	{
-    		OpenPage("/Common/Document/DocumentInfo.jsp?DocNo="+sDocNo+"&UserID="+sUserID,"_self","");
+    		OpenPage("/Document/DocumentInfo.jsp?DocNo="+sDocNo+"&UserID="+sUserID,"_self","");
         }
 	}
 	
@@ -214,7 +214,7 @@
     	}
     	else
     	{
-    		popComp("AttachmentList","/Common/Document/AttachmentList.jsp","DocNo="+sDocNo+"&UserID="+sUserID);
+    		popComp("AttachmentList","/Document/AttachmentList.jsp","DocNo="+sDocNo+"&UserID="+sUserID);
       		reloadSelf();
       	}
 	}
@@ -223,7 +223,7 @@
 	function exportFile()
 	{
 		//导出附件信息       
-    	OpenPage("/Common/Document/ExportFile.jsp","_self","");
+    	OpenPage("/Document/ExportFile.jsp","_self","");
 	}
 	</script>
 <%
@@ -241,7 +241,7 @@
 			var sUserID=getItemValue(0,getRow(),"UserID");//取文档录入人	
 			document.getElementById("ListHorizontalBar").parentNode.style.display="";
 			document.getElementById("ListDetailAreaTD").parentNode.style.display="";
-			OpenComp("AttachmentList","/Common/Document/AttachmentList.jsp","DocNo="+sDocNo+"&UserID="+sUserID,"DetailFrame","");
+			OpenComp("AttachmentList","/Document/AttachmentList.jsp","DocNo="+sDocNo+"&UserID="+sUserID,"DetailFrame","");
 	
 		}
 	</script>

@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.HashMap;
 
 import com.lmt.baseapp.user.ASUser;
+import com.lmt.baseapp.util.DataConvert;
+import com.lmt.baseapp.util.StringFunction;
 import com.lmt.frameapp.sql.ASResultSet;
 import com.lmt.frameapp.sql.Transaction;
 
@@ -27,6 +29,7 @@ public class ObjRow {
 		}
 		//默认都有这个字段
 		this.addColumn("ConfigNo", "配置号","String",true,false);//记录Excel要素和数据要素对应关系的配置信息号，同时标识同一种类型数据（大类）
+		this.addColumn("ConfigName", "配置名称","String",true,false);//记录Excel要素和数据要素对应关系的配置信息号，同时标识同一种类型数据（大类）
 		this.addColumn("OneKey", "主键","String",true,false);//标识同一种类型数据进一步区分（小类），譬如同一种报表的不同期次，就把ReportDate传进来
 		this.addColumn("ImportNo", "批量号","String",true,false);//主要是为了区分批次之间（在大类+小类的前提下的最新和以前批次的区分）
 		this.addColumn("ImportIndex", "批量序列号","String",true,false);//记录批次内序列
@@ -34,16 +37,30 @@ public class ObjRow {
 		this.addColumn("UserID", "导入人","String",true,false);
 		//对字段值中特殊字符处理方式
 		this.setaReplaceBWithAInValue(new String[][] { { "￥", "" },{ "\\$", "" }, { ",", "" }, { "\"", "" },{ "渤海银行", "" },{ "渤海银行股份有限公司", "" }});
-
+		String sConfigName=DataConvert.toString(Sqlca.getString("select CodeName from Code_Catalog where CodeNo='"+configNo+"'"));
 		//对这些值设恒定值
 		this.setString("ConfigNo",configNo);
+		this.setString("ConfigName",sConfigName);
 		this.setString("OneKey",Key);
 		
-		SimpleDateFormat sdf=new SimpleDateFormat("'N'yyyyMMdd");
+		SimpleDateFormat sdf=new SimpleDateFormat("'N'yyyyMMddHHmmssSSSS");
 		this.setString("ImportNo",sdf.format(new Date())+"000000");
 		this.setString("UserID",curUser.UserID);
 		//初始化代码表(后期要改造成数据库配置形式)
 		//this.setValueToCode(this.Sqlca);
+	}
+	public void reInit(){
+		for(ObjColumn oc:this.columns){
+			if(!oc.isOutFileColumn()){
+				oc.setIndexInFile(-1);
+				oc.setSColumnValue("");
+				oc.setDColumnValue(0.0);
+				
+			}
+		}
+		SimpleDateFormat sdf=new SimpleDateFormat("'N'yyyyMMddHHmmssSSSS");
+		this.setString("ImportNo",sdf.format(new Date())+"000000");
+		
 	}
 	public String[][] getaReplaceBWithAInValue() {
 		return aReplaceBWithAInValue;

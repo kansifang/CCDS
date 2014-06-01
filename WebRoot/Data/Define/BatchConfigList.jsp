@@ -89,7 +89,7 @@
 	//设置表头,更新表名,键值,可见不可见,是否可以更新
 	doTemp = new ASDataObject(sSql);
 	doTemp.setHeader(sHeaders);
-	doTemp.setRequired("Attribute5",true);
+	//doTemp.setRequired("Attribute5",true);
 	doTemp.setHTMLStyle("ItemDescribe"," style={width:150px} ");
 	doTemp.UpdateTable= "Code_Library";
 	doTemp.setKey("CodeNo,ItemNo",true);
@@ -103,7 +103,7 @@
 	//doTemp.setHTMLStyle("Attribute1,Attribute2,Attribute3,Attribute4"," style={width:auto} ");
 	//设置字段显示宽度	
 	//doTemp.appendHTMLStyle("Status"," style={width:90px} onDBLClick=parent.selectOrUnselect() ");
-	doTemp.setColumnAttribute("Attribute1,Attribute6,ItemDescribe,Attribute2,SortNo","IsFilter","1");
+	doTemp.setColumnAttribute("Attribute1,Attribute6,Attribute8,ItemDescribe,Attribute2,SortNo","IsFilter","1");
 	doTemp.generateFilters(Sqlca);
 	doTemp.parseFilterData(request,iPostChange);
 	CurPage.setAttribute("FilterHTML",doTemp.getFilterHtml(Sqlca));
@@ -178,10 +178,10 @@
 			alert(getHtmlMessage('1'));//请选择一条信息！
 		}else if(confirm(getHtmlMessage('2')))//您真的想删除该信息吗？
 		{
-			backupHis();
+			//backupHis();
 			as_del('myiframe0');
    		    as_save('myiframe0');  //如果单个删除,则要调用此语句
-   		   // reloadSelf();
+   		   reloadSelf();
 		}
 	}
 

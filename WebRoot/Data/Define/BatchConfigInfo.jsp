@@ -88,9 +88,9 @@
 	//设置格式
 	doTemp.setAlign("Attribute2,Attribute4,","1");
 	doTemp.setRequired("Attribute2", true);
-	doTemp.setVisible("CodeNo,ItemName,InputUser,UpdateUser,Attribute8",false);
+	doTemp.setVisible("CodeNo,ItemName,InputUser,UpdateUser",false);
 	if("01".equals(sType)){
-		doTemp.setVisible("Attribute6,ItemAttribute,Attribute7", false);
+		doTemp.setVisible("Attribute6,ItemAttribute,Attribute7,Attribute8", false);
 	}else{
 		doTemp.setVisible("Attribute1,Attribute3,ItemDescribe", false);
 	}
@@ -167,11 +167,11 @@
 					ColumnName=addColumn();
 					setItemValue(0,0,"ItemDescribe",ColumnName);
 				}
-				var ItemNo=getItemValue(0,getRow(),"ItemNo");//Excel对应的表字段
+				var ItemNo = PopPage("/Common/ToolsB/GetSerialNo.jsp?TableName=Code_Library&ColumnName=ItemNo&Prefix=","","resizable=yes;dialogWidth=0;dialogHeight=0;center:no;status:no;statusbar:no");
 				var ColumnType = getItemValue(0,getRow(),"Attribute2");
 				var ColumnLong = getItemValue(0,getRow(),"Attribute4");
 				var ColumnPrecision = getItemValue(0,getRow(),"Attribute5");
-				var sReturn=RunMethod("PublicMethod","GetColValue","Count(1) as Count,Code_Library,String@CodeNo@b20140323000001@String@Attribute8@"+ColumnName+"@String@Attribute6@Batch_Import@String@Attribute7@AddColumn@String@IsInUse@1,Code_Library");
+				var sReturn=RunMethod("PublicMethod","GetColValue","Count(1) as Count,Code_Library,String@CodeNo@b20140323000001@String@Attribute8@"+ColumnName+",Code_Library");
 				if(sReturn.split('@')[1]==0){
 					RunMethod("PublicMethod","InsertColValue","String@CodeNo@b20140323000001@String@ItemNo@"+ItemNo+"@String@Attribute8@"+ColumnName+"@String@Attribute2@"+ColumnType+"@String@Attribute4@"+ColumnLong+"@String@Attribute5@"+ColumnPrecision+"@String@Attribute6@Batch_Import@String@Attribute7@AddColumn@String@IsInUse@1,Code_Library");
 				}

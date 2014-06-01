@@ -110,25 +110,25 @@ org.jfree.chart.JFreeChart"%>
 	if("02".equals(sType)){//饼状图
 		response.setContentType("image/jpeg");
 		// 创建饼状图对象
-		JFreeChart jf = ChartFactory.createPieChart("占有统计", PieChart.getDataSet(sSql,Sqlca), true, true, true);
+		JFreeChart jf = ChartFactory.createPieChart("", PieChart.getDataSet(sSql,Sqlca), true, true, true);
 		PieChart.setStyle(jf);
-		ChartUtilities.writeChartAsJPEG(response.getOutputStream(), jf, 400, 300);
+		ChartUtilities.writeChartAsJPEG(response.getOutputStream(), jf, 700, 500);
 	}else if("03".equals(sType)){//柱状图
 		response.setContentType("image/jpeg");
 		// 创建柱状图对象
-		JFreeChart jf = ChartFactory.createBarChart3D("统计", "水果", "产量", BarChart.getDataSet(sSql,Sqlca), PlotOrientation.VERTICAL, true, true, true);
+		JFreeChart jf = ChartFactory.createBarChart3D("", "", "", BarChart.getDataSet(sSql,Sqlca), PlotOrientation.VERTICAL, true, true, false);
 		// 给柱状图对象设置样式
 		BarChart.setStyle(jf);
 		// 对柱状图对象生成图片
-		ChartUtilities.writeChartAsJPEG(response.getOutputStream(), jf, 400, 300);
+		ChartUtilities.writeChartAsJPEG(response.getOutputStream(), jf, 700, 500);
 	}else if("04".equals(sType)){//折线图
 		response.setContentType("image/jpeg");
 		// 创建折线图对象
-		JFreeChart jf = ChartFactory.createLineChart("统计", "时间", "", LineChart.getDataSet(sSql,Sqlca), PlotOrientation.VERTICAL, true, true, true);
+		JFreeChart jf = ChartFactory.createLineChart("", "时间", "", LineChart.getDataSet(sSql,Sqlca), PlotOrientation.VERTICAL, true, true, false);
 		// 给折线图对象设置样式
 		LineChart.setStyle(jf);
 		// 对折线图对象生成图片
-		ChartUtilities.writeChartAsJPEG(response.getOutputStream(), jf, 400, 300);
+		ChartUtilities.writeChartAsJPEG(response.getOutputStream(), jf, 700, 500);
 	}
 	
 

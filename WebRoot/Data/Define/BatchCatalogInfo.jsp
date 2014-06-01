@@ -63,7 +63,7 @@
 				{"CodeNo","配置号"},
 				{"CodeName","配置名称"},
 				{"SortNo","文件类型"},
-				{"CodeDescribe","系统展示要素"},
+				{"CodeDescribe","处理器页面"},
 				{"CodeAttribute","配置类型"},
 				{"Remark","备注"},
 				{"InputUserName","输入人"},
@@ -113,7 +113,7 @@
  	doTemp.setLimit("CodeTypeOne,CodeTypeTwo", 80);
 	doTemp.setReadOnly("CodeNo,SortNo,InputUserName,InputOrgName,UpdateUserName,InputTime,UpdateTime",true);
  	doTemp.setDDDWCode("SortNo","SModelFileType");
-	doTemp.setVisible("CodeTypeOne,CodeTypeTwo,InputUser,InputOrg,UpdateUser,CodeDescribe",false);    	
+	doTemp.setVisible("CodeTypeOne,CodeTypeTwo,InputUser,InputOrg,UpdateUser",false);    	
 	doTemp.setUpdateable("InputUserName,InputOrgName,UpdateUserName",false);
   			
 	ASDataWindow dwTemp = new ASDataWindow(CurPage,doTemp,Sqlca);

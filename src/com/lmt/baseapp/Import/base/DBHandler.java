@@ -60,7 +60,7 @@ public class DBHandler{
 		}
 		this.iCount++;
 		ps.addBatch();
-		if (this.iCount >=800) {
+		if (this.iCount >=1000) {
 			ps.executeBatch();
 			this.iCount=0;
 		}

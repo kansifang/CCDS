@@ -34,8 +34,8 @@
  		 	isAutoCommit=Sqlca.conn.getAutoCommit();
  		 	Sqlca.conn.setAutoCommit(false);
  		 	//导入文件
- 		 	 ExcelEntrance efih=new ExcelEntrance(sFiles,sConfigNo,sImportTableName,CurUser,Sqlca);
- 		 	efih.action();
+ 		 	 //ExcelEntrance efih=new ExcelEntrance(sFiles,sConfigNo,sImportTableName,CurUser,Sqlca);
+ 		 	//efih.action();
  		 	//解析文件
  		 	if(sHandlerType.equals("1")){//新增批次
  		 		//新值批次到Batch_Case

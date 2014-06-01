@@ -958,7 +958,8 @@ label0:
        // System.out.println(fixPID("150202760929122"));
         //System.out.println(StringFunction.getOccurTimes("xXxYYx2134Y","X" ,"Y", 0, 11));
        // System.out.println(StringFunction.indexOf("xXxYYx2134Y","2","X" ,"Y", 0));
-    	System.out.println(StringFunction.getRelativeAccountMonth("2014/03", "month", -1));
+    	//System.out.println(StringFunction.getRelativeAccountMonth("2014/03", "month", -1));
+    	System.out.println(StringFunction.toArrayString(new String[]{"AA","BB"}, ","));
     }
 
     private static int weight[] = {

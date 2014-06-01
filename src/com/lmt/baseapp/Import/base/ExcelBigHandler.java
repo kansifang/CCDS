@@ -134,6 +134,9 @@ public class ExcelBigHandler extends DefaultHandler {
 			}
 			if (curCol <= cols) {
 				if(curRow==1){//默认第一行为标题行，在此设置记录集字段在文件中的序号（0开始）
+					if(curCol==1){//如果是第一行第一列，说明此sheet刚刚开始，所以清理一下record到初始值
+						record.reInit();
+					}
 					ObjColumn oc=record.getColumnObjWH(value);
 					if(oc!=null){
 						oc.setIndexInFile(curCol-1);

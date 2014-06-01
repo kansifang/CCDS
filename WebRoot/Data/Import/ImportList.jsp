@@ -60,8 +60,8 @@
 	if("".equalsIgnoreCase(sConfigNo)){
 		sS="";
 	}else{
-		sHeaders=Sqlca.getStringMatrix("select ItemDescribe,Attribute1 from Code_Library where  CodeNo='"+sConfigNo+"' and IsInUse='1' order by SortNo asc");
-	  	for(int i=0;i<sHeaders.length;i++){
+		sHeaders=Sqlca.getStringMatrix("select ItemDescribe,Attribute1 from Code_Library where CodeNo='"+sConfigNo+"' and IsInUse='1' order by SortNo asc");
+		for(int i=0;i<sHeaders.length;i++){
 	  		sS+=sHeaders[i][0]+",";
 	  	}
 	  	if(sS.length()>0){
@@ -70,35 +70,34 @@
 	}
     	//定义SQL语句
     String sSql = " SELECT  ConfigNo as 报表类型,OneKey as 报表日期,ImportIndex as 序号"+sS+",ImportNo,ImportTime,UserID"+
-    	 " FROM Batch_Import" +
-		  " WHERE 1=1 order by int(序号) asc";
+    	 " FROM Batch_Import_Interim " +
+		  " WHERE 1=1 order by importNo,int(序号) asc";
 	//产生ASDataObject对象doTemp
     ASDataObject doTemp = new ASDataObject(sSql);
     //设置表头
     doTemp.setHeader(sHeaders);
     //可更新的表
-    doTemp.UpdateTable = "Batch_Import";
+    doTemp.UpdateTable = "Batch_Import_Interim";
     //设置关键字
 	doTemp.setKey("ImportNo,ImportIndex",true);
 	//设置不可见项
-    doTemp.setVisible("报表类型,报表日期,ObjectNo,ObjectType,ImportFlag",false);
+    doTemp.setVisible("报表类型,ImportFlag",false);
     //设置风格
-    doTemp.setAlign("AttachmentCount","3");
+    //doTemp.setAlign("AttachmentCount","3");
     if(!"".equalsIgnoreCase(sConfigNo)){
     	doTemp.setHTMLStyle(2,"style={width:300px}");//项目加宽
+    	doTemp.setHTMLStyle(4,"style={width:300px}");//项目加宽
 	}
     doTemp.setHTMLStyle("ImportNo"," style={width:180px}");
     doTemp.setHTMLStyle("报表日期"," style={width:50px}");
     if(sHeaders.length!=0){
-    	doTemp.setHTMLStyle(DataConvert.toString(StringFunction.getAttribute(sHeaders,"合同流水号",1,0))," style={width:95px}");
-        doTemp.setHTMLStyle(DataConvert.toString(StringFunction.getAttribute(sHeaders,"客户名称",1,0))," style={width:250px}");
-        doTemp.setHTMLStyle(DataConvert.toString(StringFunction.getAttribute(sHeaders,"币种",1,0))," style={width:20px}");
+    	//doTemp.setHTMLStyle(DataConvert.toString(StringFunction.getAttribute(sHeaders,"合同流水号",1,0))," style={width:95px}");
+       	doTemp.setHTMLStyle(DataConvert.toString(StringFunction.getAttribute(sHeaders,"客户名称",1,0))," style={width:250px}");
+        //doTemp.setHTMLStyle(DataConvert.toString(StringFunction.getAttribute(sHeaders,"币种",1,0))," style={width:20px}");
       //生成查询框
         doTemp.setColumnAttribute(DataConvert.toString(StringFunction.getAttribute(sHeaders,"客户名称",1,0)),"IsFilter","1");
     }
-    
     doTemp.setHTMLStyle("序号"," style={width:25px}");
-    doTemp.setHTMLStyle("UserName,OrgName,AttachmentCount,InputTime,UpdateTime"," style={width:80px} ");
     doTemp.setDDDWSql("报表类型", "select CodeNo,CodeName from Code_Catalog where CodeNo like 'b%'");
    // doTemp.setCheckFormat("报表日期", "3");
     //生成查询框
@@ -143,11 +142,12 @@
 			//6.资源图片路径
 
 		String sButtons[][] = {
-				{"true","","Button","删除","删除文档信息","deleteRecord()",sResourcesPath},
+				{"true","","Button","导入数据","查看附件详情","ImportBatch('01')",sResourcesPath},
+				{"false","","Button","删除","删除文档信息","deleteRecord()",sResourcesPath},
 				{"true","","Button","查看附件","查看附件详情","viewDoc()",sResourcesPath},
-				{"true","","Button","上传附件","查看附件详情","uploadDoc()",sResourcesPath},
-				{"true","","Button","导入批次","查看附件详情","ImportBatch(1)",sResourcesPath},
-				{"true","","Button","更新批次","查看附件详情","ImportBatch(2)",sResourcesPath}
+				{"false","","Button","上传附件","查看附件详情","uploadDoc()",sResourcesPath},
+				{"false","","Button","更新批次","查看附件详情","ImportBatch('02')",sResourcesPath},
+				{"false","","Button","区间汇总","查看附件详情","summation()",sResourcesPath},
 			};
 	%>
 <%
@@ -207,47 +207,57 @@
    		}else{
    			sDocNo=sDocNo.split("@")[1];
    		}
-   		popComp("FileChooseDialog","/Common/Document/FileChooseDialog.jsp","BatchNo="+sBatchNo+"&DocModelNo=&DocNo="+sDocNo+"&Handler=&Message=上传成功&Type=","dialogWidth=650px;dialogHeight=250px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
+   		popComp("FileChooseDialog","/Document/FileChooseDialog.jsp","BatchNo="+sBatchNo+"&DocModelNo=&DocNo="+sDocNo+"&Handler=&Message=上传成功&Type=","dialogWidth=650px;dialogHeight=250px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
    		reloadSelf(); 
 	}
 	/*~[Describe=查看及修改详情;InputParam=无;OutPutParam=无;]~*/
 	function viewDoc()
 	{
-		sBatchNo=getItemValue(0,getRow(),"BatchNo");
-		sUserID=getItemValue(0,getRow(),"UserID");//取文档录入人		     	
-    	if (typeof(sBatchNo)=="undefined" || sBatchNo.length==0)
+		sBatchNo="<%=sConfigNo%>";
+		var sUserID=getItemValue(0,getRow(),"UserID");
+    	if (typeof(sUserID)=="undefined" || sUserID.length==0)
     	{
         	alert(getHtmlMessage(1));  //请选择一条记录！
 			return;
     	}
     	else
     	{
-    		sReturn=popComp("DocumentList","/Common/Document/DocumentList.jsp","ObjectType=Batch&ObjectNo="+sBatchNo,"");
+    		sReturn=popComp("DocumentList","/Document/DocumentList.jsp","ObjectType=Batch&ObjectNo="+sBatchNo,"");
             reloadSelf(); 
         }
 	}
 	/*~[Describe=导入批量;InputParam=1导入2更新;OutPutParam=无;]~*/
 	function ImportBatch(sType)
 	{
+		var sReturn=popComp("FileChooseDialog","/Document/FileChooseDialog.jsp","","dialogWidth=900px;dialogHeight=500px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
+   		if(typeof(sReturn)=="undefined" || sReturn=="" || sReturn=="_CANCEL_") 
+   			return;
+   		sReturn = sReturn.split("@");
+		var sConfigNo=sReturn[0];
+		var sUploadType=sReturn[1];
+		var sReportDates=sReturn[2];
+		var sFiles=sReturn[3];
+   		//2、上传文件后 解析加工处理
+   		ShowMessage("正在进行文档上传后的后续操作,请耐心等待.......",true,false);
+   		sReturn=PopPage("/Data/Import/Handler.jsp?ConfigNo="+sConfigNo+"&UploadType="+sUploadType+"&OneKeys="+sReportDates+"&Files="+sFiles,"","dialogWidth=650px;dialogHeight=250px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
+   		if(sReturn=="true"){
+   			alert("导入成功！");
+   		}else{
+   			alert("导入失败！");
+   		}
+   		try{hideMessage();}catch(e) {};
+   		reloadSelf(); 
+	}
+	function summation()
+	{
 		var sCompID = "CreationInfo";
 		var sCompURL = "/Data/Import/CreationInfo.jsp";
 		var sReturn = popComp(sCompID,sCompURL,"","dialogWidth=50;dialogHeight=25;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
-		if(typeof(sReturn)=="undefined" || sReturn=="" || sReturn=="_CANCEL_") 
-			return;
-		sReturn = sReturn.split("@");
-		var sConfigNo=sReturn[0];
-		var sReportDate=sReturn[1];
-		var sBatchNo=sConfigNo+sReportDate;
-   		var sDocNo=RunMethod("PublicMethod","GetColValue","Doc_Library.DocNo,Doc_Relative@Doc_Library,None@Doc_Relative.DocNo@Doc_Library.DocNo@String@ObjectType@Batch@String@ObjectNo@"+sBatchNo+"@String@DocAttribute@02");
-   		if(sDocNo.length==0){
-   			sDocNo = PopPage("/Common/ToolsB/GetSerialNo.jsp?TableName=Doc_Library&ColumnName=DocNo&Prefix=","","resizable=yes;dialogWidth=0;dialogHeight=0;center:no;status:no;statusbar:no");
-   			RunMethod("PublicMethod","InsertColValue","String@DocNo@"+sDocNo+"@String@ObjectType@Batch@String@ObjectNo@"+sConfigNo+"_"+sReportDate+",Doc_Relative");
-   			RunMethod("PublicMethod","InsertColValue","String@DocNo@"+sDocNo+"@String@DocTitle@"+sConfigNo+"_"+sReportDate+"_<%=StringFunction.getNow()%>@String@OrgID@<%=CurUser.OrgID%>@String@UserID@<%=CurUser.UserID%>@String@InputOrg@<%=CurUser.OrgID%>@String@InputUser@<%=CurUser.UserID%>@String@InputTime@<%=StringFunction.getToday()%>,Doc_Library");
-   		}else{
-   			sDocNo=sDocNo.split("@")[1];
-   		}
-   		popComp("FileChooseDialog","/Document/FileChooseDialog.jsp","ConfigNo="+sConfigNo+"&DocNo="+sDocNo+"&Handler=S63Handler&Message=批次导入成功&Type="+sType+"&ConfigNo="+sConfigNo+"&OneKey="+sReportDate,"dialogWidth=650px;dialogHeight=250px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
-   		reloadSelf(); 
+		var configNo=sReturn[0];
+		var oneKey=sReturn[1];
+		PopPage("/Data/Process/S63Handler.jsp?Type=02&ConfigNo="+configNo+"&OneKey="+oneKey,"","dialogWidth=0;dialogHeight=0;minimize:yes");
+   		alert("汇总成功");
+		reloadSelf(); 
 	}
 	/*~[Describe=完成导入批量;InputParam=无;OutPutParam=无;]~*/
 	function FinishBatch()

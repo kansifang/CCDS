@@ -44,7 +44,7 @@ public class DBFunction
         return s.indexOf(s1) != -1;
     }
 
-    public static String getSerialNo(String s, String s1, String s2, String s3, Date date, Transaction transaction)
+    public static String getSerialNo(String TableName, String ColumnName, String dateFormat, String numFormat, Date date, Transaction transaction)
         throws Exception
     {
         Transaction transaction1;
@@ -62,20 +62,20 @@ public class DBFunction
             throw new Exception("getSerialNo...\u5931\u8D25\uFF01" + exception.getMessage());
         }
         boolean flag = false;
-        SimpleDateFormat simpledateformat = new SimpleDateFormat(s2);
-        decimalformat = new DecimalFormat(s3);
+        SimpleDateFormat simpledateformat = new SimpleDateFormat(dateFormat);
+        decimalformat = new DecimalFormat(numFormat);
         s4 = simpledateformat.format(date);
         j = s4.length();
         String s5 = "";
-        s = s.toUpperCase();
-        s1 = s1.toUpperCase();
+        TableName = TableName.toUpperCase();
+        ColumnName = ColumnName.toUpperCase();
         transaction1.conn.setAutoCommit(false);
         String s6;
         try
         {
-            String s7 = "update OBJECT_MAXSN set MaxSerialNo =MaxSerialNo  where TableName='" + s + "' and ColumnName='" + s1 + "' ";
+            String s7 = "update OBJECT_MAXSN set MaxSerialNo =MaxSerialNo  where TableName='" + TableName + "' and ColumnName='" + ColumnName + "' ";
             transaction1.executeSQL(s7);
-            String s8 = "select MaxSerialNo from OBJECT_MAXSN  where TableName='" + s + "' and ColumnName='" + s1 + "' ";
+            String s8 = "select MaxSerialNo from OBJECT_MAXSN  where TableName='" + TableName + "' and ColumnName='" + ColumnName + "' ";
             ASResultSet LSResultSet = transaction1.getResultSet(s8);
             if(LSResultSet.next())
             {
@@ -88,15 +88,15 @@ public class DBFunction
                     s6 = s4 + decimalformat.format(i + 1);
                 } else
                 {
-                    s6 = getSerialNoFromDB(s, s1, "", s2, s3, date, transaction1);
+                    s6 = getSerialNoFromDB(TableName, ColumnName, "", dateFormat, numFormat, date, transaction1);
                 }
-                String s11 = "update OBJECT_MAXSN set MaxSerialNo ='" + s6 + "' " + " where TableName='" + s + "' and ColumnName='" + s1 + "' ";
+                String s11 = "update OBJECT_MAXSN set MaxSerialNo ='" + s6 + "' " + " where TableName='" + TableName + "' and ColumnName='" + ColumnName + "' ";
                 transaction1.executeSQL(s11);
             } else
             {
                 LSResultSet.getStatement().close();
-                s6 = getSerialNoFromDB(s, s1, "", s2, s3, date, transaction1);
-                String s10 = "insert into OBJECT_MAXSN (tablename,columnname,maxserialno)  values( '" + s + "','" + s1 + "','" + s6 + "')";
+                s6 = getSerialNoFromDB(TableName, ColumnName, "", dateFormat, numFormat, date, transaction1);
+                String s10 = "insert into OBJECT_MAXSN (tablename,columnname,maxserialno)  values( '" + TableName + "','" + ColumnName + "','" + s6 + "')";
                 transaction1.executeSQL(s10);
             }
             transaction1.conn.commit();
@@ -207,18 +207,18 @@ public class DBFunction
         return s12;
     }
 
-    public static String getSerialNoFromDB(String s, String s1, String s2, String s3, String s4, Date date, Transaction transaction)
+    public static String getSerialNoFromDB(String s, String s1, String sWhere, String dateFormat, String s4, Date date, Transaction transaction)
         throws Exception
     {
         ARE.getLog().warn("****\u4E0D\u5EFA\u8BAE\u7684\u53D6\u6D41\u6C34\u53F7\u7684\u65B9\u5F0F(getSerialNoFromDB)****[" + s + "][" + s1 + "]******");
         int j = 0;
-        SimpleDateFormat simpledateformat = new SimpleDateFormat(s3);
+        SimpleDateFormat simpledateformat = new SimpleDateFormat(dateFormat);
         DecimalFormat decimalformat = new DecimalFormat(s4);
         String s7 = simpledateformat.format(date);
         int i = s7.length();
         String s5 = "select max(" + s1 + ") from " + s + " where " + s1 + " like '" + s7 + "%' ";
-        if(s2.length() > 0)
-            s5 = s5 + " and " + s2;
+        if(sWhere.length() > 0)
+            s5 = s5 + " and " + sWhere;
         ASResultSet LSResultSet = transaction.getResultSet(s5);
         if(LSResultSet.next())
         {
@@ -232,10 +232,10 @@ public class DBFunction
         return s8;
     }
 
-    public static String getSerialNo(String s, String s1, String s2, String s3, String s4, Date date, Transaction transaction)
+    public static String getSerialNo(String s, String s1, String s2, String dateFormat, String s4, Date date, Transaction transaction)
         throws Exception
     {
-        return getSerialNo(s, s1, s3, s4, date, transaction);
+        return getSerialNo(s, s1, dateFormat, s4, date, transaction);
     }
 
     public static void main(String args[])
@@ -251,10 +251,10 @@ public class DBFunction
         }
     }
 
-    public static String getSerialNo_for_alarm(String s, String s1, String s2, String s3, String s4, Date date, Transaction transaction)
+    public static String getSerialNo_for_alarm(String s, String s1, String s2, String dateFormat, String numFormat, Date date, Transaction transaction)
         throws Exception
     {
-        return getSerialNo_for_alarm(s, s1, s3, s4, date, transaction);
+        return getSerialNo_for_alarm(s, s1, dateFormat, numFormat, date, transaction);
     }
 
     public static String getSerialNo_for_alarm(String s, String s1, String s2, String s3, Date date, Transaction transaction)

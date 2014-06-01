@@ -151,8 +151,8 @@
 	function newRecord()
 	{
 		var sDocNo="<%=sDocNo%>";
-		//popComp("AttachmentChooseDialog","/Common/Document/AttachmentChooseDialog.jsp","DocNo="+sDocNo,"dialogWidth=650px;dialogHeight=250px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
-		popComp("FileChooseDialog","/Common/Document/FileChooseDialog.jsp","DocNo="+sDocNo,"dialogWidth=650px;dialogHeight=250px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
+		//popComp("AttachmentChooseDialog","/Document/AttachmentChooseDialog.jsp","DocNo="+sDocNo,"dialogWidth=650px;dialogHeight=250px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
+		popComp("FileChooseDialog","/Document/FileChooseDialog.jsp","DocNo="+sDocNo,"dialogWidth=650px;dialogHeight=250px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
 		reloadSelf();
 	}
 
@@ -187,7 +187,7 @@
 		}
 		else
 		{
-			popComp("AttachmentView","/Common/Document/AttachmentView.jsp","DocNo="+sDocNo+"&AttachmentNo="+sAttachmentNo);
+			popComp("AttachmentView","/Document/AttachmentView.jsp","DocNo="+sDocNo+"&AttachmentNo="+sAttachmentNo);
 		}
 	}
 		

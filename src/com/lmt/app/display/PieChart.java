@@ -1,16 +1,25 @@
 package com.lmt.app.display;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.GradientPaint;
 import java.io.File;
 import java.io.IOException;
-import java.sql.SQLException;
 
-import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.labels.ItemLabelAnchor;
+import org.jfree.chart.labels.ItemLabelPosition;
+import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
 import org.jfree.chart.plot.PiePlot;
+import org.jfree.chart.renderer.category.CategoryItemRenderer;
+import org.jfree.chart.renderer.category.LineAndShapeRenderer;
 import org.jfree.data.general.DefaultPieDataset;
+import org.jfree.ui.RectangleInsets;
+import org.jfree.ui.TextAnchor;
 
 import com.lmt.frameapp.sql.ASResultSet;
 import com.lmt.frameapp.sql.Transaction;
@@ -44,17 +53,18 @@ public class PieChart {
 	/*
 	 * 对图表对象设置样式
 	 */
-	public static void setStyle(JFreeChart 图表){
+	public static void setStyle(JFreeChart chart){
 		// 得到图表标题，并给其设置字体
-		图表.getTitle().setFont(new Font("黑体",0,20));
+		chart.getTitle().setFont(new Font("黑体",0,20));
 		// 得到图表底部类别，并给其设置字体
-		图表.getLegend().setItemFont(new Font("宋体",0,12));
+		chart.getLegend().setItemFont(new Font("宋体",0,12));
 		// 得到饼状图样式的样式
-		PiePlot 饼状图样式 = (PiePlot)图表.getPlot();
+		PiePlot plot = (PiePlot)chart.getPlot();
 		// 设置饼状图字体
-		饼状图样式.setLabelFont(new Font("宋体",0,12));
+		plot.setLabelFont(new Font("宋体",0,12));
 		// 设置饼图上显示信息
-		饼状图样式.setSectionOutlinePaint("茄子",Color.white);
+		plot.setSectionOutlinePaint("茄子",Color.white);
+		
 	}
 	/*
 	 * 生成图片
