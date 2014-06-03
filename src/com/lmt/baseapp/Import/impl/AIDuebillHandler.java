@@ -8,7 +8,7 @@ import com.lmt.frameapp.sql.Transaction;
  * @author bllou 2012/08/13
  * @msg. 历史押品信息导入初始化
  */
-public class AfterImportDuebillHandler{
+public class AIDuebillHandler{
 	//对导入数据加工处理,插入到中间表Batch_Import_Interim
 	public static void interimProcess(String sConfigNo,String sKey,Transaction Sqlca) throws Exception{
 		//1、归属条线 个人条线统一修改为 零售条线

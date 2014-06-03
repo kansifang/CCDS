@@ -136,9 +136,11 @@ public class StringUtils
 		String sConfig="select ItemDescribe from Code_Library CL "+
 						"where Attribute1='"+configContentA[1].trim()+"' "+
 						"and IsInUse='1' "+
-						"and exists(select 1 from Code_Catalog CC "+
-							"where CC.CodeNo=CL.CodeNo "+
-							"and CC.CodeName='"+configContentA[0].trim()+"')";
+						"and (CL.CodeNo='"+configContentA[0]+"' or "+
+							"exists(select 1 from Code_Catalog CC "+
+								"where CC.CodeNo=CL.CodeNo "+
+								"and CC.CodeName='"+configContentA[0].trim()+"')"+
+							")";
 		String sReplaceS=Sqlca.getString(sConfig);
 		s =StringFunction.replace(s, cc[1], sReplaceS);
 	};

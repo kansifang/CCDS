@@ -92,10 +92,19 @@
     doTemp.setHTMLStyle("报表日期"," style={width:50px}");
     if(sHeaders.length!=0){
     	//doTemp.setHTMLStyle(DataConvert.toString(StringFunction.getAttribute(sHeaders,"合同流水号",1,0))," style={width:95px}");
-       	doTemp.setHTMLStyle(DataConvert.toString(StringFunction.getAttribute(sHeaders,"客户名称",1,0))," style={width:250px}");
-        //doTemp.setHTMLStyle(DataConvert.toString(StringFunction.getAttribute(sHeaders,"币种",1,0))," style={width:20px}");
-      //生成查询框
-        doTemp.setColumnAttribute(DataConvert.toString(StringFunction.getAttribute(sHeaders,"客户名称",1,0)),"IsFilter","1");
+        String CustomerName=DataConvert.toString(StringFunction.getAttribute(sHeaders,"客户名称",1,0));
+        if(!"".equals(CustomerName)){
+        	doTemp.setHTMLStyle(CustomerName," style={width:250px}");
+        	//生成查询框
+            doTemp.setColumnAttribute(CustomerName,"IsFilter","1");
+        }
+        String ItemName=DataConvert.toString(StringFunction.getAttribute(sHeaders,"项目",1,0));
+        if(!"".equals(ItemName)){
+        	doTemp.setHTMLStyle(ItemName," style={width:260px}");
+        	//生成查询框
+            doTemp.setColumnAttribute(ItemName,"IsFilter","1");
+        }
+       	//doTemp.setHTMLStyle(DataConvert.toString(StringFunction.getAttribute(sHeaders,"币种",1,0))," style={width:20px}");
     }
     doTemp.setHTMLStyle("序号"," style={width:25px}");
     doTemp.setDDDWSql("报表类型", "select CodeNo,CodeName from Code_Catalog where CodeNo like 'b%'");

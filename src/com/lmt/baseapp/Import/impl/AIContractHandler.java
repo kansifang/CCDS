@@ -7,10 +7,9 @@ import com.lmt.frameapp.sql.Transaction;
  * @author bllou 2012/08/13
  * @msg. 历史押品信息导入初始化
  */
-public class AfterImportContractHandler{
+public class AIContractHandler{
 	//对导入数据加工处理,插入到中间表Batch_Import_Interim
 	public static void interimProcess(String sConfigNo,String sKey,Transaction Sqlca) throws Exception{
-		
 		String sSql="";
 		//1、主要担保方式为信用的以从2014/05月份合同的 其他担保方式 为准更新到2014/03，因为03月份不准确(建立基准)
 		if(!"2014/05".equals(sKey)){
