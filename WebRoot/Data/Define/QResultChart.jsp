@@ -88,7 +88,7 @@ org.jfree.chart.JFreeChart"%>
 	}
 	doTemp.setKey(sKeyColumn,true);
 	//doTemp.setHeader(sHeaders);
-	doTemp.setHTMLStyle(0," style={width:260px} ");
+	//doTemp.setHTMLStyle(0," style={width:260px} ");
 	//doTemp.setCheckFormat(sNumberColumn,"3");
 	//doTemp.setType(sStringColumn,"1");
 	//≤È—Ø
