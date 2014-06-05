@@ -110,6 +110,18 @@ public class AIOperationReportHandler{
  	 				"( "+
  	 				sSql+
  	 				")");
+ 	 	//通过借据明细，更新不良户数
+ 	 		sSql="select count(distinct BII1.~s借据明细@客户名称e~) from Batch_Import_Interim BII1"+
+ 	 				" 		where BII1.ConfigName='借据明细' and BII1.OneKey='"+sKey+"' "+
+ 	 				"		and BII1.~s借据明细@企业规模e~=substr(BIP.DimensionValue,1,locate('@',BIP.DimensionValue)-1) "+
+ 	 				"       and (BII1.~s借据明细@五级分类e~ like '次级%' or BII1.~s借据明细@五级分类e~ like '可疑%' or BII1.~s借据明细@五级分类e~ like '损失%')";
+ 	 		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
+ 	 		Sqlca.executeSQL("update Batch_Import_Process BIP set(BadTT)="+
+ 	 				"("+sSql+")"+
+ 	 				" where BIP.ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"'"+
+ 	 				" and exists"+
+ 	 				"	("+sSql+")"
+ 	 				);
  		}
 	}
 	//加入小计 合计 横向纵向比较值
@@ -117,7 +129,7 @@ public class AIOperationReportHandler{
 		String sSql="";
 		String sLastYearEnd=StringFunction.getRelativeAccountMonth(sKey.substring(0, 4)+"/12","year",-1);
 		String sLastMonthEnd=StringFunction.getRelativeAccountMonth(sKey,"month",-1);
- 		//3、计算占比
+		//3、计算占比
  		sSql="select tab1.ConfigNo,tab1.OneKey,tab1.Dimension,tab1.DimensionValue,"+
  				"case when nvl(tab2.Balance,0)<>0 then round(tab1.Balance/tab2.Balance*100,2) else 0 end as BalanceRatio from "+
 			"(select ConfigNo,OneKey,Dimension,DimensionValue,Balance "+
@@ -148,7 +160,7 @@ public class AIOperationReportHandler{
  				"(nvl(tab1.BalanceRatio,0)-nvl(tab3.BalanceRatio,0)) as BalanceRatioTLM,"+
  				"case when nvl(tab3.Balance,0)<>0 then cast(round((nvl(tab1.Balance,0)/nvl(tab3.Balance,0)-1)*100,2) as numeric(24,6)) else 0 end as BalanceRangeTLM,"+
  				"(nvl(tab1.TotalTransaction,0)-nvl(tab3.TotalTransaction,0)) as TotalTransactionTLM,"+
- 				"case when nvl(tab3.TotalTransaction,0)<>0 then cast(round((nvl(tab1.TotalTransaction,0)/nvl(tab3.TotalTransaction,0)-1)*100,2) as numeric(24,6)) else 0 end as TotalTransactionRangeTLM"+
+ 				"case when nvl(tab3.TotalTransaction,0)<>0 then cast(round((decimal(nvl(tab1.TotalTransaction,0))/decimal(nvl(tab3.TotalTransaction,0))-1)*100,2) as numeric(24,6)) else 0 end as TotalTransactionRangeTLM"+//注意：数据库integer/integer 自动舍去小数，所以小数除以大数永远为0，所以要转为double再除,sum()/sum()浮点数也变整型了，好怪
  			" from "+
 			"(select ConfigNo,OneKey,Dimension,DimensionValue,BalanceRatio,Balance,TotalTransaction "+
 				"from Batch_Import_Process "+
