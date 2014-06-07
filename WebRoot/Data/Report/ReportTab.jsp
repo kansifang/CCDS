@@ -42,7 +42,7 @@
 		String sPurposeInspectItems = "";
 		String sTitle="";
 	  	String sAddStringArray[] = null;
-	  	String sTabStrip[][] = new String[20][3];
+	  	String sTabStrip[][] = new String[30][3];
 		int initTab = 1;//设定默认的 tab ，数值代表第几个tab
 		String sConfigNo="",sOneKey="";		
 		ASResultSet rs=Sqlca.getASResultSet("select ConfigNo,OneKey from Batch_Report where SerialNo='"+sSerialNo+"'");
@@ -52,7 +52,7 @@
 		}
 		rs.getStatement().close();
 		//获取
-		sSql = "select AttachmentNo,FileName,Attribute1,Attribute2 from Doc_Attachment where DocNo ='"+sConfigNo+"' order by AttachmentNo asc";
+		sSql = "select AttachmentNo,FileName,Attribute1,Attribute2 from Doc_Attachment where DocNo ='"+sConfigNo+"' order by FileName asc";
 		rs = Sqlca.getResultSet(sSql);
 		while(rs.next()){
 			sAddStringArray = new String[] {"",rs.getString(2),"doTabAction('"+

@@ -93,7 +93,7 @@
 			int iByte = 0;		
 			java.io.InputStream inStream = null;
 			ASResultSet rs2 = Sqlca.getResultSet2("select DocContent from Doc_Attachment"+
-					" where DocNo='"+sDocNo+"' and AttachmentNo='"+sAttachmentNo+"'");//注意是getResultSet2
+					" where DocNo='"+sDocNo+"' and/**/ AttachmentNo='"+sAttachmentNo+"'");//注意是getResultSet2
 			if(rs2.next()){
 				inStream = rs2.getBinaryStream("DocContent");
 				while(true){
@@ -243,6 +243,7 @@
 			as_add("myiframe0");//新增记录
 			setItemValue(0,0,"DocNo","<%=sDocNo%>");
 			setItemValue(0,0,"QStyle","02");
+			setItemValue(0,0,"Attribute2","01");
 			setItemValue(0,0,"Attribute1","OpenComp(~QResultChart~,~/Data/Define/QResultChart.jsp~,~AttachmentNo=#AttachmentNo&Type=#Type&OneKey=#OneKey~,~TabContentFrame~,~~)");
 			bIsInsert = true;
 		}

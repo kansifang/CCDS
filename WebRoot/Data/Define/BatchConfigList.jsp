@@ -214,7 +214,7 @@
 			//被复制一次 Remark加1
 			RunMethod("PublicMethod","ExecuteSql","[update~~update Code_Library set Remark=nvl(Remark,0)#1 where CodeNo='"+sSourceCodeNo+"' and IsInUse='1']");
 			var sSql="[insert~~insert into "+
-				"Code_Library(CodeNo,ItemNo,"+
+				"Code_Library(CodeNo,ItemNo,SortNo,"+
 				"Attribute1,"+//要素Excel标题
 				"Attribute3,"+//是否识别标签
 				"ItemDescribe,"+//要素对应表字段
@@ -226,7 +226,7 @@
 				"+Attribute5,"+//要素精度
 				"+Attribute7,"+//操作要素方式
 				"IsInUse)"+
-				"(select '"+CodeNo+"','c'||Remark||ItemNo,"+
+				"(select '"+CodeNo+"','c'||Remark||ItemNo,SortNo,"+
 				"Attribute1,"+
 				"Attribute3,"+
 				"ItemDescribe,"+

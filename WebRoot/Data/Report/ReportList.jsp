@@ -124,12 +124,12 @@
 
 	String sButtons[][] = {
 			{"true","","Button","新增","新增报告","newRecord()",sResourcesPath},
-			{"true","","Button","详情","查看报告详情","viewAndEdit()",sResourcesPath},
 			{"true","","Button","删除","删除该报告","deleteRecord()",sResourcesPath},
 			{"true","","Button","客户基本信息","查看客户基本信息","viewCustomer()",sResourcesPath},
 			{"true","","Button","业务清单","查看业务清单","viewBusiness()",sResourcesPath},
 			{"false","","Button","完成","完成报告","finished()",sResourcesPath},
-			{"true","","Button","生成报告","生成报告","printContract()",sResourcesPath}
+			{"true","","Button","生成报告","生成报告","printContract()",sResourcesPath},
+			{"true","","Button","数据展示","查看报告详情","viewAndEdit()",sResourcesPath},
 		};
 	%>
 <%/*~END~*/%>

@@ -78,7 +78,7 @@
     ASDataWindow dwTemp = new ASDataWindow(CurPage,doTemp,Sqlca);
 	dwTemp.Style="1";      //设置为Grid风格
 	dwTemp.ReadOnly = "1"; //设置为只读
-
+	dwTemp.setEvent("AfterDelete","!PublicMethod.DeleteColValue(Doc_Attachment,String@DocNo@#DocNo)");
 	//设置setEvent
 	Vector vTemp = dwTemp.genHTMLDataWindow("QDT,All");
 	for(int i=0;i<vTemp.size();i++) out.print((String)vTemp.get(i));
@@ -106,9 +106,9 @@
 		String sButtons[][] = {
 			{"true","","Button","新增","新增文档信息","newRecord()",sResourcesPath},
 			{"true","","Button","批量详情","查看批量详情","viewAndEdit_doc()",sResourcesPath},
-			{"true","","Button","内容详情","查看批量详情","viewAndEdit_attachment()",sResourcesPath},
 			{"true","","Button","删除","删除文档信息","deleteRecord()",sResourcesPath},
 			{"false","","Button","导出附件","导出附件文档信息","exportFile()",sResourcesPath},
+			{"true","","Button","数据定义","查看批量详情","viewAndEdit_attachment()",sResourcesPath}
 			};
 	%>
 <%
@@ -141,24 +141,17 @@
 	/*~[Describe=删除记录;InputParam=无;OutPutParam=无;]~*/
 	function deleteRecord()
 	{
-		sUserID=getItemValue(0,getRow(),"UserID");//取文档录入人	
-		sDocNo = getItemValue(0,getRow(),"DocNo");
+		var sDocNo = getItemValue(0,getRow(),"DocNo");
 		if (typeof(sDocNo)=="undefined" || sDocNo.length==0)
 		{
 			alert(getHtmlMessage(1));  //请选择一条记录！
 			return;
-		}else if(sUserID=='<%=CurUser.UserID%>')
-		{ 
-			if(confirm(getHtmlMessage(2))) //您真的想删除该信息吗？
-			{
-				as_del('myiframe0');
-				as_save('myiframe0') //如果单个删除，则要调用此语句             
-			} 
-		}else 
-		{
-			alert(getHtmlMessage('3'));
-			return;
 		}
+		if(confirm(getHtmlMessage(2))) //您真的想删除该信息吗？
+		{
+			as_del('myiframe0');
+			as_save('myiframe0'); //如果单个删除，则要调用此语句             
+		} 
 	}
 
 	/*~[Describe=查看及修改详情;InputParam=无;OutPutParam=无;]~*/

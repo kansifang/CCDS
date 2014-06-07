@@ -1,4 +1,5 @@
 eclipse.preferences.version=1
+encoding//WebRoot/Common/BusinessFlow/Apply/ApplyList.jsp=gbk
 encoding//WebRoot/Resources/CodeParts/List05.jsp=gbk
 encoding//WebRoot/Resources/Include/IncludeHead.jsp=GBK
 encoding//src/com/lmt/baseapp/Import/base/DBHandler.java=UTF-8

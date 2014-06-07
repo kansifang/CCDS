@@ -107,7 +107,7 @@
        	//doTemp.setHTMLStyle(DataConvert.toString(StringFunction.getAttribute(sHeaders,"币种",1,0))," style={width:20px}");
     }
     doTemp.setHTMLStyle("序号"," style={width:25px}");
-    doTemp.setDDDWSql("报表类型", "select CodeNo,CodeName from Code_Catalog where CodeNo like 'b%'");
+    doTemp.setDDDWSql("报表类型", "select CodeNo,CodeName from Code_Catalog where CodeNo like 'b%' order by CodeName asc");
    // doTemp.setCheckFormat("报表日期", "3");
     //生成查询框
 	doTemp.setColumnAttribute("报表类型","IsFilter","1");

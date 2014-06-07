@@ -82,7 +82,7 @@
 		   "getItemName('SModelFileType',SortNo) as SortNo,"+
 		   "CodeDescribe,CodeAttribute "+
 		   "from CODE_CATALOG "+
-		   "Where CodeNo like 'b%'";
+		   "Where CodeNo like 'b%' order by CodeName asc";
 	ASDataObject doTemp = new ASDataObject(sSql);
 	//doTemp.multiSelectionEnabled=false;
 	doTemp.UpdateTable="CODE_CATALOG";

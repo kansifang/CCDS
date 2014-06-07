@@ -60,7 +60,7 @@
 	
 	ASDataObject doTemp = new ASDataObject(sTempletNo,sTempletFilter,Sqlca);
 	doTemp.setEditStyle("FileName,Column,TableName,KeyColumn,Remark,Attribute1", "1");
-	doTemp.setHTMLStyle("FileName,Column,TableName,KeyColumn,Remark,Attribute1", "");
+	doTemp.setHTMLStyle("FileName,Column,TableName,KeyColumn,Remark,Attribute1", "style={width:300px}");
 	//查询
  	//doTemp.setColumnAttribute(sKeyColumn,"IsFilter","1");
 	doTemp.generateFilters(Sqlca);
@@ -73,7 +73,7 @@
 	ASDataWindow dwTemp = new ASDataWindow(CurPage,doTemp,Sqlca);
 	dwTemp.Style="1";      //设置DW风格 1:Grid 2:Freeform
 	dwTemp.ReadOnly = "1"; //设置是否只读 1:只读 0:可写
-	dwTemp.setPageSize(10);
+	dwTemp.setPageSize(25);
 	String value=DataConvert.toString(adof.sFilterInputs[0][1]);
 	if(value.length()>0){
 		StringBuffer sb=new StringBuffer("(");
@@ -273,6 +273,7 @@
 	AsOne.AsInit();
 	init();
 	my_load(2,0,'myiframe0');
+	hideFilterArea();
 </script>	
 <%
 		/*~END~*/

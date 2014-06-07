@@ -224,7 +224,7 @@
 		<td bgcolor="#F0F1DE">
 			<select name="ConfigNo" style="width=400"> 
            	<!--   <option value=''></option>-->   
-			<%=HTMLControls.generateDropDownSelect(Sqlca,"select CodeNo,CodeName from Code_Catalog where CodeNo like 'b%'",1,2,"")%>
+			<%=HTMLControls.generateDropDownSelect(Sqlca,"select CodeNo,CodeName from Code_Catalog where CodeNo like 'b%' order by CodeName asc",1,2,"")%>
         	</select>
 			</select>
 		</td>

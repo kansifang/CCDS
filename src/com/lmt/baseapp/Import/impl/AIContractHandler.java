@@ -46,13 +46,13 @@ public class AIContractHandler{
 	 * 按各个维度插入到处理表中
 	 * @throws Exception 
 	 */
-	public static void process(String sConfigNo,String sKey,Transaction Sqlca,String Dimension,String groupBy) throws Exception{
+	public static void process(String HandlerFlag,String sConfigNo,String sKey,Transaction Sqlca,String Dimension,String groupBy) throws Exception{
 		String sSql="";
  		//1、按条线计算增加额和比例等信息放入处理表中
 		String groupColumns=groupBy.replaceAll(",","||'@'||");
 		groupColumns=("".equals(groupColumns)?"":groupColumns+",");
  		sSql="select "+
- 				"ConfigNo,OneKey,'"+Dimension+"',"+groupColumns+
+ 				"'"+HandlerFlag+"',ConfigNo,OneKey,'"+Dimension+"',"+groupColumns+
 				"round(sum(case when ~s合同明细@合同起始日e~ like '"+sKey+"%' then ~s合同明细@金额e~*nvl(getErate(~s合同明细@币种e~,'01',''),0) end)/10000,2) as BusinessSum,"+//按月投放金额
 				"round(sum(~s合同明细@余额e~*nvl(getErate(~s合同明细@币种e~,'01',''),0))/10000,2) as Balance "+ 
 				"from Batch_Import_Interim "+
@@ -65,109 +65,112 @@ public class AIContractHandler{
 				"group by ConfigNo,OneKey"+("".equals(groupBy)?"":","+groupBy);
 		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
  		Sqlca.executeSQL("insert into Batch_Import_Process "+
- 				"(ConfigNo,OneKey,Dimension,DimensionValue,"+
+ 				"(HandlerFlag,ConfigNo,OneKey,Dimension,DimensionValue,"+
  				"BusinessSum,Balance)"+
  				"( "+
  				sSql+
  				")");
 	}
 	//加入小计 合计 横向纵向比较值
-	public static void afterProcess(String sConfigNo,String sKey,Transaction Sqlca)throws Exception{
+	public static void afterProcess(String HandlerFlag,String sConfigNo,String sKey,Transaction Sqlca)throws Exception{
 		String sSql="";
 		String sLastYearEnd=StringFunction.getRelativeAccountMonth(sKey.substring(0, 4)+"/12","year",-1);
 		//1、插入各个维度的小计
  		sSql="select "+
- 				"ConfigNo,OneKey,Dimension,substr(DimensionValue,1,locate('@',DimensionValue)-1)||'小计',"+
+ 				"'"+HandlerFlag+"',ConfigNo,OneKey,Dimension,substr(DimensionValue,1,locate('@',DimensionValue)-1)||'小计',"+
 			"round(sum(BusinessSum),2) as BusinessSum,round(sum(Balance),2) as Balance "+
 			"from Batch_Import_Process "+
-			"where ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"' and locate('@',DimensionValue)>0 "+
+			"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"' and locate('@',DimensionValue)>0 "+
 			"group by ConfigNo,OneKey,Dimension,substr(DimensionValue,1,locate('@',DimensionValue)-1)";
  		Sqlca.executeSQL("insert into Batch_Import_Process "+
- 				"(ConfigNo,OneKey,Dimension,DimensionValue,"+
+ 				"(HandlerFlag,ConfigNo,OneKey,Dimension,DimensionValue,"+
  				"BusinessSum,Balance)"+
  				"( "+
  				sSql+
  				")");
 		//2、插入各个维度的总计
  		sSql="select "+
- 				"ConfigNo,OneKey,Dimension,'总计',"+
+ 				"'"+HandlerFlag+"',ConfigNo,OneKey,Dimension,'总计',"+
 			"round(sum(BusinessSum),2) as BusinessSum,round(sum(Balance),2) as Balance "+
 			"from Batch_Import_Process "+
-			"where ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"' and locate('小计',DimensionValue)=0 "+
+			"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"' and locate('小计',DimensionValue)=0 "+
 			"group by ConfigNo,OneKey,Dimension";
  		Sqlca.executeSQL("insert into Batch_Import_Process "+
- 				"(ConfigNo,OneKey,Dimension,DimensionValue,"+
+ 				"(HandlerFlag,ConfigNo,OneKey,Dimension,DimensionValue,"+
  				"BusinessSum,Balance)"+
  				"( "+
  				sSql+
  				")");
- 		//3、相对前一年度增加值和幅度更新
- 		sSql="select tab1.ConfigNo,tab1.OneKey,tab1.Dimension,tab1.DimensionValue,"+
- 				"(nvl(tab1.Balance,0)-nvl(tab2.Balance,0)) as BalanceToLY,"+
- 				"case when nvl(tab2.Balance,0)<>0 then cast(round((nvl(tab1.Balance,0)/nvl(tab2.Balance,0)-1)*100,2) as numeric(24,6)) else 0 end as BalanceRangeToLY from "+
-			"(select ConfigNo,OneKey,Dimension,DimensionValue,BusinessSum,Balance "+
-				"from Batch_Import_Process "+
-				"where ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"'"+
-			")tab1,"+
-			"(select ConfigNo,OneKey,Dimension,DimensionValue,BusinessSum,Balance "+	
-			"from Batch_Import_Process "+
-				"where ConfigNo='"+sConfigNo+"' and OneKey ='"+sLastYearEnd+"'"+
-			")tab2"+
-			" where tab1.Dimension=tab2.Dimension and tab1.DimensionValue=tab2.DimensionValue";
- 		Sqlca.executeSQL("update Batch_Import_Process tab1 "+
- 				"set(BalanceTLY,BalanceRangeTLY)="+
- 				"(select BalanceToLY,BalanceRangeToLY from "+
- 				"("+sSql+") tab2 where tab1.Dimension=tab2.Dimension and tab1.DimensionValue=tab2.DimensionValue"+
+ 		//3、占比更新
+ 		sSql="from (select tab1.Dimension,tab1.DimensionValue,"+
+	 					"case when nvl(tab2.BusinessSum,0)<>0 then round(tab1.BusinessSum/tab2.BusinessSum*100,2) else 0 end as BusinessSumRatio,"+
+	 					"case when nvl(tab2.Balance,0)<>0 then round(tab1.Balance/tab2.Balance*100,2) else 0 end as BalanceRatio from "+
+					"(select Dimension,DimensionValue,BusinessSum,Balance "+
+						"from Batch_Import_Process "+
+						"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"'"+
+					")tab1,"+
+					"(select Dimension,DimensionValue,BusinessSum,Balance "+	
+						"from Batch_Import_Process "+
+						"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"' and DimensionValue='总计'"+
+					")tab2"+
+					" where tab1.Dimension=tab2.Dimension)tab3 "+
+			" where tab.Dimension=tab3.Dimension and tab.DimensionValue=tab3.DimensionValue";
+ 		Sqlca.executeSQL("update Batch_Import_Process tab "+
+ 				"set(BusinessSumRatio,BalanceRatio)="+
+ 				"( select tab3.BusinessSumRatio,tab3.BalanceRatio "+
+ 				sSql+
  				")"+
- 				" where ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"'"+
- 				" and exists(select 1 from ("+sSql+") tab22 where tab1.Dimension=tab22.Dimension and tab1.DimensionValue=tab22.DimensionValue)"
+ 				" where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"'"+
+ 					" and exists(select 1 "+sSql+")"
+ 				);
+ 		//4、相对前一年度增加值和幅度更新
+ 		sSql="from (select tab1.Dimension,tab1.DimensionValue,"+
+	 					"(nvl(tab1.Balance,0)-nvl(tab2.Balance,0)) as BalanceToLY,"+
+	 					"case when nvl(tab2.Balance,0)<>0 then cast(round((nvl(tab1.Balance,0)/nvl(tab2.Balance,0)-1)*100,2) as numeric(24,6)) else 0 end as BalanceRangeToLY from "+
+					"(select Dimension,DimensionValue,BusinessSum,Balance "+
+						"from Batch_Import_Process "+
+						"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"'"+
+					")tab1,"+
+					"(select Dimension,DimensionValue,BusinessSum,Balance "+	
+					"from Batch_Import_Process "+
+						"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sLastYearEnd+"'"+
+					")tab2"+
+					" where tab1.Dimension=tab2.Dimension and tab1.DimensionValue=tab2.DimensionValue)tab3"+
+			" where tab.Dimension=tab3.Dimension and tab.DimensionValue=tab3.DimensionValue";
+ 		Sqlca.executeSQL("update Batch_Import_Process tab "+
+ 				"set(BalanceTLY,BalanceRangeTLY)="+
+ 				"(select tab3.BalanceToLY,tab3.BalanceRangeToLY "+
+ 				sSql+
+ 				")"+
+ 				" where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"'"+
+ 				" and exists(select 1 "+sSql+")"
  				);
  			//如果是年度导入，更新下一年度所有月份的增加值、增加值和幅度更新
  		if(StringFunction.isLike(sKey, "%/12")){
- 			sSql="select distinct OneKey from Batch_Import_Process where ConfigNo='"+sConfigNo+"' and OneKey>'"+sKey+"'";
+ 			sSql="select distinct OneKey from Batch_Import_Process where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey>'"+sKey+"'";
  			String[] sOneKey=Sqlca.getStringArray(sSql);
  			String OneKeys=StringFunction.toArrayString(sOneKey, "','");
- 			sSql="select tab1.ConfigNo,tab1.OneKey,tab1.Dimension,tab1.DimensionValue,"+
- 	 				"(nvl(tab1.Balance,0)-nvl(tab2.Balance,0)) as BalanceToLY,"+
- 	 				"case when nvl(tab2.Balance,0)<>0 then cast(round((nvl(tab1.Balance,0)/nvl(tab2.Balance,0)-1)*100,2) as numeric(24,6)) else 0 end as BalanceRangeToLY from "+
- 				"(select ConfigNo,OneKey,Dimension,DimensionValue,BusinessSum,Balance "+
- 					"from Batch_Import_Process "+
- 					"where ConfigNo='"+sConfigNo+"' and OneKey in('"+OneKeys+"')"+
- 				")tab1,"+
- 				"(select ConfigNo,OneKey,Dimension,DimensionValue,BusinessSum,Balance "+	
- 				"from Batch_Import_Process "+
- 					"where ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"'"+
- 				")tab2"+
- 				" where tab1.Dimension=tab2.Dimension and tab1.DimensionValue=tab2.DimensionValue";
- 	 		Sqlca.executeSQL("update Batch_Import_Process tab1 "+
+ 			sSql="from (select tab1.ConfigNo,tab1.OneKey,tab1.Dimension,tab1.DimensionValue,"+
+		 	 				"(nvl(tab1.Balance,0)-nvl(tab2.Balance,0)) as BalanceToLY,"+
+		 	 				"case when nvl(tab2.Balance,0)<>0 then cast(round((nvl(tab1.Balance,0)/nvl(tab2.Balance,0)-1)*100,2) as numeric(24,6)) else 0 end as BalanceRangeToLY from "+
+		 				"(select ConfigNo,OneKey,Dimension,DimensionValue,BusinessSum,Balance "+
+		 					"from Batch_Import_Process "+
+		 					"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey in('"+OneKeys+"')"+
+		 				")tab1,"+
+		 				"(select ConfigNo,OneKey,Dimension,DimensionValue,BusinessSum,Balance "+	
+		 				"from Batch_Import_Process "+
+		 					"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"'"+
+		 				")tab2"+
+		 				" where tab1.Dimension=tab2.Dimension and tab1.DimensionValue=tab2.DimensionValue)tab3"+
+		 		" where tab.OneKey=tab3.OneKey and tab.Dimension=tab3.Dimension and tab.DimensionValue=tab3.DimensionValue";
+ 	 		Sqlca.executeSQL("update Batch_Import_Process tab "+
  	 				"set(BalanceTLY,BalanceRangeTLY)="+
- 	 				"(select BalanceToLY,BalanceRangeToLY from "+
- 	 				"("+sSql+") tab2 where tab1.OneKey=tab2.OneKey and tab1.Dimension=tab2.Dimension and tab1.DimensionValue=tab2.DimensionValue"+
+ 	 				"(select tab3.BalanceToLY,tab3.BalanceRangeToLY "+
+ 	 				sSql+""+
  	 				")"+
  	 				" where ConfigNo='"+sConfigNo+"' and OneKey in('"+OneKeys+"')"+
- 	 				" and exists(select 1 from ("+sSql+") tab22 where tab1.OneKey=tab22.OneKey and tab1.Dimension=tab22.Dimension and tab1.DimensionValue=tab22.DimensionValue)"
+ 	 				" and exists(select 1 "+sSql+")"
  	 				);
  		}
- 		//4、占比更新
- 		sSql="select tab1.ConfigNo,tab1.OneKey,tab1.Dimension,tab1.DimensionValue,"+
- 				"case when nvl(tab2.BusinessSum,0)<>0 then round(tab1.BusinessSum/tab2.BusinessSum*100,2) else 0 end as BusinessSumRatio,"+
- 				"case when nvl(tab2.Balance,0)<>0 then round(tab1.Balance/tab2.Balance*100,2) else 0 end as BalanceRatio from "+
-			"(select ConfigNo,OneKey,Dimension,DimensionValue,BusinessSum,Balance "+
-				"from Batch_Import_Process "+
-				"where ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"'"+
-			")tab1,"+
-			"(select ConfigNo,OneKey,Dimension,DimensionValue,BusinessSum,Balance "+	
-				"from Batch_Import_Process "+
-				"where ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"' and DimensionValue='总计'"+
-			")tab2"+
-			" where tab1.Dimension=tab2.Dimension";
- 		Sqlca.executeSQL("update Batch_Import_Process tab1 "+
- 				"set(BusinessSumRatio,BalanceRatio)="+
- 				"( select BusinessSumRatio,BalanceRatio from "+
- 				"("+sSql+") tab2 where tab1.Dimension=tab2.Dimension and tab1.DimensionValue=tab2.DimensionValue"+
- 				")"+
- 				" where ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"'"+
- 					" and exists(select 1 from ("+sSql+") tab22 where tab1.Dimension=tab22.Dimension and tab1.DimensionValue=tab22.DimensionValue)"
- 				);
 	}
 }

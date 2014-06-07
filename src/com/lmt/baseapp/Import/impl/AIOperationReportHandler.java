@@ -25,8 +25,59 @@ public class AIOperationReportHandler{
 	public static void process(String HandlerFlag,String sConfigNo,String sKey,Transaction Sqlca) throws Exception{
 		String sSql="";
 		String sConfigName=Sqlca.getString("select CodeName from Code_Catalog where CodeNo='"+sConfigNo+"'");
- 		//1、 对G0103_存贷款 报表进行进行处理
- 		if("G0103_存贷款".equals(sConfigName)){
+ 		
+		if("G0101_表外".equals(sConfigName)){
+ 			//1、 对G0103_存贷款 报表进行进行处理
+ 			sSql="select "+
+ 					"'"+HandlerFlag+"',ConfigNo,OneKey,'表外明细',~s"+sConfigName+"@项目e~"+
+ 					",round(~s"+sConfigName+"@本外币合计e~/10000,2)"+
+ 					" from Batch_Import_Interim "+
+ 					" where ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"' "+
+ 					" and (~s"+sConfigName+"@项目e~ like '3.%' or ~s"+sConfigName+"@项目e~ like '4.%' or ~s"+sConfigName+"@项目e~ like '5.%' or ~s"+sConfigName+"@项目e~ like '6.%') ";
+ 			sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
+ 	 		Sqlca.executeSQL("insert into Batch_Import_Process "+
+ 	 				"(HandlerFlag,ConfigNo,OneKey,Dimension,DimensionValue"+
+ 	 				",Balance)"+
+ 	 				"( "+
+ 	 				sSql+
+ 	 				")");
+ 	 		//承兑按担保方式
+ 	 		String groupBy="case when ~s表外明细@主要担保方式e~ like '保证-%' then '保证' "+
+ 		 			"when ~s表外明细@主要担保方式e~ like '抵押-%' then '抵押' "+
+ 		 			"when ~s表外明细@主要担保方式e~ = '信用' then '信用' "+
+ 		 			"when ~s表外明细@主要担保方式e~ like '%质押-%' or ~s表外明细@主要担保方式e~='保证金' then '质押' "+
+ 		 			"else '其他' end";
+ 	 		Sqlca.executeSQL("Delete from Batch_Import_Process where HandlerFlag='"+HandlerFlag+"' and ConfigNo='b20140606000001' and OneKey='"+sKey+"'");
+ 		 	AIDuebillHandler.process(HandlerFlag,"b20140606000001",sKey,Sqlca,"单一担保方式",groupBy,"and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票'");
+ 		 	//承兑按经营类型（新）
+ 		 	groupBy="case "+
+ 	 				"when ~s表外明细@经营类型(新)e~ like '%煤炭开采%' or ~s表外明细@经营类型(新)e~ like '%煤炭洗选%' then '煤炭' "+
+ 	 				"when ~s表外明细@经营类型(新)e~ like '%焦碳%' then '焦碳' "+//焦碳—
+ 	 				"when ~s表外明细@经营类型(新)e~ like '%制造业%' or ~s表外明细@经营类型(新)e~ like '%一般加工%' then '制造业' "+//制造业—
+ 	 				"when ~s表外明细@经营类型(新)e~ like '%批发零售%' then '批发零售' "+//批发零售—
+ 	 				"when ~s表外明细@经营类型(新)e~ like '%钢铁%' then '钢铁' "+
+ 	 				"when ~s表外明细@经营类型(新)e~ like '%化工化肥%' then '化工化肥' "+
+ 		 			"when ~s表外明细@经营类型(新)e~ like '%房地产%' then '房地产' "+
+ 		 			"when ~s表外明细@经营类型(新)e~ like '%建筑施工%' then '建筑施工' "+
+ 		 			"when ~s表外明细@经营类型(新)e~ like '%铁矿开采%' then '铁矿开采' "+
+ 		 			"when ~s表外明细@经营类型(新)e~ like '%农林牧副渔%' then '农林牧副渔' "+
+ 		 			"when ~s表外明细@经营类型(新)e~ like '%政府平台%' then '政府平台' "+
+ 					"when ~s表外明细@经营类型(新)e~ like '%钢贸户%' or ~s表外明细@经营类型(新)e~ like '%钢材销售%' then '钢贸户' "+
+ 					"when ~s表外明细@经营类型(新)e~ like '%医药制造%' then '医药制造' "+
+ 					"when ~s表外明细@经营类型(新)e~ like '%燃气生产和供应%' then '燃气生产和供应' "+
+ 					"when ~s表外明细@经营类型(新)e~ like '%汽车维修及销售%' then '汽车维修及销售' "+
+ 					"when ~s表外明细@经营类型(新)e~ like '%电力%' then '电力' "+
+ 					"when ~s表外明细@经营类型(新)e~ like '%住宿餐饮%' then '住宿餐饮' "+
+ 		 			"when ~s表外明细@经营类型(新)e~ like '%交通运输%' then '交通运输' "+
+ 		 			"when ~s表外明细@经营类型(新)e~ like '%医院学校%' then '医院学校' "+
+ 		 			"when ~s表外明细@经营类型(新)e~ like '%信息技术%' then '信息技术' "+
+ 		 			"when ~s表外明细@经营类型(新)e~ like '%文化娱乐%' then '文化娱乐' "+
+ 					"when ~s表外明细@经营类型(新)e~ like '%有色冶炼%' then '有色冶炼' "+
+ 		 			"else '其他' end";
+ 		 	AIDuebillHandler.process(HandlerFlag,"b20140606000001",sKey,Sqlca,"经营类型(新)",groupBy,"and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票'");
+ 		 	AIDuebillHandler.afterProcess(HandlerFlag,"b20140606000001", sKey, Sqlca);
+ 		}else if("G0103_存贷款".equals(sConfigName)){
+ 			//1、 对G0103_存贷款 报表进行进行处理
  			sSql="select "+
  					"'"+HandlerFlag+"',ConfigNo,OneKey,'贷款明细',~s"+sConfigName+"@项目e~"+
  					",round(~s"+sConfigName+"@本外币合计e~/10000,2)"+
@@ -110,17 +161,17 @@ public class AIOperationReportHandler{
  	 				"( "+
  	 				sSql+
  	 				")");
- 	 	//通过借据明细，更新不良户数
- 	 		sSql="select count(distinct BII1.~s借据明细@客户名称e~) from Batch_Import_Interim BII1"+
+ 	 		//通过借据明细，更新不良户数
+ 	 		sSql="from Batch_Import_Interim BII1"+
  	 				" 		where BII1.ConfigName='借据明细' and BII1.OneKey='"+sKey+"' "+
  	 				"		and BII1.~s借据明细@企业规模e~=substr(BIP.DimensionValue,1,locate('@',BIP.DimensionValue)-1) "+
  	 				"       and (BII1.~s借据明细@五级分类e~ like '次级%' or BII1.~s借据明细@五级分类e~ like '可疑%' or BII1.~s借据明细@五级分类e~ like '损失%')";
  	 		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
  	 		Sqlca.executeSQL("update Batch_Import_Process BIP set(BadTT)="+
- 	 				"("+sSql+")"+
- 	 				" where BIP.ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"'"+
+ 	 				"(select count(distinct BII1.~s借据明细@客户名称e~) "+sSql+")"+
+ 	 				" where HandlerFlag='"+HandlerFlag+"' and BIP.ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"'"+
  	 				" and exists"+
- 	 				"	("+sSql+")"
+ 	 				"	(select 1 "+sSql+")"
  	 				);
  		}
 	}
@@ -130,15 +181,15 @@ public class AIOperationReportHandler{
 		String sLastYearEnd=StringFunction.getRelativeAccountMonth(sKey.substring(0, 4)+"/12","year",-1);
 		String sLastMonthEnd=StringFunction.getRelativeAccountMonth(sKey,"month",-1);
 		//3、计算占比
- 		sSql="select tab1.ConfigNo,tab1.OneKey,tab1.Dimension,tab1.DimensionValue,"+
+ 		sSql="select tab1.Dimension,tab1.DimensionValue,"+
  				"case when nvl(tab2.Balance,0)<>0 then round(tab1.Balance/tab2.Balance*100,2) else 0 end as BalanceRatio from "+
 			"(select ConfigNo,OneKey,Dimension,DimensionValue,Balance "+
 				"from Batch_Import_Process "+
-				"where ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"'"+
+				"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"'"+
 			")tab1,"+
 			"(select ConfigNo,OneKey,Dimension,DimensionValue,Balance "+	
 				"from Batch_Import_Process "+
-				"where ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"' and (DimensionValue='1.各项贷款' or DimensionValue='总计@各项贷款余额')"+
+				"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"' and (DimensionValue='1.各项贷款' or DimensionValue='总计@各项贷款余额')"+
 			")tab2"+
 			" where tab1.Dimension=tab2.Dimension";
  		Sqlca.executeSQL("update Batch_Import_Process tab3 "+
@@ -146,11 +197,11 @@ public class AIOperationReportHandler{
  				"( select BalanceRatio from "+
  				"("+sSql+") tab4 where tab3.Dimension=tab4.Dimension and tab3.DimensionValue=tab4.DimensionValue"+
  				")"+
- 				" where ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"'"+
+ 				" where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"'"+
  					" and exists(select 1 from ("+sSql+") tab22 where tab3.Dimension=tab22.Dimension and tab3.DimensionValue=tab22.DimensionValue)"
  				);
  		//4、相对前一年度增加值和幅度更新
- 		sSql="select tab1.ConfigNo,tab1.OneKey,tab1.Dimension,tab1.DimensionValue,"+
+ 		sSql="select tab1.Dimension,tab1.DimensionValue,"+
  				"(nvl(tab1.Balance,0)-nvl(tab2.Balance,0)) as BalanceTLY,"+
  				"(nvl(tab1.BalanceRatio,0)-nvl(tab2.BalanceRatio,0)) as BalanceRatioTLY,"+
  				"case when nvl(tab2.Balance,0)<>0 then cast(round((nvl(tab1.Balance,0)/nvl(tab2.Balance,0)-1)*100,2) as numeric(24,6)) else 0 end as BalanceRangeTLY,"+
@@ -162,17 +213,17 @@ public class AIOperationReportHandler{
  				"(nvl(tab1.TotalTransaction,0)-nvl(tab3.TotalTransaction,0)) as TotalTransactionTLM,"+
  				"case when nvl(tab3.TotalTransaction,0)<>0 then cast(round((decimal(nvl(tab1.TotalTransaction,0))/decimal(nvl(tab3.TotalTransaction,0))-1)*100,2) as numeric(24,6)) else 0 end as TotalTransactionRangeTLM"+//注意：数据库integer/integer 自动舍去小数，所以小数除以大数永远为0，所以要转为double再除,sum()/sum()浮点数也变整型了，好怪
  			" from "+
-			"(select ConfigNo,OneKey,Dimension,DimensionValue,BalanceRatio,Balance,TotalTransaction "+
+			"(select Dimension,DimensionValue,BalanceRatio,Balance,TotalTransaction "+
 				"from Batch_Import_Process "+
-				"where ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"'"+
+				"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"'"+
 			")tab1,"+
-			"(select ConfigNo,OneKey,Dimension,DimensionValue,BalanceRatio,Balance,TotalTransaction "+	
+			"(select Dimension,DimensionValue,BalanceRatio,Balance,TotalTransaction "+	
 			"from Batch_Import_Process "+
-				"where ConfigNo='"+sConfigNo+"' and OneKey ='"+sLastYearEnd+"'"+
+				"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sLastYearEnd+"'"+
 			")tab2,"+
-			"(select ConfigNo,OneKey,Dimension,DimensionValue,BalanceRatio,Balance,TotalTransaction "+	
+			"(select Dimension,DimensionValue,BalanceRatio,Balance,TotalTransaction "+	
 			"from Batch_Import_Process "+
-				"where ConfigNo='"+sConfigNo+"' and OneKey ='"+sLastMonthEnd+"'"+
+				"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sLastMonthEnd+"'"+
 			")tab3"+
 			" where tab1.Dimension=tab2.Dimension and tab1.DimensionValue=tab2.DimensionValue"+
 			" and tab1.Dimension=tab3.Dimension and tab1.DimensionValue=tab3.DimensionValue";
@@ -181,7 +232,7 @@ public class AIOperationReportHandler{
  				"(select BalanceTLY,BalanceRatioTLY,BalanceRangeTLY,TotalTransactionTLY,TotalTransactionRangeTLY,BalanceTLM,BalanceRatioTLM,BalanceRangeTLM,TotalTransactionTLM,TotalTransactionRangeTLM from "+
  				"("+sSql+") tab12 where tab11.Dimension=tab12.Dimension and tab11.DimensionValue=tab12.DimensionValue"+
  				")"+
- 				" where ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"'"+
+ 				" where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"'"+
  				" and exists(select 1 from ("+sSql+") tab13 where tab11.Dimension=tab13.Dimension and tab11.DimensionValue=tab13.DimensionValue)"
  				);
 	}
