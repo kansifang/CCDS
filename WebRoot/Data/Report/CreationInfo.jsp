@@ -34,21 +34,9 @@
 <%
 	//获得组件参数	：对象类型、申请类型、阶段类型、流程编号、阶段编号、发生方式、发生日期
 	String sObjectType = DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("ObjectType"));
-	String sApplyType =  DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("ApplyType"));
-	String sPhaseType = DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("PhaseType"));
-	String sFlowNo =  DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("FlowNo"));
-	String sPhaseNo =  DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("PhaseNo"));
 	String sType = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("Type")));
-	String sOccurDate =  DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("OccurDate"));
-	
 	//将空值转化成空字符串
 	if(sObjectType == null) sObjectType = "";	
-	if(sApplyType == null) sApplyType = "";
-	if(sPhaseType == null) sPhaseType = "";	
-	if(sFlowNo == null) sFlowNo = "";
-	if(sPhaseNo == null) sPhaseNo = "";
-	if(sOccurDate == null) sOccurDate = "";	
-	
 	//定义变量：SQL语句
 	String sSql = "";
 %>
@@ -62,7 +50,7 @@
 							{"ConfigNo","查询类型"},							
 							{"OneKey","报表日期"}
 						  };
-	sSql = 	" select SerialNo,ConfigNo,OneKey,Type"+	
+	sSql = 	" select SerialNo,ConfigNo,OneKey,Type,EDocNo"+	
 			" from Batch_Report where 1 = 2 ";	
 	//通过SQL产生ASDataObject对象doTemp
 	ASDataObject doTemp = new ASDataObject(sSql);	
@@ -74,6 +62,7 @@
 	doTemp.setRequired("ConfigNo,OneKey",true);
 	//设置下拉框选择内容
 	doTemp.setDDDWSql("ConfigNo", "select DocNo,DocTitle from Doc_Library where DocNo like 'QDT%'");
+	doTemp.setDDDWSql("EDocNo", "select EDocNo,EDocName from EDoc_Define");
 	//设置必输背景色
 	doTemp.setHTMLStyle("OccurType,OccurDate","style={background=\"#EEEEff\"} ");
 	//设置日期格式

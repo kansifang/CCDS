@@ -60,7 +60,7 @@
 		String sSql1 =  " select "+
 							//" case when II.InspectType like '%010' then '2' else '1' end as IsFinished,"+
 							" SerialNo,ConfigNo,"+
-							" OneKey,Type,"+
+							" OneKey,Type,EDocNo,"+
 							" getUserName(InputUserID) as InputUser,"+
 							" getOrgName(InputOrgId) as InputOrg"+
 							" from Batch_Report "+
@@ -125,8 +125,6 @@
 	String sButtons[][] = {
 			{"true","","Button","新增","新增报告","newRecord()",sResourcesPath},
 			{"true","","Button","删除","删除该报告","deleteRecord()",sResourcesPath},
-			{"true","","Button","客户基本信息","查看客户基本信息","viewCustomer()",sResourcesPath},
-			{"true","","Button","业务清单","查看业务清单","viewBusiness()",sResourcesPath},
 			{"false","","Button","完成","完成报告","finished()",sResourcesPath},
 			{"true","","Button","生成报告","生成报告","printContract()",sResourcesPath},
 			{"true","","Button","数据展示","查看报告详情","viewAndEdit()",sResourcesPath},
@@ -251,14 +249,14 @@
 	}
 	/*~[Describe=打印电子合同;InputParam=无;OutPutParam=无;]~*/
 	function printContract(){
-		sObjectType = getItemValue(0,getRow(),"ObjectType");
-		sObjectNo = getItemValue(0,getRow(),"SerialNo");
-		sEDocNo = getItemValue(0,getRow(),"EDocNo");
+		var sObjectType = getItemValue(0,getRow(),"ConfigNo");
+		var sObjectNo = getItemValue(0,getRow(),"SerialNo");
+		var sEDocNo = getItemValue(0,getRow(),"EDocNo");
 		if (typeof(sObjectNo)=="undefined" || sObjectNo.length==0){
 			alert(getHtmlMessage('1'));//请选择一条信息！
 			return;
 		}
-		sReturn = PopPage("/Common/EDOC/EDocCreateCheckAll.jsp?ObjectType="+sObjectType+"&ObjectNo="+sObjectNo+"&EDocNo="+sEDocNo,"","");
+		sReturn = PopPage("/Data/Report/EDOC/EDocCreateCheckAll.jsp?ObjectType="+sObjectType+"&ObjectNo="+sObjectNo+"&EDocNo="+sEDocNo,"","");
 		if (typeof(sReturn)=="undefined") {
 	        alert("打印电子合同失败！！");
 		    return;
@@ -270,7 +268,7 @@
 		else if (sReturn=="nodoc") {
 			if(confirm("电子合同未生成！确定要生成电子打印合同吗？"))
 			{
-				sReturn = PopPage("/Common/EDOC/EDocCreateActionAll.jsp?ObjectType="+sObjectType+"&ObjectNo="+sObjectNo+"&EDocNo="+sEDocNo,"","");
+				sReturn = PopPage("/Data/Report/EDOC/EDocCreateActionAll.jsp?ObjectType="+sObjectType+"&ObjectNo="+sObjectNo+"&EDocNo="+sEDocNo,"","");
 			    if (typeof(sReturn)=="undefined") {
 			        alert("生成电子合同失败！");
 				    return;
@@ -279,7 +277,7 @@
 			else
 			    return;
 		}
-		popComp("EDocView","/Common/EDOC/EDocView.jsp","SerialNo="+sReturn);
+		//popComp("EDocView","/Data/Report/EDOC/EDocView.jsp","SerialNo="+sReturn);
 	}
 	</script>
 <%/*~END~*/%>

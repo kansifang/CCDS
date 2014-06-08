@@ -98,6 +98,7 @@ String getFilePath(String sDocNo, String sShortFileName) {
    		HashMap map = new HashMap();
 		map.put("SerialNo", sObjectNo);
 		edoc.saveDoc(sFullPathOut,map,Sqlca);
+		//edoc.saveData(sFullPathOut, map, Sqlca);
 		long lFileLen = new java.io.File(sFullPathOut).length();
 		String sSql = "Update EDOC_PRINT set FullPath='"+sFullPathOut+"',ContentType='application/msword',ContentLength='"+lFileLen+"',InputTime='"+sUpdateTime+"',InputOrg='"+CurUser.OrgID+"',InputUser='"+CurUser.UserID+"' where SerialNo='"+sSerialNo+"'";
 		Sqlca.executeSQL(sSql);

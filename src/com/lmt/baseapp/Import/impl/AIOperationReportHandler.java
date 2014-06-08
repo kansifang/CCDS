@@ -163,16 +163,17 @@ public class AIOperationReportHandler{
  	 				")");
  	 		//通过借据明细，更新不良户数
  	 		sSql="from Batch_Import_Interim BII1"+
- 	 				" 		where BII1.ConfigName='借据明细' and BII1.OneKey='"+sKey+"' "+
- 	 				"		and BII1.~s借据明细@企业规模e~=substr(BIP.DimensionValue,1,locate('@',BIP.DimensionValue)-1) "+
- 	 				"       and (BII1.~s借据明细@五级分类e~ like '次级%' or BII1.~s借据明细@五级分类e~ like '可疑%' or BII1.~s借据明细@五级分类e~ like '损失%')";
- 	 		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
- 	 		Sqlca.executeSQL("update Batch_Import_Process BIP set(BadTT)="+
- 	 				"(select count(distinct BII1.~s借据明细@客户名称e~) "+sSql+")"+
- 	 				" where HandlerFlag='"+HandlerFlag+"' and BIP.ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"'"+
- 	 				" and exists"+
- 	 				"	(select 1 "+sSql+")"
- 	 				);
+ 	 						" where BII1.ConfigName='借据明细' and BII1.OneKey='"+sKey+"' "+
+ 	 						" and BII1.~s借据明细@企业规模e~=substr(BIP.DimensionValue,1,locate('@',BIP.DimensionValue)-1) "+
+ 	 						" and (BII1.~s借据明细@五级分类e~ like '次级%' or BII1.~s借据明细@五级分类e~ like '可疑%' or BII1.~s借据明细@五级分类e~ like '损失%')";
+ 	 		
+ 	 		String updateSql="update Batch_Import_Process BIP set(BadTT)="+
+		 	 				"(select count(distinct BII1.~s借据明细@客户名称e~) "+sSql+")"+
+		 	 				" where HandlerFlag='"+HandlerFlag+"' and BIP.ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"'"+
+		 	 				" and exists"+
+		 	 				"	(select 1 "+sSql+")";
+ 	 		updateSql=StringUtils.replaceWithConfig(updateSql, Sqlca);
+ 	 		Sqlca.executeSQL(updateSql);
  		}
 	}
 	//加入小计 合计 横向纵向比较值
@@ -206,7 +207,7 @@ public class AIOperationReportHandler{
  				"(nvl(tab1.BalanceRatio,0)-nvl(tab2.BalanceRatio,0)) as BalanceRatioTLY,"+
  				"case when nvl(tab2.Balance,0)<>0 then cast(round((nvl(tab1.Balance,0)/nvl(tab2.Balance,0)-1)*100,2) as numeric(24,6)) else 0 end as BalanceRangeTLY,"+
  				"(nvl(tab1.TotalTransaction,0)-nvl(tab2.TotalTransaction,0)) as TotalTransactionTLY,"+
- 				"case when nvl(tab2.TotalTransaction,0)<>0 then cast(round((nvl(tab1.TotalTransaction,0)/nvl(tab2.TotalTransaction,0)-1)*100,2) as numeric(24,6)) else 0 end as TotalTransactionRangeTLY,"+
+ 				"case when nvl(tab2.TotalTransaction,0)<>0 then cast(round((decimal(nvl(tab1.TotalTransaction,0))/decimal(nvl(tab2.TotalTransaction,0))-1)*100,2) as numeric(24,6)) else 0 end as TotalTransactionRangeTLY,"+
  				"(nvl(tab1.Balance,0)-nvl(tab3.Balance,0)) as BalanceTLM,"+
  				"(nvl(tab1.BalanceRatio,0)-nvl(tab3.BalanceRatio,0)) as BalanceRatioTLM,"+
  				"case when nvl(tab3.Balance,0)<>0 then cast(round((nvl(tab1.Balance,0)/nvl(tab3.Balance,0)-1)*100,2) as numeric(24,6)) else 0 end as BalanceRangeTLM,"+

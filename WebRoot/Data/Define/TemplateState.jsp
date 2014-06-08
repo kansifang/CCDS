@@ -123,21 +123,21 @@ else {
 	function TemplateViewFmt()
 	{
 		sEDocNo = "<%=sEDocNo%>";
-		popComp("TemplateView","/Common/EDOC/TemplateView.jsp","EDocNo="+sEDocNo+"&EDocType=Fmt");
+		popComp("TemplateView","/Data/Define/TemplateView.jsp","EDocNo="+sEDocNo+"&EDocType=Fmt");
 	}
 
 	/*~[Describe=定义文件查看;InputParam=无;OutPutParam=无;]~*/
 	function TemplateViewDef()
 	{
 		sEDocNo = "<%=sEDocNo%>";
-		popComp("TemplateView","/Common/EDOC/TemplateView.jsp","EDocNo="+sEDocNo+"&EDocType=Def");
+		popComp("TemplateView","/Data/Define/TemplateView.jsp","EDocNo="+sEDocNo+"&EDocType=Def");
 	}
 
 	/*~[Describe=生成文件预览;InputParam=无;OutPutParam=无;]~*/
 	function TemplateViewExample()
 	{
 		sEDocNo = "<%=sEDocNo%>";
-	    popComp("TemplateViewExample","/Common/EDOC/TemplateViewExample.jsp","EDocNo="+sEDocNo);		
+	    popComp("TemplateViewExample","/Data/Define/TemplateViewExample.jsp","EDocNo="+sEDocNo);		
 	}
 </script>
 <%@ include file="/IncludeEnd.jsp"%>

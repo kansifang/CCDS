@@ -37,8 +37,7 @@
 
 	if (sEDocNo == null) {
 		sReturn = "nodef";
-	}
-	else {
+	}else {
 		 sSerialNo = Sqlca.getString("Select SerialNo from EDOC_PRINT where ObjectNo='"+sObjectNo+"' and ObjectType='"+sObjectType+"' and EDocNo='"+sEDocNo+"'");
 	}
 

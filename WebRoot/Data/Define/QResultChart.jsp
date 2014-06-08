@@ -111,7 +111,8 @@ org.jfree.chart.JFreeChart"%>
 		response.setContentType("image/jpeg");
 		// 创建饼状图对象
 		JFreeChart jf = ChartFactory.createPieChart("", PieChart.getDataSet(sSql,Sqlca), true, true, true);
-		PieChart.setStyle(jf);
+		//JFreeChart jf = ChartFactory.createPieChart3D("", PieChart.getDataSet(sSql,Sqlca), true, true, true);
+		PieChart.setStyle(false,jf);
 		ChartUtilities.writeChartAsJPEG(response.getOutputStream(), jf, 700, 500);
 	}else if("03".equals(sType)){//柱状图
 		response.setContentType("image/jpeg");

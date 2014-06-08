@@ -60,7 +60,7 @@
 				" getOrgName(InputOrg) as InputOrgName,InputTime, "+
 				" getUserName(UpdateUser) as UpdateUserName,UpdateTime "+
 				" from EDOC_DEFINE "+
-				" order by EDocNo ";
+				" order by EDocNo desc";
 
 	//根据代码标判断是否存在不存在的模板，进行初始化
 	String sSql1="select itemno from code_library a where  codeno='ElectronicContractType' and not exists (select 'X' from edoc_define b where a.itemno=b.edocno)";
