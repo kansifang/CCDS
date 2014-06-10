@@ -47,10 +47,10 @@
 <%
 	//通过显示模版产生ASDataObject对象doTemp
 	String[][] sHeaders = {
-							{"ConfigNo","查询类型"},							
+							{"ReportConfigNo","查询类型"},							
 							{"OneKey","报表日期"}
 						  };
-	sSql = 	" select SerialNo,ConfigNo,OneKey,Type,EDocNo"+	
+	sSql = 	" select SerialNo,ReportConfigNo,OneKey,Type,EDocNo"+	
 			" from Batch_Report where 1 = 2 ";	
 	//通过SQL产生ASDataObject对象doTemp
 	ASDataObject doTemp = new ASDataObject(sSql);	
@@ -59,9 +59,9 @@
 	doTemp.UpdateTable="Batch_Report";
 	doTemp.setKey("SerialNo",true);
 	//设置必输项
-	doTemp.setRequired("ConfigNo,OneKey",true);
+	doTemp.setRequired("ReportConfigNo,OneKey",true);
 	//设置下拉框选择内容
-	doTemp.setDDDWSql("ConfigNo", "select DocNo,DocTitle from Doc_Library where DocNo like 'QDT%'");
+	doTemp.setDDDWSql("ReportConfigNo", "select DocNo,DocTitle from Doc_Library where DocNo like 'QDT%'");
 	doTemp.setDDDWSql("EDocNo", "select EDocNo,EDocName from EDoc_Define");
 	//设置必输背景色
 	doTemp.setHTMLStyle("OccurType,OccurDate","style={background=\"#EEEEff\"} ");
@@ -150,7 +150,7 @@
 			as_add("myiframe0");//新增一条空记录	
 			bIsInsert = true;
 
-			setItemValue(0,0,"ConfigNo","b20140519000001");
+			setItemValue(0,0,"ReportConfigNo","b20140519000001");
 			setItemValue(0,0,"OneKey","<%=DateUtils.getRelativeMonth(DateUtils.getToday(),0,0)%>");
 			setItemValue(0,0,"Type","<%=sType%>");
 			setItemValue(0,0,"InputOrgName","<%=CurOrg.OrgName%>");	
@@ -161,7 +161,7 @@
 	/*~[Describe=确认新增;InputParam=无;OutPutParam=申请流水号;]~*/
 	function doReturn(){
 		var sSerialNo= getItemValue(0,0,"SerialNo");
-		var sConfigNo= getItemValue(0,0,"ConfigNo");		
+		var sConfigNo= getItemValue(0,0,"ReportConfigNo");		
 		var sKey = getItemValue(0,0,"OneKey");		
 		self.returnValue = sSerialNo+"@"+sConfigNo+"@"+sKey;
 		self.close();

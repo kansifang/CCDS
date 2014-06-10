@@ -48,7 +48,7 @@
 		ASDataObject doTemp = null;
 		String sHeaders1[][] = {
 									{"OneKey","报告日期"},
-									{"ConfigNo","维度配置号"},
+									{"ReportConfigNo","维度配置号"},
 									{"BusinessTypeName","业务品种"},
 									{"SerialNo","流水号"},
 									{"Currency","币种"},
@@ -58,8 +58,8 @@
 									{"InputOrg","所属机构"}
 								};
 		String sSql1 =  " select "+
-							//" case when II.InspectType like '%010' then '2' else '1' end as IsFinished,"+
-							" SerialNo,ConfigNo,"+
+							//" case when II.InspectType like '%010' then '2' else '1' end as IsDataHandle,"+
+							" SerialNo,ReportConfigNo,"+
 							" OneKey,Type,EDocNo,"+
 							" getUserName(InputUserID) as InputUser,"+
 							" getOrgName(InputOrgId) as InputOrg"+
@@ -75,19 +75,14 @@
 		doTemp.setKey("SerialNo",true);
 		
 		//设置不可见项
-		doTemp.setVisible("Type,BusinessType,ObjectType,CustomerID,InspectType,InputUserID,InputOrgID,IsFinished",false);
-		if("91".equals(sType) || "92".equals(sType)){
-			doTemp.setVisible("IsFinished",true);
-			doTemp.setColumnAttribute("IsFinished","IsFilter","1");
-			doTemp.setDDDWCode("IsFinished","YesNo");
-		}
+		doTemp.setVisible("Type,BusinessType,ObjectType,CustomerID,InspectType,InputUserID,InputOrgID",false);
 		//设置不可更新项
 		doTemp.setUpdateable("BusinessTypeName,BusinessType,BusinessSum,CustomerName",false);
 		doTemp.setUpdateable("CustomerName,InputUserName,InputOrgName",false);
 		doTemp.setAlign("BusinessSum,Balance","3");
 		doTemp.setType("BusinessSum,Balance","Number");
 		doTemp.setCheckFormat("BusinessSum,Balance","2");
-		doTemp.setDDDWSql("ConfigNo", "select DocNo,DocTitle from Doc_Library where DocNo like 'QDT%'");
+		doTemp.setDDDWSql("ReportConfigNo", "select DocNo,DocTitle from Doc_Library where DocNo like 'QDT%'");
 		//设置html格式
 	  	doTemp.setHTMLStyle("InspectType"," style={width:100px} ");
 	  	doTemp.setHTMLStyle("ObjectNo,CustomerName,BusinessTypeName"," style={width:120px} ");
@@ -125,9 +120,10 @@
 	String sButtons[][] = {
 			{"true","","Button","新增","新增报告","newRecord()",sResourcesPath},
 			{"true","","Button","删除","删除该报告","deleteRecord()",sResourcesPath},
-			{"false","","Button","完成","完成报告","finished()",sResourcesPath},
-			{"true","","Button","生成报告","生成报告","printContract()",sResourcesPath},
-			{"true","","Button","数据展示","查看报告详情","viewAndEdit()",sResourcesPath},
+			{"true","","Button","数据生成","数据做最后处理","DataHandle()",sResourcesPath},
+			{"true","","Button","数据展示","以各种图形进行展示","viewAndEdit()",sResourcesPath},
+			{"true","","Button","生成报告","生成各种word形式的格式化报告","printContract()",sResourcesPath},
+			
 		};
 	%>
 <%/*~END~*/%>
@@ -185,8 +181,7 @@
 	function viewAndEdit()
 	{
 		var sSerialNo = getItemValue(0,getRow(),"SerialNo");
-		var sConfigNo=getItemValue(0,getRow(),"ConfigNo");
-		if(typeof(sSerialNo)=="undefined" || sSerialNo.length==0) {
+		if(typeof(sSerialNo)=="undefined" || sSerialNo.length==0){
 			alert(getHtmlMessage('1'));//请选择一条信息！
 		}else{
 			sCompID = "ReportTab";
@@ -197,34 +192,24 @@
 	}
 
   /*~[Describe=完成;InputParam=无;OutPutParam=无;]~*/
-	function finished()
+	function DataHandle()
 	{
 		var sSerialNo = getItemValue(0,getRow(),"SerialNo");
-		var sObjectNo = getItemValue(0,getRow(),"ObjectNo");
-		var sObjectType=getItemValue(0,getRow(),"ObjectType");
+		var sReportConfigNo = getItemValue(0,getRow(),"ReportConfigNo");
+		var sOneKey = getItemValue(0,getRow(),"OneKey");
 		if(typeof(sSerialNo)=="undefined" || sSerialNo.length==0) {
 			alert(getHtmlMessage('1'));//请选择一条信息！
+			return;
 		}
-		else if(confirm(getBusinessMessage('650')))//你真的想完成该报告吗？
-		{
-			sReturn=PopPage("/CreditManage/CreditCheck/AfterLoanInspectAction.jsp?SerialNo="+sSerialNo+"&ObjectNo="+sObjectNo+"&ObjectType="+sObjectType,"","");
-			
-			if(sReturn=="Inspectunfinish")
-			{
-				alert(getBusinessMessage('651'));//该贷后客户检查报告无法完成，请先完成风险分类！
-				return;
-			}
-			if(sReturn=="Purposeunfinish")
-			{
-				alert("该贷款用途报告无法完成，请先输入需维护的检查项！");//该贷款用途报告无法完成，请先输入需维护的检查项！
-				return;
-			}
-			if(sReturn=="finished")
-			{
-				alert(getBusinessMessage('653'));//该报告已完成！
-				reloadSelf();
-			}
-		}
+		ShowMessage("正在进行文档上传后的后续操作,请耐心等待.......",true,false);
+   		sReturn=PopPage("/Data/Import/Handler.jsp?HandleType=BeforeDisplay&ConfigNo="+sReportConfigNo+"&OneKeys="+sOneKey,"","dialogWidth=650px;dialogHeight=250px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
+   		if(sReturn=="true"){
+   			alert("处理成功！");
+   		}else{
+   			alert("处理失败！");
+   		}
+   		try{hideMessage();}catch(e) {};
+   		reloadSelf(); 
 	}
 	 
 	function generateReport(){
@@ -249,7 +234,7 @@
 	}
 	/*~[Describe=打印电子合同;InputParam=无;OutPutParam=无;]~*/
 	function printContract(){
-		var sObjectType = getItemValue(0,getRow(),"ConfigNo");
+		var sObjectType = getItemValue(0,getRow(),"ReportConfigNo");
 		var sObjectNo = getItemValue(0,getRow(),"SerialNo");
 		var sEDocNo = getItemValue(0,getRow(),"EDocNo");
 		if (typeof(sObjectNo)=="undefined" || sObjectNo.length==0){

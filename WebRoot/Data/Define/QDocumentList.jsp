@@ -105,7 +105,7 @@
 
 		String sButtons[][] = {
 			{"true","","Button","新增","新增文档信息","newRecord()",sResourcesPath},
-			{"true","","Button","批量详情","查看批量详情","viewAndEdit_doc()",sResourcesPath},
+			{"true","","Button","详情","查看批量详情","viewAndEdit_doc()",sResourcesPath},
 			{"true","","Button","删除","删除文档信息","deleteRecord()",sResourcesPath},
 			{"false","","Button","导出附件","导出附件文档信息","exportFile()",sResourcesPath},
 			{"true","","Button","数据定义","查看批量详情","viewAndEdit_attachment()",sResourcesPath}

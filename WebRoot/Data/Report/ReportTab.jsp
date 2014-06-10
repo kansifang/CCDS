@@ -45,7 +45,7 @@
 	  	String sTabStrip[][] = new String[30][3];
 		int initTab = 1;//设定默认的 tab ，数值代表第几个tab
 		String sConfigNo="",sOneKey="";		
-		ASResultSet rs=Sqlca.getASResultSet("select ConfigNo,OneKey from Batch_Report where SerialNo='"+sSerialNo+"'");
+		ASResultSet rs=Sqlca.getASResultSet("select ReportConfigNo,OneKey from Batch_Report where SerialNo='"+sSerialNo+"'");
 		if(rs.next()){
 			sConfigNo=DataConvert.toString(rs.getString(1));
 			sOneKey=DataConvert.toString(rs.getString(2));

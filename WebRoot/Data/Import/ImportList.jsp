@@ -151,12 +151,12 @@
 			//6.资源图片路径
 
 		String sButtons[][] = {
-				{"true","","Button","导入数据","查看附件详情","ImportBatch('01')",sResourcesPath},
 				{"false","","Button","删除","删除文档信息","deleteRecord()",sResourcesPath},
 				{"true","","Button","查看附件","查看附件详情","viewDoc()",sResourcesPath},
 				{"false","","Button","上传附件","查看附件详情","uploadDoc()",sResourcesPath},
 				{"false","","Button","更新批次","查看附件详情","ImportBatch('02')",sResourcesPath},
 				{"false","","Button","区间汇总","查看附件详情","summation()",sResourcesPath},
+				{"true","","Button","导入数据","查看附件详情","ImportBatch('01')",sResourcesPath}
 			};
 	%>
 <%
@@ -243,16 +243,16 @@
    			return;
    		sReturn = sReturn.split("@");
 		var sConfigNo=sReturn[0];
-		var sUploadType=sReturn[1];
+		var sUploadMethod=sReturn[1];
 		var sReportDates=sReturn[2];
 		var sFiles=sReturn[3];
    		//2、上传文件后 解析加工处理
    		ShowMessage("正在进行文档上传后的后续操作,请耐心等待.......",true,false);
-   		sReturn=PopPage("/Data/Import/Handler.jsp?ConfigNo="+sConfigNo+"&UploadType="+sUploadType+"&OneKeys="+sReportDates+"&Files="+sFiles,"","dialogWidth=650px;dialogHeight=250px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
+   		sReturn=PopPage("/Data/Import/Handler.jsp?HandleType=AfterImport&ConfigNo="+sConfigNo+"&OneKeys="+sReportDates+"&UploadMethod="+sUploadMethod+"&Files="+sFiles,"","dialogWidth=650px;dialogHeight=250px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
    		if(sReturn=="true"){
-   			alert("导入成功！");
+   			alert("处理成功！");
    		}else{
-   			alert("导入失败！");
+   			alert("处理失败！");
    		}
    		try{hideMessage();}catch(e) {};
    		reloadSelf(); 
