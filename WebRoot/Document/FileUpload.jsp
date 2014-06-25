@@ -79,7 +79,7 @@ String getMD5String(String srcKey){
 <%
 	/*~BEGIN~可编辑区~[Editable=true;CodeAreaID=Main02;Describe=定义变量，获取参数;]~*/
 		//调用页面与当前页面共用一个组件，故这样获取参数
-		//String sDocNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("DocNo")));
+		String sDocNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("DocNo")));
 %>
 	<%
 			StringBuffer sReportDates=new StringBuffer();
@@ -111,12 +111,14 @@ String getMD5String(String srcKey){
 			}
 			String sBatchNo=sConfigNo+"_"+myAmarsoftUpload.getRequest().getParameter("ReportDate[0]");
 			//1、插入文档目录，所传文件将放到该目录下
-	   		String sDocNo=DataConvert.toString(Sqlca.getString("select Doc_Library.DocNo from Doc_Relative,Doc_Library where Doc_Relative.DocNo=Doc_Library.DocNo and ObjectType='Batch' and ObjectNo='"+sConfigNo+"' and DocAttribute='02'"));
-			if(sDocNo.length()==0){
-				sDocNo=DBFunction.getSerialNo("Doc_Library", "DocNo", Sqlca);
-				Sqlca.executeSQL("insert into Doc_Relative(DocNo,ObjectType,ObjectNo)values('"+sDocNo+"','Batch','"+sConfigNo+"')");
-				Sqlca.executeSQL("insert into Doc_Library(DocNo,DocTitle,DocAttribute,InputTime)values('"+sDocNo+"','"+sBatchNo+"','02','"+StringFunction.getToday()+"')");
-	   		}
+			if("".equals(sDocNo)){
+				sDocNo=DataConvert.toString(Sqlca.getString("select Doc_Library.DocNo from Doc_Relative,Doc_Library where Doc_Relative.DocNo=Doc_Library.DocNo and ObjectType='Batch' and ObjectNo='"+sConfigNo+"' and DocAttribute='02'"));
+				if(sDocNo.length()==0){
+					sDocNo=DBFunction.getSerialNo("Doc_Library", "DocNo", Sqlca);
+					Sqlca.executeSQL("insert into Doc_Relative(DocNo,ObjectType,ObjectNo)values('"+sDocNo+"','Batch','"+sConfigNo+"')");
+					Sqlca.executeSQL("insert into Doc_Library(DocNo,DocTitle,DocAttribute,InputTime)values('"+sDocNo+"','"+sBatchNo+"','02','"+StringFunction.getToday()+"')");
+		   		}
+			}
 			com.lmt.frameapp.web.uad.File lfile=null;
 			for(int i=0;i<files.getCount()&&!(lfile=files.getFile(i)).isMissing();i++){
 				String sAttachmentNo = DBFunction.getSerialNoFromDB("DOC_ATTACHMENT","AttachmentNo","DocNo='"+sDocNo+"'","","000",new java.util.Date(),Sqlca);   

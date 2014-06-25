@@ -31,17 +31,26 @@
 <title>下载文件</title>
 </head>
 <body>
-点击此链接<a id=mydownload name=mydownload href="<%=sWebRootPath%><%=sURLName%>" ><font size = 5pt color="ff0000"><b>下载>></b></font></a>
+<!--  点击此链接<a id=mydownload name=mydownload href="<%=sWebRootPath%><%=sURLName%>" ><font size = 5pt color="ff0000"><b>下载>></b></font></a>
+-->
+<form name=form1 method=post action=<%=sWebRootPath%>/fileview>
+	<div style="display:none">
+		<input name=filename value="<%=sURLName%>">
+		<input name=contenttype value="application/x-zip-compressed">
+		<input name=viewtype value="view">		
+	</div>
+</form>
 </body>
-</html>
 <script language=javascript>
+	form1.submit();
+	//self.close();
 	//mydownload.click();
-
-	//setTimeout('closeTop();',2000);	
-	//function closeTop()
-	//{
-	//	top.close();
-	//}
+	setTimeout('closeTop();',2000);	
+	function closeTop()
+	{
+		top.close();
+	}
 
 </script>
+</html>
 <%@ include file="/IncludeEnd.jsp"%>

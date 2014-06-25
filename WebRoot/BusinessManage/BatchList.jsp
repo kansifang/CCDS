@@ -235,7 +235,7 @@
     	}
     	else
     	{
-    		sReturn=popComp("DocumentList","/Common/Document/DocumentList.jsp","ObjectType=Batch&ObjectNo="+sBatchNo,"");
+    		sReturn=popComp("DocumentList","/Document/DocumentList.jsp","ObjectType=Batch&ObjectNo="+sBatchNo,"");
             reloadSelf(); 
         }
 	}

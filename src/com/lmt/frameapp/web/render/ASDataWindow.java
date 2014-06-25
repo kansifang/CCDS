@@ -1631,12 +1631,9 @@ public class ASDataWindow implements Cloneable {
 			dFile.mkdirs();
 		SimpleDateFormat sdf_temp = new SimpleDateFormat("yyyyMMdd_HHmmssSSS");
 		String sNow = sdf_temp.format(new Date());
-		String sSourceName = (new StringBuilder()).append(sNow).append(".xls")
-				.toString();
-		String sFileName = (new StringBuilder()).append(sPath).append("/")
-				.append(sNow).append(".xls").toString();
-		String sFileZipName = (new StringBuilder()).append(sPath).append("/")
-				.append(sNow).append(".zip").toString();
+		String sSourceName = (new StringBuilder()).append(sNow).append(".xls").toString();
+		String sFileName = (new StringBuilder()).append(sPath).append("/").append(sNow).append(".xls").toString();
+		String sFileZipName = (new StringBuilder()).append(sPath).append("/").append(sNow).append(".zip").toString();
 		File file = new File(sFileName);
 		FileOutputStream fileOut = new FileOutputStream(file);
 		int i = 0;
