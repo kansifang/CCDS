@@ -1,6 +1,6 @@
 <%@page contentType="text/html; charset=GBK"%>
 <%@include file="/IncludeBeginMD.jsp"%>
-<%@page import="com.amarsoft.app.util.ObjectExim"%>
+<%@page import="com.lmt.app.util.ObjectExim"%>
 
 <%
 	/*~BEGIN~¿É±à¼­Çø~[Editable=true;CodeAreaID=Dialog00;Describe=×¢ÊÍÇø;]~*/

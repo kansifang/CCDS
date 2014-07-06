@@ -1,6 +1,6 @@
 <%@page contentType="text/html; charset=GBK"%>
 <%@include file="/IncludeBeginMD.jsp"%>
-<%@page import="com.amarsoft.app.util.ASLocator"%>
+<%@page import="com.lmt.app.util.ASLocator"%>
 <%
 	/*~BEGIN~¿É±à¼­Çø~[Editable=true;CodeAreaID=Dialog00;Describe=×¢ÊÍÇø;]~*/
 %>

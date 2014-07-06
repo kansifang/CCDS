@@ -103,7 +103,7 @@
 	//doTemp.setHTMLStyle("CodeDescribe"," style={width:460px} ");
 	//doTemp.setHTMLStyle("CodeAttribute"," style={width:160px} ");
 	//doTemp.setDDDWCodeTable("CodeDescribe","01,导入对应配置,02,字段维护");
-	doTemp.setDDDWCodeTable("CodeAttribute","01,导入对应配置,02,字段维护");
+	doTemp.setDDDWCodeTable("CodeAttribute","01,导入对应配置,02,字段维护,03,种子配置");
 	doTemp.setHTMLStyle("InputUser,UpdateUser"," style={width:160px} ");
 	doTemp.setHTMLStyle("InputOrg"," style={width:160px} ");
 	doTemp.setHTMLStyle("InputTime,UpdateTime"," style={width:130px} ");

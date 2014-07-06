@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=GBK"%>
-<%@page import="com.amarsoft.web.ui.mainmenu.AmarMenu"%>
+<%@page import="com.lmt.web.ui.mainmenu.AmarMenu"%>
 <%@ include file="/IncludeBegin.jsp"%>
 <link rel="stylesheet" href="<%=sResourcesPath%>/css/strip.css">
 <link rel="stylesheet" href="<%=sResourcesPath%>/css/tabs.css">
@@ -63,8 +63,7 @@
 		tabCompent.setAddCallback("addNewTabListen(this)");
 		tabCompent.setCloseCallback("deleteTabListen(this)");
 		//tabCompent.setCanClose(false);
-  	<%
-		String sSql = "",sSqlTab = "";
+  	<%String sSql = "",sSqlTab = "";
 		int iCount = 0;
 		ASResultSet rs1 = null;
 		
@@ -78,9 +77,8 @@
 			}
 		}
 		//用户自定义工作台
-		String custTab = com.amarsoft.app.util.WorkTipTabsManage.genTabScript(CurUser.UserID,Sqlca);
-		out.println(custTab);
-	%>
+		String custTab = com.lmt.app.util.WorkTipTabsManage.genTabScript(CurUser.UserID,Sqlca);
+		out.println(custTab);%>
 		tabCompent.init();
 	});
 
