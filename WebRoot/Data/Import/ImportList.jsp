@@ -71,7 +71,7 @@
     	//定义SQL语句
     String sSql = " SELECT  ConfigNo as 报表类型,OneKey as 报表日期,ImportIndex as 序号"+sS+",ImportNo,ImportTime,UserID"+
     	 " FROM Batch_Import_Interim " +
-		  " WHERE 1=1 order by importNo,int(序号) asc";
+		  " WHERE 1=1 order by ImportNo asc";
 	//产生ASDataObject对象doTemp
     ASDataObject doTemp = new ASDataObject(sSql);
     //设置表头
@@ -222,15 +222,13 @@
 	/*~[Describe=查看及修改详情;InputParam=无;OutPutParam=无;]~*/
 	function viewDoc()
 	{
-		sBatchNo="<%=sConfigNo%>";
+		var sBatchNo=getItemValue(0,getRow(),"报表类型");
 		var sUserID=getItemValue(0,getRow(),"UserID");
     	if (typeof(sUserID)=="undefined" || sUserID.length==0)
     	{
         	alert(getHtmlMessage(1));  //请选择一条记录！
 			return;
-    	}
-    	else
-    	{
+    	}else{
     		sReturn=popComp("DocumentList","/Document/DocumentList.jsp","ObjectType=Batch&ObjectNo="+sBatchNo,"");
             reloadSelf(); 
         }
@@ -238,6 +236,7 @@
 	/*~[Describe=导入批量;InputParam=1导入2更新;OutPutParam=无;]~*/
 	function ImportBatch(sType)
 	{
+		//Doc_Relative ObjectType=Batch ObjectNo=ConfigNo 
 		var sReturn=popComp("FileChooseDialog","/Document/FileChooseDialog.jsp","","dialogWidth=900px;dialogHeight=500px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
    		if(typeof(sReturn)=="undefined" || sReturn=="" || sReturn=="_CANCEL_") 
    			return;
@@ -246,7 +245,7 @@
 		var sUploadMethod=sReturn[1];
 		var sReportDates=sReturn[2];
 		var sFiles=sReturn[3];
-   		//2、上传文件后 解析加工处理
+   		//2、上传文件后 解析存入数据库并作初步加工处理
    		ShowMessage("正在进行文档上传后的后续操作,请耐心等待.......",true,false);
    		sReturn=PopPage("/Data/Import/Handler.jsp?HandleType=AfterImport&ConfigNo="+sConfigNo+"&OneKeys="+sReportDates+"&UploadMethod="+sUploadMethod+"&Files="+sFiles,"","dialogWidth=650px;dialogHeight=250px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
    		if(sReturn=="true"){

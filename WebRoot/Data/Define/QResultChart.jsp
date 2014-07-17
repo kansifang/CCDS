@@ -125,7 +125,8 @@ org.jfree.chart.JFreeChart"%>
 	}else if("04".equals(sType)){//折线图
 		response.setContentType("image/jpeg");
 		// 创建折线图对象
-		JFreeChart jf = ChartFactory.createLineChart("", "时间", "", LineChart.getDataSet(sSql,Sqlca), PlotOrientation.VERTICAL, true, true, false);
+		//JFreeChart jf = LineChart.createChart(sSql, Sqlca);
+		JFreeChart jf =ChartFactory.createLineChart("", "时间", "", LineChart.getDataSet(sSql,Sqlca), PlotOrientation.VERTICAL, true, true, false);
 		// 给折线图对象设置样式
 		LineChart.setStyle(jf);
 		// 对折线图对象生成图片

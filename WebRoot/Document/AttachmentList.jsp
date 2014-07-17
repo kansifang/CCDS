@@ -117,7 +117,7 @@
 		String sButtons[][] = {
 			{(CurUser.UserID.equals(sUserID)?"true":"false"),"","Button","新增","新增一个相关附件信息","newRecord()",sResourcesPath},
 			{"true","","Button","查看内容","查看附件内容","viewFile()",sResourcesPath},
-			{(CurUser.UserID.equals(sUserID)?"true":"false"),"","Button","删除","删除文档信息","deleteRecord()",sResourcesPath},
+			{"true","","Button","删除","删除文档信息","deleteRecord()",sResourcesPath},
 			{"true","","Button","返回","返回列表页面","goBack()",sResourcesPath}
 			
 			};

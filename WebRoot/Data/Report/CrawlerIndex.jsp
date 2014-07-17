@@ -13,6 +13,7 @@
         <div align="center">
         	新闻首页地址： 
 	        <input name="newsfield" id="newsfield" type="text" value="http://news.sohu.com/" style="border-width:inherit;width:1000px">
+	        <input name="CompClientID" type="hidden" value="<%=sCompClientID%>">
 	        <input type="submit" id="newsSubmit" value="提交">
         </div>
         </form>

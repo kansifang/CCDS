@@ -48,7 +48,8 @@
 	//通过显示模版产生ASDataObject对象doTemp
 	String[][] sHeaders = {
 							{"ReportConfigNo","查询类型"},							
-							{"OneKey","报表日期"}
+							{"OneKey","报表日期"},
+							{"EDocNo","报告模板"}
 						  };
 	sSql = 	" select SerialNo,ReportConfigNo,OneKey,Type,EDocNo"+	
 			" from Batch_Report where 1 = 2 ";	

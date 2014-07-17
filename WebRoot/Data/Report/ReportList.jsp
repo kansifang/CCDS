@@ -49,7 +49,7 @@
 		String sHeaders1[][] = {
 									{"OneKey","报告日期"},
 									{"ReportConfigNo","维度配置号"},
-									{"BusinessTypeName","业务品种"},
+									{"EDocNo","报告模板"},
 									{"SerialNo","流水号"},
 									{"Currency","币种"},
 									{"BusinessSum","合同金额"},
@@ -65,7 +65,7 @@
 							" getOrgName(InputOrgId) as InputOrg"+
 							" from Batch_Report "+
 							" where Type='"+sType+"' "+
-			                " order by OneKey desc";
+			                " order by ReportConfigNo,OneKey asc";
 		//由SQL语句生成窗体对象。
 		doTemp = new ASDataObject(sSql1);
 		doTemp.setHeader(sHeaders1);
@@ -73,11 +73,10 @@
 		doTemp.UpdateTable = "Batch_Report";
 		//设置关键字
 		doTemp.setKey("SerialNo",true);
-		
 		//设置不可见项
 		doTemp.setVisible("Type,BusinessType,ObjectType,CustomerID,InspectType,InputUserID,InputOrgID",false);
 		//设置不可更新项
-		doTemp.setUpdateable("BusinessTypeName,BusinessType,BusinessSum,CustomerName",false);
+		doTemp.setUpdateable("BusinessType,BusinessSum,CustomerName",false);
 		doTemp.setUpdateable("CustomerName,InputUserName,InputOrgName",false);
 		doTemp.setAlign("BusinessSum,Balance","3");
 		doTemp.setType("BusinessSum,Balance","Number");
@@ -120,8 +119,8 @@
 	String sButtons[][] = {
 			{"true","","Button","新增","新增报告","newRecord()",sResourcesPath},
 			{"true","","Button","删除","删除该报告","deleteRecord()",sResourcesPath},
-			{"true","","Button","数据生成","数据做最后处理","DataHandle()",sResourcesPath},
-			{"true","","Button","数据展示","以各种图形进行展示","viewAndEdit()",sResourcesPath},
+			{"true","","Button","加工数据","数据做最后处理","DataHandle()",sResourcesPath},
+			{"true","","Button","展示数据","以各种图形进行展示","viewAndEdit()",sResourcesPath},
 			{"true","","Button","生成报告","生成各种word形式的格式化报告","printContract()",sResourcesPath},
 			
 		};
@@ -251,17 +250,13 @@
 			return;
 		}
 		else if (sReturn=="nodoc") {
-			if(confirm("电子合同未生成！确定要生成电子打印合同吗？"))
-			{
-				sReturn = PopPage("/Data/Report/EDOC/EDocCreateActionAll.jsp?ObjectType="+sObjectType+"&ObjectNo="+sObjectNo+"&EDocNo="+sEDocNo,"","");
-			    if (typeof(sReturn)=="undefined") {
-			        alert("生成电子合同失败！");
-				    return;
-				}
-			}
-			else
+			sReturn = PopPage("/Data/Report/EDOC/EDocCreateActionAll.jsp?ObjectType="+sObjectType+"&ObjectNo="+sObjectNo+"&EDocNo="+sEDocNo,"","");
+		    if (typeof(sReturn)=="undefined") {
+		        alert("生成电子合同失败！");
 			    return;
+			}
 		}
+		
 		//popComp("EDocView","/Data/Report/EDOC/EDocView.jsp","SerialNo="+sReturn);
 	}
 	</script>

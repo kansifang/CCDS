@@ -31,7 +31,9 @@ public class AIHandlerFactory{
  		//Sqlca.executeSQL("update "+sImportTableName+" set ReportDate='"+sReportDate+"' where ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"' and ImportNo like 'N%000000'");
 	}
 	public static void handle(String sFiles,String sFileType,String HandlerFlag,String sConfigNo,String sOneKey,ASUser CurUser,Transaction Sqlca) throws Exception{
+		//先导入到数据库
 		AIHandlerFactory.beforeHandle(sFiles, sFileType,HandlerFlag, sConfigNo, sOneKey, CurUser, Sqlca);
+		//对数据进行初步加工
 		if("Customer".toUpperCase().equals(HandlerFlag)){
 			AIHandlerFactory.customerHandle(sConfigNo, sOneKey, Sqlca);
 		}else if("Contract".toUpperCase().equals(HandlerFlag)){
@@ -202,16 +204,16 @@ public class AIHandlerFactory{
 	 */
 	private static void dueBillRHandle(String HandlerFlag,String sConfigNo,String sOneKey,Transaction Sqlca) throws Exception {
 		//1、对中间表数据进行特殊处理 	 		 	
-		AIDuebillRHandler.interimProcess(sConfigNo, sOneKey, Sqlca);
+		AIDuebillRetailHandler.interimProcess(sConfigNo, sOneKey, Sqlca);
 		//清空目标表 
 		Sqlca.executeSQL("Delete from Batch_Import_Process where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey='"+sOneKey+"'");
  		String groupBy="case "+
 		 				" when ~s个人明细@归属条线e~ ='个人条线' or ~s个人明细@归属条线e~ = '微小条线' or ~s个人明细@归属条线e~ = '零售条线' then '零售条线'"+
 		 				" when ~s个人明细@归属条线e~ = '小企业条线' then '小企业条线' "+
 		 				" else '其他条线' end";
- 		AIDuebillRHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"归属条线",groupBy,"and (~s个人明细@业务品种e~<>'个人委托贷款' and ~s个人明细@业务品种e~<>'个人住房公积金贷款')");
+ 		AIDuebillRetailHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"归属条线",groupBy,"and (~s个人明细@业务品种e~<>'个人委托贷款' and ~s个人明细@业务品种e~<>'个人住房公积金贷款')");
 	 	//4、加工后，进行合计，横向纵向分析
- 		AIDuebillRHandler.afterProcess(HandlerFlag,sConfigNo, sOneKey, Sqlca);
+ 		AIDuebillRetailHandler.afterProcess(HandlerFlag,sConfigNo, sOneKey, Sqlca);
 	}
 	/**
 	 * 月度经营报告处理

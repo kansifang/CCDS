@@ -7,8 +7,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.sohu.SohuNews;
-import com.sohu.crawler.Crawler;
+import com.lmt.app.crawler.Crawler;
+import com.lmt.app.crawler.dao.HtmlDao;
 
 /**
  *
@@ -49,15 +49,15 @@ public class GetNewsServlet extends HttpServlet {
     protected void processRequest(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
             response.setContentType("text/html;charset=GBK");
-            final String url = request.getParameter("newsfield");  
+            String url = request.getParameter("newsfield");  
             Thread thread = new Thread(new Runnable() {
                 public void run() {
-                    new Crawler().crawling(new String[]{url});
+                    new Crawler().crawling();
                 }
             });
             thread.start();
-            SohuNews news=new SohuNews();
-            request.getSession().setAttribute("newsList",news.getNewsList("NewsTitle,NewsAuthor,NewsContent,NewsDate"," from Batch_Html where 1=1",1,8));
-            response.sendRedirect("Data/Report/CrawlerDetail.jsp");
+            HtmlDao news=new HtmlDao();
+            request.getSession().setAttribute("newsList",news.getNewsList("SerialNo,NewsTitle,NewsAuthor,NewsContent,NewsURL,NewsDate"," from Batch_Html where 1=1",1,8));
+            response.sendRedirect("Data/Report/CrawlerList.jsp?CompClientID="+request.getParameter("CompClientID"));
     }
 }

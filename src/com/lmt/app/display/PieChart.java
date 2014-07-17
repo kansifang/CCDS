@@ -61,7 +61,7 @@ public class PieChart {
 		// 设置饼图上显示信息
 		plot.setSectionOutlinePaint("茄子",Color.white);
 		 // 图片背景色    
-        chart.setBackgroundPaint(Color.red);  
+        chart.setBackgroundPaint(Color.white);  
         //设置开始角度 
         plot.setStartAngle(150D); 
         //设置方向为”顺时针方向“ 

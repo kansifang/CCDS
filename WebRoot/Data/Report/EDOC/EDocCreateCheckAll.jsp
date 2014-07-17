@@ -46,8 +46,13 @@
 	} else {
 		String sFullPath = Sqlca.getString("Select FullPath from EDOC_PRINT where SerialNo='"+sSerialNo+"'");
 		java.io.File dFile = new java.io.File(sFullPath);
-		if(!dFile.exists())	
+		if(!dFile.exists()){	
 			sReturn = "nodoc";
+		}else {
+			dFile.delete();
+			Sqlca.executeSQL("delete from Edoc_Print where SerialNo='"+sSerialNo+"'");
+			sReturn = "nodoc";
+		}
 	}
 
 	//假如没有生成好的文档，看看是否有文档模板定义

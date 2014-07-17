@@ -36,10 +36,10 @@
 
 
 <script language=javascript>
-
 	function checkItems()
 	{
-		//检查代码合法性		
+		//检查代码合法性
+		/*
 		try 
 		{
 			var fso = new ActiveXObject("Scripting.FileSystemObject");
@@ -54,6 +54,7 @@
 			alert(getBusinessMessage('211'));//文件大于2048k，不能上传！
 			return false;
 		}
+		*/
 		var sFileName="",sDelay="";
 		sFileName  = document.forms("SelectAttachment").AttachmentFileName.value;
 		document.forms("SelectAttachment").FileName.value=sFileName;	

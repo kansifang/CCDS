@@ -1738,7 +1738,6 @@ function hideMessage(){
 	}catch(e){ }
 }
 function ShowMessage(str,showGb,clickHide){
-	
 	//可以通过对象检查来判断窗口是否已打开
 	//采取替换或者取消的操作来避免重复打开
 	//提示文字尽量别超过2行,因为背景iframe动态高度不知道怎么弄。

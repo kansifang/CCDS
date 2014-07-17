@@ -2,7 +2,7 @@
 <%@ include file="/IncludeBegin.jsp"%>
 <%@page import="java.util.List" %>
 <%@page import="java.util.ArrayList,java.util.Iterator" %>
-<%@page import="com.sohu.bean.NewsBean,com.sohu.SohuNews" %>
+<%@page import="com.lmt.app.crawler.dao.*" %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
    "http://www.w3.org/TR/html4/loose.dtd">
 
@@ -12,45 +12,47 @@
         <meta http-equiv="Content-Type" content="text/html; charset=GBK">
         <title>NewsDetail</title>
     </head>
-    <body>
-        <h2>新闻内容</h2>
+    <body style="background-image:url(../../Resources/Public/green.jpg);">
+    <%
+	    String sSerialNo=request.getParameter("SerialNo");
+    %>
         <table border="0">
             <thead>
                 <tr>
-                	<th>行号</th>
-                    <th>新闻标题</th>
-                    <th>新闻内容</th>
+                	<th></th>
+                    <th></th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
             	<%
-            		String pageIndex=request.getParameter("PageIndex");
-            		int pIndex=0;
-            		if(pageIndex!=null)pIndex=Integer.valueOf(pageIndex);
-            		ArrayList<NewsBean> newList=(ArrayList)session.getAttribute("newsList");
-            		if(newList==null){
-            			SohuNews news=new SohuNews();
-            			newList=news.getNewsList("NewsTitle,NewsAuthor,NewsContent,NewsDate"," from Batch_Html where 1=1 order by num asc",pIndex,8);
-            		}
-            		Iterator<NewsBean> it=newList.iterator();
-            		while(it.hasNext()){
-            			NewsBean nb=it.next();
-            			System.out.println(nb.getNum());
-            			System.out.println(nb.getNewsTitle());
-            			System.out.println(nb.getNewsContent());
+            		HtmlDao news=new HtmlDao();
+            	            	          			HtmlBean nb=news.getNews("SerialNo,NewsTitle,NewsAuthor,NewsContent,NewsURL,NewsDate"," from Batch_Html where SerialNo='"+sSerialNo+"'");
+            	            	          			if(nb.getSerialNo().equals(sSerialNo)){
+            	            	          				String Content=nb.getContent();
+            	            	          				Content=StringFunction.replace(Content,"　　", "<p>");
             	%>
             	<tr>
-            		<td><%=nb.getNum()%></td>
-                    <td><%=nb.getNewsTitle()%></td>
-                    <td><%=nb.getNewsContent().substring(0, 50)%></td>
+                    <td align="center" ><span style="font-size:20px;cursor:hand;text-decoration:underline" onclick="window.open('<%=nb.getURL()%>','_blank','')"><%=nb.getTitle()%></strong></span></td>
+                </tr>
+                <tr>
+                   <td><span style="COLOR:#000000; FONT-SIZE: 15px;"><%=Content%></span></td>
                 </tr>
             	<%		
             		}
             	%>
             </tbody>
         </table>
-        <input type="button" value="上一页" onclick="OpenPage('/Data/Report/CrawlerDetail.jsp?PageIndex=<%=pIndex-1%>','_self','')">
-	    <input type="button" value="下一页" onclick="OpenPage('/Data/Report/CrawlerDetail.jsp?PageIndex=<%=pIndex+1%>','_self','')">
-    </body>
+     </body>
+    <script>
+    	var curRow=0;
+    	function rowClick(obj){
+    		var othertr=document.getElementsByTagName("tr");
+    		for(var i=0;i<othertr.length;i++){
+    			othertr[i].style.background="lightgrey";
+    		}
+    		obj.style.background="green";
+    	}
+    </script>
 </html>
 <%@	include file="/IncludeEnd.jsp"%>
