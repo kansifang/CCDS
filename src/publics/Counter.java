@@ -58,7 +58,7 @@ public class Counter {
     		System. out . println(matcher . group( 0 ));
     	}
     	*/
-    	
+    	/*正则表达式
     	Pattern pattern1 = Pattern.compile("(another) (test)");
         StringBuffer sb = new StringBuffer();
         String candidateString = "This is another test.";
@@ -68,6 +68,8 @@ public class Counter {
         m.appendReplacement(sb, replacement);
         String msg = sb.toString();
         System.out.println(msg);
+        */
+    	  System.out.println("2014/04".compareTo("2014/06"));
 
     }
 

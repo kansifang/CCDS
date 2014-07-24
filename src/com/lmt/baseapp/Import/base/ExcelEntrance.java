@@ -45,15 +45,15 @@ public class ExcelEntrance implements EntranceImpl{
 	
 	public void actionBefore(String configNo,String Key) throws Exception {//批量主键，标示不同类型批量
 		//把上一批置上最新标志，刚刚导入的为N开头的
-				String sNImportNo=DBFunction.getSerialNo(this.sImportTableName,"ImportNo","'O'yyyyMMdd","000000",new Date(),Sqlca);
-			 	Sqlca.executeSQL("update "+this.sImportTableName+" set ImportNo='"+sNImportNo+"' where ConfigNo='"+configNo+"' and OneKey='"+Key+"' and ImportNo like 'N%000000'");
-			 	//初始化数据结构  一次导入对应一个模板定义，对应一个PS
-				//初始化head属性
-			 	this.OR=new ObjRow(configNo,Key,this.CurUser,this.Sqlca);
-			 	this.EH=new ExcelHandler(OR,Sqlca);
-				this.HDB=new DBHandler(sImportTableName,OR,Sqlca);
-				//this.EH.initMeta(configNo,Key,this.CurUser);
-				//初始化PreparedStatement
+		String sNImportNo=DBFunction.getSerialNo(this.sImportTableName,"ImportNo","'O'yyyyMMdd","000000",new Date(),Sqlca);
+	 	Sqlca.executeSQL("update "+this.sImportTableName+" set ImportNo='"+sNImportNo+"' where ConfigNo='"+configNo+"' and OneKey='"+Key+"' and ImportNo like 'N%000000'");
+	 	//初始化数据结构  一次导入对应一个模板定义，对应一个PS
+		//初始化head属性
+	 	this.OR=new ObjRow(configNo,Key,this.CurUser,this.Sqlca);
+	 	this.EH=new ExcelHandler(OR,Sqlca);
+		this.HDB=new DBHandler(sImportTableName,OR,Sqlca);
+		//this.EH.initMeta(configNo,Key,this.CurUser);
+		//初始化PreparedStatement
 	}
 	public void action(String configNo,String Key) throws Exception {
 		actionBefore(configNo,Key);

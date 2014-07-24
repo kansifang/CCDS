@@ -113,8 +113,7 @@ public class ExcelBigHandler extends DefaultHandler {
 		lastContents = "";
 	}
 	//重写
-	public void endElement(String uri, String localName, String name)
-			throws SAXException {
+	public void endElement(String uri, String localName, String name) throws SAXException {
 		// Process the last contents as required.
 		// Do now, as characters() may be called more than once
 		if (nextIsString) {
@@ -128,7 +127,7 @@ public class ExcelBigHandler extends DefaultHandler {
 		// 将单元格内容加入rowlist中，在这之前先去掉字符串前后的空白符
 		if (name.equals("v")) {
 			String value = lastContents.trim();
-			value=value.replaceAll("[ \\s,]+", "");
+			value=value.replaceAll("[ \\s,#]+", "");
 			if (allNull && !value.equals("")) {
 				allNull = false;
 			}
@@ -145,9 +144,14 @@ public class ExcelBigHandler extends DefaultHandler {
 					ObjColumn oc=record.getColumnObjWIF(curCol-1);
 					if(oc!=null){
 						if("Number".equals(oc.getColumnType())){
-							BigDecimal bd=new BigDecimal(value);
+							//try{
+							BigDecimal bd=new BigDecimal(("".equals(value)?"0":value));
 							bd.setScale(6,BigDecimal.ROUND_HALF_UP);//四舍五入保6位
 							record.setDouble(curCol-1, bd.doubleValue());
+							//}catch(Exception e){
+							//	System.out.println("ss"+value);
+							//}
+							
 						}else{
 							record.setString(curCol-1, value);
 						}

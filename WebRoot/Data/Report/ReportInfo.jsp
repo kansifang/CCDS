@@ -46,7 +46,7 @@
 	String sSortNo; //排序编号
 
 	//获得组件参数	
-	String sCodeNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("CodeNo")));
+	String sSerialNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("SerialNo")));
 %>
 <%
 	/*~END~*/
@@ -60,42 +60,28 @@
 %>
 <%
 	String sHeaders[][] = {
-				{"CodeNo","配置号"},
-				{"CodeName","配置名称"},
-				{"SortNo","文件类型"},
-				{"CodeDescribe","处理器识别标志"},
-				{"CodeAttribute","配置类型"},
-				{"CodeTypeOne","是否直接以序号号为准"},
+				{"SerialNo","流水号"},
+				{"OneKey","报告日期"},
+				{"ReportConfigNo","维度配置号"},
+				{"EDocNo","报告模板"},
 				{"Remark","备注"},
-				{"InputUserName","输入人"},
-				{"InputUser","输入人"},
-				{"InputOrgName","输入机构"},
-				{"InputOrg","输入机构"},
-				{"InputTime","输入时间"},
-				{"UpdateUserName","更新人"},
-				{"UpdateUser","更新人"},
-				{"UpdateTime","更新时间"}
+				{"Currency","币种"},
+				{"BusinessSum","合同金额"},
+				{"PutOutDate","合同生效日期"},
+				{"InputUser","检查人"},
+				{"InputOrg","所属机构"}
 	   };  
 
-	String sSql = " Select CodeNo,"+
-						"CodeName,CodeTypeOne,CodeTypeTwo,"+
-						"SortNo,"+
-						"CodeDescribe,"+
-						"CodeAttribute,"+
-						"Remark,"+
-						"getUserName(InputUser) as InputUserName,"+
-						"InputUser,"+
-						"getOrgName(InputOrg) as InputOrgName,"+
-						"InputOrg,"+
-						"InputTime,"+
-						"getUserName(UpdateUser) as UpdateUserName,"+
-						"UpdateUser,"+
-						"UpdateTime "+
-						"From CODE_CATALOG " +
-						"Where CodeNo= '" + sCodeNo +"'";
+String sSql =  " select "+
+		" SerialNo,ReportConfigNo,"+
+		" OneKey,Type,EDocNo,Remark,"+
+		" getUserName(InputUserID) as InputUser,"+
+		" getOrgName(InputOrgId) as InputOrg"+
+		" from Batch_Report "+
+		" where SerialNo='"+sSerialNo+"'";
 	ASDataObject doTemp = new ASDataObject(sSql);
-	doTemp.UpdateTable="CODE_CATALOG";
-	doTemp.setKey("CodeNo",true);
+	doTemp.UpdateTable="Batch_Report";
+	doTemp.setKey("SerialNo",true);
 	doTemp.setHeader(sHeaders);
 	
 	doTemp.setHTMLStyle("CodeTypeOne","style={width:400px}");
@@ -263,9 +249,9 @@
 		var sColumnName = "CodeNo";//字段名
 		var sPrefix = "b";//前缀
 		//使用GetSerialNo.jsp来抢占一个流水号
-		var sCodeNo = PopPage("/Common/ToolsB/GetSerialNo.jsp?TableName="+sTableName+"&ColumnName="+sColumnName+"&Prefix="+sPrefix,"","resizable=yes;dialogWidth=0;dialogHeight=0;center:no;status:no;statusbar:no");
+		var sSerialNo = PopPage("/Common/ToolsB/GetSerialNo.jsp?TableName="+sTableName+"&ColumnName="+sColumnName+"&Prefix="+sPrefix,"","resizable=yes;dialogWidth=0;dialogHeight=0;center:no;status:no;statusbar:no");
 		//将流水号置入对应字段
-		setItemValue(0,getRow(),sColumnName,sCodeNo);
+		setItemValue(0,getRow(),sColumnName,sSerialNo);
 	}
 	</script>
 <%

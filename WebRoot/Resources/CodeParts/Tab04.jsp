@@ -6,11 +6,17 @@
 	<tr>
 		<td valign='top' colspan=2 class='tabhead' <%=sTabHeadStyle%>><%=sTabHeadText%></td>
 	</tr>
+	<!--  
 	<tr>
-		<td valign='top' align='left' id="<%=sTabID%>" class="tabtd">
-	</td>
-		<td valign='top' class="tabbar">
-		<%=sTopRight%>
+		<td valign='top' align='left' id="tabtd" class="tabtd"></td>
+		<td valign='top' class="tabbar"><%=sTopRight%></td>
+	</tr>
+	-->
+	<tr>
+		<td valign='top' colspan=2 align='left' class="tabtd">
+			<table id="tabtid">
+				<td valign='top' align='left' id="tabtd" class="tabtd"></td><td valign='top' class="tabbar"><%=sTopRight%></td>
+			</table>
 		</td>
 	</tr>
 	<tr>

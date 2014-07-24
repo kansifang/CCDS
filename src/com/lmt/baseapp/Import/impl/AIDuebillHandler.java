@@ -2,7 +2,6 @@ package com.lmt.baseapp.Import.impl;
 
 import com.lmt.baseapp.util.StringFunction;
 import com.lmt.baseapp.util.StringUtils;
-import com.lmt.frameapp.sql.ASResultSet;
 import com.lmt.frameapp.sql.Transaction;
 /**
  * @author bllou 2012/08/13
@@ -11,8 +10,8 @@ import com.lmt.frameapp.sql.Transaction;
 public class AIDuebillHandler{
 	//对导入数据加工处理,插入到中间表Batch_Import_Interim
 	public static void interimProcess(String sConfigNo,String sKey,Transaction Sqlca) throws Exception{
-		//修改 王秀梅这个贷款 短期流动资金贷款 由零售条线 修改为 公司条线 ，
-		String sSql="update Batch_Import_Interim set ~s借据明细@归属条线e~='公司条线',~s借据明细@国家地区e~='太原市' where ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"' and nvl(~s借据明细@借据流水号e~,'')='2740124368501101'";
+		//修改 王秀梅这个贷款 短期流动资金贷款 由零售条线 修改为 公司条线 ，经营类型为 批发零售—其它
+		String sSql="update Batch_Import_Interim set ~s借据明细@归属条线e~='公司条线',~s借据明细@国家地区e~='太原市',~s借据明细@经营类型(新)e~='批发零售—其它' where ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"' and nvl(~s借据明细@借据流水号e~,'')='2740124368501101'";
  		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
  		Sqlca.executeSQL(sSql);
 		//1、归属条线 个人条线统一修改为 零售条线
@@ -20,18 +19,21 @@ public class AIDuebillHandler{
  		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
  		Sqlca.executeSQL(sSql);
  		//2、 
- 		//b、经营类型（新）以从当前月份借据的 经营类型（新） 为准更新到2013/12等之前的，因为之前的不准确(建立基准)
- 		if(!StringFunction.getRelativeAccountMonth(StringFunction.getToday(), "month", 0).equals(sKey)){
+ 		//b、经营类型（新）设置一个基准日期，其他日期以这个日期为准， 更新到其他时间的之前的，随着业务不断变化，后期经营类型会不断变化，以一年调整一次还是就某个日期不变呢，这是个问题
+ 		//采取 2014/05以前的以2014/05为准，此后就当前为准保持不变
+ 		//原则报上的数据都不要再调整，只灵活调整当期
+ 		String AdjustDate="2014/05";//StringFunction.getRelativeAccountMonth(StringFunction.getToday(), "month", 0);
+ 		if(1==1&&sKey.compareTo(AdjustDate)<0){
  			sSql="update Batch_Import_Interim BII set ~s借据明细@经营类型(新)e~="+
  					"(select ~s借据明细@经营类型(新)e~ from Batch_Import BI "+
- 					"where BI.ConfigNo=BII.ConfigNo and BI.OneKey='"+StringFunction.getRelativeAccountMonth(StringFunction.getToday(), "month", 0)+"' and BI.~s借据明细@借据流水号e~=BII.~s借据明细@借据流水号e~) "+
+ 					"where BI.ConfigNo=BII.ConfigNo and BI.OneKey='"+AdjustDate+"' and BI.~s借据明细@借据流水号e~=BII.~s借据明细@借据流水号e~) "+
  			" where BII.ConfigNo='"+sConfigNo+"' and BII.OneKey='"+sKey+"'"+
- 			" and exists(select 1 from Batch_Import BI1 where BI1.ConfigNo=BII.ConfigNo and BI1.OneKey='"+StringFunction.getRelativeAccountMonth(StringFunction.getToday(), "month", 0)+"' and BI1.~s借据明细@借据流水号e~=BII.~s借据明细@借据流水号e~)";
+ 			" and exists(select 1 from Batch_Import BI1 where BI1.ConfigNo=BII.ConfigNo and BI1.OneKey='"+AdjustDate+"' and BI1.~s借据明细@借据流水号e~=BII.~s借据明细@借据流水号e~)";
  			sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
  			Sqlca.executeSQL(sSql);
  		}
 		//a、经营类型（新）如果字段为空，更新 经营类型 内的值
- 		sSql="update Batch_Import_Interim set ~s借据明细@经营类型(新)e~=~s借据明细@经营类型e~ where ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"' and nvl(~s借据明细@经营类型(新)e~,'')=''";
+ 		sSql="update Batch_Import_Interim set ~s借据明细@经营类型(新)e~=~s借据明细@经营类型e~ where ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"' and (nvl(~s借据明细@经营类型(新)e~,'')='' or ~s借据明细@经营类型(新)e~='其他' and nvl(~s借据明细@经营类型e~,'')<>'' and ~s借据明细@经营类型(新)e~<>~s借据明细@经营类型e~)";
  		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
  		Sqlca.executeSQL(sSql);
 		//c、以导入的客户信息为准更新经营类型(新)----导入日期永远以今天为准（这个其他种类还是太大，不是很准，暂时屏蔽吧）
@@ -67,7 +69,7 @@ public class AIDuebillHandler{
  					" where ConfigNo='"+sConfigNo+"' "+
  					" and OneKey='"+sKey+"' "+
  					" and nvl(~s借据明细@业务品种e~,'')='短期流动资金贷款'"+
- 					" and (nvl(~s借据明细@期限日e~,0)>0 and nvl(~s借据明细@期限月e~,0)+1>12 or nvl(~s借据明细@期限月e~,0)>12)";
+ 					" and (nvl(~s借据明细@期限日e~,0)>0 and nvl(~s借据明细@期限月e~,0)+1>12 or nvl(~s借据明细@期限月e~,0)>12) ";//or nvl(~s借据明细@期限类型e~,0)='中长期'
  		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
  		Sqlca.executeSQL(sSql); 
  		//业务品种 存在 期限月加期限日明显是短期贷款，业务品种却是中长期流动资金贷款的情况，故在此更新成 短期流动资金贷款
@@ -131,17 +133,44 @@ public class AIDuebillHandler{
  				sSql+
  				")");
 	}
-	//加入小计 合计 横向纵向比较值
+	//因为SQL语句复杂 process无法通用完成，需要此处独立完成
+	public static void afterProcess1(String HandlerFlag,String sConfigNo,String sKey,Transaction Sqlca)throws Exception{
+		//贷款金额区间(按户数来)
+		String groupBy="case when BalanceSum>=500000000 then 'A-5亿以上（含5亿）' "+
+	 			"when BalanceSum>=300000000 then 'B-3亿至5亿（含3亿）' "+
+	 			"when BalanceSum>=200000000 then 'C-2亿至3亿（含2亿）' "+
+	 			"when BalanceSum>=100000000 then 'D-1亿至2亿（含1亿）' "+
+	 			"when BalanceSum>=50000000 then 'E-5000万至1亿（含5000万）' "+
+	 			"else case when MDF like '%公司条线' then 'F-5000万以下@公司条线' else 'F-5000万以下@小企业条线' end end";
+		String sSql="select " +
+				"'"+HandlerFlag+"','"+sConfigNo+"','"+sKey+"','贷款余额区间',"+groupBy+",round(sum(BalanceSum)/10000,2),count(CustomerName)"+
+				" from " +
+				" (select ~s借据明细@客户名称e~ as CustomerName," +
+				" max(~s借据明细@借据起始日e~||~s借据明细@归属条线e~) as MDF," +
+				"sum(~s借据明细@余额(元)e~) as BalanceSum " +
+				" from Batch_Import_Interim BII" +
+				" where ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"' and nvl(~s借据明细@余额(元)e~,0)>0 "+
+				" group by ConfigNo,OneKey,~s借据明细@客户名称e~)tab"+
+				" group by "+groupBy;
+		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
+ 		Sqlca.executeSQL("insert into Batch_Import_Process "+
+ 				"(HandlerFlag,ConfigNo,OneKey,Dimension,DimensionValue,Balance,TotalTransaction)"+
+ 				"( "+
+ 				sSql+
+ 				")");
+	}
+			
+	//加入小计 合计 横向纵向比较值 小计总以 DimensionValue 中以@分割为标志
 	public static void afterProcess(String HandlerFlag,String sConfigNo,String sKey,Transaction Sqlca)throws Exception{
 		String sSql="";
 		String sLastYearEnd=StringFunction.getRelativeAccountMonth(sKey.substring(0, 4)+"/12","year",-1);
 		//1、插入各个维度的小计
  		sSql="select "+
- 				"HandlerFlag,ConfigNo,OneKey,Dimension,substr(DimensionValue,1,locate('@',DimensionValue)-1)||'小计',"+
+ 				"HandlerFlag,ConfigNo,OneKey,Dimension,substr(DimensionValue,1,locate('@',DimensionValue)-1)||'@小计',"+
 			"round(sum(BusinessSum),2),round(sum(BusinessSumSeason),2),round(sum(Balance),2),sum(TotalTransaction) "+
-			"from Batch_Import_Process "+
-			"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"' and locate('@',DimensionValue)>0 "+
-			"group by HandlerFlag,ConfigNo,OneKey,Dimension,substr(DimensionValue,1,locate('@',DimensionValue)-1)";
+			" from Batch_Import_Process "+
+			" where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"' and locate('@',DimensionValue)>0 "+
+			" group by HandlerFlag,ConfigNo,OneKey,Dimension,substr(DimensionValue,1,locate('@',DimensionValue)-1)";
  		Sqlca.executeSQL("insert into Batch_Import_Process "+
  				"(HandlerFlag,ConfigNo,OneKey,Dimension,DimensionValue,"+
  				"BusinessSum,BusinessSumSeason,Balance,TotalTransaction)"+
@@ -150,18 +179,18 @@ public class AIDuebillHandler{
  				")");
 		//2、插入各个维度的总计
  		sSql="select "+
- 				"HandlerFlag,ConfigNo,OneKey,Dimension,'总计',"+
+ 				"HandlerFlag,ConfigNo,OneKey,Dimension,'ZZ-总计@总计',"+
 			"round(sum(BusinessSum),2),round(sum(BusinessSumSeason),2),round(sum(Balance),2) as Balance,sum(TotalTransaction) "+
-			"from Batch_Import_Process "+
-			"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"' and locate('小计',DimensionValue)=0 "+
-			"group by HandlerFlag,ConfigNo,OneKey,Dimension";
+			" from Batch_Import_Process "+
+			" where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"' and locate('小计',DimensionValue)=0"+
+			" group by HandlerFlag,ConfigNo,OneKey,Dimension";
  		Sqlca.executeSQL("insert into Batch_Import_Process "+
  				"(HandlerFlag,ConfigNo,OneKey,Dimension,DimensionValue,"+
  				"BusinessSum,BusinessSumSeason,Balance,TotalTransaction)"+
  				"( "+
  				sSql+
  				")");
- 		//3、占比更新
+ 		//3、占比（总计，小计等汇总的值要靠四舍五入后的值一层层相加得到，不要以原始值相加，因为四舍五入会造成不准）更新
  		sSql="from (select tab1.Dimension,tab1.DimensionValue,"+
 		 				"case when nvl(tab2.BusinessSum,0)<>0 then round(tab1.BusinessSum/tab2.BusinessSum*100,2) else 0 end as BusinessSumRatio,"+
 		 				"case when nvl(tab2.BusinessSumSeason,0)<>0 then round(tab1.BusinessSumSeason/tab2.BusinessSumSeason*100,2) else 0 end as BusinessSumSeasonRatio,"+
@@ -172,7 +201,7 @@ public class AIDuebillHandler{
 					")tab1,"+
 					"(select Dimension,DimensionValue,BusinessSum,BusinessSumSeason,Balance "+	
 						"from Batch_Import_Process "+
-						"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"' and DimensionValue='总计'"+
+						"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"' and locate('总计',DimensionValue)>0"+
 					")tab2"+
 					" where tab1.Dimension=tab2.Dimension)tab3"+
 				" where tab.Dimension=tab3.Dimension and tab.DimensionValue=tab3.DimensionValue";
@@ -188,26 +217,28 @@ public class AIDuebillHandler{
  		sSql="from (select tab1.Dimension,tab1.DimensionValue,"+
 		 				"(nvl(tab1.Balance,0)-nvl(tab2.Balance,0)) as BalanceTLY,"+
 		 				"(nvl(tab1.BusinessRate,0)-nvl(tab2.BusinessRate,0)) as BusinessRateTLY,"+
-		 				"case when nvl(tab2.Balance,0)<>0 then cast(round((nvl(tab1.Balance,0)/nvl(tab2.Balance,0)-1)*100,2) as numeric(24,6)) else 0 end as BalanceRangeTLY from "+
-					"(select Dimension,DimensionValue,BusinessSum,BusinessRate,Balance "+
+		 				"case when nvl(tab2.Balance,0)<>0 then cast(round((nvl(tab1.Balance,0)/nvl(tab2.Balance,0)-1)*100,2) as numeric(24,6)) else 0 end as BalanceRangeTLY,"+
+		 				"(nvl(tab1.BalanceRatio,0)-nvl(tab2.BalanceRatio,0)) as BalanceRatioTLY"+
+		 				" from "+
+					"(select Dimension,DimensionValue,BusinessSum,BusinessRate,Balance,BalanceRatio "+
 						"from Batch_Import_Process "+
 						"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"'"+
 					")tab1,"+
-					"(select Dimension,DimensionValue,BusinessSum,BusinessRate,Balance "+	
+					"(select Dimension,DimensionValue,BusinessSum,BusinessRate,Balance,BalanceRatio "+	
 					"from Batch_Import_Process "+
 						"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sLastYearEnd+"'"+
 					")tab2"+
 					" where tab1.Dimension=tab2.Dimension and tab1.DimensionValue=tab2.DimensionValue)tab3"+
 			" where tab.Dimension=tab3.Dimension and tab.DimensionValue=tab3.DimensionValue";	
  		Sqlca.executeSQL("update Batch_Import_Process tab "+
- 				"set(BalanceTLY,BusinessRateTLY,BalanceRangeTLY)="+
- 				"(select tab3.BalanceTLY,tab3.BusinessRateTLY,tab3.BalanceRangeTLY "+
+ 				"set(BalanceTLY,BusinessRateTLY,BalanceRangeTLY,BalanceRatioTLY)="+
+ 				"(select tab3.BalanceTLY,tab3.BusinessRateTLY,tab3.BalanceRangeTLY,BalanceRatioTLY "+
  				sSql+
  				")"+
  				" where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"'"+
  				" and exists(select 1 "+sSql+")"
  				);
- 			//如果是年度导入，更新下一年度所有月份的增加值、增加值和幅度更新
+ 		//如果是年度导入，更新下一年度所有月份的增加值、增加值和幅度更新
  		if(StringFunction.isLike(sKey, "%/12")){
  			sSql="select distinct OneKey from Batch_Import_Process where ConfigNo='"+sConfigNo+"' and OneKey>'"+sKey+"'";
  			String[] sOneKey=Sqlca.getStringArray(sSql);
@@ -215,20 +246,22 @@ public class AIDuebillHandler{
  			sSql="from (select tab1.OneKey,tab1.Dimension,tab1.DimensionValue,"+
 		 	 				"(nvl(tab1.Balance,0)-nvl(tab2.Balance,0)) as BalanceTLY,"+
 		 	 				"(nvl(tab1.BusinessRate,0)-nvl(tab2.BusinessRate,0)) as BusinessRateTLY,"+
-		 	 				"case when nvl(tab2.Balance,0)<>0 then cast(round((nvl(tab1.Balance,0)/nvl(tab2.Balance,0)-1)*100,2) as numeric(24,6)) else 0 end as BalanceRangeTLY from "+
-		 				"(select OneKey,Dimension,DimensionValue,BusinessSum,BusinessRate,Balance "+
+		 	 				"case when nvl(tab2.Balance,0)<>0 then cast(round((nvl(tab1.Balance,0)/nvl(tab2.Balance,0)-1)*100,2) as numeric(24,6)) else 0 end as BalanceRangeTLY," +
+		 	 				"(nvl(tab1.BalanceRatio,0)-nvl(tab2.BalanceRatio,0)) as BalanceRatioTLY"+
+		 	 				" from "+
+		 				"(select OneKey,Dimension,DimensionValue,BusinessSum,BusinessRate,Balance,BalanceRatio "+
 		 					"from Batch_Import_Process "+
 		 					"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey in('"+OneKeys+"')"+
 		 				")tab1,"+
-		 				"(select OneKey,Dimension,DimensionValue,BusinessSum,BusinessRate,Balance "+	
+		 				"(select OneKey,Dimension,DimensionValue,BusinessSum,BusinessRate,Balance,BalanceRatio "+	
 		 				"from Batch_Import_Process "+
 		 					"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"'"+
 		 				")tab2"+
 		 				" where tab1.Dimension=tab2.Dimension and tab1.DimensionValue=tab2.DimensionValue)tab3"+
  				" where tab.OneKey=tab3.OneKey and tab.Dimension=tab3.Dimension and tab.DimensionValue=tab3.DimensionValue";	
  	 		Sqlca.executeSQL("update Batch_Import_Process tab "+
- 	 				"set(BalanceTLY,BusinessRateTLY,BalanceRangeTLY)="+
- 	 				"(select tab3.BalanceTLY,tab3.BusinessRateTLY,tab3.BalanceRangeTLY "+
+ 	 				"set(BalanceTLY,BusinessRateTLY,BalanceRangeTLY,BalanceRatioTLY)="+
+ 	 				"(select tab3.BalanceTLY,tab3.BusinessRateTLY,tab3.BalanceRangeTLY,tab3.BalanceRatioTLY "+
  	 				sSql+
  	 				")"+
  	 				" where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey in('"+OneKeys+"')"+

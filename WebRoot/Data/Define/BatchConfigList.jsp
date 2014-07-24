@@ -57,7 +57,7 @@
 <%
 	String sHeaders[][] = {
 					{"ItemNo","流水号"},
-					{"ItemName","模板名称"},
+					{"ItemName","以序列号为准"},
 					{"Attribute1","Excel案件要素"},
 					{"Attribute3","是否主标签"},
 					{"ItemDescribe","案件对应表要素"},
@@ -73,7 +73,7 @@
 					{"UpdateUserName","更新人"},
 					{"UpdateTime","更新时间"}
 				};
-	sSql =  " select  CodeNo,ItemNo,ItemName,SortNo,"+
+	sSql =  " select  CodeNo,ItemNo,getItemName('YesNo',ItemName) as ItemName,SortNo,"+
 			" Attribute1,getItemName('YesNo',Attribute3) as Attribute3,getItemName('SModelColumns',ItemDescribe) as ItemDescribe,"+
 			" getItemName('AlterType',Attribute7) as Attribute7,Attribute6,ItemAttribute,Attribute8,getItemName('DataType',Attribute2) as Attribute2,Attribute4,Attribute5,"+
 			" getItemName('YesNo',IsInUse) as IsInUse,"+

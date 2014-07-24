@@ -31,9 +31,20 @@ public class BDHandlerFactory{
 		BDRiskReportHandler.interimProcess(sReportConfigNo, sOneKey, Sqlca);
 		//先清空目标表 
 		Sqlca.executeSQL("Delete from Batch_Import_Process where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sReportConfigNo+"' and OneKey='"+sOneKey+"'");
-	 	BDRiskReportHandler.process(HandlerFlag,sReportConfigNo, sOneKey, Sqlca,"归属条线","'一般贷款',ManageDepartFlag","");
-	 	//4、加工后，进行合计，横向纵向分析
+	 	//归属条线（个人 公司一块考虑）
+		BDRiskReportHandler.process(HandlerFlag,sReportConfigNo, sOneKey, Sqlca,"归属条线","'一般贷款',ManageDepartFlag","");
+		//五级分类（个人 公司一块考虑）
+		String groupBy="case "+
+	 				" when Classify is null or Classify='' or Classify like '正常%' then 'A-正常贷款@正常类' " +
+	 				" when Classify like '关注%' then 'A-正常贷款@关注类'"+
+	 				" when Classify like '次级%' then 'B-不良贷款@次级类' " +
+	 				" when Classify like '可疑%' then 'B-不良贷款@可疑类'"+
+	 				" when Classify like '损失%' then 'B-不良贷款@损失类' end";
+		BDRiskReportHandler.process(HandlerFlag,sReportConfigNo, sOneKey, Sqlca,"五级分类",groupBy,"");
+		//4、加工后，进行合计，横向纵向分析
 	 	BDRiskReportHandler.afterProcess(HandlerFlag,sReportConfigNo, sOneKey, Sqlca);
+	 	//最后收底
+	 	BDRiskReportHandler.lastProcess(HandlerFlag,sReportConfigNo, sOneKey, Sqlca);
 	}
 	/**
 	 * 季度监管报告数据加工

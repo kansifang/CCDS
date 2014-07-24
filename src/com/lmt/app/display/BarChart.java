@@ -1,12 +1,15 @@
 package com.lmt.app.display;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Paint;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 
+import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
@@ -16,6 +19,7 @@ import org.jfree.chart.labels.ItemLabelAnchor;
 import org.jfree.chart.labels.ItemLabelPosition;
 import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
 import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.category.BarRenderer3D;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.data.category.CategoryDataset;
@@ -52,29 +56,28 @@ public class BarChart {
 		return PD;
 		// 创建折线数据对象
 	}
-	/*
-	 * 得到数据
-	 */
-	public static DefaultCategoryDataset getDataSet(){
+	public static JFreeChart getJfreeChart(String sSql,Transaction Sqlca) throws Exception{
+    	//获取数据
+    	HashSet<String> bars=new HashSet<String>();
 		// 创建柱状数据对象
-		DefaultCategoryDataset 柱状数据 = new DefaultCategoryDataset();
+		DefaultCategoryDataset PD = new DefaultCategoryDataset();
+		ASResultSet rs=Sqlca.getASResultSet(sSql);
 		// 添加数据
-		柱状数据.addValue(200, "北京", "苹果");
-		柱状数据.addValue(100, "西安", "苹果");
-		柱状数据.addValue(200, "新疆", "苹果");
-		柱状数据.addValue(50, "北京", "香蕉");
-		柱状数据.addValue(30, "西安", "香蕉");
-		柱状数据.addValue(10, "新疆", "香蕉");
-		柱状数据.addValue(10, "北京", "葡萄");
-		柱状数据.addValue(20, "西安", "葡萄");
-		柱状数据.addValue(200, "新疆", "葡萄");
-		// 返回数据
-		return 柱状数据;
-	}
+		while(rs.next()){
+			String barlable=rs.getString(2);
+			PD.setValue(rs.getDouble(1), barlable,rs.getString(3));
+			bars.add(barlable);			
+		}
+		rs.getStatement().close();
+		JFreeChart jf = ChartFactory.createBarChart3D("", "", "", PD, PlotOrientation.VERTICAL, true, true, false);
+		// 给柱状图对象设置样式
+		BarChart.setStyle(jf,bars.size());
+		return jf;
+    }
 	/*
 	 * 对图表对象设置样式
 	 */
-	public static void setStyle(JFreeChart chart){
+	public static void setStyle(JFreeChart chart,int bars){
 		TextTitle textTitle = chart.getTitle(); 
 		// 得到图表标题，并给其设置字体
 		//设置标题的字体 
@@ -89,7 +92,6 @@ public class BarChart {
 		chart.getLegend().setItemFont(new Font("宋体",0,12));
 		// 得到柱状图样式的样式
 		CategoryPlot plot = (CategoryPlot) chart.getCategoryPlot(); 
-        BarRenderer3D customBarRenderer = (BarRenderer3D) plot.getRenderer(); 
         plot.setDomainGridlinePaint(Color.white); 
         plot.setDomainGridlinesVisible(true); 
         plot.setRangeGridlinePaint(Color.black); 
@@ -114,28 +116,41 @@ public class BarChart {
         // 顶端设置 
         numberaxis.setUpperMargin(0.14999999999999999D); 
         // 设置颜色 
-
-        customBarRenderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator());//显示每个柱的数值 
-        customBarRenderer.setBaseItemLabelsVisible(true); 
+        
+        BarRenderer3D customBarRenderer = (BarRenderer3D) plot.getRenderer(); 
+        //customBarRenderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator());//显示每个柱的数值 
+        //customBarRenderer.setBaseItemLabelsVisible(true); 
         //注意：此句很关键，若无此句，那数字的显示会被覆盖，给人数字没有显示出来的问题 
-        customBarRenderer.setBasePositiveItemLabelPosition(new ItemLabelPosition( 
-        ItemLabelAnchor.OUTSIDE12, TextAnchor.BASELINE_CENTER)); 
-        customBarRenderer.setItemLabelAnchorOffset(10D);// 设置柱形图上的文字偏离值 
-        customBarRenderer.setItemLabelsVisible(true); 
-
+        //customBarRenderer.setBasePositiveItemLabelPosition(new ItemLabelPosition(ItemLabelAnchor.OUTSIDE12, TextAnchor.BOTTOM_CENTER)); 
+        customBarRenderer.setBaseOutlinePaint(Color.BLACK);//边框为黑色
+        customBarRenderer.setItemLabelAnchorOffset(30D);// 设置柱形图上的文字偏离值 
         //设定柱子上面的颜色 
-        customBarRenderer.setSeriesPaint(0, Color.decode("#24F4DB")); // 给series1 Bar 
-        customBarRenderer.setSeriesPaint(1, Color.decode("#7979FF")); // 给series2 Bar 
-        customBarRenderer.setSeriesPaint(2, Color.decode("#FF5555")); // 给series3 Bar 
-        customBarRenderer.setSeriesPaint(3, Color.decode("#F8D661")); // 给series4 Bar 
-        customBarRenderer.setSeriesPaint(4, Color.decode("#F284DC")); // 给series5 Bar 
-        customBarRenderer.setSeriesPaint(5, Color.decode("#00BF00")); // 给series6 Bar 
-        customBarRenderer.setSeriesOutlinePaint(0,Color.BLACK);//边框为黑色 
-        customBarRenderer.setSeriesOutlinePaint(1,Color.BLACK);//边框为黑色 
-        customBarRenderer.setSeriesOutlinePaint(2,Color.BLACK); //边框为黑色 
-        customBarRenderer.setSeriesOutlinePaint(3,Color.BLACK);//边框为黑色 
-        customBarRenderer.setSeriesOutlinePaint(4,Color.BLACK);//边框为黑色 
-        customBarRenderer.setSeriesOutlinePaint(5,Color.BLACK); //边框为黑色 
+        // 自定义线段的绘制颜色
+ 		Color color[] = new Color[7]; 
+ 		color[0] = Color.decode("#24F4DB"); 
+ 		color[1] = Color.decode("#7979FF"); 
+ 		color[2] = Color.decode("#FF5555"); 
+ 		color[3] = Color.decode("#F8D661");  
+ 		color[4] = Color.decode("#F284DC"); 
+ 		color[5] = Color.decode("#00BF00"); 
+ 		color[6] = new Color(33,255, 66); 
+ 		// 自定义线段的绘制风格 
+ 		for (int i = 0; i < bars; i++)  { 
+ 			int colorN=i%2;
+ 			Color co=color[colorN];
+ 			//设置断线
+ 			if(colorN == 1){   
+ 				customBarRenderer.setSeriesItemLabelGenerator(i, new StandardCategoryItemLabelGenerator());
+ 				customBarRenderer.setSeriesItemLabelsVisible(i, true);
+ 				customBarRenderer.setSeriesPositiveItemLabelPosition(i,new ItemLabelPosition(ItemLabelAnchor.OUTSIDE1, TextAnchor.BOTTOM_CENTER)); 
+ 				customBarRenderer.setSeriesItemLabelFont(i, new Font("黑体", Font.BOLD,12));
+ 			}else{   
+ 				customBarRenderer.setSeriesPositiveItemLabelPosition(i,new ItemLabelPosition(ItemLabelAnchor.OUTSIDE12, TextAnchor.TOP_CENTER)); 
+ 				customBarRenderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator());
+ 				customBarRenderer.setSeriesItemLabelsVisible(i, true);
+ 				customBarRenderer.setSeriesItemLabelFont(i, new Font("楷体", Font.ITALIC,12));
+ 			}
+ 		}  
         //设置柱子的最大宽度 
         customBarRenderer.setMaximumBarWidth(0.04); 
         customBarRenderer.setItemMargin(0.000000005); 

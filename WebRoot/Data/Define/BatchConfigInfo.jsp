@@ -49,7 +49,7 @@
 <%
 	String sHeaders[][] = {
 					{"ItemNo","流水号"},
-					{"ItemName","模板名称"},
+					{"ItemName","以序列号初始化"},
 					{"Attribute1","要素Excel标题"},
 					{"Attribute3","是否识别标签"},
 					{"ItemDescribe","要素对应表字段"},
@@ -98,6 +98,7 @@
 	doTemp.setHTMLStyle("Attribute8"," style={width:200px} ");
 	doTemp.setDDDWCode("IsInUse","YesNo");
 	doTemp.setDDDWCode("Attribute7", "AlterType");
+	doTemp.setDDDWCode("ItemName","YesNo");
 	doTemp.setUpdateable("InputUserName,UpdateUserName",false);
 	doTemp.setReadOnly("ItemNo,InputUserName,UpdateUserName,InputTime,UpdateTime",true);
 	//设置字段显示宽度	
@@ -206,7 +207,7 @@
 		}
 		function newRecord()
 		{
-			OpenPage("/BusinessManage/BatchConfigInfo.jsp?CodeNo=<%=sCodeNo%>","_self","");
+			OpenPage("/Data/Define/BatchConfigInfo.jsp?CodeNo=<%=sCodeNo%>","_self","");
 		}
 	    /*~[Describe=返回;InputParam=无;OutPutParam=无;]~*/
 	    function doReturn(sIsRefresh){

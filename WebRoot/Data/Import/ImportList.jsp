@@ -104,6 +104,12 @@
         	//生成查询框
             doTemp.setColumnAttribute(ItemName,"IsFilter","1");
         }
+        String IName=DataConvert.toString(StringFunction.getAttribute(sHeaders,"项目Item",1,0));
+        if(!"".equals(IName)){
+        	doTemp.setHTMLStyle(ItemName," style={width:260px}");
+        	//生成查询框
+            doTemp.setColumnAttribute(ItemName,"IsFilter","1");
+        }
        	//doTemp.setHTMLStyle(DataConvert.toString(StringFunction.getAttribute(sHeaders,"币种",1,0))," style={width:20px}");
     }
     doTemp.setHTMLStyle("序号"," style={width:25px}");

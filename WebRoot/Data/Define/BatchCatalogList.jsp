@@ -68,6 +68,7 @@
 	String[][] sHeaders={
 		{"CodeNo","配置号"},
 		{"CodeName","配置名称"},
+		{"CodeTypeOne","是否以序列号为准"},
 		{"SortNo","文件类型"},
 		{"CodeDescribe","系统展示要素"},
 		{"CodeAttribute","配置类型"},
@@ -79,6 +80,7 @@
 	sSql = "Select "+
 		   "CodeNo,"+
 		   "CodeName,"+
+		   "getItemName('YesNo',CodeTypeOne) as CodeTypeOne,"+
 		   "getItemName('SModelFileType',SortNo) as SortNo,"+
 		   "CodeDescribe,CodeAttribute "+
 		   "from CODE_CATALOG "+

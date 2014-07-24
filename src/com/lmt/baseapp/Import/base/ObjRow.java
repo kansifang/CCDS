@@ -23,10 +23,24 @@ public class ObjRow {
 	public ObjRow(String configNo,String Key,ASUser curUser,Transaction Sqlca) throws Exception {
 		this.columns.clear();
 		//加载模板定义
-		ASResultSet rs=Sqlca.getASResultSet("select ItemDescribe,Attribute1,Attribute2,Attribute3 from Code_Library where CodeNo='"+configNo+"' and IsInUse='1'");
-		while(rs.next()){
-			this.addColumn(rs.getString(1),rs.getString(2),rs.getString(3),"1".equals(rs.getString(4))?true:false);
+		String isIndex=Sqlca.getString("select CodeTypeOne from Code_Catalog where CodeNo='"+configNo+"'");
+		ASResultSet rs=Sqlca.getASResultSet("select ItemDescribe,Attribute1,Attribute2,Attribute3,SortNo from Code_Library where CodeNo='"+configNo+"' and IsInUse='1'");
+		if(!"1".equals(isIndex)){
+			while(rs.next()){
+				this.addColumn(rs.getString(1),rs.getString(2),rs.getString(3),"1".equals(rs.getString(4))?true:false);
+			}
+		}else{
+			while(rs.next()){
+				boolean isPrimaryKey="1".equals(rs.getString(4))?true:false;
+				if(isPrimaryKey){
+					this.addColumn(rs.getString(1),rs.getString(2),rs.getString(3),isPrimaryKey);
+				}else{
+					this.addColumn(rs.getString(1),ExcelBigHandler.getNumberFromLetter(rs.getString(5))-1,rs.getString(3),isPrimaryKey);
+				}
+				
+			}
 		}
+		rs.getStatement().close();
 		//默认都有这个字段
 		this.addColumn("ConfigNo", "配置号","String",true,false);//记录Excel要素和数据要素对应关系的配置信息号，同时标识同一种类型数据（大类）
 		this.addColumn("ConfigName", "配置名称","String",true,false);//记录Excel要素和数据要素对应关系的配置信息号，同时标识同一种类型数据（大类）
@@ -327,6 +341,10 @@ public class ObjRow {
 	}
 	public void addColumn(String columnName, String headName,String columnType,boolean primaryKey) {
 		ObjColumn eh = new ObjColumn(columnName,columnType,headName,-1,this.columnTCount,false,primaryKey);
+		this.addColumn(eh);
+	}
+	public void addColumn(String columnName, int indexInFile,String columnType,boolean primaryKey) {
+		ObjColumn eh = new ObjColumn(columnName,columnType,"",indexInFile,this.columnTCount,false,primaryKey);
 		this.addColumn(eh);
 	}
 	public void addColumn(String columnName, String headName) {

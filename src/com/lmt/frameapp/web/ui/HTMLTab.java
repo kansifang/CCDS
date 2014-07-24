@@ -64,7 +64,7 @@ public class HTMLTab
         return sTabStrip2;
     }
 
-    public static String genTabArray(String as[][], String s, String s1)
+    public static String genTabArray(String as[][], String tableidfortab, String tdObjectFortable)
         throws Exception
     {
         String s2 = "";
@@ -74,13 +74,37 @@ public class HTMLTab
             if(as[j][0].equals("false"))
                 i--;
             else
-                s2 = s2 + "tabstrip[" + i + "] = new Array(\"block_" + (i + 1) + "\",\"" + as[j][1] + "\",\"javascript:if(" + as[j][2] + "!=false) hc_drawTabToTable('" + s + "',tabstrip," + (i + 1) + "," + s1 + ");\");\n";
+                s2 = s2 + "tabstrip[" + i + "] = new Array(\"block_" + (i + 1) + "\",\"" + as[j][1] + "\",\"javascript:if(" + as[j][2] + "!=false) hc_drawTabToTable('" + tableidfortab + "',tabstrip," + (i + 1) + "," + tdObjectFortable + ");\");\n";
             i++;
         }
 
         return s2;
     }
-
+    //增加一个支持多行标签的方法
+    public static String genTabArray(String as[][], String tableidfortab, String tdidFortable,int tabsOneRow)throws Exception
+        {
+            String s2 = "var tabs=new Array();";
+            int rowIndex=0,currentRow=-1;
+            
+            int i = 0;
+            for(int j = 0; j < as.length && as[j][0] != null; j++)
+            {
+            	rowIndex=i%tabsOneRow;
+                if(as[j][0].equals("false")){
+                    i--;
+                }else if(rowIndex==0){//一行之开始
+                	//加一个 <tr><td><table>
+                	s2 = s2 + "tabs["+(++currentRow)+"]=new Array();" +
+                			"tabs["+(currentRow)+"][" + rowIndex + "] = new Array(\"block_" + (rowIndex + 1) + "\",\"" + as[j][1] + "\",\"javascript:if(" + as[j][2] + "!=false) " +
+                					" hc_drawTabToTable('" + (tableidfortab+currentRow) + "',tabs["+currentRow+"]," + (rowIndex + 1) + ",document.all('" + (tdidFortable+currentRow)+"'));\");\n";
+                }else{
+                	s2 = s2 + "tabs["+(currentRow)+"][" + rowIndex + "] = new Array(\"block_" + (rowIndex+ 1) + "\",\"" + as[j][1] + "\",\"javascript:if(" + as[j][2] + "!=false) " +
+                				" hc_drawTabToTable('" + (tableidfortab+currentRow) + "',tabs["+currentRow+"]," + (rowIndex + 1) + ",document.all('" + (tdidFortable+currentRow) + "'));\");\n";
+                }
+                i++;
+            }
+           return s2;
+        }
     public static String genTabArray(String as[][], String s, String s1, int i, int j)
         throws Exception
     {

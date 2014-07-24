@@ -412,7 +412,6 @@ function hc_drawTab(tabID, tabStrip,selectedStrip){
 	} 
 
 	function hc_drawTabToTable(tabID, tabStrip,selectedStrip,sObject){
-		
 		sObject.innerHTML="";
 		sInnerHTML = "";
 		sInnerHTML= sInnerHTML + "<table id='"+tabID+"' cellspacing=0 cellpadding=0 border=0  align='left' valign='bottom'>"+"\r";
@@ -456,7 +455,7 @@ function hc_drawTab(tabID, tabStrip,selectedStrip){
 				selected="desel";
 			}
 			sInnerHTML= sInnerHTML + "<td  class='tab"+selected+"' nowrap><span class='tabtext' onclick=\""+tabStrip[i][2]+"\">"+tabStrip[i][1]+"</span></td>"+"\r";
-
+			//writeMsg(tabStrip[i][2]);
 		}
 	
 		sInnerHTML= sInnerHTML + "</tr><tr>"+"\r";
@@ -468,6 +467,7 @@ function hc_drawTab(tabID, tabStrip,selectedStrip){
 				}else{
 					sInnerHTML= sInnerHTML + "<td class='tabline'><img src='"+sHCResourcesPath+"/1x1.gif'></td>"+"\r";
 				}	
+				
 			}
 			if(i==(selectedStrip-1)){
 				sInnerHTML= sInnerHTML + "<td class='tabline1'><img src='"+sHCResourcesPath+"/1x1.gif'></td>"+"\r";
@@ -480,13 +480,23 @@ function hc_drawTab(tabID, tabStrip,selectedStrip){
 				}else{
 					sInnerHTML= sInnerHTML + "<td class='tabline'><img src='"+sHCResourcesPath+"/1x1.gif'></td>"+"\r";
 				}	
+				
 			}			
+			
+			
 		}
 
 		sInnerHTML= sInnerHTML +"</tr></table>"+"\r";
 		sObject.innerHTML=sInnerHTML;
 	} 
-	
+	function writeMsg(fuc){ 
+	    var kk=fuc+"";
+	    kk=kk.replace(/</g,"<~");
+	    kk=kk.replace(/&/g,"&~");
+	    kk=kk.replace(/\r|\n|\r\n/g,"\r\n<br><pre>");
+	    traceWin=window.open("","traceWindow","height=600, width=800,scrollbars=yes");
+	    traceWin.document.writeln(kk);
+	}
 	function drawHtmlToObject(oObject,sHtml){
 		oObject.innerHTML="";
 		oObject.innerHTML=sHtml;

@@ -1680,7 +1680,8 @@ public class ASDataWindow implements Cloneable {
 			fileOut.write(str2byte("<table align=center border=1 cellspacing=0 cellpadding=0 bgcolor=#E4E4E4 bordercolor=#999999 bordercolordark=#FFFFFF>"));
 			fileOut.write(str2byte("<TBODY>"));
 			fileOut.write(str2byte("<TR bgColor=#cccccc height=24>"));
-			fileOut.write(str2byte("<TD nowrap class=tdH noWrap width=30 align=middle>\u5E8F\u53F7</TD>"));
+			fileOut.write(str2byte("<TD nowrap class=tdH noWrap width=30 align=middle>ÐòºÅ</TD>"));
+			System.out.println("\u5E8F\u53F7"+"@\u5408\u8BA1");
 			for (i = 0; i < colSize; i++)
 				if (!as[i][2].equals("0"))
 					fileOut.write(str2byte((new StringBuilder())

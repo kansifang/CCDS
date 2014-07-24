@@ -7,6 +7,7 @@ import java.awt.GradientPaint;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.HashSet;
 import java.util.TimeZone;
 
 import org.jfree.chart.ChartFactory;
@@ -15,22 +16,21 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.StandardChartTheme;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.CategoryLabelPositions;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.axis.PeriodAxis;
 import org.jfree.chart.axis.PeriodAxisLabelInfo;
-import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.labels.ItemLabelAnchor;
 import org.jfree.chart.labels.ItemLabelPosition;
 import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
 import org.jfree.chart.labels.StandardXYItemLabelGenerator;
 import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.chart.renderer.category.LineAndShapeRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
-import org.jfree.data.time.Day;
 import org.jfree.data.time.Month;
 import org.jfree.data.time.RegularTimePeriod;
 import org.jfree.data.time.TimeSeries;
@@ -54,21 +54,6 @@ public class LineChart {
 		//setStyle(折线图);
 		// 对折线图对象生成图片
 		//生成图片("E:\\折线图.jpg",折线图,800,600);
-	}
-	/*
-	 * 得到数据
-	 */
-	public static CategoryDataset getDataSet(String sSql,Transaction Sqlca) throws Exception{
-		// 创建柱状数据对象
-		DefaultCategoryDataset PD = new DefaultCategoryDataset();
-		ASResultSet rs=Sqlca.getASResultSet(sSql);
-		// 添加数据
-		while(rs.next()){
-			PD.setValue(rs.getDouble(1), rs.getString(2),rs.getString(3));
-		}
-		// 返回数据
-		return PD;
-		// 创建折线数据对象
 	}
 	public static XYDataset createDataset(String sSql,Transaction Sqlca) throws Exception {
 		// 生成数据序列  
@@ -104,10 +89,28 @@ public class LineChart {
             value *= (1.0D + (Math.random() - 0.495D) / 4.0D);  
         }  
     }  
+    public static JFreeChart getJfreeChart(String sSql,Transaction Sqlca) throws Exception{
+    	//获取数据
+    	HashSet<String> lines=new HashSet<String>();
+		// 创建柱状数据对象
+		DefaultCategoryDataset PD = new DefaultCategoryDataset();
+		ASResultSet rs=Sqlca.getASResultSet(sSql);
+		// 添加数据
+		while(rs.next()){
+			String linelable=rs.getString(2);
+			PD.setValue(rs.getDouble(1), linelable,rs.getString(3));
+			lines.add(linelable);			
+		}
+		rs.getStatement().close();
+    	JFreeChart jf =ChartFactory.createLineChart("", "", "", PD, PlotOrientation.VERTICAL, true, true, false);
+		// 给折线图对象设置样式
+		LineChart.setStyle(jf,lines.size());
+		return jf;
+    }
 	/*
 	 * 对图表对象设置样式
 	 */
-	public static void setStyle(JFreeChart chart){
+	public static void setStyle(JFreeChart chart,int lines){
 		// 得到图表标题，并给其设置字体
 		chart.getTitle().setFont(new Font("黑体",0,20));
 		// 得到图表底部类别，并给其设置字体
@@ -135,57 +138,63 @@ public class LineChart {
         //设置网格横线颜色
         plot.setRangeGridlinePaint(Color.pink);
         //设置曲线图与xy轴的距离
-        plot.setAxisOffset(new RectangleInsets(0D, 0D, 0D, 10D));
+        plot.setAxisOffset(new RectangleInsets(5D, 0D, 0D, 10D));
 		// 设置横轴标题的字体 
 		CategoryAxis domainAxis = plot.getDomainAxis(); 
 		domainAxis.setLabelFont(new Font("黑体", Font.BOLD, 15)); 
 		domainAxis.setMinorTickMarksVisible(true);
-		domainAxis.setMinorTickMarkInsideLength(500);//每10个刻度显示一个刻度值
+		domainAxis.setMinorTickMarkInsideLength(50);//每10个刻度显示一个刻度值
 		//domainAxis.setCategoryLabelPositionOffset(10);
-		domainAxis.setCategoryLabelPositions(CategoryLabelPositions.DOWN_45);
+		domainAxis.setCategoryLabelPositions(CategoryLabelPositions.DOWN_45);//横轴值的旋转
 		// 设置纵轴标题文字的字体及其旋转方向  
-		ValueAxis rangeAxis = plot.getRangeAxis(); 
+		NumberAxis rangeAxis = (NumberAxis)plot.getRangeAxis(); 
 		rangeAxis.setLabelFont(new Font("黑体", Font.BOLD, 15)); 
 		rangeAxis.setLabelAngle(Math.PI/2);   
-		
-		// 获取渲染对象        
+		//rangeAxis.setAutoTickUnitSelection(false);
+		//double unit=5d;//刻度的长度
+		//NumberTickUnit ntu= new NumberTickUnit(unit);
+		//rangeAxis.setTickUnit(ntu);
+		//rangeAxis.setLowerBound(10);
+		//rangeAxis.setAutoRangeMinimumSize(100);//纵轴展示的值得范围
+		//rangeAxis.setTickMarksVisible(true);
+		//rangeAxis.setTickMarkOutsideLength(30);
+		// 获取渲染对象        线和线上标签
 		LineAndShapeRenderer lineandshaperenderer = (LineAndShapeRenderer) plot.getRenderer(); 
         //设置曲线是否显示数据点
         lineandshaperenderer.setBaseShapesVisible(true);
+        lineandshaperenderer.setItemLabelAnchorOffset(1D);//时间点和数据标签的距离
         //设置数据显示位置
-       // lineandshaperenderer.setBasePositiveItemLabelPosition(new ItemLabelPosition(ItemLabelAnchor.OUTSIDE12, TextAnchor.BASELINE_CENTER)); 
         /**/
-        String bookTitle[] = {"Python", "JAVA", "C#", "Perl", "PHP"};
 		// 自定义线段的绘制颜色
-		Color color[] = new Color[bookTitle.length]; 
+		Color color[] = new Color[5]; 
 		color[0] = new Color(99,99,0); 
-		color[1] = new Color(255,169,66); 
-		color[2] = new Color(33,255, 66); 
-		color[3] = new Color(33,0,255); 
-		color[4] = new Color(255,0,66);  
-		for (int i = 0; i < color.length; i++)  { 
-			lineandshaperenderer.setSeriesPaint(i, color[i]); 
-		}  
+		color[1] = new Color(33,0,255); 
+		color[2] = new Color(255,169,66); 
+		color[3] = new Color(255,0,66);  
+		color[4] = new Color(33,255, 66); 
 		// 自定义线段的绘制风格 
-		BasicStroke bs ;  
-		for (int i = 0; i < bookTitle.length; i++)  { 
-			float dashes[] = {10.0f};  
-			bs = new BasicStroke(2.0f, BasicStroke.CAP_ROUND,       BasicStroke.JOIN_ROUND, 10.f, dashes, 0.0f); 
-			if (i % 2 != 0)   
-				lineandshaperenderer.setSeriesStroke(i, bs);   
-			else    
-				lineandshaperenderer.setSeriesStroke(i, new BasicStroke(2.0f));
-		}
-        //设置曲线显示各数据点的值
-        CategoryItemRenderer item = plot.getRenderer();
-        item.setBaseItemLabelsVisible(true);
-        //设置数据显示位置
-        item.setBasePositiveItemLabelPosition(new ItemLabelPosition(ItemLabelAnchor.OUTSIDE12, TextAnchor.BASELINE_CENTER));
-        //下面三句是对设置折线图数据标示的关键代码
-        item.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator());
-        item.setBaseItemLabelFont(new Font("Dialog", 1, 14));
-        plot.setRenderer(item);
-        
+		for (int i = 0; i < lines; i++)  { 
+			//设置断线
+			if (i % 3 == 0){   
+				lineandshaperenderer.setSeriesStroke(i,new BasicStroke(2.0f)); //
+				lineandshaperenderer.setSeriesPositiveItemLabelPosition(i,new ItemLabelPosition(ItemLabelAnchor.INSIDE1, TextAnchor.TOP_LEFT)); 
+				lineandshaperenderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator());
+				lineandshaperenderer.setSeriesItemLabelsVisible(i, true);
+				lineandshaperenderer.setSeriesItemLabelFont(i, new Font("黑体", Font.BOLD,12));
+			}else if (i % 3 == 1){   
+				lineandshaperenderer.setSeriesStroke(i,new BasicStroke(2.0f)); //
+				lineandshaperenderer.setSeriesPositiveItemLabelPosition(i,new ItemLabelPosition(ItemLabelAnchor.INSIDE1, TextAnchor.BOTTOM_LEFT)); 
+				lineandshaperenderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator());
+				lineandshaperenderer.setSeriesItemLabelsVisible(i, true);
+				lineandshaperenderer.setSeriesItemLabelFont(i, new Font("黑体", Font.ITALIC,12));
+			}else{   
+				lineandshaperenderer.setSeriesStroke(i, new BasicStroke(2.0f,BasicStroke.CAP_ROUND,BasicStroke.JOIN_ROUND,10.f,new float[]{20F, 6F},0.0f));  //虚线  线长度：20F, 缺口长度6F,线长度：20F, 缺口长度6F...
+				lineandshaperenderer.setSeriesPositiveItemLabelPosition(i,new ItemLabelPosition(ItemLabelAnchor.INSIDE1, TextAnchor.BOTTOM_RIGHT)); 
+				lineandshaperenderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator());
+				lineandshaperenderer.setSeriesItemLabelsVisible(i, true);
+				lineandshaperenderer.setSeriesItemLabelFont(i, new Font("楷体", Font.CENTER_BASELINE,12));
+			}
+		}        
 		// 结束自定义图表绘制的相关属性    
 		//ChartRenderingInfo info = new ChartRenderingInfo(new StandardEntityCollection());  
 		// 设置图片生成格式       

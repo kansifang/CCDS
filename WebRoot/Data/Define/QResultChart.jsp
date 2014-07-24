@@ -101,7 +101,7 @@ org.jfree.chart.JFreeChart"%>
 	ASDataWindow dwTemp = new ASDataWindow(CurPage,doTemp,Sqlca);
 	dwTemp.Style="1";      //设置DW风格 1:Grid 2:Freeform
 	dwTemp.ReadOnly = "1"; //设置是否只读 1:只读 0:可写
-	dwTemp.setPageSize(30);
+	dwTemp.setPageSize(40);
 	
 	//生成HTMLDataWindow
 	Vector vTemp = dwTemp.genHTMLDataWindow("");
@@ -110,27 +110,22 @@ org.jfree.chart.JFreeChart"%>
 	if("02".equals(sType)){//饼状图
 		response.setContentType("image/jpeg");
 		// 创建饼状图对象
-		JFreeChart jf = ChartFactory.createPieChart("", PieChart.getDataSet(sSql,Sqlca), true, true, true);
-		//JFreeChart jf = ChartFactory.createPieChart3D("", PieChart.getDataSet(sSql,Sqlca), true, true, true);
-		PieChart.setStyle(false,jf);
+		//JFreeChart jf = ChartFactory.createPieChart("", PieChart.getDataSet(sSql,Sqlca), true, true, true);
+		JFreeChart jf = PieChart.getJfreeChart(sSql, Sqlca);
 		ChartUtilities.writeChartAsJPEG(response.getOutputStream(), jf, 700, 500);
 	}else if("03".equals(sType)){//柱状图
 		response.setContentType("image/jpeg");
 		// 创建柱状图对象
-		JFreeChart jf = ChartFactory.createBarChart3D("", "", "", BarChart.getDataSet(sSql,Sqlca), PlotOrientation.VERTICAL, true, true, false);
-		// 给柱状图对象设置样式
-		BarChart.setStyle(jf);
+		JFreeChart jf =BarChart.getJfreeChart(sSql, Sqlca);
 		// 对柱状图对象生成图片
 		ChartUtilities.writeChartAsJPEG(response.getOutputStream(), jf, 700, 500);
 	}else if("04".equals(sType)){//折线图
 		response.setContentType("image/jpeg");
 		// 创建折线图对象
 		//JFreeChart jf = LineChart.createChart(sSql, Sqlca);
-		JFreeChart jf =ChartFactory.createLineChart("", "时间", "", LineChart.getDataSet(sSql,Sqlca), PlotOrientation.VERTICAL, true, true, false);
-		// 给折线图对象设置样式
-		LineChart.setStyle(jf);
+		JFreeChart jf =LineChart.getJfreeChart(sSql, Sqlca);
 		// 对折线图对象生成图片
-		ChartUtilities.writeChartAsJPEG(response.getOutputStream(), jf, 700, 500);
+		ChartUtilities.writeChartAsJPEG(response.getOutputStream(), jf, 800, 500);
 	}
 	
 

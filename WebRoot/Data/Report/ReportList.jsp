@@ -47,11 +47,11 @@
 <%
 		ASDataObject doTemp = null;
 		String sHeaders1[][] = {
+									{"SerialNo","流水号"},
 									{"OneKey","报告日期"},
 									{"ReportConfigNo","维度配置号"},
 									{"EDocNo","报告模板"},
-									{"SerialNo","流水号"},
-									{"Currency","币种"},
+									{"Remark","备注"},
 									{"BusinessSum","合同金额"},
 									{"PutOutDate","合同生效日期"},
 									{"InputUser","检查人"},
@@ -60,12 +60,12 @@
 		String sSql1 =  " select "+
 							//" case when II.InspectType like '%010' then '2' else '1' end as IsDataHandle,"+
 							" SerialNo,ReportConfigNo,"+
-							" OneKey,Type,EDocNo,"+
+							" OneKey,Type,EDocNo,Remark,"+
 							" getUserName(InputUserID) as InputUser,"+
 							" getOrgName(InputOrgId) as InputOrg"+
 							" from Batch_Report "+
 							" where Type='"+sType+"' "+
-			                " order by ReportConfigNo,OneKey asc";
+			                " order by ReportConfigNo asc,OneKey desc";
 		//由SQL语句生成窗体对象。
 		doTemp = new ASDataObject(sSql1);
 		doTemp.setHeader(sHeaders1);
@@ -120,9 +120,9 @@
 			{"true","","Button","新增","新增报告","newRecord()",sResourcesPath},
 			{"true","","Button","删除","删除该报告","deleteRecord()",sResourcesPath},
 			{"true","","Button","加工数据","数据做最后处理","DataHandle()",sResourcesPath},
-			{"true","","Button","展示数据","以各种图形进行展示","viewAndEdit()",sResourcesPath},
+			{"true","","Button","展示数据","以各种图形进行展示","displayReport()",sResourcesPath},
 			{"true","","Button","生成报告","生成各种word形式的格式化报告","printContract()",sResourcesPath},
-			
+			{"true","","Button","详情","生成各种word形式的格式化报告","viewAndEdit()",sResourcesPath},
 		};
 	%>
 <%/*~END~*/%>
@@ -177,7 +177,7 @@
 	}
 
 	/*~[Describe=查看及修改详情;InputParam=无;OutPutParam=无;]~*/
-	function viewAndEdit()
+	function displayReport()
 	{
 		var sSerialNo = getItemValue(0,getRow(),"SerialNo");
 		if(typeof(sSerialNo)=="undefined" || sSerialNo.length==0){
@@ -189,7 +189,21 @@
 			OpenComp(sCompID,sCompURL,sParamString,"_blank",OpenStyle);
 		}
 	}
-
+	/*~[Describe=查看及修改详情;InputParam=无;OutPutParam=无;]~*/
+	function viewAndEdit()
+	{
+		var sSerialNo = getItemValue(0,getRow(),"SerialNo");
+		if(typeof(sSerialNo)=="undefined" || sSerialNo.length==0){
+			alert(getHtmlMessage('1'));//请选择一条信息！
+			return;
+		}
+			
+		sCompID = "ReportInfo";
+		sCompURL = "/Data/Report/ReportInfo.jsp";
+		sParamString = "SerialNo="+sSerialNo;
+		popComp(sCompID,sCompURL,sParamString,"_blank",OpenStyle);
+		reloadSelf();
+	}
   /*~[Describe=完成;InputParam=无;OutPutParam=无;]~*/
 	function DataHandle()
 	{
@@ -210,7 +224,6 @@
    		try{hideMessage();}catch(e) {};
    		reloadSelf(); 
 	}
-	 
 	function generateReport(){
 	    var sSerialNo = getItemValue(0,getRow(),"SerialNo");
 		var sObjectNo = getItemValue(0,getRow(),"ObjectNo");

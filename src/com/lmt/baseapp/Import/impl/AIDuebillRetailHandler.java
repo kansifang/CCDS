@@ -71,7 +71,7 @@ public class AIDuebillRetailHandler{
  				")");
 		//2、插入各个维度的总计
  		sSql="select "+
- 				"'"+HandlerFlag+"',ConfigNo,OneKey,Dimension,'总计',"+
+ 				"'"+HandlerFlag+"',ConfigNo,OneKey,Dimension,'总计@总计',"+
 			"round(sum(BusinessSum),2),round(sum(BusinessSumSeason),2),round(sum(Balance),2) as Balance,sum(TotalTransaction) "+
 			"from Batch_Import_Process "+
 			"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"' and locate('小计',DimensionValue)=0 "+
@@ -93,7 +93,7 @@ public class AIDuebillRetailHandler{
 					")tab1,"+
 					"(select Dimension,DimensionValue,BusinessSum,BusinessSumSeason,Balance "+	
 						"from Batch_Import_Process "+
-						"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"' and DimensionValue='总计'"+
+						"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"' and locate('总计',DimensionValue)>0 "+
 					")tab2"+
 					" where tab1.Dimension=tab2.Dimension)tab3"+
 				" where tab.Dimension=tab3.Dimension and tab.DimensionValue=tab3.DimensionValue";

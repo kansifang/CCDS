@@ -115,33 +115,41 @@ public class AIHandlerFactory{
 		
 		AIDuebillHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"归属条线","~s借据明细@归属条线e~","");
  		String groupBy="case "+
- 				"when ~s借据明细@经营类型(新)e~ like '%煤炭开采%' or ~s借据明细@经营类型(新)e~ like '%煤炭洗选%' then '煤炭' "+
- 				"when ~s借据明细@经营类型(新)e~ like '%焦碳%' then '焦碳' "+//焦碳—
- 				"when ~s借据明细@经营类型(新)e~ like '%制造业%' or ~s借据明细@经营类型(新)e~ like '%一般加工%' then '制造业' "+//制造业—
- 				"when ~s借据明细@经营类型(新)e~ like '%批发零售%' then '批发零售' "+//批发零售—
- 				"when ~s借据明细@经营类型(新)e~ like '%钢铁%' then '钢铁' "+
- 				"when ~s借据明细@经营类型(新)e~ like '%化工化肥%' then '化工化肥' "+
-	 			"when ~s借据明细@经营类型(新)e~ like '%房地产%' then '房地产' "+
-	 			"when ~s借据明细@经营类型(新)e~ like '%建筑施工%' then '建筑施工' "+
-	 			"when ~s借据明细@经营类型(新)e~ like '%铁矿开采%' then '铁矿开采' "+
-	 			"when ~s借据明细@经营类型(新)e~ like '%农林牧副渔%' then '农林牧副渔' "+
-	 			"when ~s借据明细@经营类型(新)e~ like '%政府平台%' then '政府平台' "+
-				"when ~s借据明细@经营类型(新)e~ like '%钢贸户%' or ~s借据明细@经营类型(新)e~ like '%钢材销售%' then '钢贸户' "+
-				"when ~s借据明细@经营类型(新)e~ like '%医药制造%' then '医药制造' "+
-				"when ~s借据明细@经营类型(新)e~ like '%燃气生产和供应%' then '燃气生产和供应' "+
-				"when ~s借据明细@经营类型(新)e~ like '%汽车维修及销售%' then '汽车维修及销售' "+
-				"when ~s借据明细@经营类型(新)e~ like '%电力%' then '电力' "+
-				"when ~s借据明细@经营类型(新)e~ like '%住宿餐饮%' then '住宿餐饮' "+
-	 			"when ~s借据明细@经营类型(新)e~ like '%交通运输%' then '交通运输' "+
-	 			"when ~s借据明细@经营类型(新)e~ like '%医院学校%' then '医院学校' "+
-	 			"when ~s借据明细@经营类型(新)e~ like '%信息技术%' then '信息技术' "+
-	 			"when ~s借据明细@经营类型(新)e~ like '%文化娱乐%' then '文化娱乐' "+
-				"when ~s借据明细@经营类型(新)e~ like '%有色冶炼%' then '有色冶炼' "+
-	 			"else '其他' end";
+ 				"when ~s借据明细@经营类型(新)e~ is null or ~s借据明细@经营类型(新)e~ = '' or ~s借据明细@经营类型(新)e~='其他' then '其他' "+
+ 				"when ~s借据明细@经营类型(新)e~ like '煤炭开采' then '煤炭@开采'" +
+ 				"when ~s借据明细@经营类型(新)e~ like '煤炭洗选' then '煤炭@洗选' "+
+ 				"when ~s借据明细@经营类型(新)e~ like '焦碳—独立焦化' then '焦碳@独立焦化' "+//焦碳—
+ 				"when ~s借据明细@经营类型(新)e~ like '焦碳—煤焦一体' or ~s借据明细@经营类型(新)e~ = '焦碳' then '焦碳@煤焦一体' "+//焦碳—
+ 				"when ~s借据明细@经营类型(新)e~ like '焦碳—焦钢一体' then '焦碳@焦钢一体' "+//焦碳—
+ 				"when ~s借据明细@经营类型(新)e~ like '焦碳—限期保留' then '焦碳@限期保留' "+//焦碳—
+ 				"when ~s借据明细@经营类型(新)e~ like '焦碳—气源厂' then '焦碳@气源厂' "+//焦碳—
+ 				"when ~s借据明细@经营类型(新)e~ like '焦碳—热回收' then '焦碳@热回收' "+//焦碳—
+ 				"when ~s借据明细@经营类型(新)e~ like '制造业—水泥' then '制造业@水泥' "+//制造业—
+ 				"when ~s借据明细@经营类型(新)e~ like '制造业—平板玻璃' then '制造业@平板玻璃' "+//制造业—
+ 				"when ~s借据明细@经营类型(新)e~ like '制造业—%' then '制造业@其他' "+//制造业—
+ 				"when ~s借据明细@经营类型(新)e~ like '批发零售—%' then '批发零售' "+//批发零售—
+ 				"when ~s借据明细@经营类型(新)e~ like '钢铁' then '钢铁' "+
+ 				"when ~s借据明细@经营类型(新)e~ like '化工化肥' then '化工化肥' "+
+	 			"when ~s借据明细@经营类型(新)e~ like '房地产' then '房地产' "+
+	 			"when ~s借据明细@经营类型(新)e~ like '建筑施工' or ~s借据明细@经营类型(新)e~ like '工程建筑' or ~s借据明细@经营类型(新)e~ like '建筑工程' then '建筑施工' "+
+	 			"when ~s借据明细@经营类型(新)e~ like '铁矿开采' then '铁矿开采' "+
+	 			"when ~s借据明细@经营类型(新)e~ like '农林牧副渔' then '农林牧副渔' "+
+	 			"when ~s借据明细@经营类型(新)e~ like '政府平台' then '政府平台' "+
+				"when ~s借据明细@经营类型(新)e~ like '钢贸户' or ~s借据明细@经营类型(新)e~ like '%钢材销售%' then '钢贸户' "+
+				"when ~s借据明细@经营类型(新)e~ like '医药制造' then '医药制造' "+
+				"when ~s借据明细@经营类型(新)e~ like '燃气生产和供应' then '燃气生产和供应' "+
+				"when ~s借据明细@经营类型(新)e~ like '汽车维修及销售' then '汽车维修及销售' "+
+				"when ~s借据明细@经营类型(新)e~ like '电力' then '电力' "+
+				"when ~s借据明细@经营类型(新)e~ like '住宿餐饮' then '住宿餐饮' "+
+	 			"when ~s借据明细@经营类型(新)e~ like '交通运输' then '交通运输' "+
+	 			"when ~s借据明细@经营类型(新)e~ like '医院学校' then '医院学校' "+
+	 			"when ~s借据明细@经营类型(新)e~ like '信息技术' then '信息技术' "+
+	 			"when ~s借据明细@经营类型(新)e~ like '文化娱乐' then '文化娱乐' "+
+	 			"else ~s借据明细@经营类型(新)e~ end";
 	 	AIDuebillHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"经营类型(新)",groupBy,"");
 	 	
 	 	groupBy="case when case when ~s借据明细@期限日e~>0 then (~s借据明细@期限月e~+1) else ~s借据明细@期限月e~ end <=6  then '1M6]' "+
-	 						"when case when ~s借据明细@期限日e~>0 then (~s借据明细@期限月e~+1) else ~s借据明细@期限月e~ end <=12 then '2M(6-12]' "+
+	 						"when case when ~s借据明细@期限日e~>1 then (~s借据明细@期限月e~+1) else ~s借据明细@期限月e~ end <=12 then '2M(6-12]' "+//常常有12个月零1天那种，先处理为12个月吧，遗留数据有几笔（00000231001，00000230881，00000231541，00000253001）
 	 						"when case when ~s借据明细@期限日e~>0 then (~s借据明细@期限月e~+1) else ~s借据明细@期限月e~ end <=36 then '3M(12-36]' "+
 	 						"when case when ~s借据明细@期限日e~>0 then (~s借据明细@期限月e~+1) else ~s借据明细@期限月e~ end <=60 then '4M(36-60]' "+
 	 						"else '5M(60' end,~s借据明细@业务品种e~";
@@ -163,34 +171,27 @@ public class AIHandlerFactory{
 	 	
 	 	AIDuebillHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"业务品种","~s借据明细@业务品种e~","");
 	 	
-	 	groupBy="case when ~s借据明细@国家地区e~ like '%太原市%' then '太原市' "+
+	 	groupBy="case  "+
 	 			"when ~s借据明细@国家地区e~ like '%吕梁市%' then '吕梁市' "+
 	 			"when ~s借据明细@国家地区e~ like '%晋中市%' then '晋中市' "+
-	 			"when ~s借据明细@国家地区e~ like '%朔州市%' then '朔州市' "+
 	 			"when ~s借据明细@国家地区e~ like '%临汾市%' then '临汾市' "+
-	 			"when ~s借据明细@国家地区e~ like '%长治市%' then '长治市' "+
 	 			"when ~s借据明细@国家地区e~ like '%运城市%' then '运城市' "+
+	 			"when ~s借据明细@国家地区e~ like '%长治市%' then '长治市' "+
+	 			"when ~s借据明细@国家地区e~ like '%朔州市%' then '朔州市' "+
 	 			"when ~s借据明细@国家地区e~ like '%忻州市%' then '忻州市' "+
 	 			"when ~s借据明细@国家地区e~ like '%大同市%' then '大同市' "+
 	 			"when ~s借据明细@国家地区e~ like '%晋城市%' then '晋城市' "+
 	 			"when ~s借据明细@国家地区e~ like '%阳泉市%' then '阳泉市' "+
-	 			"when ~s借据明细@国家地区e~ like '%石家庄市%' then '石家庄市' "+
-	 			"when ~s借据明细@国家地区e~ like '%武汉市%' then '武汉市' "+
+	 			//"when ~s借据明细@国家地区e~ like '%石家庄市%' then '石家庄市' "+
+	 			//"when ~s借据明细@国家地区e~ like '%武汉市%' then '武汉市' "+
 	 			"when ~s借据明细@国家地区e~ like '%佛山市%' then '佛山市' "+
-	 			"else '其他地区' end";
+	 			"else '太原市' end";//剩下的默认都是太原市when ~s借据明细@国家地区e~ like '%太原市%' then '太原市'
 	 	AIDuebillHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"地区分类",groupBy,"");
 	 	
 	 	AIDuebillHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"机构分类","~s借据明细@直属行名称e~","");
-	 	//贷款金额区间
-	 	groupBy="case when ~s借据明细@余额(元)e~ >=500000000 then '5亿以上（含5亿）' "+
-	 			"when ~s借据明细@余额(元)e~ >=300000000 then '3亿至5亿（含3亿）' "+
-	 			"when ~s借据明细@余额(元)e~ >=200000000 then '2亿至3亿（含2亿）' "+
-	 			"when ~s借据明细@余额(元)e~ >=100000000 then '1亿至2亿（含1亿）' "+
-	 			"when ~s借据明细@余额(元)e~ >=50000000 then '5000万至1亿（含5000万）' "+
-	 			"else '5000万以下' end";
-	 	AIDuebillHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"贷款余额区间",groupBy,"");
 	 	
-	 	
+	 	//单独完成一些复杂的操作
+	 	AIDuebillHandler.afterProcess1(HandlerFlag,sConfigNo, sOneKey, Sqlca);
 	 	//4、加工后，进行合计，横向纵向分析
 	 	AIDuebillHandler.afterProcess(HandlerFlag,sConfigNo, sOneKey, Sqlca);
 	}

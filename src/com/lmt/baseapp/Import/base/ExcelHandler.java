@@ -40,24 +40,28 @@ public class ExcelHandler extends DefaultHandler {
 		}
 		//校验上传文件中标题头是否重复
 		for(int i=0;i<headrow.getPhysicalNumberOfCells();i++){
-			String headrow1=headrow.getCell(i).getStringCellValue().trim().replaceAll("\\s", "");
+			String headrow1=this.changeCellToString(headrow.getCell(i));;
 			if("".equals(headrow1)){
 				continue;
 			}
 			for(int j=i+1;j<headrow.getPhysicalNumberOfCells();j++){
-				String headrow2=headrow.getCell(j).getStringCellValue().trim().replaceAll("\\s", "");
+				String headrow2=this.changeCellToString(headrow.getCell(j));
 				if(headrow1.equals(headrow2)){
 					sb.append("Excel文件中"+headrow.getCell(i).getStringCellValue().trim()+"有多个，请调整；");
 				}
 			}
 		}
 		//校验模板里面定义的要素标题是否在上传文件中都具备，
-		//初始化设置要素标题在文件中序号 indexInFile
+		//初始化设置要素标题在文件中序号 indexInFile,
+		//如果配置中标示直接以序号初始化,就直接更新序列号啦
 		for (ObjColumn sC : this.record.columns) {
 			int k=0;
 			String headD = sC.getColumnHeadName();
 			String headName="";
 			if(!sC.isOutFileColumn()){
+				if(this.record.getColumnIndexWH(headD)>=0){
+					continue;
+				}
 				for (int i =0;i < headrow.getPhysicalNumberOfCells();i++) {
 					headName=headrow.getCell(i).getStringCellValue().trim().replaceAll("\\s", "");
 					if(headD.equals(headName)){

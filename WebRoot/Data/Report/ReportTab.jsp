@@ -54,6 +54,8 @@
 		//获取
 		sSql = "select AttachmentNo,FileName,Attribute1,Attribute2 from Doc_Attachment where DocNo ='"+sConfigNo+"' order by FileName asc";
 		rs = Sqlca.getResultSet(sSql);
+		int tabs=0;
+		int tabsEveryRow=6;//每行显示6个
 		while(rs.next()){
 			sAddStringArray = new String[] {"",rs.getString(2),"doTabAction('"+
 					rs.getString(3).replaceAll("#AttachmentNo",rs.getString(1))
@@ -61,13 +63,15 @@
 						.replaceAll("#OneKey", sOneKey)
 						+"')"};
 			sTabStrip = HTMLTab.addTabArray(sTabStrip,sAddStringArray);
+			tabs++;
 		}
 		rs.getStatement().close();
+		int rows=tabs/tabsEveryRow+1;
 		//设定标题
 		sTitle = "贷款用途报告";
-
 		//根据定义组生成 tab
-		out.println(HTMLTab.genTabArray(sTabStrip,"tab_DeskTopInfo","document.all('tabtd')"));
+		//out.println(HTMLTab.genTabArray(sTabStrip,"tab_DeskTopInfo","document.all('tabtd')"));
+		out.println(HTMLTab.genTabArray(sTabStrip,"tab_DeskTopInfo","tabtd",tabsEveryRow));
 		String sTableStyle = "align=center cellspacing=0 cellpadding=0 border=0 width=98% height=98%";
 		String sTabHeadStyle = "";
 		String sTabHeadText = "<br>";
@@ -99,15 +103,13 @@
   	{	
   	  	var sOpenUrl=ssOpenUrl;
   	    sOpenUrl=sOpenUrl.replace(/~/g,"\""); 
-  		sOpenUrl=sOpenUrl.replace(/#TargetJSP/g,"<%="sCurrentItemNo".substring(0,"sCurrentItemNo".length()-3)%>");  
-  		sOpenUrl=sOpenUrl.replace("#AttachmentNo","<%=sConfigNo%>");
-  		sOpenUrl=sOpenUrl.replace("#SerialNo","<%=sSerialNo%>");
-  		sOpenUrl=sOpenUrl.replace("#SerialNo","<%=sSerialNo%>");
-  		sOpenUrl=sOpenUrl.replace("#SerialNo","<%=sSerialNo%>");
+  		//sOpenUrl=sOpenUrl.replace(/#TargetJSP/g,"<%="sCurrentItemNo".substring(0,"sCurrentItemNo".length()-3)%>");  
+  		//sOpenUrl=sOpenUrl.replace("#AttachmentNo","<%=sConfigNo%>");
+  		//sOpenUrl=sOpenUrl.replace("#SerialNo","<%=sSerialNo%>");
 		eval(sOpenUrl);
 		return true;
   	}
-	
+  	
 	</script>
 <%/*~END~*/%>
 
@@ -115,7 +117,25 @@
 <%/*~BEGIN~可编辑区[Editable=true;CodeAreaID=Main06;Describe=在页面装载时执行,初始化;]~*/%>
 	<script language=javascript>
 	//参数依次为： tab的ID,tab定义数组,默认显示第几项,目标单元格
-	hc_drawTabToTable("tab_DeskTopInfo",tabstrip,<%=initTab%>,document.all('<%=sTabID%>'));
+	function addRow(tdidfortab){//每点击一下添加按钮就生成一个上传条 
+  		var obj = document.getElementById("tabtid");
+  		//table 插入一行tr
+  		var r = obj.insertRow(); 
+  		//插入一个td
+  	    var c =r.insertCell();
+  		c.style.backgroundColor="#D8D8AF";
+  		c.align="right";
+  		c.id=tdidfortab;
+  		c.setAttribute("class","tabtd");
+  		c =r.insertCell();
+  		c.innerHTML+="";
+  		c.setAttribute("valign","top");
+  		c.setAttribute("class","tabbar");
+  	} 
+  	for(var i=0;i<parseInt("<%=rows%>");i++){
+  		addRow("tabtd"+i);
+  		hc_drawTabToTable("tab_DeskTopInfo"+i,tabs[i],1,document.all('tabtd'+i));
+  	}
 	//设定默认页面
 	<%=sTabStrip[initTab-1][2]%>;
 	</script>	

@@ -77,7 +77,7 @@ public class AIContractHandler{
 		String sLastYearEnd=StringFunction.getRelativeAccountMonth(sKey.substring(0, 4)+"/12","year",-1);
 		//1、插入各个维度的小计
  		sSql="select "+
- 				"'"+HandlerFlag+"',ConfigNo,OneKey,Dimension,substr(DimensionValue,1,locate('@',DimensionValue)-1)||'小计',"+
+ 				"'"+HandlerFlag+"',ConfigNo,OneKey,Dimension,substr(DimensionValue,1,locate('@',DimensionValue)-1)||'@小计',"+
 			"round(sum(BusinessSum),2) as BusinessSum,round(sum(Balance),2) as Balance "+
 			"from Batch_Import_Process "+
 			"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"' and locate('@',DimensionValue)>0 "+
@@ -90,7 +90,7 @@ public class AIContractHandler{
  				")");
 		//2、插入各个维度的总计
  		sSql="select "+
- 				"'"+HandlerFlag+"',ConfigNo,OneKey,Dimension,'总计',"+
+ 				"'"+HandlerFlag+"',ConfigNo,OneKey,Dimension,'总计@总计',"+
 			"round(sum(BusinessSum),2) as BusinessSum,round(sum(Balance),2) as Balance "+
 			"from Batch_Import_Process "+
 			"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"' and locate('小计',DimensionValue)=0 "+
@@ -111,7 +111,7 @@ public class AIContractHandler{
 					")tab1,"+
 					"(select Dimension,DimensionValue,BusinessSum,Balance "+	
 						"from Batch_Import_Process "+
-						"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"' and DimensionValue='总计'"+
+						"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"' and locate('总计',DimensionValue)>0"+
 					")tab2"+
 					" where tab1.Dimension=tab2.Dimension)tab3 "+
 			" where tab.Dimension=tab3.Dimension and tab.DimensionValue=tab3.DimensionValue";
@@ -130,12 +130,12 @@ public class AIContractHandler{
 					"(select Dimension,DimensionValue,BusinessSum,Balance "+
 						"from Batch_Import_Process "+
 						"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"'"+
-					")tab1,"+
-					"(select Dimension,DimensionValue,BusinessSum,Balance "+	
+					")tab1"+
+					" left join (select Dimension,DimensionValue,BusinessSum,Balance "+	
 					"from Batch_Import_Process "+
 						"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sLastYearEnd+"'"+
 					")tab2"+
-					" where tab1.Dimension=tab2.Dimension and tab1.DimensionValue=tab2.DimensionValue)tab3"+
+					" on tab1.Dimension=tab2.Dimension and tab1.DimensionValue=tab2.DimensionValue)tab3"+
 			" where tab.Dimension=tab3.Dimension and tab.DimensionValue=tab3.DimensionValue";
  		Sqlca.executeSQL("update Batch_Import_Process tab "+
  				"set(BalanceTLY,BalanceRangeTLY)="+
