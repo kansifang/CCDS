@@ -115,37 +115,37 @@ public class AIHandlerFactory{
 		
 		AIDuebillHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"归属条线","~s借据明细@归属条线e~","");
  		String groupBy="case "+
- 				"when ~s借据明细@经营类型(新)e~ is null or ~s借据明细@经营类型(新)e~ = '' or ~s借据明细@经营类型(新)e~='其他' then '其他' "+
- 				"when ~s借据明细@经营类型(新)e~ like '煤炭开采' then '煤炭@开采'" +
- 				"when ~s借据明细@经营类型(新)e~ like '煤炭洗选' then '煤炭@洗选' "+
- 				"when ~s借据明细@经营类型(新)e~ like '焦碳—独立焦化' then '焦碳@独立焦化' "+//焦碳—
- 				"when ~s借据明细@经营类型(新)e~ like '焦碳—煤焦一体' or ~s借据明细@经营类型(新)e~ = '焦碳' then '焦碳@煤焦一体' "+//焦碳—
- 				"when ~s借据明细@经营类型(新)e~ like '焦碳—焦钢一体' then '焦碳@焦钢一体' "+//焦碳—
- 				"when ~s借据明细@经营类型(新)e~ like '焦碳—限期保留' then '焦碳@限期保留' "+//焦碳—
- 				"when ~s借据明细@经营类型(新)e~ like '焦碳—气源厂' then '焦碳@气源厂' "+//焦碳—
- 				"when ~s借据明细@经营类型(新)e~ like '焦碳—热回收' then '焦碳@热回收' "+//焦碳—
- 				"when ~s借据明细@经营类型(新)e~ like '制造业—水泥' then '制造业@水泥' "+//制造业—
- 				"when ~s借据明细@经营类型(新)e~ like '制造业—平板玻璃' then '制造业@平板玻璃' "+//制造业—
- 				"when ~s借据明细@经营类型(新)e~ like '制造业—%' then '制造业@其他' "+//制造业—
- 				"when ~s借据明细@经营类型(新)e~ like '批发零售—%' then '批发零售' "+//批发零售—
- 				"when ~s借据明细@经营类型(新)e~ like '钢铁' then '钢铁' "+
- 				"when ~s借据明细@经营类型(新)e~ like '化工化肥' then '化工化肥' "+
-	 			"when ~s借据明细@经营类型(新)e~ like '房地产' then '房地产' "+
-	 			"when ~s借据明细@经营类型(新)e~ like '建筑施工' or ~s借据明细@经营类型(新)e~ like '工程建筑' or ~s借据明细@经营类型(新)e~ like '建筑工程' then '建筑施工' "+
-	 			"when ~s借据明细@经营类型(新)e~ like '铁矿开采' then '铁矿开采' "+
-	 			"when ~s借据明细@经营类型(新)e~ like '农林牧副渔' then '农林牧副渔' "+
-	 			"when ~s借据明细@经营类型(新)e~ like '政府平台' then '政府平台' "+
-				"when ~s借据明细@经营类型(新)e~ like '钢贸户' or ~s借据明细@经营类型(新)e~ like '%钢材销售%' then '钢贸户' "+
-				"when ~s借据明细@经营类型(新)e~ like '医药制造' then '医药制造' "+
-				"when ~s借据明细@经营类型(新)e~ like '燃气生产和供应' then '燃气生产和供应' "+
-				"when ~s借据明细@经营类型(新)e~ like '汽车维修及销售' then '汽车维修及销售' "+
-				"when ~s借据明细@经营类型(新)e~ like '电力' then '电力' "+
-				"when ~s借据明细@经营类型(新)e~ like '住宿餐饮' then '住宿餐饮' "+
-	 			"when ~s借据明细@经营类型(新)e~ like '交通运输' then '交通运输' "+
-	 			"when ~s借据明细@经营类型(新)e~ like '医院学校' then '医院学校' "+
-	 			"when ~s借据明细@经营类型(新)e~ like '信息技术' then '信息技术' "+
-	 			"when ~s借据明细@经营类型(新)e~ like '文化娱乐' then '文化娱乐' "+
-	 			"else ~s借据明细@经营类型(新)e~ end";
+ 				"when ~s借据明细@经营类型(新)e~ is null or ~s借据明细@经营类型(新)e~ = '' or ~s借据明细@经营类型(新)e~='其他' then 'V-其他' "+
+ 				"when ~s借据明细@经营类型(新)e~ like '煤炭开采' then 'A-煤炭@开采'" +
+ 				"when ~s借据明细@经营类型(新)e~ like '煤炭洗选' then 'A-煤炭@洗选' "+
+ 				"when ~s借据明细@经营类型(新)e~ like '焦碳—独立焦化' then 'B-焦碳@独立焦化' "+//焦碳—
+ 				"when ~s借据明细@经营类型(新)e~ like '焦碳—煤焦一体' or ~s借据明细@经营类型(新)e~ = '焦碳' then 'B-焦碳@煤焦一体' "+//焦碳—
+ 				"when ~s借据明细@经营类型(新)e~ like '焦碳—焦钢一体' then 'B-焦碳@焦钢一体' "+//焦碳—
+ 				"when ~s借据明细@经营类型(新)e~ like '焦碳—限期保留' then 'B-焦碳@限期保留' "+//焦碳—
+ 				"when ~s借据明细@经营类型(新)e~ like '焦碳—气源厂' then 'B-焦碳@气源厂' "+//焦碳—
+ 				"when ~s借据明细@经营类型(新)e~ like '焦碳—热回收' then 'B-焦碳@热回收' "+//焦碳—
+ 				"when ~s借据明细@经营类型(新)e~ like '批发零售%' then 'C-批发零售' "+//批发零售—
+ 				"when ~s借据明细@经营类型(新)e~ like '制造业—水泥' then 'D-制造业@水泥' "+//制造业—
+ 				"when ~s借据明细@经营类型(新)e~ like '制造业—平板玻璃' then 'D-制造业@平板玻璃' "+//制造业—
+ 				"when ~s借据明细@经营类型(新)e~ like '制造业%' then 'D-制造业@其他' "+//制造业—
+ 				"when ~s借据明细@经营类型(新)e~ like '钢铁' then 'E-钢铁' "+
+ 				"when ~s借据明细@经营类型(新)e~ like '房地产' then 'F-房地产' "+
+ 				"when ~s借据明细@经营类型(新)e~ like '化工化肥' then 'G-化工化肥' "+
+	 			"when ~s借据明细@经营类型(新)e~ like '建筑施工' or ~s借据明细@经营类型(新)e~ like '工程建筑' or ~s借据明细@经营类型(新)e~ like '建筑工程' then 'H-建筑施工' "+
+	 			"when ~s借据明细@经营类型(新)e~ like '铁矿开采' then 'I-铁矿开采' "+
+	 			"when ~s借据明细@经营类型(新)e~ like '农林牧副渔' then 'J-农林牧副渔' "+
+	 			"when ~s借据明细@经营类型(新)e~ like '政府平台' then 'K-政府平台' "+
+				"when ~s借据明细@经营类型(新)e~ like '钢贸户' or ~s借据明细@经营类型(新)e~ like '%钢材销售%' then 'L-钢贸户' "+
+				"when ~s借据明细@经营类型(新)e~ like '医药制造' then 'M-医药制造' "+
+				"when ~s借据明细@经营类型(新)e~ like '燃气生产和供应' then 'N-燃气生产和供应' "+
+				"when ~s借据明细@经营类型(新)e~ like '汽车维修及销售' then 'O-汽车维修及销售' "+
+				"when ~s借据明细@经营类型(新)e~ like '电力' then 'P-电力' "+
+				"when ~s借据明细@经营类型(新)e~ like '住宿餐饮' then 'Q-住宿餐饮' "+
+	 			"when ~s借据明细@经营类型(新)e~ like '交通运输' then 'R-交通运输' "+
+	 			"when ~s借据明细@经营类型(新)e~ like '医院学校' then 'S-医院学校' "+
+	 			"when ~s借据明细@经营类型(新)e~ like '信息技术' then 'T-信息技术' "+
+	 			"when ~s借据明细@经营类型(新)e~ like '文化娱乐' then 'U-文化娱乐' "+
+	 			"else 'W-'||~s借据明细@经营类型(新)e~ end";
 	 	AIDuebillHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"经营类型(新)",groupBy,"");
 	 	
 	 	groupBy="case when case when ~s借据明细@期限日e~>0 then (~s借据明细@期限月e~+1) else ~s借据明细@期限月e~ end <=6  then '1M6]' "+
@@ -172,20 +172,20 @@ public class AIHandlerFactory{
 	 	AIDuebillHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"业务品种","~s借据明细@业务品种e~","");
 	 	
 	 	groupBy="case  "+
-	 			"when ~s借据明细@国家地区e~ like '%吕梁市%' then '吕梁市' "+
-	 			"when ~s借据明细@国家地区e~ like '%晋中市%' then '晋中市' "+
-	 			"when ~s借据明细@国家地区e~ like '%临汾市%' then '临汾市' "+
-	 			"when ~s借据明细@国家地区e~ like '%运城市%' then '运城市' "+
-	 			"when ~s借据明细@国家地区e~ like '%长治市%' then '长治市' "+
-	 			"when ~s借据明细@国家地区e~ like '%朔州市%' then '朔州市' "+
-	 			"when ~s借据明细@国家地区e~ like '%忻州市%' then '忻州市' "+
-	 			"when ~s借据明细@国家地区e~ like '%大同市%' then '大同市' "+
-	 			"when ~s借据明细@国家地区e~ like '%晋城市%' then '晋城市' "+
-	 			"when ~s借据明细@国家地区e~ like '%阳泉市%' then '阳泉市' "+
+	 			"when ~s借据明细@国家地区e~ like '%吕梁市%' then 'B-吕梁市' "+
+	 			"when ~s借据明细@国家地区e~ like '%晋中市%' then 'C-晋中市' "+
+	 			"when ~s借据明细@国家地区e~ like '%临汾市%' then 'D-临汾市' "+
+	 			"when ~s借据明细@国家地区e~ like '%运城市%' then 'E-运城市' "+
+	 			"when ~s借据明细@国家地区e~ like '%长治市%' then 'F-长治市' "+
+	 			"when ~s借据明细@国家地区e~ like '%朔州市%' then 'G-朔州市' "+
+	 			"when ~s借据明细@国家地区e~ like '%忻州市%' then 'H-忻州市' "+
+	 			"when ~s借据明细@国家地区e~ like '%大同市%' then 'I-大同市' "+
+	 			"when ~s借据明细@国家地区e~ like '%晋城市%' then 'J-晋城市' "+
+	 			"when ~s借据明细@国家地区e~ like '%阳泉市%' then 'K-阳泉市' "+
 	 			//"when ~s借据明细@国家地区e~ like '%石家庄市%' then '石家庄市' "+
 	 			//"when ~s借据明细@国家地区e~ like '%武汉市%' then '武汉市' "+
-	 			"when ~s借据明细@国家地区e~ like '%佛山市%' then '佛山市' "+
-	 			"else '太原市' end";//剩下的默认都是太原市when ~s借据明细@国家地区e~ like '%太原市%' then '太原市'
+	 			"when ~s借据明细@国家地区e~ like '%佛山市%' then 'L-佛山市' "+
+	 			"else 'A-太原市' end";//剩下的默认都是太原市when ~s借据明细@国家地区e~ like '%太原市%' then '太原市'
 	 	AIDuebillHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"地区分类",groupBy,"");
 	 	
 	 	AIDuebillHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"机构分类","~s借据明细@直属行名称e~","");

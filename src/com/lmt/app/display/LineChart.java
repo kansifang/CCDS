@@ -132,7 +132,7 @@ public class LineChart {
 		plot.setDomainGridlinesVisible(true);   
 		plot.setRangeGridlinePaint(Color.RED); 
 		//设置网格背景颜色
-        plot.setBackgroundPaint(Color.white);
+        plot.setBackgroundPaint(new Color(255, 255, 204)); 
         //设置网格竖线颜色
         plot.setDomainGridlinePaint(Color.pink);
         //设置网格横线颜色
@@ -165,13 +165,6 @@ public class LineChart {
         lineandshaperenderer.setItemLabelAnchorOffset(1D);//时间点和数据标签的距离
         //设置数据显示位置
         /**/
-		// 自定义线段的绘制颜色
-		Color color[] = new Color[5]; 
-		color[0] = new Color(99,99,0); 
-		color[1] = new Color(33,0,255); 
-		color[2] = new Color(255,169,66); 
-		color[3] = new Color(255,0,66);  
-		color[4] = new Color(33,255, 66); 
 		// 自定义线段的绘制风格 
 		for (int i = 0; i < lines; i++)  { 
 			//设置断线

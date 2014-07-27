@@ -112,20 +112,20 @@ org.jfree.chart.JFreeChart"%>
 		// 创建饼状图对象
 		//JFreeChart jf = ChartFactory.createPieChart("", PieChart.getDataSet(sSql,Sqlca), true, true, true);
 		JFreeChart jf = PieChart.getJfreeChart(sSql, Sqlca);
-		ChartUtilities.writeChartAsJPEG(response.getOutputStream(), jf, 700, 500);
+		ChartUtilities.writeChartAsJPEG(response.getOutputStream(), jf, 700, 450);
 	}else if("03".equals(sType)){//柱状图
 		response.setContentType("image/jpeg");
 		// 创建柱状图对象
 		JFreeChart jf =BarChart.getJfreeChart(sSql, Sqlca);
 		// 对柱状图对象生成图片
-		ChartUtilities.writeChartAsJPEG(response.getOutputStream(), jf, 700, 500);
+		ChartUtilities.writeChartAsJPEG(response.getOutputStream(), jf, 700, 450);
 	}else if("04".equals(sType)){//折线图
 		response.setContentType("image/jpeg");
 		// 创建折线图对象
 		//JFreeChart jf = LineChart.createChart(sSql, Sqlca);
 		JFreeChart jf =LineChart.getJfreeChart(sSql, Sqlca);
 		// 对折线图对象生成图片
-		ChartUtilities.writeChartAsJPEG(response.getOutputStream(), jf, 800, 500);
+		ChartUtilities.writeChartAsJPEG(response.getOutputStream(), jf, 700, 450);
 	}
 	
 

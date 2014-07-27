@@ -55,7 +55,7 @@
 		sSql = "select AttachmentNo,FileName,Attribute1,Attribute2 from Doc_Attachment where DocNo ='"+sConfigNo+"' order by FileName asc";
 		rs = Sqlca.getResultSet(sSql);
 		int tabs=0;
-		int tabsEveryRow=6;//每行显示6个
+		int tabsEveryRow=7;//每行显示6个
 		while(rs.next()){
 			sAddStringArray = new String[] {"",rs.getString(2),"doTabAction('"+
 					rs.getString(3).replaceAll("#AttachmentNo",rs.getString(1))
@@ -116,7 +116,7 @@
 
 <%/*~BEGIN~可编辑区[Editable=true;CodeAreaID=Main06;Describe=在页面装载时执行,初始化;]~*/%>
 	<script language=javascript>
-	//参数依次为： tab的ID,tab定义数组,默认显示第几项,目标单元格
+	//根据多少组tab自动添加tr td标签
 	function addRow(tdidfortab){//每点击一下添加按钮就生成一个上传条 
   		var obj = document.getElementById("tabtid");
   		//table 插入一行tr
@@ -131,7 +131,8 @@
   		c.innerHTML+="";
   		c.setAttribute("valign","top");
   		c.setAttribute("class","tabbar");
-  	} 
+  	}
+	//初始化所有分组tab
   	for(var i=0;i<parseInt("<%=rows%>");i++){
   		addRow("tabtd"+i);
   		hc_drawTabToTable("tab_DeskTopInfo"+i,tabs[i],1,document.all('tabtd'+i));

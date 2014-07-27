@@ -131,7 +131,7 @@
 	expandNode('0300');
 	expandNode('0400');
 	expandNode('0500');
-	selectItem('0200001');	
+	selectItem('0300002');	
 	</script>
 <%
 	/*~END~*/
