@@ -527,41 +527,6 @@ function hc_drawTab(tabID, tabStrip,selectedStrip){
 		var bForceRefreshTab = false;
 		var bForceAddTab = false;//true 可新增  false 屏蔽tab新增
 		var bForceDeleteTab = true;//可删除 false屏蔽tab删除
-		//显示及隐藏tab菜单
-		function showHideTabMenu(obj){
-			if (document.all('tabMenu1').style.visibility=='visible') {
-				hideTabMenu();
-				return false;
-			}else{
-				showTabMenu(obj);
-				return false;
-			}
-		}
-		function hideTabMenu(){
-				try{
-					document.all('tabMenu1').style.visibility='hidden';
-				}catch(e){}
-				return false;
-		}
-		function showTabMenu(obj){
-			var xPos = obj.offsetLeft;
-			var yPos = obj.offsetTop;
-			var tempEl = obj.offsetParent;
-			while (tempEl != null){
-				xPos += tempEl.offsetLeft;
-				yPos += tempEl.offsetTop;
-				tempEl = tempEl.offsetParent;
-			};
-			document.all('tabMenu1').style.left = xPos + obj.offsetWidth-document.all('tabMenu1').offsetWidth;
-			document.all('tabMenu1').style.top = yPos+obj.offsetHeight;
-			document.all('tabMenu1').style.width = obj.offsetWidth;
-			document.all('tabMenu1').style.visibility='visible';
-			return false;
-		}
-		//用于检查Tab动作合法性，如果返回false，则tab不切换
-		function checkTabAction(iTabStrip){
-			return true;
-		}
 		var GbeginTabIndex=1;
 		function hc_drawTabToTable_plus_ex(tabStrip,selectedStrip,beginTabIndex,tabLength,hangtbid){
 			GbeginTabIndex=beginTabIndex;
@@ -700,8 +665,6 @@ function hc_drawTab(tabID, tabStrip,selectedStrip){
 				}else{
 					sInnerHTML= sInnerHTML +"<td><img class='tabnextdisable' border=0 src='"+sHCResourcesPath+"/1x1.gif'></td>\r";
 				}
-				//展示全部
-				sInnerHTML= sInnerHTML +"<td><a href='#' title='新增并展示全部...' onClick=\"javascript:showHideTabMenu(this)\" onMouseOver1=\"javascript:showTabMenu(this)\"><img class='tabmenu' border=0 src='"+sHCResourcesPath+"/chooser_orange/arrow02.png'></a></td>\r";
 				if(bForceAddTab){
 					sInnerHTML= sInnerHTML + "<td nowrap>&nbsp;</td>"+"\r";
 					sInnerHTML= sInnerHTML + "<td><a href='#' title='新增...' onClick=\"javascript:myTabAdd();return false;\"><img class='tabadd' border=0 src='"+sHCResourcesPath+"/new.gif'></a></td>"+"\r";
@@ -719,6 +682,8 @@ function hc_drawTab(tabID, tabStrip,selectedStrip){
 					sInnerHTML= sInnerHTML + "<td align=right width=100%> </td>"+"\r";
 				}
 			}
+			//展示全部
+			sInnerHTML= sInnerHTML +"<td style=\"cursor:hand\" onClick=\"javascript:showHideTabMenu(this)\" onMouseOver1=\"javascript:showTabMenu(this)\" nowrap><img class='tabmenu' border=0 src='"+sHCResourcesPath+"/chooser_orange/arrow02.png'></td>\r";
 			sInnerHTML= sInnerHTML + "</tr>";
 			//end
 			//分割层
@@ -749,7 +714,7 @@ function hc_drawTab(tabID, tabStrip,selectedStrip){
 			//隐藏层
 			sInnerHTML= sInnerHTML +"<tr><td><input type=hidden id='"+tabID+"_beginIndexID' name='"+tabID+"_beginIndex' value='"+vBeginIndex+"'></td></tr></table>\r";
 			//浮动层，点击新增时显示所有的tab
-			sInnerHTML= sInnerHTML +"<div id=\"tabMenu1\" style=\"z-index:1000;position:absolute; left:0px; top:0px; width:0px;height:0px;visibility:hidden;background:green\" class=\"SubMenuDiv\">\r";
+			sInnerHTML= sInnerHTML +"<div id=\"tabMenu1\" style=\"z-index:1000;position:absolute;left:0px;right:0px;top:0px;width:0px;height:0px;visibility:hidden;background:green\" class=\"SubMenuDiv\">\r";
 			sInnerHTML= sInnerHTML +"<table  class=\"SubMenuTable\"  cellpadding=4 cellspacing=0  border=0 >\r";
 			sInnerHTML= sInnerHTML +"<tr height=5><td class=\"TabMenuTd2\" style=\"font-size:15px;height:10px;\" align=right><span style=\"font-weight:bold;BORDER-LEFT:#999999 1px solid;BORDER-BOTTOM:#999999 1px solid;cursor:hand\" onclick=\"javascript:hideTabMenu();\">×</span></td></tr>\r";
 			for (var i=0;i<tabStrip.length; i++){
@@ -772,6 +737,67 @@ function hc_drawTab(tabID, tabStrip,selectedStrip){
 			sInnerHTML= sInnerHTML +"<iframe id=iframeSelect src=\"javascript:false\" style=\"position:absolute; visibility:inherit; top:0px; left:0px; width:100px; height:200px; z-index:-1; filter='progid:DXImageTransform.Microsoft.Alpha(style=0,opacity=0)';\"></iframe>"; 
 			sInnerHTML= sInnerHTML +"</div>\r</body leftMargin=0 rightMargin=0 topMargin=0 bottomMargin=0 >";
 			sObject.innerHTML=sInnerHTML;
+		}
+		function showdiv(obj){
+			if (document.all('tabMenu9').style.visibility=='visible') {
+				var tableObj = document.getElementById("SubMenuTable9");
+				var v_i = 0 ; 
+				var v_count = tableObj.rows.length;
+				for(;v_i<v_count;v_i++)
+				{
+					tableObj.deleteRow(0);
+				}
+				document.all('tabMenu9').style.visibility='hidden';
+			}else{
+				var xPos = obj.offsetLeft;
+				var tempEl = obj.offsetParent;
+				while (tempEl != null){
+					xPos += tempEl.offsetLeft;
+					tempEl = tempEl.offsetParent;
+				};
+				document.all('tabMenu9').style.left = xPos + obj.offsetWidth-document.all('adddiv').offsetWidth;
+				document.all('tabMenu9').style.top = event.offsetY+obj.offsetHeight+10;
+				document.all('tabMenu9').style.width = obj.offsetWidth;
+				document.all('tabMenu9').style.visibility='visible';
+				//add in 2009/08/20
+				document.all('iframeSelect').style.height = document.all('tabMenu9').offsetHeight;;
+				document.all('iframeSelect').style.width = document.all('tabMenu9').offsetWidth;
+			}
+		}
+		function showTabMenu(obj){
+			var xPos = obj.offsetLeft;
+			var yPos = obj.offsetTop;
+			var tempEl = obj.offsetParent;
+			while (tempEl != null){
+				xPos += tempEl.offsetLeft;
+				yPos += tempEl.offsetTop;
+				tempEl = tempEl.offsetParent;
+			};
+			document.all('tabMenu1').style.left = xPos*0.84-document.all('tabMenu1').offsetWidth;
+			document.all('tabMenu1').style.top = yPos*0.84-obj.offsetHeight;
+			document.all('tabMenu1').style.width = obj.offsetWidth;
+			document.all('tabMenu1').style.visibility='visible';
+			return false;
+		}
+		//显示及隐藏tab菜单
+		function showHideTabMenu(obj){
+			if (document.all('tabMenu1').style.visibility=='visible') {
+				hideTabMenu();
+				return false;
+			}else{
+				showTabMenu(obj);
+				return false;
+			}
+		}
+		function hideTabMenu(){
+				try{
+					document.all('tabMenu1').style.visibility='hidden';
+				}catch(e){}
+				return false;
+		}
+		//用于检查Tab动作合法性，如果返回false，则tab不切换
+		function checkTabAction(iTabStrip){
+			return true;
 		}
 		//根据tab在数组中序号
 		//当前显示的第一个tab在所有tab中是第几个
@@ -834,33 +860,6 @@ function hc_drawTab(tabID, tabStrip,selectedStrip){
 				hc_drawTabToTable_plus_ex(tabstrip,nexttab+1,iBeginTabIndex,iMaxTabLength,hangtbid);
 			}		
 		}
-		function showdiv(obj){
-			if (document.all('tabMenu9').style.visibility=='visible') {
-				var tableObj = document.getElementById("SubMenuTable9");
-				var v_i = 0 ; 
-				var v_count = tableObj.rows.length;
-				for(;v_i<v_count;v_i++)
-				{
-					tableObj.deleteRow(0);
-				}
-				document.all('tabMenu9').style.visibility='hidden';
-			}else{
-				var xPos = obj.offsetLeft;
-				var tempEl = obj.offsetParent;
-				while (tempEl != null){
-					xPos += tempEl.offsetLeft;
-					tempEl = tempEl.offsetParent;
-				};
-				document.all('tabMenu9').style.left = xPos + obj.offsetWidth-document.all('adddiv').offsetWidth;
-				document.all('tabMenu9').style.top = event.offsetY+obj.offsetHeight+10;
-				document.all('tabMenu9').style.width = obj.offsetWidth;
-				document.all('tabMenu9').style.visibility='visible';
-				//add in 2009/08/20
-				document.all('iframeSelect').style.height = document.all('tabMenu9').offsetHeight;;
-				document.all('iframeSelect').style.width = document.all('tabMenu9').offsetWidth;
-			}
-		}
-		
 		function addTabMenu(tabNo,tabDesc){
 			var tableObj = document.getElementById("SubMenuTable9");
 			try

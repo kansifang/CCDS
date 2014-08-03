@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=GBK"%>
 <%@ include file="/IncludeBegin.jsp"%>
-
+<%@ page import="com.lmt.frameapp.config.dal.ASCodeDefinition" %>
 
 <%
 	/*~BEGIN~可编辑区~[Editable=true;CodeAreaID=Main00;Describe=注释区;]~*/
@@ -45,7 +45,7 @@
 		//定义变量
 		
 		//获得组件参数	
-
+		String sCodeNo =DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("CodeNo")));
 		//获得页面参数
 	%>
 <%
@@ -66,7 +66,7 @@
 		tviTemp.TriggerClickEvent=true; //是否自动触发选中事件
 
 		//定义树图结构
-		String sSqlTreeView = "from CODE_LIBRARY where CodeNo='DataMain' and IsInUse='1' ";
+		String sSqlTreeView = "from CODE_LIBRARY where CodeNo='"+sCodeNo+"' and IsInUse='1' ";
 		sSqlTreeView += "and ItemNo not like '0020%' ";//视图filter
 		tviTemp.initWithSql("SortNo","ItemName","ItemNo","ItemDescribe","",sSqlTreeView,"Order By SortNo",Sqlca);
 		//参数从左至右依次为： ID字段,Name字段,Value字段,Script字段,Picture字段,From子句,OrderBy子句,Sqlca
@@ -85,7 +85,7 @@
 <%
 	/*~END~*/
 %>
-<!---->
+<!--zz-->
   <iframe name='left' width=100% height=100% frameborder=0 hspace=0 vspace=0 marginwidth=0 marginheight=0 scrolling=no></iframe>
 
 
@@ -93,20 +93,26 @@
 	/*~BEGIN~可编辑区[Editable=true;CodeAreaID=Main05;Describe=树图事件;]~*/
 %>
 	<script language=javascript> 
-	
+	<%
+		ASCodeDefinition asd=(ASCodeDefinition)ASConfigure.getSysConfig("ASCodeSet", Sqlca).getAttribute(sCodeNo);
+		if(asd!=null){
+			for(int i=0;i<asd.items.size();i++){
+				ASValuePool ap=asd.getItem(i);
+				String id=(String)ap.getAttribute("ItemNo");
+				String url=(String)ap.getAttribute("ItemAttribute");
+				if(url!=null&&url.length()>0){
+						out.print("var _"+id+"='"+url+"';");
+				}
+			}
+		}
+	%>
 	/*~[Describe=treeview单击选中事件;InputParam=无;OutPutParam=无;]~*/
 	function TreeViewOnClick()
 	{
-        //setTitle(getCurTVItem().name);
-        parent.parent.newTab("ReportList","/Data/Report/ReportList.jsp","&Type=Query");
+		var sCurItemID = getCurTVItem().id;
+		var sCurItemname = getCurTVItem().name;
+        parent.parent.newTab(sCurItemname,eval("_"+sCurItemID));
 	}
-
-	/*~[Describe=置右面详情的标题;InputParam=sTitle:标题;OutPutParam=无;]~*/
-	function setTitle(sTitle)
-	{
-		document.all("table0").cells(0).innerHTML="<font class=pt9white>&nbsp;&nbsp;"+sTitle+"&nbsp;&nbsp;</font>";
-	}	
-	
 	
 	/*~[Describe=生成treeview;InputParam=无;OutPutParam=无;]~*/
 	function startMenu() 
@@ -126,6 +132,7 @@
 	/*~BEGIN~可编辑区[Editable=true;CodeAreaID=Main06;Describe=在页面装载时执行,初始化;]~*/
 %>
 	<script language="JavaScript">
+	//writeMsg(document.all("left").document.body.innerHTML);
 	//var pWindow=window.dialogArguments;
 	startMenu();
 	expandNode('root');		

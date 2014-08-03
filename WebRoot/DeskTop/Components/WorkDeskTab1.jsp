@@ -57,14 +57,19 @@
 		}
 		return sReturn;
 	}
-	function newTab(tabname,url,para){
-		addTab(tabname,url,para);
+	function newTab(tabname,url){
+		addTab(tabname,url);
 		var beginti=calBiginIndex(strip_id_increment,GbeginTabIndex);
 		hc_drawTabToTable_plus_ex(tabstrip,strip_id_increment,beginti,iMaxTabLength,hangtableID);
 		myTabAction(hangtableID,strip_id_increment,false,beginti);
 		window.focus();
 	}
-	function addTab(tabname,url,para){
+	function addTab(tabname,url){
+		var para='';
+		if(url.indexOf('?')>=0){
+			para='&'+url.substring(url.indexOf('?')+1);
+			url=url.substring(0,url.indexOf('?'));
+		}
 		tabstrip[++strip_id_increment] = new Array(strip_id_increment,
 				tabname,
 				"AsControl.OpenView('"+url+"','TextToShow="+tabname+para+"&ToInheritObj=y','"+(hangtableID+strip_id_increment)+"')",
@@ -87,14 +92,13 @@
  %> 
    	tabname="<%=rs.getString("ItemName")%>";
    	url=eval("<%=rs.getString("ItemAttribute")%>");
-   	para="";
-   	addTab(tabname,url,para);
+   	addTab(tabname,url);
  <%
   	}
    	rs.getStatement().close();
 	%>
 	var initTab = 1;
-	var iMaxTabLength = 6;
+	var iMaxTabLength = 8;
 </script>
 
 <script	language=javascript>
