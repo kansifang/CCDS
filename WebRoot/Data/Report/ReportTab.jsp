@@ -55,7 +55,7 @@
 		sSql = "select AttachmentNo,FileName,Attribute1,Attribute2 from Doc_Attachment where DocNo ='"+sConfigNo+"' order by FileName asc";
 		rs = Sqlca.getResultSet(sSql);
 		int tabs=0;
-		int tabsEveryRow=7;//每行显示6个
+		int tabsEveryRow=6;//每行显示6个
 		while(rs.next()){
 			sAddStringArray = new String[] {"",rs.getString(2),"doTabAction('"+
 					rs.getString(3).replaceAll("#AttachmentNo",rs.getString(1))
@@ -66,7 +66,7 @@
 			tabs++;
 		}
 		rs.getStatement().close();
-		int rows=tabs/tabsEveryRow+1;
+		int rows=tabs%tabsEveryRow==0?tabs/tabsEveryRow:tabs/tabsEveryRow+1;
 		//设定标题
 		sTitle = "贷款用途报告";
 		//根据定义组生成 tab
@@ -141,5 +141,5 @@
 	<%=sTabStrip[initTab-1][2]%>;
 	</script>	
 <%/*~END~*/%>
-
+	
 <%@ include file="/IncludeEnd.jsp"%>

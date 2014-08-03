@@ -56,7 +56,9 @@ public class BDRiskReportHandler{
 					" Case when ConfigName='个人明细' then nvl(~s个人明细@金额e~,0) else nvl(~s借据明细@金额(元)e~,0) end BusinessSum, " +
 					" Case when ConfigName='个人明细' then nvl(~s个人明细@执行利率(%)e~,0) else nvl(~s借据明细@执行年利率(%)e~,0) end BusinessRate, " +
 					" Case when ConfigName='个人明细' then ~s个人明细@借据起始日e~ else ~s借据明细@借据起始日e~ end PutOutDate, " +
-					" Case when ConfigName='个人明细' then nvl(~s个人明细@余额e~,0) else nvl(~s借据明细@余额(元)e~,0) end Balance " +
+					" Case when ConfigName='个人明细' then nvl(~s个人明细@余额e~,0) else nvl(~s借据明细@余额(元)e~,0) end Balance," +
+					" Case when ConfigName='个人明细' then ~s个人明细@业务品种e~ else ~s借据明细@业务品种e~ end BusinessType," +
+					" Case when ConfigName='个人明细' then ~s个人明细@管户机构e~ else ~s借据明细@管户机构e~ end OperateOrgID " +
 					" from Batch_Import_Interim"+
 					" where ConfigName in('个人明细','借据明细') and OneKey='"+sKey+"'"+
 					" and (ConfigName='个人明细' and ~s个人明细@业务品种e~ not in('个人委托贷款','个人住房公积金贷款') or ConfigName='借据明细')" +
@@ -71,6 +73,7 @@ public class BDRiskReportHandler{
 				"round(sum(Balance)/10000,2) as Balance, "+
 				"count(distinct CustomerName),'"+StringFunction.getTodayNow()+"'"+
 				" from ("+sCSql+")tab"+
+				" where nvl(Balance,0)>0"+
 				" group by OneKey"+("".equals(groupBy)?"":","+groupBy)+
 				" union all"+
 				" select "+

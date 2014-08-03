@@ -169,7 +169,6 @@ function click_change(index) {
 		} catch (e) {
 		}
 	}
-
 	if (nodes[myCurIndex].type == 'folder') {	
 		left.document.getElementById('span'+myCurIndex+'plus').style.cssText='border-bottom:1px dashed #9fc0e3;';
 		left.document.getElementById('span'+myCurIndex+'minu').style.cssText='border-bottom:0px dashed #9fc0e3;';

@@ -33,9 +33,11 @@ public class BDHandlerFactory{
 		Sqlca.executeSQL("Delete from Batch_Import_Process where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sReportConfigNo+"' and OneKey='"+sOneKey+"'");
 	 	//归属条线（个人 公司一块考虑）
 		String groupBy="case "+
- 				" when ManageDepartFlag is null or ManageDepartFlag='' or ManageDepartFlag = '公司条线' then 'A-公司条线' " +
- 				" when ManageDepartFlag = '小企业条线' then 'B-小企业条线'"+
- 				" when ManageDepartFlag = '零售条线' then 'C-零售条线' end";
+				" when BusinessType like '%垫款' then '0-垫款' " +
+				" when OperateOrgID='能源事业部' then 'A-能源事业部' " +
+ 				" when ManageDepartFlag is null or ManageDepartFlag='' or ManageDepartFlag = '公司条线' then 'B-公司条线' " +
+ 				" when ManageDepartFlag = '小企业条线' then 'C-小企业条线'"+
+ 				" when ManageDepartFlag = '零售条线' then 'D-零售条线' end";
 		BDRiskReportHandler.process(HandlerFlag,sReportConfigNo, sOneKey, Sqlca,"归属条线","'一般贷款',"+groupBy,"");
 		//五级分类（个人 公司一块考虑）
 		groupBy="case "+

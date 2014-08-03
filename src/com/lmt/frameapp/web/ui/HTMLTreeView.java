@@ -319,8 +319,7 @@ public class HTMLTreeView {
 					sLastParentID = sParentID;
 				}
 				if (!sParentID.equals("-1"))
-					insertPage(sID, sParentID, sName, sValue, sScript, iOrder,
-							sPicture);
+					insertPage(sID, sParentID, sName, sValue, sScript, iOrder,sPicture);
 			} while (true);
 			rsItem.getStatement().close();
 			iLastLength = iCurLength;

@@ -161,12 +161,20 @@ public class AIHandlerFactory{
 	 			"when ~s借据明细@主要担保方式e~ like '%质押-%' or ~s借据明细@主要担保方式e~='保证金' then '质押' "+
 	 			"else '其他' end";
 	 	AIDuebillHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"单一担保方式",groupBy,"");
-	 	//groupBy="case when case when ~s借据明细@主要担保方式e~='软抵押'  then ~s借据明细@期限月e~+1 else ~s借据明细@期限月e~<=6 end then 六个月以下 "+
-			//		"when case when ~s借据明细@期限日e~>0 then ~s借据明细@期限月e~+1 else ~s借据明细@期限月e~<=12 end then 十二个月以下"+
-			//		"when case when ~s借据明细@期限日e~>0 then ~s借据明细@期限月e~+1 else ~s借据明细@期限月e~<=36 end then 三十六个月以下"+
-			//		"when case when ~s借据明细@期限日e~>0 then ~s借据明细@期限月e~+1 else ~s借据明细@期限月e~<=60 end then 六十个月以下"+
-			//		"else case when ~s借据明细@期限日e~>0 then ~s借据明细@期限月e~+1 else ~s借据明细@期限月e~<=6 end then 六十个月以上 end,~s借据明细@业务品种e~";
-	 	//AfterImport.process(sConfigNo, sOneKey, Sqlca,"混合担保方式",groupBy);
+	 	
+	 	groupBy="case " +
+	 				" when ~s借据明细@业务品种e~ like '%垫款'  then 'G-上浮50%以上@0-垫款' "+
+	 				" when ~s借据明细@归属条线e~ = '小企业条线' and (~s借据明细@利率浮动方式e~='浮动比率(%)' and ~s借据明细@利率浮动值e~>50 or ~s借据明细@利率浮动方式e~='浮动点' and ~s借据明细@利率浮动值e~/(~s借据明细@执行年利率(%)e~-~s借据明细@利率浮动值e~)*100>50) then 'G-上浮50%以上@1-公司条线' "+
+	 				" when ~s借据明细@归属条线e~ = '公司条线' and (~s借据明细@利率浮动方式e~='浮动比率(%)' and ~s借据明细@利率浮动值e~>50 or ~s借据明细@利率浮动方式e~='浮动点' and ~s借据明细@利率浮动值e~/(~s借据明细@执行年利率(%)e~-~s借据明细@利率浮动值e~)*100>50) then 'G-上浮50%以上@2-小企业条线' "+
+	 				" when ~s借据明细@归属条线e~ = '零售条线' and (~s借据明细@利率浮动方式e~='浮动比率(%)' and ~s借据明细@利率浮动值e~>50 or ~s借据明细@利率浮动方式e~='浮动点' and ~s借据明细@利率浮动值e~/(~s借据明细@执行年利率(%)e~-~s借据明细@利率浮动值e~)*100>50) then 'G-上浮50%以上@3-零售条线' "+
+	 				" when ~s借据明细@利率浮动方式e~='浮动比率(%)' and ~s借据明细@利率浮动值e~>30 or ~s借据明细@利率浮动方式e~='浮动点' and ~s借据明细@利率浮动值e~/(~s借据明细@执行年利率(%)e~-~s借据明细@利率浮动值e~)*100>30 then 'F-上浮30%-50%（含50%）' "+
+	 				" when ~s借据明细@利率浮动方式e~='浮动比率(%)' and ~s借据明细@利率浮动值e~>20 or ~s借据明细@利率浮动方式e~='浮动点' and ~s借据明细@利率浮动值e~/(~s借据明细@执行年利率(%)e~-~s借据明细@利率浮动值e~)*100>20 then 'E-上浮20%-30%（含30%）' "+
+	 				" when ~s借据明细@利率浮动方式e~='浮动比率(%)' and ~s借据明细@利率浮动值e~>10 or ~s借据明细@利率浮动方式e~='浮动点' and ~s借据明细@利率浮动值e~/(~s借据明细@执行年利率(%)e~-~s借据明细@利率浮动值e~)*100>10 then 'D-上浮10%-20%（含20%）' "+
+	 				" when ~s借据明细@利率浮动方式e~='浮动比率(%)' and ~s借据明细@利率浮动值e~>0 or ~s借据明细@利率浮动方式e~='浮动点' and ~s借据明细@利率浮动值e~/(~s借据明细@执行年利率(%)e~-~s借据明细@利率浮动值e~)*100>0 then 'C-上浮10%以内（含10%）' "+
+	 				" when ~s借据明细@利率浮动方式e~='浮动比率(%)' and ~s借据明细@利率浮动值e~=0 or ~s借据明细@利率浮动方式e~='浮动点' and ~s借据明细@利率浮动值e~/(~s借据明细@执行年利率(%)e~-~s借据明细@利率浮动值e~)*100=0 then 'B-基准利率' "+
+	 				" else 'A-下浮10%以内（含10%）' end";
+	 	AIDuebillHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"利率浮动区间",groupBy,"");//and ~s借据明细@业务品种e~ not like '%垫款'
+	 	
 	 	AIDuebillHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"企业规模","~s借据明细@企业规模e~","");
 	 	
 	 	AIDuebillHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"业务品种","~s借据明细@业务品种e~","");

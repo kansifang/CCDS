@@ -102,13 +102,20 @@ public class AIDuebillHandler{
 	 * @throws Exception 
 	 */
 	public static void process(String HandlerFlag,String sConfigNo,String sKey,Transaction Sqlca,String Dimension,String groupBy,String sWhere) throws Exception{
-		//当前导入月份的前两个月
+		//是否季报，半年报，年报月份，原来只考虑季报，所以字段用的Season，现在扩展了，此处变量和数据库字段不再变化
+		//当前月份为03,09就表示季报，06就表示半年报 12就表示年报
 		boolean isSeason=false;
-		String last2month="";
-		String last1month="";
-		if(StringFunction.isLike(sKey, "%03")||StringFunction.isLike(sKey, "%06")||StringFunction.isLike(sKey, "%09")||StringFunction.isLike(sKey, "%12")){
-			last2month=StringFunction.getRelativeAccountMonth(sKey,"month", -2);
-			last1month=StringFunction.getRelativeAccountMonth(sKey,"month", -1);
+		String startsmonth="";
+		if(StringFunction.isLike(sKey, "%03")||StringFunction.isLike(sKey, "%09")){
+			startsmonth=StringFunction.getRelativeAccountMonth(sKey,"month", -2);
+			isSeason=true;
+		}
+		if(StringFunction.isLike(sKey, "%06")){
+			startsmonth=StringFunction.getRelativeAccountMonth(sKey,"month", -5);
+			isSeason=true;
+		}
+		if(StringFunction.isLike(sKey, "%12")){
+			startsmonth=StringFunction.getRelativeAccountMonth(sKey,"month", -11);
 			isSeason=true;
 		}
 		String sSql="";
@@ -118,7 +125,7 @@ public class AIDuebillHandler{
  		sSql="select "+
  				"'"+HandlerFlag+"',ConfigNo,OneKey,'"+Dimension+"',"+groupColumns+
 				"round(sum(case when ~s借据明细@借据起始日e~ like '"+sKey+"%' then ~s借据明细@金额(元)e~ end)/10000,2) as BusinessSum,"+//按月投放金额
-				(isSeason==true?"round(sum(case when ~s借据明细@借据起始日e~ like '"+last2month+"%' or ~s借据明细@借据起始日e~ like '"+last1month+"%' or ~s借据明细@借据起始日e~ like '"+sKey+"%' then ~s借据明细@金额(元)e~ end)/10000,2)":"0")+","+//如果是季度末，计算按季投放金额
+				(isSeason==true?"round(sum(case when ~s借据明细@借据起始日e~ >= '"+startsmonth+"/01' and ~s借据明细@借据起始日e~ <= '"+sKey+"/31' then ~s借据明细@金额(元)e~ end)/10000,2)":"0")+","+//如果是季度末，计算按季投放金额,如果是半年末计算半年投放，整年....
 				"round(case when sum(~s借据明细@金额(元)e~)<>0 then sum(~s借据明细@金额(元)e~*~s借据明细@执行年利率(%)e~)/sum(~s借据明细@金额(元)e~) else 0 end,2) as BusinessRate, "+//加权利率
 				"round(sum(~s借据明细@余额(元)e~)/10000,2) as Balance, "+
 				"count(distinct ~s借据明细@客户名称e~) "+

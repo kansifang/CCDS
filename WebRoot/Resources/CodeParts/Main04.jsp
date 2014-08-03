@@ -90,18 +90,14 @@
 <!-----------------------------调试工具区----------------------------->
 <%@ include file="/Resources/CodeParts/SourceDisplayTR.jsp"%>
 <!-------------------------------->
-
 </table>
 </body>
 </html>
 <script language="JavaScript">
-	//????????
 	function setTitle(sTitle)
 	{
 		document.all("table0").cells(0).innerHTML="<font class=pt9white>&nbsp;&nbsp;"+sTitle+"&nbsp;&nbsp;</font>";
 	}	
-
-
 	myleft.width=<%=PG_LEFT_WIDTH%>; 
 	<%
 	String sDefaultCompID = CurPage.getParameter("DefaultCompID");

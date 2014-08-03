@@ -111,28 +111,29 @@
 
 		//加入超时控制，防止闪屏
 		setTimeout(function showlayerIn(){
-		document.all('subMenu'+id).style.left=igetRealLeft;
-        document.all('subMenu'+id).style.top=igetRealTop+offsetHeight;
-        document.all('subMenu'+id).style.width=offsetWidth;
-
-	    if(igetRealLeft + document.all('subMenu'+id).offsetWidth >document.body.offsetWidth)
-	    	document.all('subMenu'+id).style.left = document.body.offsetWidth - document.all('subMenu'+id).offsetWidth;
-	    if(igetRealTop +offsetHeight+ document.all('subMenu'+id).offsetHeight >document.body.offsetHeight)
-	    	document.all('subMenu'+id).style.top = document.body.offsetHeight - document.all('subMenu'+id).offsetHeight-5;
-	        document.all('subMenu'+id).style.visibility="visible";
-			for(var i=0;i<=amarMenuR.length2;i++)
-			{
+			document.all('subMenu'+id).style.left=igetRealLeft;
+	        document.all('subMenu'+id).style.top=igetRealTop+offsetHeight;
+	        document.all('subMenu'+id).style.width=offsetWidth;
+		    if(igetRealLeft + document.all('subMenu'+id).offsetWidth >document.body.offsetWidth)
+		    	document.all('subMenu'+id).style.left = document.body.offsetWidth - document.all('subMenu'+id).offsetWidth;
+		    if(igetRealTop +offsetHeight+ document.all('subMenu'+id).offsetHeight >document.body.offsetHeight)
+		    	document.all('subMenu'+id).style.top = document.body.offsetHeight - document.all('subMenu'+id).offsetHeight-5;
+		    document.all('subMenu'+id).style.visibility="visible";
+			for(var i=0;i<=amarMenuR.length2;i++){
 		 		if(i!=id)
 		 			try {
-		   			document.all('subMenu'+i).style.visibility="hidden";
-		   			}catch(e) {var a = 1; }	   			
+		 				document.all('subMenu'+i).style.visibility="hidden";
+		   			}catch(e) {
+		   				var a = 1; 
+		   			}	   			
 			}
 			//设定当显示主菜菜单时展现Ifrme覆盖 select 元素，防止主菜单被 select 覆盖 add by jbye 2009/03/17
 			if(id>0){
 				document.all("coverselect").innerHTML = "<IFRAME id=iframeSelect name=iframeSelect src=\"\" scroll=\"none\" style=\"width:"+document.all('subMenu'+id).offsetWidth+";height:"+document.all('subMenu'+id).offsetHeight+";position:absolute;left:"+document.all('subMenu'+id).style.left+";top:24;z-index:5;filter='progid:DXImageTransform.Microsoft.Alpha(style=0,opacity=0)'\"></iframe>";
-			}else document.all("coverselect").innerHTML = ""; 
-		}, 1); 
-		
+			}else 
+				document.all("coverselect").innerHTML = ""; 
+			}
+		, 1); 
     }
 
     function getRealTop(imgElem) 
@@ -376,13 +377,13 @@
 				sss[jjj++] = "  </table>";
 			}
 			else
-				sss[jjj++] = " <div id=subMenu"+(i+1)+" style='z-index:1000;position:absolute; left:0px; top:0px; width:0px;height:0px;  visibility:hidden' ";
+				sss[jjj++] = " <div id=subMenu"+(i+1)+" style='z-index:1000;position:absolute; left:0px; top:0px; width:0px;height:0px; visibility:hidden'>";
 				
 			sss[jjj++] = " </div>";
 			
 			sss[jjj++] = sMenuLevel3;
 		}
 		//alert(sss.join(''));
-		document.writeln(sss.join(''));		
+		document.writeln(sss.join(''));	
 		document.close();		
 	}	

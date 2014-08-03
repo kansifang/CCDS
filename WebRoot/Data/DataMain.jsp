@@ -81,12 +81,12 @@
 <%
 	/*~BEGIN~不可编辑区[Editable=false;CodeAreaID=Main04;Describe=主体页面;]~*/
 %>
-	<%@include file="/Resources/CodeParts/Main04.jsp"%>
+	
 <%
 	/*~END~*/
 %>
-
-
+<!---->
+  <iframe name='left' width=100% height=100% frameborder=0 hspace=0 vspace=0 marginwidth=0 marginheight=0 scrolling=no></iframe>
 
 
 <%
@@ -97,7 +97,8 @@
 	/*~[Describe=treeview单击选中事件;InputParam=无;OutPutParam=无;]~*/
 	function TreeViewOnClick()
 	{
-        setTitle(getCurTVItem().name);
+        //setTitle(getCurTVItem().name);
+        parent.parent.newTab("ReportList","/Data/Report/ReportList.jsp","&Type=Query");
 	}
 
 	/*~[Describe=置右面详情的标题;InputParam=sTitle:标题;OutPutParam=无;]~*/
@@ -125,6 +126,7 @@
 	/*~BEGIN~可编辑区[Editable=true;CodeAreaID=Main06;Describe=在页面装载时执行,初始化;]~*/
 %>
 	<script language="JavaScript">
+	//var pWindow=window.dialogArguments;
 	startMenu();
 	expandNode('root');		
 	expandNode('0200');

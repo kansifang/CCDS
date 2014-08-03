@@ -1,27 +1,3 @@
-<%
-/* Copyright 2001-2005 Amarsoft, Inc. All Rights Reserved.
- * This software is the proprietary information of Amarsoft, Inc.  
- * Use is subject to license terms.
- * Author: RCZhu 2003.7.18
- * Tester:
- *
- * Content: 主页面的Top
- * Input Param:
- * Output param:
- *              Type:  快速查询的类型
- *                     Customer      各类信贷客户信息快速查询
- *                     Business      各类信贷业务信息快速查询
- *                     Classify      风险分类信息查询
- *                      
- * History Log: 2003.07.18 RCZhu
- *              2003.08.10 XDHou
- *              2003.09.23 XDHou     随着subMenu的length而定showlayer
- *              2004.01.14 FXie      屏蔽关联集合管理
- *		        2004.02.09 zbdeng    删除资产保全管理、个贷补登的菜单项、程序页面
- *              2004.02.15 FXie      添加综合统计模块-固定报表查询,灵活统计查询
- *              2004-5-13  cwzhan    将“不良贷款台账”改为“不良贷款管理” ,在“综合统计查询”中新增“抵债资产查询”和“案件查询”
- */
-%>
 <%!
 	public static boolean isRole(String sUserRole, String sMenuRole)
 	{
@@ -126,7 +102,7 @@ for(int iMenu=0;iMenu<vMenu.size();iMenu++)
 
 <table width="100%" border="0" cellspacing="0" cellpadding="0">  
   <tr align="center" > 
-    <td colspan="2">
+    <td colspan="3">
 	<table border='0' cellspacing="0" cellpadding="0" width=100% class="menubgtable">
 	  <tr>
 	    <td valign="middle" class=menu6bg> 
@@ -158,7 +134,8 @@ for(int iMenu=0;iMenu<vMenu.size();iMenu++)
     <td class=SystemArea valign="top">
     	<iframe name=myrefresh0 frameborder=0 width=1 height=1 src="<%=sWebRootPath%>/SessionClose.jsp" style="display:none"> </iframe>
     </td>
+    <td class=SystemArea valign="top" onMouseOver="showlayer(0,this)"  align=right nowrap>
+    	<%@include file="/DeskTop/Components/MyCalendar.jsp"%>
+    </td>
   </tr>
 </table>
-
-

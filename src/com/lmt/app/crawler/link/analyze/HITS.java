@@ -49,11 +49,11 @@ public class HITS {
 				double authorityScore = 0;
 				double hubScore = 0;
 				for (Integer id:inlinks.keySet()) {
-					authorityScore += (hubScores.get(id)).doubleValue();
+					authorityScore += (hubScores.get(id)==null?0:hubScores.get(id).doubleValue());
 				}
 				
 				for (Integer id:outlinks.keySet()) {
-					hubScore += (authorityScores.get(id)).doubleValue();
+					hubScore += (authorityScores.get(id)==null?0:authorityScores.get(id).doubleValue());
 				}
 				
 				authorityScores.put(new Integer(i),new Double(authorityScore));

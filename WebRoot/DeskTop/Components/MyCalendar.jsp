@@ -1,21 +1,3 @@
-<%@ page contentType="text/html; charset=GBK"%>
-<%@ include file="/IncludeBegin.jsp"%>
-<%
-	/* Copyright 2001-2004 Amarsoft, Inc. All Rights Reserved.
- * This software is the proprietary information of Amarsoft, Inc.  
- * Use is subject to license terms.
- * Author:RCZhu 2003.7.18
- * Tester:
- *
- * Content: 日历选择器
- * Input Param:
- * Output param:
- *
- * History Log: 2003.07.18 RCZhu
- *              2003.08.10 XDHou
- */
-%>
-
 <%
 	String d ="'123'";  
 	if((request.getParameter("d")!=null)&&(request.getParameter("d").trim().length()!=0))
@@ -24,30 +6,30 @@
 	}
 %>
 <%
-	String sSql;
-	ASResultSet rs;
+	String sSql1000;
+	ASResultSet rs1000;
 	String sMyCurrentJob[][] = new String[100][5];
 	int iJobs=0;
 	String sToday = StringFunction.getToday();
 	
-	sSql ="select SerialNo,GetItemName('WorkType',WorkType)  as WorkType,"+
+	sSql1000 ="select SerialNo,GetItemName('WorkType',WorkType)  as WorkType,"+
 			"WorkBrief,PlanFinishDate,"+
 			"PromptBeginDate,ActualFinishDate,WorkContent,"+
 			"getOrgName(InputOrgID) as OrgName,getUserName(InputUserID) as UserName "+
 			"from Work_Record "+
 			"where  (ActualFinishDate is null or ActualFinishDate='') "+
 			"and InputUserID = '"+CurUser.UserID+"'"; 
-	rs = SqlcaRepository.getResultSet(sSql);
-	while(rs.next()){
-		sMyCurrentJob[iJobs][0] = rs.getString("SerialNo");
-		sMyCurrentJob[iJobs][1] = rs.getString("WorkType");
-		sMyCurrentJob[iJobs][2] = SpecialTools.real2Amarsoft(rs.getString("WorkBrief"));
-		sMyCurrentJob[iJobs][3] = SpecialTools.real2Amarsoft(rs.getString("WorkContent"));
-		sMyCurrentJob[iJobs][4] = rs.getString("PlanFinishDate");
+	rs1000 = SqlcaRepository.getResultSet(sSql1000);
+	while(rs1000.next()){
+		sMyCurrentJob[iJobs][0] = rs1000.getString("SerialNo");
+		sMyCurrentJob[iJobs][1] = rs1000.getString("WorkType");
+		sMyCurrentJob[iJobs][2] = SpecialTools.real2Amarsoft(rs1000.getString("WorkBrief"));
+		sMyCurrentJob[iJobs][3] = SpecialTools.real2Amarsoft(rs1000.getString("WorkContent"));
+		sMyCurrentJob[iJobs][4] = rs1000.getString("PlanFinishDate");
 		if(sMyCurrentJob[iJobs][4]==null) sMyCurrentJob[iJobs][4]="";
 		iJobs++;
 	}
-	rs.getStatement().close();
+	rs1000.getStatement().close();
 %>
 
 
@@ -134,7 +116,7 @@ function fUpdateCal(iYear, iMonth)
 {
 	myMonth = fBuildCalC(iYear, iMonth);
 	objPrevElement.bgColor = "";
-	document.all.calSelectedDate.value = "";
+	calSelectedDate = "";
 	for (var w = 1; w < 7; w++) 
 	{
 		for (var d = 0; d < 7; d++) 
@@ -185,25 +167,6 @@ function getRealLeft(imgElem)
     }
     return xPos;
 }
-
-function fSetSelectedDay(myElement)
-{
-	if (myElement.id == "calCell") 
-	{
-		if (!isNaN(parseInt(myElement.children["calDateText"].innerText))) 
-		{
-			myElement.bgColor = "#c0c0c0";
-			objPrevElement.bgColor = "";
-			document.all.calSelectedDate.value = parseInt(myElement.children["calDateText"].innerText);
-			objPrevElement = myElement;
-			//modify by hxd in 2001/08/27
-			//self.returnValue=document.all.tbSelYear.value+"/"+document.all.tbSelMonth.value+"/"+document.all.calSelectedDate.value;
-			self.returnValue=document.all.tbSelYear.value+"/"+document.all.tbSelMonth.value+"/"+myElement.children["calDateText"].innerText;
-			window.close();
-      }
-   }
-}
-
 function fGetDaysInMonth(iMonth,iYear) 
 {
 	var dPrevDate = new Date(iYear, iMonth, 0);//获取上个月最后一天的日期
@@ -381,41 +344,40 @@ function fDrawCal(iYear, iMonth, iCellWidth, iCellHeight, sDateTextSize, sDateTe
 		for (var d = 0; d < 7; d++){
 			if (!isNaN(myMonth[w][d])){
 				//日历表中循环打印时如果等于今天，加上背景色
-				if(iYear==dCurDate.getFullYear() && iMonth==(dCurDate.getMonth()+1) && myMonth[w][d]==document.all.calSelectedDate.value)
-				{
+				if(iYear==dCurYear && iMonth==dCurMonth && myMonth[w][d]==calSelectedDate){
 					//这个日期存在到期的工作
 					if(getTodayJobCount(iYear,iMonth,parseInt(myMonth[w][d],10))>0){
-						sReturn += ("<td id=calCell align='center' valign='top' width='" + iCellWidth + "' height='" + iCellHeight + "' style='CURSOR:Hand;background-color:#c0c0c0;' onMouseOver=showTipOfToday(1,this,\'"+getTodayTip(iYear,iMonth,parseInt(myMonth[w][d],10))+"\') >");
-						sReturn += ("<font id=calDateText onMouseOver='fToggleColor(this)' style='CURSOR:Hand;FONT-FAMILY:Arial;FONT-SIZE:" + sDateTextSize + ";FONT-WEIGHT:" + sDateTextWeight + "' onMouseOut='fToggleColor(this)' onClick=newTask("+iYear+","+iMonth+","+myMonth[w][d]+")>");
+						sReturn += ("<td id=calCells align='center' valign='top' width='" + iCellWidth + "' height='" + iCellHeight + "' style='CURSOR:Hand;' onMouseOver=showTipOfToday(1,this,'"+getTodayTip(iYear,iMonth,parseInt(myMonth[w][d],10))+"') onClick='selectDay(this);'>");
+						sReturn += ("<font id=calDateText onMouseOver='fToggleColor(this)' style='CURSOR:Hand;FONT-FAMILY:Arial;FONT-SIZE:" + sDateTextSize + ";FONT-WEIGHT:" + sDateTextWeight + "' onMouseOut='fToggleColor(this)' onDBLClick=newTask("+iYear+","+iMonth+","+myMonth[w][d]+")>");
 						sReturn += ("<b>");
 						sReturn += (""+ myMonth[w][d] +"");
 						sReturn += ("</b>");
 						sReturn += ("</font>");
 					}else{
-						sReturn += ("<td  id=calCell align='center' valign='top' width='" + iCellWidth + "' height='" + iCellHeight + "' style='CURSOR:Hand;background-color:#c0c0c0;'  onMouseOver='showlayer(0,this)'>");
-						sReturn += ("<font id=calDateText onMouseOver='fToggleColor(this);' style='CURSOR:Hand;FONT-FAMILY:Arial;FONT-SIZE:" + sDateTextSize + ";FONT-WEIGHT:" + sDateTextWeight + "' onMouseOut='fToggleColor(this)' onClick=newTask("+iYear+","+iMonth+","+myMonth[w][d]+") >");
+						sReturn += ("<td  id=calCells align='center' valign='top' width='" + iCellWidth + "' height='" + iCellHeight + "' style='CURSOR:Hand;'  onMouseOver='showlayerforCP(0,this)' onclick='selectDay(this);'>");
+						sReturn += ("<font id=calDateText onMouseOver='fToggleColor(this);' style='CURSOR:Hand;FONT-FAMILY:Arial;FONT-SIZE:" + sDateTextSize + ";FONT-WEIGHT:" + sDateTextWeight + "' onMouseOut='fToggleColor(this)' onDBLClick='newTask("+iYear+","+iMonth+","+myMonth[w][d]+");' >");
 						sReturn += (""+ myMonth[w][d] +"");
 						sReturn += ("</font>");
 					}
 				}else{
 					if(getTodayJobCount(iYear,iMonth,parseInt(myMonth[w][d],10))>0)
 					{
-						sReturn += ("<td  id=calCell align='center' valign='top' width='" + iCellWidth + "' height='" + iCellHeight + "' style='CURSOR:Hand' onMouseOver=showTipOfToday(1,this,\'"+getTodayTip(iYear,iMonth,parseInt(myMonth[w][d],10))+"\')>");
-						sReturn += ("<font id=calDateText onMouseOver='fToggleColor(this);' style='CURSOR:Hand;FONT-FAMILY:Arial;FONT-SIZE:" + sDateTextSize + ";FONT-WEIGHT:" + sDateTextWeight + "' onMouseOut='fToggleColor(this)'  onClick=newTask("+iYear+","+iMonth+","+myMonth[w][d]+")>");
+						sReturn += ("<td  id=calCell align='center' valign='top' width='" + iCellWidth + "' height='" + iCellHeight + "' style='CURSOR:Hand' onMouseOver=showTipOfToday(1,this,\'"+getTodayTip(iYear,iMonth,parseInt(myMonth[w][d],10))+"\') onclick='selectDay(this);'>");
+						sReturn += ("<font id=calDateText onMouseOver='fToggleColor(this);' style='CURSOR:Hand;FONT-FAMILY:Arial;FONT-SIZE:" + sDateTextSize + ";FONT-WEIGHT:" + sDateTextWeight + "' onMouseOut='fToggleColor(this)' onDBLClick=newTask("+iYear+","+iMonth+","+myMonth[w][d]+")>");
 						sReturn += ("<b>");
 						sReturn += (""+ myMonth[w][d] +"");
 						sReturn += ("</b>");
 						sReturn += ( "</font>");
 					}else{
-						sReturn += ("<td  id=calCell align='center' valign='top' width='" + iCellWidth + "' height='" + iCellHeight + "' style='CURSOR:Hand' onMouseOver='showlayer(0,this)'>");
-						sReturn += ("<font id=calDateText onMouseOver='fToggleColor(this);' style='CURSOR:Hand;FONT-FAMILY:Arial;FONT-SIZE:" + sDateTextSize + ";FONT-WEIGHT:" + sDateTextWeight + "' onMouseOut='fToggleColor(this)'  onClick=newTask("+iYear+","+iMonth+","+myMonth[w][d]+")>");
+						sReturn += ("<td  id=calCell align='center' valign='top' width='" + iCellWidth + "' height='" + iCellHeight + "' style='CURSOR:Hand' onMouseOver='showlayerforCP(0,this)' onclick='selectDay(this);'");
+						sReturn += ("<font id=calDateText onMouseOver='fToggleColor(this);' style='CURSOR:Hand;FONT-FAMILY:Arial;FONT-SIZE:" + sDateTextSize + ";FONT-WEIGHT:" + sDateTextWeight + "' onMouseOut='fToggleColor(this)' onDBLClick=newTask("+iYear+","+iMonth+","+myMonth[w][d]+")>");
 						sReturn += (""+ myMonth[w][d] +"");
 						sReturn += ( "</font>");
 					}
 				}
 			}else{
-				sReturn += ("<td  id=calCell align='center' valign='top' width='" + iCellWidth + "' height='" + iCellHeight + "' style='CURSOR:Hand' onMouseOver='showlayer(0,this)' onclick=fSetSelectedDay(this)>");
-				sReturn += ("<font id=calDateText color=gray style='CURSOR:Hand;FONT-FAMILY:Arial;FONT-SIZE:" + sDateTextSize + ";FONT-WEIGHT:" + sDateTextWeight + "' onClick=fSetSelectedDay(this)>");
+				sReturn += ("<td  id=calCell align='center' valign='top' width='" + iCellWidth + "' height='" + iCellHeight + "' style='CURSOR:Hand' onMouseOver='showlayerforCP(0,this)'>");
+				sReturn += ("<font id=calDateText color=gray style='CURSOR:Hand;FONT-FAMILY:Arial;FONT-SIZE:" + sDateTextSize + ";FONT-WEIGHT:" + sDateTextWeight + "'>");
 				sReturn += (""+ myMonth[w][d].slice(0,-1)+"");
 				sReturn += ( "</font>");
 			}
@@ -424,23 +386,8 @@ function fDrawCal(iYear, iMonth, iCellWidth, iCellHeight, sDateTextSize, sDateTe
 		sReturn += ("</tr>");
 	}
 	sReturn += ("</table>");
-	return sReturn;
-}
-function showlayer(id,e)
-{  
-	document.all('subMenu'+id).style.left=getRealLeft(e);
-    document.all('subMenu'+id).style.top=getRealTop(e)+e.offsetHeight;
-    //document.all('subMenu'+id).style.width=e.offsetWidth;
-    if(getRealLeft(e)+ e.offsetWidth + document.all('subMenu'+id).offsetWidth >document.body.offsetWidth)
-    	document.all('subMenu'+id).style.left = getRealLeft(e) - document.all('subMenu'+id).offsetWidth;
-    if(getRealTop(e)+ e.offsetHeight + document.all('subMenu'+id).offsetHeight >document.body.offsetHeight)
-    	document.all('subMenu'+id).style.top = getRealTop(e) - document.all('subMenu'+id).offsetHeight;
-    document.all('subMenu'+id).style.visibility="visible";
-    for(var i=0;i<2;i++) //modify by xdhou in 2003/09/23 old:for(var i=0;i<8;i++) 注意：随着subMenu的length而定
-    {
-        if(i!=id)
-            document.all('subMenu'+i).style.visibility="hidden";
-    }
+	$('#MyCalendar').html(amarsoft2Real(sReturn));
+	$("#calCells").css('background-color','#c0c0c0');
 }
 //获取iYear/iMonth/iDay计划完成的内容摘要
 function getTodayTip(iYear,iMonth,iDay){
@@ -460,21 +407,7 @@ function getTodayTip(iYear,iMonth,iDay){
 	sTips=""+sTips;
 	return sTips;
 }
-//如果此日起存在计划完成的工作，则展示内容
-function showTipOfToday(id,e,sText)
-{  
-   // alert("1"); 	
-    sHtmlTmp = "";
-    sHtmlTmp += "<table  border=1 cellspacing=0 cellpadding=3 bordercolorlight=#99999 bordercolordark=#FFFFFF width=110 ><tr><td class=SubMenuTd2>";
-    sHtmlTmp += sText;
-    sHtmlTmp += "</td></tr></table>";
-    while(sHtmlTmp.indexOf("~p")>=0){
-    	sHtmlTmp = sHtmlTmp.replace("~p","<br>");
-    }
-    //alert(sText);
-    document.all('subMenu'+id).innerHTML = sHtmlTmp;
-    showlayer(id,e);
-}
+
 //统计计划iYear/iMonth/iDay完成的工作数
 function getTodayJobCount(iYear,iMonth,iDay){
 	var iCountWorks=0;
@@ -506,7 +439,7 @@ function editWork(sSerialNo)
 {
 	//OpenComp("NewWork","/DeskTop/WorkRecordInfo.jsp","SerialNo="+sSerialNo,"","width=640,height=480,top=20,left=20");
 	popComp("WorkRecordInfo","/DeskTop/WorkRecordInfo.jsp","SerialNo="+sSerialNo, "","");
-	reloadSelf();
+	//reloadSelf();
 }
 /************************构建年历**************************/
 //四列三行展示年
@@ -531,8 +464,8 @@ function fDrawYear(iYear, iCellWidth, iCellHeight, sDateTextSize, sDateTextWeigh
 		sReturn += ("<tr>");
 		for (var d = 0; d < 4; d++){
 			if (!isNaN(myMonth[w][d])){
-				sReturn += ("<td  id=calCell align='center' valign='top' width='" + iCellWidth + "' height='" + iCellHeight + "' style='CURSOR:Hand' onMouseOver='showlayer(0,this)'>");
-				sReturn += ("<font id=calDateText onMouseOver='fToggleColor(this);' style='CURSOR:Hand;FONT-FAMILY:Arial;FONT-SIZE:" + sDateTextSize + ";FONT-WEIGHT:" + sDateTextWeight + "' onMouseOut='fToggleColor(this)'  onClick='frmCalendarSample.SelectYearOrDay.value=\"D\";frmCalendarSample.tbSelYear.value="+myMonth[w][d]+";drawHtmlToObject(document.all(\"MyCalendar\"),fDrawCal(frmCalendarSample.tbSelYear.value, frmCalendarSample.tbSelMonth.value, 30, 20, \"11px\", \"\", 1));'>");
+				sReturn += ("<td  id=calCell align='center' valign='top' width='" + iCellWidth + "' height='" + iCellHeight + "' style='CURSOR:Hand' onMouseOver='showlayerforCP(0,this)'>");
+				sReturn += ("<font id=calDateText onMouseOver='fToggleColor(this);' style='CURSOR:Hand;FONT-FAMILY:Arial;FONT-SIZE:" + sDateTextSize + ";FONT-WEIGHT:" + sDateTextWeight + "' onMouseOut='fToggleColor(this)'  onClick='SelectYearOrDay=\"M\";document.getElementById(\"tbSelYear\").innerHTML="+myMonth[w][d]+";fDrawCal(document.getElementById(\"tbSelYear\").innerHTML, document.getElementById(\"tbSelMonth\").innerHTML, 30, 20, \"11px\", \"\", 1);'>");
 				sReturn += (""+ myMonth[w][d] +"");
 				sReturn += ( "</font>");
 			}
@@ -541,25 +474,20 @@ function fDrawYear(iYear, iCellWidth, iCellHeight, sDateTextSize, sDateTextWeigh
 		sReturn += ("</tr>");
 	}
 	sReturn += ("</table>");
-	return sReturn;
+	$('#MyCalendar').html(amarsoft2Real(sReturn));
 }
 function selected(Y,M){
-	frmCalendarSample.tbSelMonth.options[M-1].selected = true;
-	frmCalendarSample.tbSelYear.value = Y;
-	/*
-	for (var i = 0; i < frmCalendarSample.tbSelYear.length; i++)
-		if (frmCalendarSample.tbSelYear.options[i].value == Y)
-			frmCalendarSample.tbSelYear.options[i].selected = true;
-	*/
+	document.getElementById("tbSelYear").innerHTML = Y;
+	document.getElementById("tbSelMonth").innerHTML = M;
 }
 //上一个年的列表或月的日历
 function prev(){
-	var YOrD=frmCalendarSample.SelectYearOrDay.value;
-	var Y=frmCalendarSample.tbSelYear.value;
+	var YOrD=SelectYearOrDay;
+	var Y=document.getElementById("tbSelYear").innerHTML;
 	Y=parseInt(Y,10);
-	var M=frmCalendarSample.tbSelMonth.value;
+	var M=document.getElementById("tbSelMonth").innerHTML;
 	M=parseInt(M,10);
-	if(YOrD=='D'){
+	if(YOrD=='M'){
 		if(M==1){
 			Y--;
 			M=12;
@@ -567,20 +495,20 @@ function prev(){
 			M--;
 		}
 		selected(Y,M);
-		drawHtmlToObject(document.all("MyCalendar"),fDrawCal(frmCalendarSample.tbSelYear.value, frmCalendarSample.tbSelMonth.value, 30, 20, "11px", "", 1));
+		fDrawCal(document.getElementById("tbSelYear").innerHTML, document.getElementById("tbSelMonth").innerHTML, 30, 20, "11px", "", 1);
 	}else if(YOrD=='Y'){
 		Y=Y-12;
 		selected(Y,M);
-		drawHtmlToObject(document.all("MyCalendar"),fDrawYear(Y,60, 40, "11px", "", 1));
+		fDrawYear(Y,60, 40, "11px", "", 1);
 	}
 }
 function next(){
-	var YOrD=frmCalendarSample.SelectYearOrDay.value;
-	var Y=frmCalendarSample.tbSelYear.value;
+	var YOrD=SelectYearOrDay;
+	var Y=document.getElementById("tbSelYear").innerHTML;
 	Y=parseInt(Y,10);
-	var M=frmCalendarSample.tbSelMonth.value;
+	var M=document.getElementById("tbSelMonth").innerHTML;
 	M=parseInt(M,10);
-	if(YOrD=='D'){
+	if(YOrD=='M'){
 		if(M==12){
 			Y++;
 			M=1;
@@ -588,73 +516,112 @@ function next(){
 			M++;
 		}
 		selected(Y,M);
-		drawHtmlToObject(document.all("MyCalendar"),fDrawCal(frmCalendarSample.tbSelYear.value, frmCalendarSample.tbSelMonth.value, 30, 20, "11px", "", 1));
+		fDrawCal(document.getElementById("tbSelYear").innerHTML, document.getElementById("tbSelMonth").innerHTML, 30, 20, "11px", "", 1);
 	}else if(YOrD=='Y'){
 		Y=Y+12;
 		selected(Y,M);
-		drawHtmlToObject(document.all("MyCalendar"),fDrawYear(Y,60, 40, "11px", "", 1));
+		fDrawYear(Y,60, 40, "11px", "", 1);
 	}
 }
-</script>
-<script LANGUAGE="JavaScript">
+var displayDetail=false;
+function displayD(){
+	displayDetail=!displayDetail;
+	if(displayDetail){
+		$('#du').html("<img name='movefrom_report_chosen' style='cursor:hand' onmousedown='pushButton(\"movefrom_report_chosen\",true);' onmouseup='pushButton(\"movefrom_report_chosen\",false);' onmouseout='pushButton(\"movefrom_report_chosen\",false);' onclick='displayD();' border='0' src='<%=sResourcesPath%>/chooser_orange/scroll_arrow_up.gif' alt='detail'/>");
+		$('#MyCalendar').css("visibility","visible");
+	}else{
+		$('#du').html("<img name='movefrom_report_chosen' style='cursor:hand' onmousedown='pushButton(\"movefrom_report_chosen\",true);' onmouseup='pushButton(\"movefrom_report_chosen\",false);' onmouseout='pushButton(\"movefrom_report_chosen\",false);' onclick='displayD();' border='0' src='<%=sResourcesPath%>/chooser_orange/scroll_arrow_down.gif' alt='detail'/>");
+		$('#MyCalendar').css("visibility","hidden");
+	}
+}
+function showlayerforCP(id,e){  
+	document.all('sMenu'+id).style.left=getRealLeft(e);
+	document.all('sMenu'+id).style.top=getRealTop(e)+e.offsetHeight;
+    //document.all('sMenu'+id).style.width=e.offsetWidth;
+    if(getRealLeft(e)+ e.offsetWidth + document.all('sMenu'+id).offsetWidth >document.body.offsetWidth)
+    	document.all('sMenu'+id).style.left = getRealLeft(e) - document.all('sMenu'+id).offsetWidth;
+    if(getRealTop(e)+ e.offsetHeight + document.all('sMenu'+id).offsetHeight >document.body.offsetHeight)
+    	document.all('sMenu'+id).style.top = getRealTop(e) - document.all('sMenu'+id).offsetHeight;
+    document.all('sMenu'+id).style.visibility="visible";
+    for(var i=0;i<2;i++){
+        if(i!=id)
+        	document.all('sMenu'+i).style.visibility="hidden";
+    }
+}
+//如果此日起存在计划完成的工作，则展示内容
+function showTipOfToday(id,e,sText){  
+    sHtmlTmp = "";
+    sHtmlTmp += "<table  border=1 cellspacing=0 cellpadding=3 bordercolorlight=#99999 bordercolordark=#FFFFFF width=110 ><tr><td class=sMenuTd2>";
+    sHtmlTmp += sText;
+    sHtmlTmp += "</td></tr></table>";
+    while(sHtmlTmp.indexOf("~p")>=0){
+    	sHtmlTmp = sHtmlTmp.replace("~p","<br>");
+    }
+    document.all('sMenu'+id).innerHTML = sHtmlTmp;
+    showlayerforCP(id,e);
+}
 	var dDate = new Date();
-	var dCurMonth = dDate.getMonth();
+	var dCurMonth = dDate.getMonth()+1;
 	var dCurDayOfMonth = dDate.getDate();
 	var dCurYear = dDate.getFullYear();
 	var objPrevElement = new Object();
+	var calSelectedDate="";
+	var SelectYearOrDay="M";
+	function selectDay(obj){
+		var clickedday=$(obj).text();//children().find("b:eq(0)")
+		if (!isNaN(parseInt(clickedday))){
+			$(obj).attr('id','calCells');
+			$(obj).css('background-color','#c0c0c0');
+			objPrevElement.attr('id','calCell');
+			objPrevElement.css('background-color','');
+			dCurYear=$("#tbSelYear").text();
+			dCurMonth=$("#tbSelMonth").text();
+			calSelectedDate = clickedday;
+			objPrevElement = $(obj);
+			$("#tbSelDay").text(clickedday);
+	  	}
+	}
 </script>
-<body class="pagebackground" leftmargin="0" topmargin="0">
-<table border="0" align='center' width='100%' >
-	<form name="frmCalendarSample" method="post" action="">
+	<table border="0" cellspacing="0" cellpadding="0">
 		<tr>
-		<td width='1' align='center' valign='middle' bordercolor='#DDDDDD'>
-			<img name='movefrom_report_chosen' onmousedown='pushButton("movefrom_report_chosen",true);' onmouseup='pushButton("movefrom_report_chosen",false);' onmouseout='pushButton("movefrom_report_chosen",false);' onclick='prev();' border='0' src='<%=sResourcesPath%>/chooser_orange/arrowLeft.gif' alt='Remove selected items' />
+		<td valign="top" nowrap>
+			<img name='movefrom_report_chosen' onmousedown='pushButton("movefrom_report_chosen",true);' onmouseup='pushButton("movefrom_report_chosen",false);' onmouseout='pushButton("movefrom_report_chosen",false);' onclick='prev();' border='0' src='<%=sResourcesPath%>/chooser_orange/triangle-left.png' alt='Remove selected items' />
 		</td>
-		<td align='center' onMouseOver="showlayer(0,this)" height=28>
-			<input type="hidden" name="calSelectedDate" value="">
-			<input type="hidden" name="SelectYearOrDay" value="D">
-			<input name="tbSelYear" style='width=60' onClick='frmCalendarSample.SelectYearOrDay.value="Y";drawHtmlToObject(document.all("MyCalendar"),fDrawYear(frmCalendarSample.tbSelYear.value,60, 40, "11px", "", 1));' onchange='drawHtmlToObject(document.all("MyCalendar"),fDrawCal(frmCalendarSample.tbSelYear.value, frmCalendarSample.tbSelMonth.value, 30, 20, "11px", "", 1))'>
-					<!-- 
-					<script LANGUAGE="JavaScript">
-						for(var i=parseInt(dCurYear,10)-5;i<=parseInt(dCurYear,10)+5;i++){
-							document.write("<option value="+i+">"+i+"</option>");
-						}
-					</script>
-			</select> -->
-			<select name="tbSelMonth" onchange='drawHtmlToObject(document.all("MyCalendar"),fDrawCal(frmCalendarSample.tbSelYear.value, frmCalendarSample.tbSelMonth.value, 30, 20, "11px", "", 1))'>
-			<option value="01">1</option>
-			<option value="02">2</option>
-			<option value="03">3</option>
-			<option value="04">4</option>
-			<option value="05">5</option>
-			<option value="06">6</option>
-			<option value="07">7</option>
-			<option value="08">8</option>
-			<option value="09">9</option>
-			<option value="10">10</option>
-			<option value="11">11</option>
-			<option value="12">12</option>
-			</select>
+		<td onMouseOver="showlayerforCP(0,this)" valign="top" nowrap>
+			<span id="tbSelYear" style='width:25;cursor:hand' onClick='SelectYearOrDay="Y";fDrawYear(document.getElementById("tbSelYear").innerHTML,60, 40, "11px", "", 1);displayD();' onchange='fDrawCal(document.getElementById("tbSelYear").innerHTML, document.getElementById("tbSelMonth").innerHTML, 30, 20, "11px", "", 1)'>
+			</span>年
 		</td>
-		<td width='1' align='center' valign='middle' bordercolor='#DDDDDD'>
-			<img name='movefrom_report_chosen' onmousedown='pushButton("movefrom_report_chosen",true);' onmouseup='pushButton("movefrom_report_chosen",false);' onmouseout='pushButton("movefrom_report_chosen",false);' onclick='next();' border='0' src='<%=sResourcesPath%>/chooser_orange/arrowRight.gif' alt='Remove selected items' />
+		<td nowrap valign="top">
+			<span id="tbSelMonth" style='width:10;cursor:hand' onClick='SelectYearOrDay="M";displayD();fDrawCal(document.getElementById("tbSelYear").innerHTML, document.getElementById("tbSelMonth").innerHTML, 30, 20, "11px", "", 1);' onchange='fDrawCal(document.getElementById("tbSelYear").innerHTML, document.getElementById("tbSelMonth").innerHTML, 30, 20, "11px", "", 1);'>
+			</span>月
+		</td>
+		<td nowrap valign="top">
+			<span id="tbSelDay" style='width:10;'></span>日
+		</td>
+		<td nowrap>
+			<img  name='movefrom_report_chosen' onmousedown='pushButton("movefrom_report_chosen",true);' onmouseup='pushButton("movefrom_report_chosen",false);' onmouseout='pushButton("movefrom_report_chosen",false);' onclick='next();' border='0' src='<%=sResourcesPath%>/chooser_orange/triangle-right.png' alt='next'/>
+		</td>
+		<td id=du nowrap>
+			<img style='cursor:hand' name='movefrom_report_chosen' onmousedown='pushButton("movefrom_report_chosen",true);' onmouseup='pushButton("movefrom_report_chosen",false);' onmouseout='pushButton("movefrom_report_chosen",false);' onClick='displayD();' border='0' src='<%=sResourcesPath%>/chooser_orange/scroll_arrow_down.gif' alt='detail'/>
 		</td>
 		</tr>
-		<tr><td id=MyCalendar colspan='3'></td></tr>
-	</form>
-</table>
-<div id="subMenu0" style="position:absolute; left:0px; top:0px; visibility:hidden">
+	</table>
+<div id="MyCalendar" style="position:absolute; right:0px; top:60px; width:180px; visibility:hidden;background:green">
 </div>
-<div id="subMenu1" style="position:absolute; left:0px; top:0px; width:80px; visibility:hidden" onMouseOver='showlayer(0,this)'>
+<div id="sMenu0" style="position:absolute; left:0px; top:0px; visibility:hidden">
 </div>
-</body>
-<script language="JavaScript">
-	var dCurDate = new Date();
-	selected(dCurDate.getFullYear(),dCurDate.getMonth()+1);
-	if(dCurDate.getDate()<10)
-		document.all.calSelectedDate.value = "0"+dCurDate.getDate();
+<div id="sMenu1" style="position:absolute; left:0px; top:0px; width:80px; visibility:hidden;background:blue" onMouseOver='showlayerforCP(0,this)'>
+</div>
+<script language="javascript">
+	$('table').ready(function(){
+		$('#calCells').css('background-color','#c0c0c0');//css写法
+		$("#tbSelDay").text(calSelectedDate);
+		objPrevElement=$("#calCells");
+	});
+	selected(dCurYear,dCurMonth);
+	if(dCurDayOfMonth<10)
+		calSelectedDate = "0"+dCurDayOfMonth;
 	else
-		document.all.calSelectedDate.value = dCurDate.getDate();
-	drawHtmlToObject(document.all("MyCalendar"),amarsoft2Real(fDrawCal(dCurDate.getFullYear(), dCurDate.getMonth()+1, 30, 20, "11px", "", 1)));
+		calSelectedDate = dCurDayOfMonth;
+	fDrawCal(dCurYear,dCurMonth, 30, 20, "11px", "", 1);
 </script>
-<%@ include file="/IncludeEnd.jsp"%>

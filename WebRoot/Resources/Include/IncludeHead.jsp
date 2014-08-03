@@ -326,8 +326,6 @@ void setCurPref(ASPreference CurPref, ASComponent CurComp) throws Exception{
 <script type=text/javascript src="<%=sResourcesPath%>/js/as_control.js"></script>
 <script type=text/javascript src="<%=sResourcesPath%>/js/as_webcalendar.js"></script>
 <script type=text/javascript src="<%=sResourcesPath%>/js/xls.js"> </script>
-<script type=text/javascript src="<%=sResourcesPath%>/js/expand.js"> </script>
-<script type=text/javascript src="<%=sResourcesPath%>/js/htmlcontrol.js"> </script>
 <script type=text/javascript src="<%=sResourcesPath%>/js/String.js"> </script>
 <script type=text/javascript src="<%=sResourcesPath%>/js/as_dz.js"> </script>
 <script type=text/javascript src="<%=sResourcesPath%>/js/as_dz_middle.js"> </script>
@@ -336,7 +334,9 @@ void setCurPref(ASPreference CurPref, ASComponent CurComp) throws Exception{
 <script type=text/javascript src="<%=sResourcesPath%>/js/editor.js"> </script>
 <script type=text/javascript src="<%=sResourcesPath%>/js/common.js"> </script>
 <script type=text/javascript src="<%=sResourcesPath%>/js/message.js"> </script>
-<script type=text/javascript src="<%=sResourcesPath%>/js/menu.js"> </script>
+<script type=text/javascript src="<%=sResourcesPath%>/js/mainmenu.js"> </script>
+<script type=text/javascript src="<%=sResourcesPath%>/js/treemenu.js"> </script>
+<script type=text/javascript src="<%=sResourcesPath%>/js/tabAform.js"> </script>
 <script language=vbscript src="<%=sResourcesPath%>/js/xls.vbs"> </script>
 <script type=text/javascript>
 var AsOne = {

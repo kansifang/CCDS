@@ -37,7 +37,7 @@ public class Crawler {
     private HtmlDao newsDao = new HtmlDao();
     private LinkFilter linkSelffilter = new LinkFilter() {
         public boolean accept(String url) {
-            if (url.matches("http://.*")){///[\\w\\d]*\\.s?html"
+            if (url.matches("http://.*[^(app)][^(star)].*finance.*")){///[\\w\\d]*\\.s?html"
                 return true;
             } else {
                 return false;
@@ -85,6 +85,7 @@ public class Crawler {
 			} catch (ParserException e) {
 				System.out.println("在Crawler中Parser初始化失败！");
 				e.printStackTrace();
+				continue;
 			}
             ExtractContent EC=new ExtractContent(this.parser);
             HtmlBean nb = EC.getBean();

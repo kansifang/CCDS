@@ -23,7 +23,7 @@
 		<td class='tabcontent' align='center' valign='top' colspan=2>
 			<table cellspacing=0 cellpadding=4 border=0	width='100%' height='100%'>
 				<tr> 
-					<td valign="top">
+					<td id="TabIframeTD" valign="top">
 					<iframe	name="<%=sIframeName%>" src="<%=sDefaultPage%>" <%=sIframeStyle%>></iframe>
 					</td>
 				</tr>

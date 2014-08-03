@@ -1,8 +1,23 @@
 //var sHCResourcesPath = "/amarbank6/Resources/1";
 var sHCResourcesPath = sResourcesPath;
 var iCurButtonID = 1;
-
-
+/** 
+*删除数组指定下标或指定对象 
+*/ 
+Array.prototype.remove=function(obj){ 
+	for(var i =0;i <this.length;i++){ 
+		var temp = this[i]; 
+		if(!isNaN(obj)){ 
+			temp=i; 
+		} 
+		if(temp == obj){ 
+			for(var j = i;j <this.length;j++){ 
+				this[j]=this[j+1]; 
+			} 
+			this.length = this.length-1; 
+		} 
+	} 
+} 
 /***button*/
 
 /**显示一个button*/
@@ -303,7 +318,7 @@ function hc_drawTab(tabID, tabStrip,selectedStrip){
 
 	}
 
-
+	//sObject=window
 	function hc_drawTabToIframe(tabID, tabStrip,selectedStrip,sObject){
 		
 		
@@ -410,7 +425,7 @@ function hc_drawTab(tabID, tabStrip,selectedStrip){
 		sObject.document.write("</html>\r");
 		//alert(sObject.document.src);
 	} 
-
+	//sObject=td
 	function hc_drawTabToTable(tabID, tabStrip,selectedStrip,sObject){
 		sObject.innerHTML="";
 		sInnerHTML = "";
@@ -512,232 +527,6 @@ function hc_drawTab(tabID, tabStrip,selectedStrip){
 		var bForceRefreshTab = false;
 		var bForceAddTab = false;//true 可新增  false 屏蔽tab新增
 		var bForceDeleteTab = true;//可删除 false屏蔽tab删除
-		
-		function hc_drawTabToTable_plus(tabID, tabStrip,selectedStrip,sObject,beginTabIndex,tabLength){
-
-			//added by byhu 20070726 支持TAB缓存
-			/*
-			for (var i=0;i<tabStrip.length;i++){
-				//创建所有的Iframe
-				if(document.getElementById("TabContentFrame"+i)==null){
-					document.all("TabIframeTD").innerHTML += "<iframe id='TabContentFrame"+i+"' name='TabContentFrame"+i+"' src='' width=100% height=100% frameborder=0 hspace=0 vspace=0 marginwidth=0 marginheight=0 scrolling=no></iframe>";
-				}
-			}
-			for (var i=0;i<tabStrip.length;i++){
-				if((selectedStrip-1)==i){
-					//显示本TabContentIframe
-					document.all("TabContentFrame"+i).style.display="";
-				}else{
-					//隐藏其他TabContentIframe
-					try{
-						document.all("TabContentFrame"+i).style.display="none";
-					}catch(e){}
-				}
-			}
-			*/
-			for (var i=0;i<tabStrip.length;i++){
-				//创建所有的Iframe
-				if(document.getElementById(tabID+i)==null){
-					document.all("TabIframeTD").innerHTML += "<iframe id='"+tabID+i+"' name='"+tabID+i+"' src='' width=100% height=100% frameborder=0 hspace=0 vspace=0 marginwidth=0 marginheight=0 scrolling=no></iframe>";
-				}
-			}
-			for (var i=0;i<tabStrip.length;i++){
-				if((selectedStrip-1)==i){
-					//显示本TabContentIframe
-					document.all(tabID+i).style.display="";
-				}else{
-					//隐藏其他TabContentIframe
-					try{
-						document.all(tabID+i).style.display="none";
-					}catch(e){}
-				}
-			}
-			
-			
-			
-			
-			
-					
-			
-			//begin
-			var vBeginIndex=beginTabIndex;
-			if (parseInt(vBeginIndex,10)>tabStrip.length)
-				vBeginIndex=tabStrip.length;
-			if (parseInt(vBeginIndex,10)<1)
-				vBeginIndex=1;
-			var vSelectedStrip=selectedStrip-parseInt(vBeginIndex,10)+1;
-			var arrTabStrip=new Array();
-			var vCounter=0;
-			for (var i=(parseInt(vBeginIndex,10)-1);i<tabStrip.length; i++){
-				if (vCounter<tabLength){
-					arrTabStrip[vCounter]=new Array();
-					for (var j=0;j<tabStrip[i].length;j++){
-						arrTabStrip[vCounter][j]=tabStrip[i][j];
-					}
-				}else{
-					break;
-				}
-				vCounter++;
-			}
-			//end
-			
-			sObject.innerHTML="";
-			sInnerHTML = "";
-
-			sInnerHTML= sInnerHTML + "<body leftMargin=0 rightMargin=0 topMargin=0 bottomMargin=0 ><table id='"+tabID+"' cellspacing=0 cellpadding=0 border=0  align='left' valign='bottom' width=100%>"+"\r";
-			sInnerHTML= sInnerHTML + "<tr>"+"\r";
-			
-			for(var i=0; i<arrTabStrip.length; i++){
-				var a1="";
-				var a2="";
-				var a3="";
-				var rowspan="3";
-				//added by byhu
-				var a4="";
-				
-				if(i==(vSelectedStrip-1)){
-					a2="on";
-				}else{
-					a2="off";
-				}
-				if(i==(vSelectedStrip)){
-					a1="on";
-				}else{
-					a1="off";
-				}
-				if(i==0){
-					a1="fr";
-					rowspan="2";
-					//begin
-					if (parseInt(vBeginIndex,10)>1){
-						a3= "plus";
-						//added by byhu 20070726
-						a4= " alt=\"点击此处左移一格\" style={cursor:hand;} onClick=\"javascript:hc_drawTabToTable_plus('"+tabID+"',tabstrip,"+selectedStrip+",document.all('"+sObject.id+"'),"+(parseInt(beginTabIndex,10)-1)+","+tabLength+");return false;\"";
-					}else{
-						a3="";
-						//added by byhu 20070726
-						a4="";
-					}
-					//end
-				}
-				
-				sInnerHTML= sInnerHTML + "<td rowspan="+rowspan+"><img class='tab"+a1+a2+a3+"'  src='"+sHCResourcesPath+"/1x1.gif' "+a4+"></td>"+"\r";
-				sInnerHTML= sInnerHTML + "<td class='tabline'><img src='"+sHCResourcesPath+"/1x1.gif'></td>"+"\r";
-				
-				if(i==(arrTabStrip.length-1)){
-					//begin
-					if ((arrTabStrip.length+parseInt(vBeginIndex,10)-1)<tabStrip.length){
-						a3= "plus";
-						//added by byhu 20070726
-						a4= " alt=\"点击此处右移一格\" style={cursor:hand} onClick=\"javascript:hc_drawTabToTable_plus('"+tabID+"',tabstrip,"+selectedStrip+",document.all('"+sObject.id+"'),"+(parseInt(beginTabIndex,10)+1)+","+tabLength+");return false;\"";
-					}else{
-						a3="";
-						//added by byhu 20070726
-						a4="";
-					}
-					//end
-					sInnerHTML= sInnerHTML + "<td rowspan=2 ><img class='tab"+a2+a3+"bk'  src='"+sHCResourcesPath+"/1x1.gif' "+a4+"></td>"+"\r";
-				}
-				
-			}
-			sInnerHTML= sInnerHTML + "</tr><tr>"+"\r";
-			
-			for(var i=0; i<arrTabStrip.length; i++){
-				var selected="";
-				if(i==(vSelectedStrip-1)){
-					selected="sel";
-				}else{
-					selected="desel";
-				}
-				sInnerHTML= sInnerHTML + "<td  class='tab"+selected+"' nowrap><span class='tabtext' onclick=\"if(bForceRefreshTab){"+arrTabStrip[i][3]+"}else{"+arrTabStrip[i][2]+"}\" oncontextmenu=\""+arrTabStrip[i][3]+"\">"+arrTabStrip[i][1]+"</span></td>"+"\r";
-
-			}
-		
-			//begin
-			if (parseInt(vBeginIndex,10)>1 || (arrTabStrip.length+parseInt(vBeginIndex,10)-1)<tabStrip.length){
-				sInnerHTML= sInnerHTML +"<td align=right width=100%><table cellspacing=0 cellpadding=0 border=0><tr>";
-				if (parseInt(vBeginIndex,10)>1){
-					sInnerHTML= sInnerHTML +"<td><a href='#' onClick=\"javascript:hc_drawTabToTable_plus('"+tabID+"',tabstrip,"+selectedStrip+",document.all('"+sObject.id+"'),"+(parseInt(beginTabIndex,10)-1)+","+tabLength+");return false;\"><img class='tabpre' border=0 src='"+sHCResourcesPath+"/1x1.gif'></a></td>\r";
-				}else{
-					sInnerHTML= sInnerHTML +"<td><img class='tabpredisable' border=0 src='"+sHCResourcesPath+"/1x1.gif'></td>\r";
-				}
-				if ((arrTabStrip.length+parseInt(vBeginIndex,10)-1)<tabStrip.length){
-					sInnerHTML= sInnerHTML +"<td><a href='#' onClick=\"javascript:hc_drawTabToTable_plus('"+tabID+"',tabstrip,"+selectedStrip+",document.all('"+sObject.id+"'),"+(parseInt(beginTabIndex,10)+1)+","+tabLength+");return false;\"><img class='tabnext' border=0 src='"+sHCResourcesPath+"/1x1.gif'></a></td>\r";
-				}else{
-					sInnerHTML= sInnerHTML +"<td><img class='tabnextdisable' border=0 src='"+sHCResourcesPath+"/1x1.gif'></td>\r";
-				}
-				//sInnerHTML= sInnerHTML +"<td><a href='#' onClick=\"javascript:if (document.all('tabMenu1').style.visibility=='visible') {document.all('tabMenu1').style.visibility='hidden';return false;};document.all('tabMenu1').style.visibility=='hidden';var xPos = this.offsetLeft;var tempEl = this.offsetParent;while (tempEl != null){xPos += tempEl.offsetLeft;tempEl = tempEl.offsetParent;};document.all('tabMenu1').style.left=xPos;var yPos = this.offsetTop;tempEl = this.offsetParent;while (tempEl != null){yPos += tempEl.offsetTop;tempEl = tempEl.offsetParent;};document.all('tabMenu1').style.top=yPos;document.all('tabMenu1').style.width=this.offsetWidth;document.all('tabMenu1').style.visibility='visible'; return false;\"><img class='tabmenu' border=0 src='"+sHCResourcesPath+"/1x1.gif'></a></td>\r";
-				sInnerHTML= sInnerHTML +"<td><a href='#' onClick=\"javascript:showHideTabMenu(this)\" onMouseOver=\"javascript:showTabMenu(this)\"><img class='tabmenu' border=0 src='"+sHCResourcesPath+"/1x1.gif'></a></td>\r";
-				sInnerHTML= sInnerHTML +"</tr></table></td>";
-			}else{//added by byhu
-				sInnerHTML= sInnerHTML +"<td align=right width=100%></td>";
-			}
-			//end
-			
-			sInnerHTML= sInnerHTML + "</tr><tr>"+"\r";
-			
-			for(var i=0; i<arrTabStrip.length; i++){
-				if(i==0){
-					if(i==(vSelectedStrip-1)){
-						sInnerHTML= sInnerHTML + "<td class='tabline1'><img src='"+sHCResourcesPath+"/1x1.gif'></td>"+"\r";
-					}else{
-						sInnerHTML= sInnerHTML + "<td class='tabline'><img src='"+sHCResourcesPath+"/1x1.gif'></td>"+"\r";
-					}	
-					
-				}
-				if(i==(vSelectedStrip-1)){
-					sInnerHTML= sInnerHTML + "<td class='tabline1'><img src='"+sHCResourcesPath+"/1x1.gif'></td>"+"\r";
-				}else{
-					sInnerHTML= sInnerHTML + "<td class='tabline'><img src='"+sHCResourcesPath+"/1x1.gif'></td>"+"\r";
-				}	
-				if(i==(arrTabStrip.length-1)){
-					if(i==(vSelectedStrip-1)){
-						sInnerHTML= sInnerHTML + "<td class='tabline1'><img src='"+sHCResourcesPath+"/1x1.gif'></td>"+"\r";
-					}else{
-						sInnerHTML= sInnerHTML + "<td class='tabline'><img src='"+sHCResourcesPath+"/1x1.gif'></td>"+"\r";
-					}	
-					
-				}			
-				
-				
-			}
-			
-			//sInnerHTML= sInnerHTML +"</tr></table>"+"\r";
-			//begin
-			sInnerHTML= sInnerHTML +"</tr><tr><td><input type=hidden id='"+tabID+"_beginIndexID' name='"+tabID+"_beginIndex' value='"+vBeginIndex+"'></td></tr></table>\r";
-			sInnerHTML= sInnerHTML +"<div id=\"tabMenu1\" style=\"z-index:1000;position:absolute; left:0px; top:0px; width:0px;height:0px;visibility:hidden\" class=\"SubMenuDiv\">\r";
-			sInnerHTML= sInnerHTML +"<table  class=\"SubMenuTable\"  cellpadding=4 cellspacing=0  border=0>\r";
-			sInnerHTML= sInnerHTML +"<tr height=5><td class=\"TabMenuTd2\" style=\"font-size:8px;height:10px;\" align=right><span style=\"font-weight:bold;BORDER-LEFT:#999999 1px solid;BORDER-BOTTOM:#999999 1px solid;cursor:hand\" onclick=\"javascript:hideTabMenu();\">×</span></td></tr>\r";
-			for (var i=0;i<tabStrip.length; i++){
-				sInnerHTML= sInnerHTML +"<tr>\r";
-				var vPre="&nbsp;&nbsp;&nbsp;";
-				if ((selectedStrip-1)==i)
-					vPre=">&nbsp;&nbsp;";
-					//sInnerHTML= sInnerHTML +"<td class=\"TabMenuTd1\" nowrap>&nbsp;V&nbsp;&nbsp;</td>\r";
-				//else
-					//sInnerHTML= sInnerHTML +"<td class=\"TabMenuTd1\" nowrap>&nbsp;&nbsp;&nbsp;</td>\r";
-				var vCurBegin=vBeginIndex;
-				if ((i+1)<vBeginIndex)
-					vCurBegin=(i+1);
-				if ((i+1)>(arrTabStrip.length+parseInt(vBeginIndex,10)-1))
-					vCurBegin=vBeginIndex+((i+1)-(arrTabStrip.length+parseInt(vBeginIndex,10)-1));
-				var vClickEvent=tabStrip[i][2];
-				var vReplaceStr=",document.all('"+tabID+"_beginIndexID').value,";
-				var vPos=vClickEvent.indexOf(vReplaceStr);
-				if (vPos>=0){
-					vClickEvent=vClickEvent.substring(0,vPos)+","+vCurBegin+","+vClickEvent.substring(vPos+vReplaceStr.length);
-				}
-				sInnerHTML= sInnerHTML +"<td class=\"TabMenuTd2\" nowrap onMouseOver=\"this.className='TabMenuTd_down';\" onMouseOut=\"this.className='TabMenuTd2';\" onClick=\""+vClickEvent+"\">\r";
-				sInnerHTML= sInnerHTML +vPre+tabStrip[i][1]+"\r";
-				sInnerHTML= sInnerHTML +"</td>\r";
-				sInnerHTML= sInnerHTML +"</tr>\r";
-			}
-			sInnerHTML= sInnerHTML +"</table>\r";
-			sInnerHTML= sInnerHTML +"</div>\r</body>";
-			//end
-			sObject.innerHTML=sInnerHTML;
-		} 
-		
 		//显示及隐藏tab菜单
 		function showHideTabMenu(obj){
 			if (document.all('tabMenu1').style.visibility=='visible') {
@@ -756,68 +545,51 @@ function hc_drawTab(tabID, tabStrip,selectedStrip){
 		}
 		function showTabMenu(obj){
 			var xPos = obj.offsetLeft;
+			var yPos = obj.offsetTop;
 			var tempEl = obj.offsetParent;
 			while (tempEl != null){
 				xPos += tempEl.offsetLeft;
+				yPos += tempEl.offsetTop;
 				tempEl = tempEl.offsetParent;
 			};
 			document.all('tabMenu1').style.left = xPos + obj.offsetWidth-document.all('tabMenu1').offsetWidth;
-			document.all('tabMenu1').style.top = event.offsetY+obj.offsetHeight;
+			document.all('tabMenu1').style.top = yPos+obj.offsetHeight;
 			document.all('tabMenu1').style.width = obj.offsetWidth;
 			document.all('tabMenu1').style.visibility='visible';
 			return false;
 		}
-		
 		//用于检查Tab动作合法性，如果返回false，则tab不切换
 		function checkTabAction(iTabStrip){
 			return true;
 		}
-
-		//add in 2009/07
-		function hc_createTabIFrame_plus_ex(tabStrip)
-		{
-			//added by byhu 20070726 支持TAB缓存		
+		var GbeginTabIndex=1;
+		function hc_drawTabToTable_plus_ex(tabStrip,selectedStrip,beginTabIndex,tabLength,hangtbid){
+			GbeginTabIndex=beginTabIndex;
+			var tabID=hangtbid+"tableID";
+			var sObject=document.getElementById(hangtbid);
+			if(tabStrip.length == 0) return;
+			// 支持TAB缓存 多少个tab，增加多少个iframe以容纳其对应的页面
 			for (var i=0;i<tabStrip.length;i++){
 				//创建所有的Iframe
-				if(document.getElementById("TabContentFrameArr"+tabStrip[i][0])==null){
-
+				if(document.getElementById(hangtbid+tabStrip[i][0])==null){
 					//document.all("TabIframeTD").innerHTML += "<iframe id='TabContentFrame"+tabStrip[i][0]+"' name='TabContentFrame"+tabStrip[i][0]+"' src='' width=100% height=100% frameborder=0 hspace=0 vspace=0 marginwidth=0 marginheight=0 scrolling=no></iframe>";
-					var sHTML="<iframe id='TabContentFrameArr"+tabStrip[i][0]+"' name='TabContentFrameArr"+tabStrip[i][0]+"' src='' width=100% height=100% frameborder=0 hspace=0 vspace=0 marginwidth=0 marginheight=0 scrolling=no></iframe>";
+					var sHTML="<iframe id='"+hangtbid+tabStrip[i][0]+"' name='"+hangtbid+tabStrip[i][0]+"' src='' width=100% height=100% frameborder=0 hspace=0 vspace=0 marginwidth=0 marginheight=0 scrolling=no></iframe>";
 					document.all("TabIframeTD").insertAdjacentHTML("afterBegin",sHTML);
-		
 				}
-			}
-			
-			
-		}
-		
-		function hc_drawTabToTable_plus_ex(tabID, tabStrip,selectedStrip,sObject,beginTabIndex,tabLength){
-		  //alert("hc_drawTabToTable_plus_ex..."+selectedStrip+","+beginTabIndex);
-			//alert(tabStrip.length	);
-			if(tabStrip.length == 0) return;
-			
-			hc_createTabIFrame_plus_ex(tabStrip);	
-			
+			}	
+			//突出显示点击的tab标签
 			for (var i=0;i<tabStrip.length;i++){
 				if((selectedStrip-1)==i){
 					//显示本TabContentIframe
-					document.all("TabContentFrameArr"+tabStrip[i][0]).style.display="block";
+					document.all(hangtbid+tabStrip[i][0]).style.display="block";
 				}else{
 					//隐藏其他TabContentIframe
 					try{
-						document.all("TabContentFrameArr"+tabStrip[i][0]).style.display="none";
+						document.all(hangtbid+tabStrip[i][0]).style.display="none";
 					}catch(e){}
 				}
 			}
-			
-			/*
-			alert("hc_drawTabToTable_plus_ex..."+document.all("TabContentFrame"+tabStrip[selectedStrip-1][0]).style.display);
-			alert("hc_drawTabToTable_plus_ex..."+document.all("TabContentFrame"+tabStrip[selectedStrip-1][0]).outerHTML);
-			*/
-			//var myobj = eval("TabContentFrame"+tabStrip[selectedStrip-1][0]);
-			//alert(myobj.document.URL);
-			
-			
+			//writeMsg(document.all("TabIframeTD").innerHTML);
 			//begin
 			var vBeginIndex=beginTabIndex;
 			if (parseInt(vBeginIndex,10)>tabStrip.length)
@@ -827,6 +599,7 @@ function hc_drawTab(tabID, tabStrip,selectedStrip){
 			var vSelectedStrip=selectedStrip-parseInt(vBeginIndex,10)+1;
 			var arrTabStrip=new Array();
 			var vCounter=0;
+			//根据开始位置获取相应的显示标签
 			for (var i=(parseInt(vBeginIndex,10)-1);i<tabStrip.length; i++){
 				if (vCounter<tabLength){
 					arrTabStrip[vCounter]=new Array();
@@ -839,13 +612,11 @@ function hc_drawTab(tabID, tabStrip,selectedStrip){
 				vCounter++;
 			}
 			//end
-			
 			sObject.innerHTML="";
 			sInnerHTML = "";
-
-			sInnerHTML= sInnerHTML + "<body leftMargin=0 rightMargin=0 topMargin=0 bottomMargin=0 ><table id='"+tabID+"' cellspacing=0 cellpadding=0 border=0  align='left' valign='bottom' width=100%>"+"\r";
+			sInnerHTML= sInnerHTML + "<body leftMargin=0 rightMargin=0 topMargin=0 bottomMargin=0 >";
+			sInnerHTML= sInnerHTML + "<table id='"+tabID+"' cellspacing=0 cellpadding=0 border=0  align='left' valign='bottom' width=100%>"+"\r";
 			sInnerHTML= sInnerHTML + "<tr>"+"\r";
-			
 			for(var i=0; i<arrTabStrip.length; i++){
 				var a1="";
 				var a2="";
@@ -871,7 +642,7 @@ function hc_drawTab(tabID, tabStrip,selectedStrip){
 					if (parseInt(vBeginIndex,10)>1){
 						a3= "plus";
 						//added by byhu 20070726
-						a4= " alt=\"点击此处左移一格\" style={cursor:hand;} onClick=\"javascript:hc_drawTabToTable_plus_ex('"+tabID+"',tabstrip,"+selectedStrip+",document.all('"+sObject.id+"'),"+(parseInt(beginTabIndex,10)-1)+","+tabLength+");return false;\"";
+						a4= " alt=\"点击此处左移一格\" style={cursor:hand;} onClick=\"javascript:hc_drawTabToTable_plus_ex(tabstrip,"+selectedStrip+","+(parseInt(beginTabIndex,10)-1)+","+tabLength+","+hangtbid+");return false;\"";
 					}else{
 						a3="";
 						//added by byhu 20070726
@@ -879,16 +650,14 @@ function hc_drawTab(tabID, tabStrip,selectedStrip){
 					}
 					//end
 				}
-				
 				sInnerHTML= sInnerHTML + "<td rowspan="+rowspan+"><img class='tab"+a1+a2+a3+"'  src='"+sHCResourcesPath+"/1x1.gif' "+a4+"></td>"+"\r";
 				sInnerHTML= sInnerHTML + "<td class='tabline'><img src='"+sHCResourcesPath+"/1x1.gif'></td>"+"\r";
-				
 				if(i==(arrTabStrip.length-1)){
 					//begin
 					if ((arrTabStrip.length+parseInt(vBeginIndex,10)-1)<tabStrip.length){
 						a3= "plus";
 						//added by byhu 20070726
-						a4= " alt=\"点击此处右移一格\" style={cursor:hand} onClick=\"javascript:hc_drawTabToTable_plus_ex('"+tabID+"',tabstrip,"+selectedStrip+",document.all('"+sObject.id+"'),"+(parseInt(beginTabIndex,10)+1)+","+tabLength+");return false;\"";
+						a4= " alt=\"点击此处右移一格\" style={cursor:hand} onClick=\"javascript:hc_drawTabToTable_plus_ex(tabstrip,"+selectedStrip+","+(parseInt(beginTabIndex,10)+1)+","+tabLength+","+hangtbid+");return false;\"";
 					}else{
 						a3="";
 						//added by byhu 20070726
@@ -897,10 +666,10 @@ function hc_drawTab(tabID, tabStrip,selectedStrip){
 					//end
 					sInnerHTML= sInnerHTML + "<td rowspan=2 ><img class='tab"+a2+a3+"bk'  src='"+sHCResourcesPath+"/1x1.gif' "+a4+"></td>"+"\r";
 				}
-				
 			}
-			sInnerHTML= sInnerHTML + "</tr><tr>"+"\r";
-			
+			sInnerHTML= sInnerHTML + "</tr>";
+			//画tab标签
+			sInnerHTML= sInnerHTML + "<tr>"+"\r";
 			for(var i=0; i<arrTabStrip.length; i++){
 				var selected="";
 				if(i==(vSelectedStrip-1)){
@@ -908,59 +677,52 @@ function hc_drawTab(tabID, tabStrip,selectedStrip){
 				}else{
 					selected="desel";
 				}
-				//sInnerHTML= sInnerHTML + "<td  class='tab"+selected+"' nowrap><span class='tabtext' onclick=\"if(bForceRefreshTab){"+arrTabStrip[i][3]+"}else{"+arrTabStrip[i][2]+"}\" oncontextmenu=\""+arrTabStrip[i][3]+"\">"+arrTabStrip[i][1]+"</span></td>"+"\r";
 				var iTemp = parseInt(vBeginIndex,10)-1+i;
 				var sDel = "";
-				if(arrTabStrip[i][5]=="1"&&bForceDeleteTab) sDel = "&nbsp;<span class=deletebtn valign=top ><a title='删除' href=\"javascript:myTabDelete("+iTemp+")\"></a></span>";
-				sInnerHTML= sInnerHTML + "<td  class='tab"+selected+"' nowrap><span class='tabtext' onclick=\"javascript:myTabAction("+iTemp+",false)\" oncontextmenu=\"javascript:myTabAction("+iTemp+",true)\">"+arrTabStrip[i][1]+"</span>"+sDel+"</td>"+"\r";
+				if(arrTabStrip[i][5]=="1"&&bForceDeleteTab) 
+					sDel = "&nbsp;<span class=deletebtn valign=top onclick=\"javascript:deleteTabMenu('"+hangtbid+"',"+iTemp+","+beginTabIndex+")\"><a title='删除' href=\"javascript:myTabDelete("+iTemp+")\">×</a></span>";
+				sInnerHTML= sInnerHTML + "<td  class='tab"+selected+"' nowrap>" +
+										"<span class='tabtext' onclick=\"javascript:myTabAction('"+hangtbid+"',"+iTemp+",false)\" oncontextmenu=\"javascript:myTabAction('"+hangtbid+"',"+iTemp+",true)\">"+
+										arrTabStrip[i][1]+
+										"</span>"+sDel+"</td>"+"\r";
 			}
-		
 			sInnerHTML= sInnerHTML + "<td nowrap>&nbsp;</td>"+"\r";
-		
-			//begin
+			//begin tab前后组操作
 			if (parseInt(vBeginIndex,10)>1 || (arrTabStrip.length+parseInt(vBeginIndex,10)-1)<tabStrip.length){
 				sInnerHTML= sInnerHTML +"<td align=left width=100%><table cellspacing=0 cellpadding=0 border=0><tr>";
-
 				if (parseInt(vBeginIndex,10)>1){
-					sInnerHTML= sInnerHTML +"<td><a href='#' title='前一个Tab' onClick=\"javascript:hc_drawTabToTable_plus_ex('"+tabID+"',tabstrip,"+selectedStrip+",document.all('"+sObject.id+"'),"+(parseInt(beginTabIndex,10)-1)+","+tabLength+");return false;\"><img class='tabpre' border=0 src='"+sHCResourcesPath+"/1x1.gif'></a></td>\r";
+					sInnerHTML= sInnerHTML +"<td><a href='#' title='前一个Tab' onClick=\"javascript:hc_drawTabToTable_plus_ex(tabstrip,"+selectedStrip+","+(parseInt(beginTabIndex,10)-1)+","+tabLength+",'"+hangtbid+"');return false;\"><img class='tabpre' border=0 src='"+sHCResourcesPath+"/chooser_orange/arrow-left.png'></a></td>\r";
 				}else{
 					sInnerHTML= sInnerHTML +"<td><img class='tabpredisable' border=0 src='"+sHCResourcesPath+"/1x1.gif'></td>\r";
 				}
 				if ((arrTabStrip.length+parseInt(vBeginIndex,10)-1)<tabStrip.length){
-					sInnerHTML= sInnerHTML +"<td><a href='#' title='后一个Tab' onClick=\"javascript:hc_drawTabToTable_plus_ex('"+tabID+"',tabstrip,"+selectedStrip+",document.all('"+sObject.id+"'),"+(parseInt(beginTabIndex,10)+1)+","+tabLength+");return false;\"><img class='tabnext' border=0 src='"+sHCResourcesPath+"/1x1.gif'></a></td>\r";
+					sInnerHTML= sInnerHTML +"<td><a href='#' title='后一个Tab' onClick=\"javascript:hc_drawTabToTable_plus_ex(tabstrip,"+selectedStrip+","+(parseInt(beginTabIndex,10)+1)+","+tabLength+",'"+hangtbid+"');return false;\"><img class='tabnext' border=0 src='"+sHCResourcesPath+"/chooser_orange/arrow-right.png'></a></td>\r";
 				}else{
 					sInnerHTML= sInnerHTML +"<td><img class='tabnextdisable' border=0 src='"+sHCResourcesPath+"/1x1.gif'></td>\r";
 				}
-				//sInnerHTML= sInnerHTML +"<td><a href='#' onClick=\"javascript:if (document.all('tabMenu1').style.visibility=='visible') {document.all('tabMenu1').style.visibility='hidden';return false;};document.all('tabMenu1').style.visibility=='hidden';var xPos = this.offsetLeft;var tempEl = this.offsetParent;while (tempEl != null){xPos += tempEl.offsetLeft;tempEl = tempEl.offsetParent;};document.all('tabMenu1').style.left=xPos;var yPos = this.offsetTop;tempEl = this.offsetParent;while (tempEl != null){yPos += tempEl.offsetTop;tempEl = tempEl.offsetParent;};document.all('tabMenu1').style.top=yPos;document.all('tabMenu1').style.width=this.offsetWidth;document.all('tabMenu1').style.visibility='visible'; return false;\"><img class='tabmenu' border=0 src='"+sHCResourcesPath+"/1x1.gif'></a></td>\r";
-				sInnerHTML= sInnerHTML +"<td><a href='#' onClick=\"javascript:showHideTabMenu(this)\" onMouseOver1=\"javascript:showTabMenu(this)\"><img class='tabmenu' border=0 src='"+sHCResourcesPath+"/1x1.gif'></a></td>\r";
-
-				
-			
-				//add in 2009/07 for add_tab
+				//展示全部
+				sInnerHTML= sInnerHTML +"<td><a href='#' title='新增并展示全部...' onClick=\"javascript:showHideTabMenu(this)\" onMouseOver1=\"javascript:showTabMenu(this)\"><img class='tabmenu' border=0 src='"+sHCResourcesPath+"/chooser_orange/arrow02.png'></a></td>\r";
 				if(bForceAddTab){
-				sInnerHTML= sInnerHTML + "<td nowrap>&nbsp;</td>"+"\r";
-				sInnerHTML= sInnerHTML + "<td><a href='#' title='新增...' onClick=\"javascript:myTabAdd();return false;\"><img class='tabadd' border=0 src='"+sHCResourcesPath+"/1x1.gif'></a></td>"+"\r";
+					sInnerHTML= sInnerHTML + "<td nowrap>&nbsp;</td>"+"\r";
+					sInnerHTML= sInnerHTML + "<td><a href='#' title='新增...' onClick=\"javascript:myTabAdd();return false;\"><img class='tabadd' border=0 src='"+sHCResourcesPath+"/new.gif'></a></td>"+"\r";
 				}else {
-				sInnerHTML= sInnerHTML + "<td nowrap>&nbsp;</td>"+"\r";
-				sInnerHTML= sInnerHTML + "<td nowrap></td>"+"\r";
+					sInnerHTML= sInnerHTML + "<td nowrap>&nbsp;</td>"+"\r";
+					sInnerHTML= sInnerHTML + "<td nowrap></td>"+"\r";
 				}
 				sInnerHTML= sInnerHTML +"</tr></table></td>";
 			}else{//added by byhu
 				if(bForceAddTab){
-				//add in 2009/07 for add_tab
-				sInnerHTML= sInnerHTML + "<td id=adddiv><a href='#' title='新增...' onClick=\"javascript:myTabAdd();showdiv(this);return false;\"><img class='tabadd' border=0 src='"+sHCResourcesPath+"/1x1.gif'></a></td>"+"\r";
-				sInnerHTML= sInnerHTML +"<td align=right width=100% ></td>";
+					sInnerHTML= sInnerHTML + "<td id=adddiv><a href='#' title='新增并展示全部...' onClick=\"javascript:myTabAdd();showdiv(this);return false;\"><img class='tabadd' border=0 src='"+sHCResourcesPath+"/1x1.gif'></a></td>"+"\r";
+					sInnerHTML= sInnerHTML +"<td align=right width=100% ></td>";
 				}else {
 					sInnerHTML= sInnerHTML + "<td nowrap>&nbsp;</td>"+"\r";
 					sInnerHTML= sInnerHTML + "<td align=right width=100%> </td>"+"\r";
 				}
 			}
+			sInnerHTML= sInnerHTML + "</tr>";
 			//end
-
-			
-			
-			sInnerHTML= sInnerHTML + "</tr><tr>"+"\r";
-			
+			//分割层
+			sInnerHTML= sInnerHTML + "<tr>"+"\r";
 			for(var i=0; i<arrTabStrip.length; i++){
 				if(i==0){
 					if(i==(vSelectedStrip-1)){
@@ -981,42 +743,22 @@ function hc_drawTab(tabID, tabStrip,selectedStrip){
 					}else{
 						sInnerHTML= sInnerHTML + "<td class='tabline'><img src='"+sHCResourcesPath+"/1x1.gif'></td>"+"\r";
 					}	
-					
 				}			
-				
-				
 			}
-			
-			//sInnerHTML= sInnerHTML +"</tr></table>"+"\r";
-			//begin
-			sInnerHTML= sInnerHTML +"</tr><tr><td><input type=hidden id='"+tabID+"_beginIndexID' name='"+tabID+"_beginIndex' value='"+vBeginIndex+"'></td></tr></table>\r";
-			sInnerHTML= sInnerHTML +"<div id=\"tabMenu1\" style=\"z-index:1000;position:absolute; left:0px; top:0px; width:0px;height:0px;visibility:hidden\" class=\"SubMenuDiv\">\r";
-			sInnerHTML= sInnerHTML +"<table  class=\"SubMenuTable\"  cellpadding=4 cellspacing=0  border=0>\r";
-			sInnerHTML= sInnerHTML +"<tr height=5><td class=\"TabMenuTd2\" style=\"font-size:8px;height:10px;\" align=right><span style=\"font-weight:bold;BORDER-LEFT:#999999 1px solid;BORDER-BOTTOM:#999999 1px solid;cursor:hand\" onclick=\"javascript:hideTabMenu();\">×</span></td></tr>\r";
+			sInnerHTML= sInnerHTML +"</tr>";
+			//隐藏层
+			sInnerHTML= sInnerHTML +"<tr><td><input type=hidden id='"+tabID+"_beginIndexID' name='"+tabID+"_beginIndex' value='"+vBeginIndex+"'></td></tr></table>\r";
+			//浮动层，点击新增时显示所有的tab
+			sInnerHTML= sInnerHTML +"<div id=\"tabMenu1\" style=\"z-index:1000;position:absolute; left:0px; top:0px; width:0px;height:0px;visibility:hidden;background:green\" class=\"SubMenuDiv\">\r";
+			sInnerHTML= sInnerHTML +"<table  class=\"SubMenuTable\"  cellpadding=4 cellspacing=0  border=0 >\r";
+			sInnerHTML= sInnerHTML +"<tr height=5><td class=\"TabMenuTd2\" style=\"font-size:15px;height:10px;\" align=right><span style=\"font-weight:bold;BORDER-LEFT:#999999 1px solid;BORDER-BOTTOM:#999999 1px solid;cursor:hand\" onclick=\"javascript:hideTabMenu();\">×</span></td></tr>\r";
 			for (var i=0;i<tabStrip.length; i++){
 				sInnerHTML= sInnerHTML +"<tr>\r";
 				var vPre="&nbsp;&nbsp;&nbsp;";
 				if ((selectedStrip-1)==i)
 					vPre=">&nbsp;&nbsp;";
-					//sInnerHTML= sInnerHTML +"<td class=\"TabMenuTd1\" nowrap>&nbsp;V&nbsp;&nbsp;</td>\r";
-				//else
-					//sInnerHTML= sInnerHTML +"<td class=\"TabMenuTd1\" nowrap>&nbsp;&nbsp;&nbsp;</td>\r";
-				var vCurBegin=vBeginIndex;
-				if ((i+1)<vBeginIndex)
-					vCurBegin=(i+1);
-				if ((i+1)>(arrTabStrip.length+parseInt(vBeginIndex,10)-1))
-					//vCurBegin=vBeginIndex+((i+1)-(arrTabStrip.length+parseInt(vBeginIndex,10)-1));
-					vCurBegin=parseInt(vBeginIndex,10)+((i+1)-(arrTabStrip.length+parseInt(vBeginIndex,10)-1));
-			
-				//var vClickEvent=tabStrip[i][2];
-				//var vReplaceStr=",document.all('"+tabID+"_beginIndexID').value,";
-				//var vPos=vClickEvent.indexOf(vReplaceStr);
-				//if (vPos>=0){
-				//	vClickEvent=vClickEvent.substring(0,vPos)+","+vCurBegin+","+vClickEvent.substring(vPos+vReplaceStr.length);
-				//}
-				var vClickEvent="myTabAction("+i+",false,"+vCurBegin+")";
-			
-
+				var vCurBegin=calBiginIndex(arrTabStrip,i,vBeginIndex);
+				var vClickEvent="myTabAction('"+hangtbid+"',"+i+",false,"+vCurBegin+")";
 				sInnerHTML= sInnerHTML +"<td class=\"TabMenuTd2\" nowrap onMouseOver=\"this.className='TabMenuTd_down';\" onMouseOut=\"this.className='TabMenuTd2';\" onClick=\""+vClickEvent+"\">\r";
 				sInnerHTML= sInnerHTML +vPre+tabStrip[i][1]+"\r";
 				sInnerHTML= sInnerHTML +"</td>\r";
@@ -1024,24 +766,73 @@ function hc_drawTab(tabID, tabStrip,selectedStrip){
 			}
 			sInnerHTML= sInnerHTML +"</table>\r";
 			sInnerHTML= sInnerHTML +"</div>\r";
-			//end---------------------------------------平安增加
 			sInnerHTML= sInnerHTML +"<div id=\"tabMenu9\" style=\"z-index:1000;position:absolute; left:0px; top:0px; width:0px;height:0px;visibility:hidden\" class=\"SubMenuDiv\">\r";
 			sInnerHTML= sInnerHTML +"<table  class=\"SubMenuTable\" id='SubMenuTable9' cellpadding=4 cellspacing=0  border=0>\r";
-			//sInnerHTML= sInnerHTML +"<tr height=5><td class=\"TabMenuTd2\" style=\"font-size:8px;height:10px;\" align=right><span style=\"font-weight:bold;BORDER-LEFT:#999999 1px solid;BORDER-BOTTOM:#999999 1px solid;cursor:hand\" onclick=\"javascript:showdiv();\">×</span></td></tr>\r";
-			
 			sInnerHTML= sInnerHTML +"</table>\r";
-
-			//add in 2009/08/20
 			sInnerHTML= sInnerHTML +"<iframe id=iframeSelect src=\"javascript:false\" style=\"position:absolute; visibility:inherit; top:0px; left:0px; width:100px; height:200px; z-index:-1; filter='progid:DXImageTransform.Microsoft.Alpha(style=0,opacity=0)';\"></iframe>"; 
-
 			sInnerHTML= sInnerHTML +"</div>\r</body leftMargin=0 rightMargin=0 topMargin=0 bottomMargin=0 >";
-			
-			//delete in 2009/08/20
-			//sInnerHTML= sInnerHTML +"<iframe  style=\"position:absolute;z-index:-1;width:e-xpression(this.nextSibling.offsetWidth);height:e-xpression(this.nextSibling.offsetHeight);top:e-xpression(this.nextSibling.offsetTop);left:e-xpression(this.nextSibling.offsetLeft);visibility:hidden;\"   frameborder=0>";
-			//sInnerHTML= sInnerHTML +" </iframe>";
-		
-			//-----------------------------------------------平安
 			sObject.innerHTML=sInnerHTML;
+		}
+		//根据tab在数组中序号
+		//当前显示的第一个tab在所有tab中是第几个
+		//来计算当打开的新页面时第一个tab在所有tab中是第几个
+		function calBiginIndex(tabIndex,currentBeginIndex){
+			var vNewCurBegin=currentBeginIndex;
+			if ((tabIndex+1)<currentBeginIndex)//vBeginIndex以1开始 i是从0开始 所以要加1
+				vNewCurBegin=(tabIndex+1);
+			//arrTabStrip.length 每一组的标签个数，此判断意思是i到了下一组标签里
+			if ((tabIndex+1)>(parseInt(currentBeginIndex,10)-1+iMaxTabLength))
+				vNewCurBegin=(tabIndex+1)-iMaxTabLength+1;
+			return vNewCurBegin;
+		}
+		function myTabAction(hangtbid,i,bRefresh,vBegin)
+		{
+			var tabID=hangtbid+"tableID";
+			var iBeginTabIndex = 1;
+			if(typeof(document.all(tabID+'_beginIndexID')) != "undefined" && document.all(tabID+'_beginIndexID') != null)
+				iBeginTabIndex= document.all(tabID+'_beginIndexID').value;
+			if(arguments.length==4) 
+				iBeginTabIndex = vBegin;
+			if(bForceRefreshTab || bRefresh )
+			{
+				if(checkTabAction(i))
+				{
+					eval(tabstrip[i][3]);
+					tabstrip[i][4]='LOADED';
+					hc_drawTabToTable_plus_ex(tabstrip,i+1,iBeginTabIndex,iMaxTabLength,hangtbid);
+				}				
+			}
+			else
+			{
+				if(checkTabAction(i))
+				{	
+					if(tabstrip[i][4]!='LOADED'){
+						eval(tabstrip[i][2]);
+						tabstrip[i][4]='LOADED';
+					}
+					hc_drawTabToTable_plus_ex(tabstrip,i+1,iBeginTabIndex,iMaxTabLength,hangtbid);
+				}		
+			}
+		}
+		function deleteTabMenu(hangtbid,i,currentBeginIndex)
+		{
+			var nexttab=i;
+			if(i>=1){
+				nexttab=i-1;
+			}
+			var iBeginTabIndex = calBiginIndex(nexttab,currentBeginIndex);
+			//从总的数组中删除 i tab
+			tabstrip.remove(i);
+			if(checkTabAction(nexttab))
+			{	
+				if(tabstrip[nexttab][4]!='LOADED'){
+					eval(tabstrip[nexttab][2]);
+					tabstrip[nexttab][4]='LOADED';
+				}
+				strip_id_increment--;
+				document.getElementById(hangtbid+i).style.display="none";
+				hc_drawTabToTable_plus_ex(tabstrip,nexttab+1,iBeginTabIndex,iMaxTabLength,hangtbid);
+			}		
 		}
 		function showdiv(obj){
 			if (document.all('tabMenu9').style.visibility=='visible') {
@@ -1053,9 +844,7 @@ function hc_drawTab(tabID, tabStrip,selectedStrip){
 					tableObj.deleteRow(0);
 				}
 				document.all('tabMenu9').style.visibility='hidden';
-				
 			}else{
-				
 				var xPos = obj.offsetLeft;
 				var tempEl = obj.offsetParent;
 				while (tempEl != null){
@@ -1066,21 +855,14 @@ function hc_drawTab(tabID, tabStrip,selectedStrip){
 				document.all('tabMenu9').style.top = event.offsetY+obj.offsetHeight+10;
 				document.all('tabMenu9').style.width = obj.offsetWidth;
 				document.all('tabMenu9').style.visibility='visible';
-
 				//add in 2009/08/20
 				document.all('iframeSelect').style.height = document.all('tabMenu9').offsetHeight;;
 				document.all('iframeSelect').style.width = document.all('tabMenu9').offsetWidth;
-				
-				}
+			}
 		}
 		
 		function addTabMenu(tabNo,tabDesc){
 			var tableObj = document.getElementById("SubMenuTable9");
-			/*sInnerHTML= sInnerHTML +"<tr height=5><td class=\"TabMenuTd2\" style=\"font-size:8px;height:10px;\" align=right><span style=\"font-weight:bold;BORDER-LEFT:#999999 1px solid;BORDER-BOTTOM:#999999 1px solid;cursor:hand\" onclick=\"javascript:showdiv();\">×</span></td></tr>\r";
-			sInnerHTML= sInnerHTML +"<td class=\"TabMenuTd1\" nowrap>&nbsp;测试&nbsp;&nbsp;</td>\r";
-			sInnerHTML= sInnerHTML +"</tr>\r";
-			*/
-			
 			try
 			{
 				var trs = tableObj.rows.length;
@@ -1096,8 +878,6 @@ function hc_drawTab(tabID, tabStrip,selectedStrip){
 				newTr.onclick = function(){onSelectTab(tabNo);};
 				newTD.onmouseover = function(){this.className="TabMenuTd_down";};
 				newTD.onmouseout = function(){this.className="TabMenuTd2";};
-				
-
 			}
 			catch(e)
 			{
@@ -1109,41 +889,6 @@ function hc_drawTab(tabID, tabStrip,selectedStrip){
 		{
 			
 		}
-		function myTabAction(i,bRefresh,vBegin)
-		{
-				var iBeginTabIndex = 1
-				if(typeof(document.all('tab_DeskTopInfo_beginIndexID')) != "undefined" && document.all('tab_DeskTopInfo_beginIndexID') != null)
-					iBeginTabIndex= document.all('tab_DeskTopInfo_beginIndexID').value;
-				
-				if(arguments.length==3) 
-					iBeginTabIndex = vBegin;
-								
-				//sInnerHTML= sInnerHTML + "<td  class='tab"+selected+"' nowrap><span class='tabtext' onclick=\"if(bForceRefreshTab){"+arrTabStrip[i][3]+"}else{"+arrTabStrip[i][2]+"}\" oncontextmenu=\""+arrTabStrip[i][3]+"\">"+arrTabStrip[i][1]+"</span></td>"+"\r";
-				//sInnerHTML= sInnerHTML + "<td  class='tab"+selected+"' nowrap><span class='tabtext' onclick=\"javascript:myTabAction("+i+",false)\" oncontextmenu=\"javascript:myTabAction("+i+",true)\">"+arrTabStrip[i][1]+"</span></td>"+"\r";
-				if(bForceRefreshTab || bRefresh )
-				{
-					if(checkTabAction(i)!=false)
-					{
-						if(true){						
-							eval(tabstrip[i][3]);////OpenComp('ProductApplyTabList','/Common/Configurator/CreditPolicy/ProductApplyTabList.jsp','ObjectType=ProductTypeTab&ObjectNo=2020110&ComponentName=信息项配置&ToInheritObj=y','TabContentFrame7');
-							tabstrip[i][4]='LOADED';
-						}
-						hc_drawTabToTable_plus_ex('tab_DeskTopInfo',tabstrip,i+1,document.all('tabtd'),iBeginTabIndex,iMaxTabLength);
-					}				
-				}
-				else
-				{
-					if(checkTabAction(i)!=false)
-					{	
-						if(tabstrip[i][4]!='LOADED'){
-							eval(tabstrip[i][2]);
-							tabstrip[i][4]='LOADED';
-						}
-						hc_drawTabToTable_plus_ex('tab_DeskTopInfo',tabstrip,i+1,document.all('tabtd'),iBeginTabIndex,iMaxTabLength);
-					}		
-				}
-		}
-		
 		function myTabDelete(i)
 		{
 			//在程序里自己实现 
