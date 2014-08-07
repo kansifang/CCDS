@@ -60,7 +60,7 @@ String getMidPath(String sDocNo) {
 String getFilePath(String sDocNo, String sShortFileName) {
 	String sFileName;
 	sFileName = getMidPath(sDocNo);
-	sFileName = sFileName + "/" + sDocNo + "_" + sShortFileName;
+	sFileName = sFileName + "/" + sDocNo + "_" + sShortFileName.replaceAll("格式定义","");
 	return sFileName;
 }
 %>
@@ -69,36 +69,35 @@ String getFilePath(String sDocNo, String sShortFileName) {
 		String sObjectNo = DataConvert.toRealString(iPostChange,(String)request.getParameter("ObjectNo"));
 		String sObjectType = DataConvert.toRealString(iPostChange,(String)request.getParameter("ObjectType"));
 		String sEDocNo = DataConvert.toRealString(iPostChange,(String)request.getParameter("EDocNo"));
-		if (sEDocNo == null || "".equals(sEDocNo)) {
-			String sTypeNo = Sqlca.getString("Select BusinessType from BUSINESS_CONTRACT where SerialNo='"+sObjectNo+"'");
-			sEDocNo = Sqlca.getString("select Attribute25 from business_type where TypeNo='"+sTypeNo+"'");
+		java.util.Date dateNow = new java.util.Date();
+   		SimpleDateFormat sdfTemp = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
+   		String sUpdateTime=sdfTemp.format(dateNow);
+   		String sFileName="",sFullPathFmt="",sFullPathDef="";
+		ASResultSet rs=Sqlca.getASResultSet("select FileNameFmt,FullPathFmt,FullPathDef"+ 
+										" from EDOC_DEFINE where EDocNo='"+sEDocNo+"'");
+		if(rs.next()){
+			//输出文件名
+			sFileName =DataConvert.toString(rs.getString(1));
+			//模板路径
+			sFullPathFmt =DataConvert.toString( rs.getString(2));
+			//数据路径
+			sFullPathDef =DataConvert.toString( rs.getString(3));
 		}
-		
-		//输出文件名
-		String sFileName = Sqlca.getString("select FileNameFmt from EDOC_DEFINE where EDocNo='"+sEDocNo+"'");
-		//模板路径
-		String sFullPathFmt = Sqlca.getString("select FullPathFmt from EDOC_DEFINE where EDocNo='"+sEDocNo+"'");
-		//数据路径
-		String sFullPathDef = Sqlca.getString("select FullPathDef from EDOC_DEFINE where EDocNo='"+sEDocNo+"'");
+		rs.getStatement().close();
 		//如果不存在记录，则新增打印记录（此对象的打印信息）
 		String sSerialNo = Sqlca.getString("SELECT SerialNo FROM EDOC_PRINT where ObjectNo='"+sObjectNo+"' and ObjectType='"+sObjectType+"' and EDocNo='"+sEDocNo+"'");
 		if (sSerialNo == null) {
 			sSerialNo = DBFunction.getSerialNo("EDOC_PRINT","SerialNo",Sqlca);   
 			Sqlca.executeSQL("insert into EDOC_PRINT(SerialNo,ObjectNo,ObjectType,EDocNo) values('"+sSerialNo+"','"+sObjectNo+"','"+sObjectType+"','"+sEDocNo+"')");
 		}
-   		java.util.Date dateNow = new java.util.Date();
-   		SimpleDateFormat sdfTemp = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
-   		String sUpdateTime=sdfTemp.format(dateNow);
-
    		String sFileSavePath = CurConfig.getConfigure("FileSavePath");
-   		//输出文件路径
+   		//生成文件路径
 		String sFullPathOut = getFullPath(sSerialNo, sFileName, sFileSavePath, application);
-
 		EDocument edoc = new EDocument(sFullPathFmt,sFullPathDef);
    		HashMap map = new HashMap();
 		map.put("SerialNo", sObjectNo);
 		edoc.saveDoc(sFullPathOut,map,Sqlca);
-		//edoc.saveData(sFullPathOut, map, Sqlca);
+		//edoc.saveData(sFullPathOut,map,Sqlca);
 		long lFileLen = new java.io.File(sFullPathOut).length();
 		String sSql = "Update EDOC_PRINT set FullPath='"+sFullPathOut+"',ContentType='application/msword',ContentLength='"+lFileLen+"',InputTime='"+sUpdateTime+"',InputOrg='"+CurUser.OrgID+"',InputUser='"+CurUser.UserID+"' where SerialNo='"+sSerialNo+"'";
 		Sqlca.executeSQL(sSql);

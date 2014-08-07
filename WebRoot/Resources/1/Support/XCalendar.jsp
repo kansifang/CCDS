@@ -55,7 +55,7 @@ function fToggleColor(myElement)
 	{	
 		if (myElement.id == "calCell") 
 		{
-			for (var i in myElement.children) 
+			for (var i=0;i<myElement.children.length;i++) 
 			{
 				if (myElement.children[i].id == "calDateText") 
 				{

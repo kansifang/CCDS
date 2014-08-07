@@ -5,8 +5,7 @@
 <script>
 if (window.dialogArguments) { opener = window.dialogArguments; }
 var _editor_url = "../";
-document.write('<scr'+'ipt src="' +_editor_url+ 'editor11.js" language=javascript></scr'+'ipt>');
-
+document.write('<scr'+'ipt src="' +_editor_url+ 'editor.js" language=javascript></scr'+'ipt>');
 //modify by hxd in 2005/02/21
 //var parent_objname = location.search.substring(1,location.search.length);  // parent editor objname
 //var parent_config  = opener.document.all[parent_objname].config;
@@ -14,8 +13,8 @@ var parent_objname,parent_config;
 if (window.dialogArguments)
 {
 	parent_objname = opener.myObjName;  // parent editor objname
-	sWebRootPath=opener.sWebRootPath;
-	sCompClientID=opener.sCompClientID;
+	//sWebRootPath=opener.sWebRootPath;
+	//sCompClientID=opener.sCompClientID;
 	parent_config  = opener.document.all[parent_objname].config;
 }
 else
@@ -99,7 +98,7 @@ function init() {
 
   // change image url to be relative to current path
   config.imgURL = "../images/";
-  
+  //writeMsg(config.btnList["bold"]);
   // generate editor and resize it
   editor_generate('editor', config);
   resize_editor();
@@ -110,10 +109,8 @@ function init() {
   // set child window contents
   var parentHTML = opener.editor_getHTML(parent_objname);
   editor_setHTML(objname, parentHTML);
-
   // continuously update parent editor window
   window.setInterval(update_parent, 333);
-
   // setup event handlers
   document.body.onkeypress = _CloseOnEsc;
   window.onresize = resize_editor;
@@ -128,8 +125,6 @@ function update_parent() {
   var childHTML = editor_getHTML(objname);
   opener.editor_setHTML(parent_objname, childHTML);
 }
-
-
 </script>
 </head>
 <body scroll="no" onload="init()" onunload="update_parent()">

@@ -46,6 +46,7 @@
 	<script language=javascript>
 		form1.submit();
 		//if(confirm("¹Ø±ÕÂð£¿")) self.close();
+		setTimeout("top.close();",2000);
 	</script>
 <%
 	}

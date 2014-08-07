@@ -244,7 +244,7 @@
 	<tr>
 		<td align="right" class="black9pt" bgcolor="#D8D8AF">报表日期：</td>
 		<td bgcolor="#F0F1DE">
-			<input type=text size=15 value='<%=StringFunction.getRelativeAccountMonth(StringFunction.getToday(), "month", 0)%>' name="ReportDate[0]" ondblclick="getMonth(this)"> 
+			<input type=text size=15 value='<%=StringFunction.getRelativeAccountMonth(StringFunction.getToday(), "month", -1)%>' name="ReportDate[0]" ondblclick="getMonth(this)"> 
 		</td>
 		<td align="right" class="black9pt" bgcolor="#D8D8AF">数据文件：</td>
 		<td bgcolor="#F0F1DE">

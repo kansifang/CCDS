@@ -45,7 +45,10 @@
 		//定义变量
 		
 		//获得组件参数	
-		String sCodeNo =DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("CodeNo")));
+	String sCodeNo =DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("CodeNo")));
+	String sComponentName =DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("ComponentName")));
+	String sExpandItemNo =DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("DefaultTVItemID")));
+	
 		//获得页面参数
 	%>
 <%
@@ -60,7 +63,7 @@
 %>
 	<%
 		//定义Treeview
-		HTMLTreeView tviTemp = new HTMLTreeView(SqlcaRepository,CurComp,sServletURL,"数据管理","right");
+		HTMLTreeView tviTemp = new HTMLTreeView(SqlcaRepository,CurComp,sServletURL,sComponentName,"right");
 		tviTemp.ImageDirectory = sResourcesPath; //设置资源文件目录（图片、CSS）
 		tviTemp.toRegister = false; //设置是否需要将所有的节点注册为功能点及权限点
 		tviTemp.TriggerClickEvent=true; //是否自动触发选中事件
@@ -68,8 +71,8 @@
 		//定义树图结构
 		String sSqlTreeView = "from CODE_LIBRARY where CodeNo='"+sCodeNo+"' and IsInUse='1' ";
 		sSqlTreeView += "and ItemNo not like '0020%' ";//视图filter
-		tviTemp.initWithSql("SortNo","ItemName","ItemNo","ItemDescribe","",sSqlTreeView,"Order By SortNo",Sqlca);
 		//参数从左至右依次为： ID字段,Name字段,Value字段,Script字段,Picture字段,From子句,OrderBy子句,Sqlca
+		tviTemp.initWithSql("SortNo","ItemName","ItemNo","ItemDescribe","",sSqlTreeView,"Order By SortNo",Sqlca);
 	%>
 <%
 	/*~END~*/
@@ -101,7 +104,7 @@
 				String id=(String)ap.getAttribute("ItemNo");
 				String url=(String)ap.getAttribute("ItemAttribute");
 				if(url!=null&&url.length()>0){
-						out.print("var _"+id+"='"+url+"';");
+						out.println("var _"+id+"='"+url+"';");
 				}
 			}
 		}
@@ -112,6 +115,7 @@
 		var sCurItemID = getCurTVItem().id;
 		var sCurItemname = getCurTVItem().name;
         parent.parent.newTab(sCurItemname,eval("_"+sCurItemID));
+        
 	}
 	
 	/*~[Describe=生成treeview;InputParam=无;OutPutParam=无;]~*/
@@ -136,11 +140,7 @@
 	//var pWindow=window.dialogArguments;
 	startMenu();
 	expandNode('root');		
-	expandNode('0200');
-	expandNode('0300');
-	expandNode('0400');
-	expandNode('0500');
-	selectItem('0300002');	
+	selectItem('<%=sExpandItemNo%>');	
 	</script>
 <%
 	/*~END~*/

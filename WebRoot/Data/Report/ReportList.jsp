@@ -269,8 +269,7 @@
 			    return;
 			}
 		}
-		
-		//popComp("EDocView","/Data/Report/EDOC/EDocView.jsp","SerialNo="+sReturn);
+		popComp("EDocView","/Data/Report/EDOC/EDocView.jsp","SerialNo="+sReturn);
 	}
 	</script>
 <%/*~END~*/%>

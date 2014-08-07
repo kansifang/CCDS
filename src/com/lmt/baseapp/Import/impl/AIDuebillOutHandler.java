@@ -7,93 +7,69 @@ import com.lmt.frameapp.sql.Transaction;
  * @author bllou 2012/08/13
  * @msg. 历史押品信息导入初始化
  */
-public class AIDuebillHandler{
+public class AIDuebillOutHandler{
 	//对导入数据加工处理,插入到中间表Batch_Import_Interim
 	public static void interimProcess(String sConfigNo,String sKey,Transaction Sqlca) throws Exception{
-		//修改 王秀梅这个贷款 短期流动资金贷款 由零售条线 修改为 公司条线 ，经营类型为 批发零售—其它
-		String sSql="update Batch_Import_Interim set ~s借据明细@归属条线e~='公司条线',~s借据明细@国家地区e~='太原市',~s借据明细@经营类型(新)e~='批发零售—其它' where ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"' and nvl(~s借据明细@借据流水号e~,'')='2740124368501101'";
- 		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
- 		Sqlca.executeSQL(sSql);
-		//1、归属条线 个人条线统一修改为 零售条线
-		sSql="update Batch_Import_Interim set ~s借据明细@归属条线e~='零售条线' where ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"' and (nvl(~s个人明细@归属条线e~,'')='个人条线' or nvl(~s个人明细@归属条线e~,'')='微小条线')";
- 		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
- 		Sqlca.executeSQL(sSql);
- 		//2、 
+ 		String sSql="";
+		//2、 
  		//b、经营类型（新）设置一个基准日期，其他日期以这个日期为准， 更新到其他时间的之前的，随着业务不断变化，后期经营类型会不断变化，以一年调整一次还是就某个日期不变呢，这是个问题
  		//采取 2014/05以前的以2014/05为准，此后就当前为准保持不变
  		//原则报上的数据都不要再调整，只灵活调整当期
  		String AdjustDate="2014/05";//StringFunction.getRelativeAccountMonth(StringFunction.getToday(), "month", 0);
  		if(1==1&&sKey.compareTo(AdjustDate)<0){
- 			sSql="update Batch_Import_Interim BII set ~s借据明细@经营类型(新)e~="+
- 					"(select ~s借据明细@经营类型(新)e~ from Batch_Import BI "+
- 					"where BI.ConfigNo=BII.ConfigNo and BI.OneKey='"+AdjustDate+"' and BI.~s借据明细@借据流水号e~=BII.~s借据明细@借据流水号e~) "+
+ 			sSql="update Batch_Import_Interim BII set ~s表外明细@经营类型(新)e~="+
+ 					"(select ~s表外明细@经营类型(新)e~ from Batch_Import BI "+
+ 					"where BI.ConfigNo=BII.ConfigNo and BI.OneKey='"+AdjustDate+"' and BI.~s表外明细@借据流水号e~=BII.~s表外明细@借据流水号e~) "+
  			" where BII.ConfigNo='"+sConfigNo+"' and BII.OneKey='"+sKey+"'"+
- 			" and exists(select 1 from Batch_Import BI1 where BI1.ConfigNo=BII.ConfigNo and BI1.OneKey='"+AdjustDate+"' and BI1.~s借据明细@借据流水号e~=BII.~s借据明细@借据流水号e~)";
+ 			" and exists(select 1 from Batch_Import BI1 where BI1.ConfigNo=BII.ConfigNo and BI1.OneKey='"+AdjustDate+"' and BI1.~s表外明细@借据流水号e~=BII.~s表外明细@借据流水号e~)";
  			sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
  			Sqlca.executeSQL(sSql);
  		}
 		//a、经营类型（新）如果字段为空，更新 经营类型 内的值
- 		sSql="update Batch_Import_Interim set ~s借据明细@经营类型(新)e~=~s借据明细@经营类型e~ where ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"' and (nvl(~s借据明细@经营类型(新)e~,'')='' or ~s借据明细@经营类型(新)e~='其他' and nvl(~s借据明细@经营类型e~,'')<>'' and ~s借据明细@经营类型(新)e~<>~s借据明细@经营类型e~)";
+ 		sSql="update Batch_Import_Interim set ~s表外明细@经营类型(新)e~=~s表外明细@经营类型e~ where ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"' and (nvl(~s表外明细@经营类型(新)e~,'')='' or ~s表外明细@经营类型(新)e~='其他' and nvl(~s表外明细@经营类型e~,'')<>'' and ~s表外明细@经营类型(新)e~<>~s表外明细@经营类型e~)";
  		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
  		Sqlca.executeSQL(sSql);
 		//c、以导入的客户信息为准更新经营类型(新)----导入日期永远以今天为准（这个其他种类还是太大，不是很准，暂时屏蔽吧）
 		/*
-		sSql="update Batch_Import_Interim BII set ~s借据明细@经营类型(新)e~="+
+		sSql="update Batch_Import_Interim BII set ~s表外明细@经营类型(新)e~="+
 				"(select ~s客户明细@经营类型(新)e~ from Batch_Import_Interim BII1 "+
-				"where BII1.ConfigName='客户明细' and BII1.OneKey='"+StringFunction.getRelativeAccountMonth(StringFunction.getToday(), "month", 0)+"' and BII1.~s客户明细@客户名称e~=BII.~s借据明细@客户名称e~) "+
+				"where BII1.ConfigName='客户明细' and BII1.OneKey='"+StringFunction.getRelativeAccountMonth(StringFunction.getToday(), "month", 0)+"' and BII1.~s客户明细@客户名称e~=BII.~s表外明细@客户名称e~) "+
 		" where BII.ConfigNo='"+sConfigNo+"' and BII.OneKey='"+sKey+"'"+
-		" and exists(select 1 from Batch_Import BII2 where BII2.ConfigName='客户明细' and BII2.OneKey='"+StringFunction.getRelativeAccountMonth(StringFunction.getToday(), "month", 0)+"' and BII2.~s客户明细@客户名称e~=BII.~s借据明细@客户名称e~)";
+		" and exists(select 1 from Batch_Import BII2 where BII2.ConfigName='客户明细' and BII2.OneKey='"+StringFunction.getRelativeAccountMonth(StringFunction.getToday(), "month", 0)+"' and BII2.~s客户明细@客户名称e~=BII.~s表外明细@客户名称e~)";
 		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
 		Sqlca.executeSQL(sSql);
 		*/
  		//3、直属行名称 晋城、晋中、长治直属行名称，根据 管户人 名字后面的括号内的标志更新
- 		sSql="update Batch_Import_Interim set ~s借据明细@直属行名称e~="+
- 					"case when ~s借据明细@管户人e~ like '%晋城%' or ~s借据明细@管户人e~='段林虎' then '晋城分行筹备组' "+
- 					"when ~s借据明细@管户人e~ like '%晋中%' then '晋中分行筹备组' "+
- 					"when ~s借据明细@管户人e~ like '%长治%' then '长治分行' "+
- 					"else ~s借据明细@直属行名称e~ end "+
+ 		sSql="update Batch_Import_Interim set ~s表外明细@直属行名称e~="+
+ 					"case when ~s表外明细@管户人e~ like '%晋城%' or ~s表外明细@管户人e~='段林虎' then '晋城分行筹备组' "+
+ 					"when ~s表外明细@管户人e~ like '%晋中%' then '晋中分行筹备组' "+
+ 					"when ~s表外明细@管户人e~ like '%长治%' then '长治分行' "+
+ 					"else ~s表外明细@直属行名称e~ end "+
  					"where ConfigNo='"+sConfigNo+"' "+
  					"and OneKey='"+sKey+"' "+
- 					"and nvl(~s借据明细@管户人e~,'')<>''";
+ 					"and nvl(~s表外明细@管户人e~,'')<>''";
  		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
  		Sqlca.executeSQL(sSql); 
  		//4、直属行名称中带晋商银行的 如果 根据 管户机构 来更新
- 		sSql="update Batch_Import_Interim set ~s借据明细@直属行名称e~=~s借据明细@管户机构e~"+
+ 		sSql="update Batch_Import_Interim set ~s表外明细@直属行名称e~=~s表外明细@管户机构e~"+
  					" where ConfigNo='"+sConfigNo+"' "+
  					" and OneKey='"+sKey+"' "+
- 					" and nvl(~s借据明细@直属行名称e~,'')='晋商银行'";
+ 					" and nvl(~s表外明细@直属行名称e~,'')='晋商银行'";
  		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
  		Sqlca.executeSQL(sSql);
- 		//5、业务品种 存在 期限月加期限日明显是长期贷款，业务品种却是短期流动资金贷款的情况，故在此更新成 中长期流动资金贷款
- 		sSql="update Batch_Import_Interim set ~s借据明细@业务品种e~='中长期流动资金贷款'"+
- 					" where ConfigNo='"+sConfigNo+"' "+
- 					" and OneKey='"+sKey+"' "+
- 					" and nvl(~s借据明细@业务品种e~,'')='短期流动资金贷款'"+
- 					" and (nvl(~s借据明细@期限日e~,0)>0 and nvl(~s借据明细@期限月e~,0)+1>12 or nvl(~s借据明细@期限月e~,0)>12) ";//or nvl(~s借据明细@期限类型e~,0)='中长期'
- 		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
- 		Sqlca.executeSQL(sSql); 
- 		//业务品种 存在 期限月加期限日明显是短期贷款，业务品种却是中长期流动资金贷款的情况，故在此更新成 短期流动资金贷款
- 		sSql="update Batch_Import_Interim set ~s借据明细@业务品种e~='短期流动资金贷款'"+
- 					" where ConfigNo='"+sConfigNo+"' "+
- 					" and OneKey='"+sKey+"' "+
- 					" and nvl(~s借据明细@业务品种e~,'')='中长期流动资金贷款'"+
- 					" and (nvl(~s借据明细@期限日e~,0)>0 and nvl(~s借据明细@期限月e~,0)+1<=12 or nvl(~s借据明细@期限月e~,0)<=12)";
- 		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
- 		Sqlca.executeSQL(sSql); 
- 		//6、企业规模 为空的为 医院、学校、事业单位等
- 		sSql="update Batch_Import_Interim set ~s借据明细@企业规模e~='机关事业单位'"+
+ 		sSql="update Batch_Import_Interim set ~s表外明细@企业规模e~='机关事业单位'"+
  					" where ConfigNo='"+sConfigNo+"'"+
  					" and OneKey='"+sKey+"'"+
- 					" and nvl(~s借据明细@企业规模e~,'')=''";
+ 					" and nvl(~s表外明细@企业规模e~,'')=''";
  		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
  		Sqlca.executeSQL(sSql); 
  		//7、统一更新币种到人民币，余额 金额做相应转化
- 		sSql="update Batch_Import_Interim set ~s借据明细@币种e~='01',"+
-			 		"~s借据明细@金额(元)e~=~s借据明细@金额(元)e~*nvl(getErate(~s借据明细@币种e~,'01',''),1),"+
-			 		"~s借据明细@余额(元)e~=~s借据明细@余额(元)e~*nvl(getErate(~s借据明细@币种e~,'01',''),1) "+
+ 		sSql="update Batch_Import_Interim set ~s表外明细@币种e~='01',"+
+			 		"~s表外明细@金额(元)e~=~s表外明细@金额(元)e~*nvl(getErate(~s表外明细@币种e~,'01',''),1),"+
+			 		"~s表外明细@余额(元)e~=~s表外明细@余额(元)e~*nvl(getErate(~s表外明细@币种e~,'01',''),1) "+
  					" where ConfigNo='"+sConfigNo+"'"+
  					" and OneKey='"+sKey+"'"+
- 					" and nvl(~s借据明细@币种e~,'')<>'01'";
+ 					" and nvl(~s表外明细@币种e~,'')<>'01'";
  		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
  		Sqlca.executeSQL(sSql);
 	}
@@ -124,13 +100,13 @@ public class AIDuebillHandler{
 		groupColumns=("".equals(groupColumns)?"":groupColumns+",");
  		sSql="select "+
  				"'"+HandlerFlag+"',ConfigNo,OneKey,'"+Dimension+"',"+groupColumns+
-				"round(sum(case when ~s借据明细@借据起始日e~ like '"+sKey+"%' then ~s借据明细@金额(元)e~ end)/10000,2) as BusinessSum,"+//按月投放金额
-				(isSeason==true?"round(sum(case when ~s借据明细@借据起始日e~ >= '"+startsmonth+"/01' and ~s借据明细@借据起始日e~ <= '"+sKey+"/31' then ~s借据明细@金额(元)e~ end)/10000,2)":"0")+","+//如果是季度末，计算按季投放金额,如果是半年末计算半年投放，整年....
-				"round(case when sum(~s借据明细@金额(元)e~)<>0 then sum(~s借据明细@金额(元)e~*~s借据明细@执行年利率(%)e~)/sum(~s借据明细@金额(元)e~) else 0 end,2) as BusinessRate, "+//加权利率
-				"round(sum(~s借据明细@余额(元)e~)/10000,2) as Balance, "+
-				"count(distinct ~s借据明细@客户名称e~) "+
+				"round(sum(case when ~s表外明细@借据起始日e~ like '"+sKey+"%' then ~s表外明细@金额(元)e~ end)/10000,2) as BusinessSum,"+//按月投放金额
+				(isSeason==true?"round(sum(case when ~s表外明细@借据起始日e~ >= '"+startsmonth+"/01' and ~s表外明细@借据起始日e~ <= '"+sKey+"/31' then ~s表外明细@金额(元)e~ end)/10000,2)":"0")+","+//如果是季度末，计算按季投放金额,如果是半年末计算半年投放，整年....
+				"round(case when sum(~s表外明细@金额(元)e~)<>0 then sum(~s表外明细@金额(元)e~*~s表外明细@执行年利率(%)e~)/sum(~s表外明细@金额(元)e~) else 0 end,2) as BusinessRate, "+//加权利率
+				"round(sum(~s表外明细@余额(元)e~)/10000,2) as Balance, "+
+				"count(distinct ~s表外明细@客户名称e~) "+
 				"from Batch_Import_Interim "+
-				" where ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"' and nvl(~s借据明细@余额(元)e~,0)>0 "+sWhere+
+				" where ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"' and nvl(~s表外明细@余额(元)e~,0)>0 "+sWhere+
 				" group by ConfigNo,OneKey"+("".equals(groupBy)?"":","+groupBy);
 		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
  		Sqlca.executeSQL("insert into Batch_Import_Process "+
@@ -142,29 +118,7 @@ public class AIDuebillHandler{
 	}
 	//因为SQL语句复杂 process无法通用完成，需要此处独立完成
 	public static void afterProcess1(String HandlerFlag,String sConfigNo,String sKey,Transaction Sqlca)throws Exception{
-		//贷款金额区间(按户数来)
-		String groupBy="case when BalanceSum>=500000000 then 'A-5亿以上（含5亿）' "+
-	 			"when BalanceSum>=300000000 then 'B-3亿至5亿（含3亿）' "+
-	 			"when BalanceSum>=200000000 then 'C-2亿至3亿（含2亿）' "+
-	 			"when BalanceSum>=100000000 then 'D-1亿至2亿（含1亿）' "+
-	 			"when BalanceSum>=50000000 then 'E-5000万至1亿（含5000万）' "+
-	 			"else case when MDF like '%公司条线' then 'F-5000万以下@公司条线' else 'F-5000万以下@小企业条线' end end";
-		String sSql="select " +
-				"'"+HandlerFlag+"','"+sConfigNo+"','"+sKey+"','贷款余额区间',"+groupBy+",round(sum(BalanceSum)/10000,2),count(CustomerName)"+
-				" from " +
-				" (select ~s借据明细@客户名称e~ as CustomerName," +
-				" max(~s借据明细@借据起始日e~||~s借据明细@归属条线e~) as MDF," +
-				"sum(~s借据明细@余额(元)e~) as BalanceSum " +
-				" from Batch_Import_Interim BII" +
-				" where ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"' and nvl(~s借据明细@余额(元)e~,0)>0 "+
-				" group by ConfigNo,OneKey,~s借据明细@客户名称e~)tab"+
-				" group by "+groupBy;
-		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
- 		Sqlca.executeSQL("insert into Batch_Import_Process "+
- 				"(HandlerFlag,ConfigNo,OneKey,Dimension,DimensionValue,Balance,TotalTransaction)"+
- 				"( "+
- 				sSql+
- 				")");
+		
 	}
 			
 	//加入小计 合计 横向纵向比较值 小计总以 DimensionValue 中以@分割为标志

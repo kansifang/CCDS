@@ -21,7 +21,7 @@ if(sCurRunMode!=null && sCurRunMode.equals("Development")){
 		popComp("ControlCenter","/Common/Configurator/ControlCenter/ControlCenter.jsp","","","");
 	}
 	function displayHTML(oBody){
-		showModalDialog("<%=sWebRootPath%>/Frame/Debug/testDialog.htm", oBody,"status:no;resizable:yes;center:yes;dialogHeight:688px;dialogWidth:968px;");
+		showModalDialog("<%=sWebRootPath%>/Frame/Debug/testDialog1.htm", oBody,"status:no;resizable:yes;center:yes;dialogHeight:688px;dialogWidth:968px;");
 	}
 	function displayIframeHTML(){
 		try{

@@ -1,5 +1,5 @@
 .pt9white {  font-family:宋体;font-size: 9pt; color: #FFFFFF; text-decoration: none}
-.allwhite {  font-family:宋体;font-size: 9pt; line-height: 10pt; text-decoration: none color: #FFFFFF;}
+.allwhite {  font-family:宋体;font-size: 9pt; line-height: 10pt; text-decoration: none; color: #FFFFFF;}
 a:link {  text-decoration: none; color: #CC3300}
 a:hover {  text-decoration: underline}
 .orange9pt {  font-family:宋体;font-size: 9pt; color: #FF6600}
@@ -71,7 +71,7 @@ td.ColumnTitle
 	color: #55554B;
    	background-color: #DEDEC8;
    	background-image:url(back.gif);
-	cursor: hand;
+	cursor: pointer;
 }
 td.TCColumnTitleLT
 {
@@ -248,7 +248,7 @@ td.TCSelImageSelected
 	height:20px ;
 	border: 0px;
 	background-image: url( table/table_row_button_downstate.gif );
-	cursor:hand;
+	cursor:pointer;
 }
 	
 td.TCSelImageUnselected
@@ -261,14 +261,14 @@ td.TCSelImageUnselected
 	background-image: url( table/table_row_button_upstate.gif );
 	background-repeat: no-repeat; 
 	background-position: top center;
-	cursor:hand;
+	cursor:pointer;
 
 	border-color: #000000; 
 	border-style: solid; 
 	border-top-width: 1px; 
 	border-right-width: 1px; 
 	border-bottom-width: 0px; 
-	border-left-width: 0px	
+	border-left-width: 0px;
 
 	font-family:宋体;
 	font-size: 9pt; 
@@ -285,7 +285,7 @@ img.ServerFirstPage
 	height:15px;
 	width:15px;
 	background-image:url(table/server_first.gif);
-	cursor:hand;
+	cursor:pointer;
 }
 img.ServerPrevPage
 {
@@ -293,21 +293,21 @@ img.ServerPrevPage
 	height:15px;
 	width:15px;
 	background-image:url(table/server_prev.gif);
-	cursor:hand;
+	cursor:pointer;
 }img.ServerNextPage
 {
 	border:0px;
 	height:15px;
 	width:15px;
 	background-image:url(table/server_next.gif);
-	cursor:hand;
+	cursor:pointer;
 }img.ServerLastPage
 {
 	border:0px;
 	height:15px;
 	width:15px;
 	background-image:url(table/server_last.gif);
-	cursor:hand;
+	cursor:pointer;
 }
 
 /* Top Page Button */
@@ -317,7 +317,7 @@ img.TCTopPageA
 	height:15px;
 	width:15px;
 	background-image:url(table/top.gif);
-	cursor:hand;
+	cursor:pointer;
 }
 
 /* Prev Page Button */
@@ -327,7 +327,7 @@ img.TCPrevPageA
 	height:15px;
 	width:15px;
 	background-image:url(table/pageup.gif);
-	cursor:hand;
+	cursor:pointer;
 }
 
 /* Prev Row Button */
@@ -337,7 +337,7 @@ img.TCPrevRowA
 	height:15px;
 	width:15px;
 	background-image:url(table/scrollup.gif);
-	cursor:hand;
+	cursor:pointer;
 }
 
 /* Bottom Page Button */
@@ -347,7 +347,7 @@ img.TCLastPageA
 	height:15px;
 	width:15px;
 	background-image:url(table/bottom.gif);
-	cursor:hand;
+	cursor:pointer;
 }
 
 /* Next Page Button */
@@ -357,7 +357,7 @@ img.TCNextPageA
 	height:15px;
 	width:15px;
 	background-image:url(table/pagedown.gif);
-	cursor:hand;
+	cursor:pointer;
 }
 
 /* Next Row Button */
@@ -367,7 +367,7 @@ img.TCNextRowA
 	height:15px;
 	width:15px;
 	background-image:url(table/scrolldown.gif);
-	cursor:hand;
+	cursor:pointer;
 }
 
 /** Inactive TC Buttons **/
@@ -453,7 +453,8 @@ td.TCJumpRowTotal
 body {
 	margin-top : 6px;
 	margin-left : 4px;
-	background-image : url(../GridBG_everbright.gif);
+	overflow: hidden;
+	/*background-image : url(../GridBG_everbright.gif);*/
 }
 body2 {  background-color: #FF0000}
 
@@ -466,7 +467,7 @@ body2 {  background-color: #FF0000}
 .GdTrContentSerial{
 	width:15px;
 	background-color: #999999;
-	cursor:hand;
+	cursor:pointer;
 }
 
 .GdTdInput{
@@ -491,15 +492,115 @@ body2 {  background-color: #FF0000}
 .GDTdHeader{
 	font-family:宋体,arial,sans-serif;
 	font-size: 9pt;
-	font-weight: normal;
-	padding-left: 2;
-	color: #000000;
+	font-weight: bold;
+	padding-left: 2px;
+	color: #606060;
 	background-color: #777777;
-	background-image: url(back.gif);
-	cursor: hand;
+	background:#fff url(../images/tabe_title_bg.jpg) bottom;
+	height:20px;
+	cursor:pointer;
 	text-decoration: none;
 	/*text-align:left;*/
 }
 .GdTdPage{
-	font-family:宋体,arial,sans-serif;font-size:9pt;	font-weight: normal;color: #555555;	padding-left:  5px;padding-right:5px;padding-top:2px;padding-bottom:2px;background-color: #CDCDCD;valign:top;
+	font-family:宋体,arial,sans-serif;font-size:9pt;	font-weight: normal;color: #555555;
+	padding-left:0px;padding-right:0px;padding-top:0px;padding-bottom:0px;
+	background-color: #fff;valign:top;
+}
+
+div.tableContainer {
+	clear: both;
+	height: 285px;
+	overflow: auto;
+	width: 100%;
+}
+div.tableContainer table{
+	*+border:1px solid #bcbcbc;
+	
+}
+
+/* WinIE 6.x needs to re-account for it's scrollbar. Give it some padding */
+\html div.tableContainer/* */ {
+	padding: 0 16px 0 0;
+}
+
+/* clean up for allowing display Opera 5.x/6.x and MacIE 5.x */
+html>body div.tableContainer {
+	height: auto;
+	padding: 0;
+}
+
+/* Reset overflow value to hidden for all non-IE browsers. */
+/* Filter out Opera 5.x/6.x and MacIE 5.x */
+head:first-child+body div[class].tableContainer {
+	height: 100%;
+	overflow: hidden;
+	width: 100%
+}
+
+
+/* WinIE 6.x needs to re-account for padding. Give it a negative margin */
+\html div.tableContainer table/* */ {
+	margin: 0 -16px 0 0
+}
+
+/* define width of table. Opera 5.x/6.x and MacIE 5.x */
+html>body div.tableContainer table {
+	float: none;
+	margin: 0;
+	width: 740px
+}
+
+/* define width of table. Add 16px to width for scrollbar. */
+/* All other non-IE browsers. Filter out Opera 5.x/6.x and MacIE 5.x */
+head:first-child+body div[class].tableContainer table {
+	width: 100%
+}
+
+/* set table header to a fixed position. WinIE 6.x only */
+/* In WinIE 6.x, any element with a position property set to relative and is a child of */
+/* an element that has an overflow property set, the relative value translates into fixed. */
+/* Ex: parent element DIV with a class of tableContainer has an overflow property set to auto */
+thead.fixedHeader tr {
+	position: relative;
+	top: expression(document.getElementById("tableContainer").scrollTop);
+}
+
+
+/* set THEAD element to have block level attributes. All other non-IE browsers */
+/* this enables overflow to work on TBODY element. All other non-IE, non-Mozilla browsers */
+/* Filter out Opera 5.x/6.x and MacIE 5.x */
+head:first-child+body thead[class].fixedHeader tr {
+	display: block
+}
+
+/* define the table content to be scrollable */
+/* set TBODY element to have block level attributes. All other non-IE browsers */
+/* this enables overflow to work on TBODY element. All other non-IE, non-Mozilla browsers */
+/* induced side effect is that child TDs no longer accept width: auto */
+/* Filter out Opera 5.x/6.x and MacIE 5.x */
+head:first-child+body tbody[class].scrollContent {
+	display: block;
+	height: 100%;
+	overflow: auto;
+	width: 100%
+}
+
+/* define width of TH elements: 1st, 2nd, and 3rd respectively. */
+/* All other non-IE browsers. Filter out Opera 5.x/6.x and MacIE 5.x */
+/* Add 16px to last TH for scrollbar padding */
+/* http://www.w3.org/TR/REC-CSS2/selector.html#adjacent-selectors */
+.fixedHeader th {
+	border:1px solid #bcbcbc;
+	*+border-right:0px;
+	position: relative;
+}
+
+/* define width of TH elements: 1st, 2nd, and 3rd respectively. */
+/* All other non-IE browsers. Filter out Opera 5.x/6.x and MacIE 5.x */
+/* Add 16px to last TH for scrollbar padding */
+/* http://www.w3.org/TR/REC-CSS2/selector.html#adjacent-selectors */
+.scrollContent td {
+	
+	border:1px solid #bcbcbc;
 }

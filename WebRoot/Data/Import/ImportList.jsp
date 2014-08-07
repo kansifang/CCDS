@@ -129,7 +129,7 @@
     ASDataWindow dwTemp = new ASDataWindow(CurPage,doTemp,Sqlca);
 	dwTemp.Style="1";      //设置为Grid风格
 	dwTemp.ReadOnly = "1"; //设置为只读
-	dwTemp.iPageSize=40;
+	dwTemp.iPageSize=20;
 	//设置setEvent
 	dwTemp.setEvent("AfterDelete","!PublicMethod.DeleteColValue(Batch_Case,String@BatchNo@#BatchNo)");
 
@@ -345,10 +345,10 @@
 	<script language=javascript>
 		function mySelectRow()
 		{
-			var sBatchNo = getItemValue(0,getRow(),"BatchNo");
-			document.getElementById("ListHorizontalBar").parentNode.style.display="";
-			document.getElementById("ListDetailAreaTD").parentNode.style.display="";
-			OpenComp("CaseList","/BusinessManage/CaseList.jsp","BatchNo="+sBatchNo,"DetailFrame","");
+			//var sBatchNo = getItemValue(0,getRow(),"BatchNo");
+			//document.getElementById("ListHorizontalBar").parentNode.style.display="";
+			//document.getElementById("ListDetailAreaTD").parentNode.style.display="";
+			//OpenComp("CaseList","/BusinessManage/CaseList.jsp","BatchNo="+sBatchNo,"DetailFrame","");
 	
 		}
 	</script>

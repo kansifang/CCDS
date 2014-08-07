@@ -95,7 +95,7 @@ function fToggleColor(myElement)
 	{	
 		if (myElement.id == "calCell") 
 		{
-			for (var i in myElement.children) 
+			for (var i=0;i<myElement.children.length;i++) 
 			{
 				if (myElement.children[i].id == "calDateText") 
 				{
@@ -527,10 +527,10 @@ var displayDetail=false;
 function displayD(){
 	displayDetail=!displayDetail;
 	if(displayDetail){
-		$('#du').html("<img name='movefrom_report_chosen' style='cursor:hand' onmousedown='pushButton(\"movefrom_report_chosen\",true);' onmouseup='pushButton(\"movefrom_report_chosen\",false);' onmouseout='pushButton(\"movefrom_report_chosen\",false);' onclick='displayD();' border='0' src='<%=sResourcesPath%>/chooser_orange/scroll_arrow_up.gif' alt='detail'/>");
+		$('#du').html("<img name='movefrom_report_chosen' style='cursor:hand' onclick='displayD();' border='0' src='<%=sResourcesPath%>/chooser_orange/scroll_arrow_up.gif' alt='detail'/>");
 		$('#MyCalendar').css("visibility","visible");
 	}else{
-		$('#du').html("<img name='movefrom_report_chosen' style='cursor:hand' onmousedown='pushButton(\"movefrom_report_chosen\",true);' onmouseup='pushButton(\"movefrom_report_chosen\",false);' onmouseout='pushButton(\"movefrom_report_chosen\",false);' onclick='displayD();' border='0' src='<%=sResourcesPath%>/chooser_orange/scroll_arrow_down.gif' alt='detail'/>");
+		$('#du').html("<img name='movefrom_report_chosen' style='cursor:hand' onclick='displayD();' border='0' src='<%=sResourcesPath%>/chooser_orange/scroll_arrow_down.gif' alt='detail'/>");
 		$('#MyCalendar').css("visibility","hidden");
 	}
 }
@@ -585,7 +585,7 @@ function showTipOfToday(id,e,sText){
 	<table border="0" cellspacing="0" cellpadding="0">
 		<tr>
 		<td valign="top" nowrap>
-			<img name='movefrom_report_chosen' onmousedown='pushButton("movefrom_report_chosen",true);' onmouseup='pushButton("movefrom_report_chosen",false);' onmouseout='pushButton("movefrom_report_chosen",false);' onclick='prev();' border='0' src='<%=sResourcesPath%>/chooser_orange/triangle-left.png' alt='Remove selected items' />
+			<img name='movefrom_report_chosen' onclick='prev();' border='0' src='<%=sResourcesPath%>/chooser_orange/triangle-left.png' alt='Remove selected items' />
 		</td>
 		<td onMouseOver="showlayerforCP(0,this)" valign="top" nowrap>
 			<span id="tbSelYear" style='width:25;cursor:hand' onClick='SelectYearOrDay="Y";fDrawYear(document.getElementById("tbSelYear").innerHTML,60, 40, "11px", "", 1);displayD();' onchange='fDrawCal(document.getElementById("tbSelYear").innerHTML, document.getElementById("tbSelMonth").innerHTML, 30, 20, "11px", "", 1)'>
@@ -599,10 +599,10 @@ function showTipOfToday(id,e,sText){
 			<span id="tbSelDay" style='width:10;'></span>»’
 		</td>
 		<td nowrap>
-			<img  name='movefrom_report_chosen' onmousedown='pushButton("movefrom_report_chosen",true);' onmouseup='pushButton("movefrom_report_chosen",false);' onmouseout='pushButton("movefrom_report_chosen",false);' onclick='next();' border='0' src='<%=sResourcesPath%>/chooser_orange/triangle-right.png' alt='next'/>
+			<img  name='movefrom_report_chosen' onclick='next();' border='0' src='<%=sResourcesPath%>/chooser_orange/triangle-right.png' alt='next'/>
 		</td>
 		<td id=du nowrap>
-			<img style='cursor:hand' name='movefrom_report_chosen' onmousedown='pushButton("movefrom_report_chosen",true);' onmouseup='pushButton("movefrom_report_chosen",false);' onmouseout='pushButton("movefrom_report_chosen",false);' onClick='displayD();' border='0' src='<%=sResourcesPath%>/chooser_orange/scroll_arrow_down.gif' alt='detail'/>
+			<img style='cursor:hand' name='movefrom_report_chosen' onClick='displayD();' border='0' src='<%=sResourcesPath%>/chooser_orange/scroll_arrow_down.gif' alt='detail'/>
 		</td>
 		</tr>
 	</table>

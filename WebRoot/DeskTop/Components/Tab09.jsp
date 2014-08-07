@@ -5,19 +5,11 @@
 <body class=pagebackground leftmargin="0" topmargin="0" >	
 <table align=center cellspacing=0 cellpadding=0 border=0 width=98% height=98% >
 <!-----------------------------数据Tab区----------------------------->
-	<tr height=1 id="ButtonTR">
-		<td id="ListButtonArea" class="ListButtonArea" valign=top colspan=2>
-			<%
-			CurPage.setAttribute("Buttons1",sButtons);
-			%>
-			<%@ include file="/Resources/CodeParts/ButtonSet.jsp"%>
-	    </td>
-	</tr>
 	<tr>
 		<td valign='top' colspan=2 class='tabhead' > <!--这是TabHead--><br> </td>
 	</tr>
 	<tr>
-		<td valign='top' align='left' id="tabtd" class="tabtd">
+		<td valign='top' align='left' id="tabtd" class="tabtd"><!--tab都挂在这下面-->
 		</td>
 		<td valign='top' class="tabtoolbar" width=1>
 		<!--这是TabBar-->
@@ -35,6 +27,4 @@
 	</tr>
 <!-------------------------------->
 </table>
-
 </body>
-

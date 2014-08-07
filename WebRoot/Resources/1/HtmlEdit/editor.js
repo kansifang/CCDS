@@ -8,106 +8,105 @@ document.write('.cMenuOver { background-color: highlight; color: highlighttext; 
 document.write('.cMenuDivOuter { background-color: threedface; height: 9 }');
 document.write('.cMenuDivInner { margin: 0 4 0 4; border-width: 1; border-style: solid; border-color: threedshadow threedhighlight threedhighlight threedshadow; }');
 document.write('</style>\n');
-
 function editor_defaultConfig(objname) {
-
-this.version = "1.02";
-
-this.width =  "auto";
-this.height = "auto";
-this.bodyStyle = 'background-color: #FFFFFF; font-family: "Verdana"; font-size: x-small;';
-this.imgURL = _editor_url + 'images/';
-this.debug  = 0;
-
-this.replaceNextlines = 0; // replace nextlines from spaces (on output)
-this.plaintextInput = 0;   // replace nextlines with breaks (on input)
-
-this.toolbar = [
-    ['fontname'],
-    ['fontsize'],
-//    ['fontstyle'],
-//    ['linebreak'],
-    ['bold','italic','underline','separator'],
-//  ['strikethrough','subscript','superscript','separator'],
-    ['justifyleft','justifycenter','justifyright','separator'],
-//    ['OrderedList','UnOrderedList','Outdent','Indent','separator'],
-    ['forecolor','backcolor','separator'],
-//    ['HorizontalRule','Createlink','InsertImage','InsertTable','htmlmode','separator'],
-    ['InsertImage','separator'],
-//  ['custom1','custom2','custom3','separator'],
-    ['popupeditor'],
-    ['about']
-    ];
-
-this.fontnames = {
-    "宋体":            "sans-serif, arial, helvetica",
-    "黑体":            "黑体, sans-serif, arial, helvetica",
-    "楷体":            "楷体, sans-serif, arial, helvetica",
-    "Arial":           "arial, helvetica, sans-serif",
-    "Courier New":     "courier new, courier, mono",
-    "Georgia":         "Georgia, Times New Roman, Times, Serif",
-    "Tahoma":          "Tahoma, Arial, Helvetica, sans-serif",
-    "Times New Roman": "times new roman, times, serif",
-    "Verdana":         "Verdana, Arial, Helvetica, sans-serif",
-    "impact":          "impact",
-    "WingDings":       "WingDings"};
-
-this.fontsizes = {
-    "1 (8 pt)":  "1",
-    "2 (10 pt)": "2",
-    "3 (12 pt)": "3",
-    "4 (14 pt)": "4",
-    "5 (18 pt)": "5",
-    "6 (24 pt)": "6",
-    "7 (36 pt)": "7"
-  };
-
-//this.stylesheet = "http://www.???.com/sample.css"; // full URL to stylesheet
-
-this.fontstyles = [     // make sure these exist in the header of page the content is being display as well in or they won't work!
-//    { name: "headline",     className: "headline",  classStyle: "font-family: arial black, arial; font-size: 28px; letter-spacing: -2px;" },
-//    { name: "arial red",    className: "headline2", classStyle: "font-family: arial black, arial; font-size: 12px; letter-spacing: -2px; color:red" },
-//    { name: "verdana blue", className: "headline4", classStyle: "font-family: verdana; font-size: 18px; letter-spacing: -2px; color:blue" },
-];
-
-this.btnList = {
-    // buttonName:    commandID,               title,                onclick,                   image,             
-    "bold":           ['Bold',                 '加粗',               'editor_action(this.id)',  'ed_format_bold.gif'],
-    "italic":         ['Italic',               '倾斜',               'editor_action(this.id)',  'ed_format_italic.gif'],
-    "underline":      ['Underline',            '下划线',             'editor_action(this.id)',  'ed_format_underline.gif'],
-    "strikethrough":  ['StrikeThrough',        'Strikethrough',      'editor_action(this.id)',  'ed_format_strike.gif'],
-    "subscript":      ['SubScript',            'Subscript',          'editor_action(this.id)',  'ed_format_sub.gif'],
-    "superscript":    ['SuperScript',          'Superscript',        'editor_action(this.id)',  'ed_format_sup.gif'],
-    "justifyleft":    ['JustifyLeft',          'Justify Left',       'editor_action(this.id)',  'ed_align_left.gif'],
-    "justifycenter":  ['JustifyCenter',        'Justify Center',     'editor_action(this.id)',  'ed_align_center.gif'],
-    "justifyright":   ['JustifyRight',         'Justify Right',      'editor_action(this.id)',  'ed_align_right.gif'],
-    "orderedlist":    ['InsertOrderedList',    'Ordered List',       'editor_action(this.id)',  'ed_list_num.gif'],
-    "unorderedlist":  ['InsertUnorderedList',  'Bulleted List',      'editor_action(this.id)',  'ed_list_bullet.gif'],
-    "outdent":        ['Outdent',              'Decrease Indent',    'editor_action(this.id)',  'ed_indent_less.gif'],
-    "indent":         ['Indent',               'Increase Indent',    'editor_action(this.id)',  'ed_indent_more.gif'],
-    "forecolor":      ['ForeColor',            '字体颜色',           'editor_action(this.id)',  'ed_color_fg.gif'],
-    "backcolor":      ['BackColor',            '背景颜色',		     'editor_action(this.id)',  'ed_color_bg.gif'],
-    "horizontalrule": ['InsertHorizontalRule', 'Horizontal Rule',    'editor_action(this.id)',  'ed_hr.gif'],
-    "createlink":     ['CreateLink',           'Insert Web Link',    'editor_action(this.id)',  'ed_link.gif'],
-    "insertimage":    ['InsertImage',          '插入图片',       	 'editor_action(this.id)',  'ed_image.gif'],
-    "inserttable":    ['InsertTable',          'Insert Table',       'editor_action(this.id)',  'insert_table.gif'],
-    "htmlmode":       ['HtmlMode',             'View HTML Source',   'editor_setmode(\''+objname+'\')', 'ed_html.gif'],
-    "popupeditor":    ['popupeditor',          '放大编辑',		     'editor_action(this.id)',  'fullscreen_maximize.gif'],
-    "about":          ['about',                '帮助',               'editor_about(\''+objname+'\')',  'ed_about.gif'],
-
-    // Add custom buttons here:
-    "custom1":           ['custom1',         'Purpose of button 1',  'editor_action(this.id)',  'ed_custom.gif'],
-    "custom2":           ['custom2',         'Purpose of button 2',  'editor_action(this.id)',  'ed_custom.gif'],
-    "custom3":           ['custom3',         'Purpose of button 3',  'editor_action(this.id)',  'ed_custom.gif'],
-   // end: custom buttons
-
-    "help":           ['showhelp',             'Help using editor',  'editor_action(this.id)',  'ed_help.gif']};
-
+	this.version = "1.02";
+	this.width =  "auto";
+	this.height = "auto";
+	this.bodyStyle = 'background-color: #FFFFFF; font-family: "Verdana"; font-size: x-small;';
+	this.imgURL = _editor_url + 'images/';
+	this.debug  = 0;
+	this.replaceNextlines = 0; // replace nextlines from spaces (on output)
+	this.plaintextInput = 0;   // replace nextlines with breaks (on input)
+	this.toolbar = [
+	    ['fontname'],
+	    ['fontsize'],
+	//    ['fontstyle'],
+	//    ['linebreak'],
+	    ['bold','italic','underline','separator'],
+	//  ['strikethrough','subscript','superscript','separator'],
+	    ['justifyleft','justifycenter','justifyright','separator'],
+	//    ['OrderedList','UnOrderedList','Outdent','Indent','separator'],
+	    ['forecolor','backcolor','separator'],
+	//    ['HorizontalRule','Createlink','InsertImage','InsertTable','htmlmode','separator'],
+	    ['InsertImage','separator'],
+	//  ['custom1','custom2','custom3','separator'],
+	    ['popupeditor'],
+	    ['about']
+	    ];
+	this.fontnames = {
+	    "宋体":            "sans-serif, arial, helvetica",
+	    "黑体":            "黑体, sans-serif, arial, helvetica",
+	    "楷体":            "楷体, sans-serif, arial, helvetica",
+	    "Arial":           "arial, helvetica, sans-serif",
+	    "Courier New":     "courier new, courier, mono",
+	    "Georgia":         "Georgia, Times New Roman, Times, Serif",
+	    "Tahoma":          "Tahoma, Arial, Helvetica, sans-serif",
+	    "Times New Roman": "times new roman, times, serif",
+	    "Verdana":         "Verdana, Arial, Helvetica, sans-serif",
+	    "impact":          "impact",
+	    "WingDings":       "WingDings"};
+	this.fontsizes = {
+	    "1 (8 pt)":  "1",
+	    "2 (10 pt)": "2",
+	    "3 (12 pt)": "3",
+	    "4 (14 pt)": "4",
+	    "5 (18 pt)": "5",
+	    "6 (24 pt)": "6",
+	    "7 (36 pt)": "7"
+	  };
+	
+	//this.stylesheet = "http://www.???.com/sample.css"; // full URL to stylesheet
+	
+	this.fontstyles = [     // make sure these exist in the header of page the content is being display as well in or they won't work!
+	//    { name: "headline",     className: "headline",  classStyle: "font-family: arial black, arial; font-size: 28px; letter-spacing: -2px;" },
+	//    { name: "arial red",    className: "headline2", classStyle: "font-family: arial black, arial; font-size: 12px; letter-spacing: -2px; color:red" },
+	//    { name: "verdana blue", className: "headline4", classStyle: "font-family: verdana; font-size: 18px; letter-spacing: -2px; color:blue" },
+	];
+	
+	this.btnList = {
+	    // buttonName:    commandID,               title,                onclick,                   image,             
+	    "bold":           ['Bold',                 '加粗',               'editor_action(this.id)',  'ed_format_bold.gif'],
+	    "italic":         ['Italic',               '倾斜',               'editor_action(this.id)',  'ed_format_italic.gif'],
+	    "underline":      ['Underline',            '下划线',             'editor_action(this.id)',  'ed_format_underline.gif'],
+	    "strikethrough":  ['StrikeThrough',        'Strikethrough',      'editor_action(this.id)',  'ed_format_strike.gif'],
+	    "subscript":      ['SubScript',            'Subscript',          'editor_action(this.id)',  'ed_format_sub.gif'],
+	    "superscript":    ['SuperScript',          'Superscript',        'editor_action(this.id)',  'ed_format_sup.gif'],
+	    "justifyleft":    ['JustifyLeft',          'Justify Left',       'editor_action(this.id)',  'ed_align_left.gif'],
+	    "justifycenter":  ['JustifyCenter',        'Justify Center',     'editor_action(this.id)',  'ed_align_center.gif'],
+	    "justifyright":   ['JustifyRight',         'Justify Right',      'editor_action(this.id)',  'ed_align_right.gif'],
+	    "orderedlist":    ['InsertOrderedList',    'Ordered List',       'editor_action(this.id)',  'ed_list_num.gif'],
+	    "unorderedlist":  ['InsertUnorderedList',  'Bulleted List',      'editor_action(this.id)',  'ed_list_bullet.gif'],
+	    "outdent":        ['Outdent',              'Decrease Indent',    'editor_action(this.id)',  'ed_indent_less.gif'],
+	    "indent":         ['Indent',               'Increase Indent',    'editor_action(this.id)',  'ed_indent_more.gif'],
+	    "forecolor":      ['ForeColor',            '字体颜色',           'editor_action(this.id)',  'ed_color_fg.gif'],
+	    "backcolor":      ['BackColor',            '背景颜色',		     'editor_action(this.id)',  'ed_color_bg.gif'],
+	    "horizontalrule": ['InsertHorizontalRule', 'Horizontal Rule',    'editor_action(this.id)',  'ed_hr.gif'],
+	    "createlink":     ['CreateLink',           'Insert Web Link',    'editor_action(this.id)',  'ed_link.gif'],
+	    "insertimage":    ['InsertImage',          '插入图片',       	 'editor_action(this.id)',  'ed_image.gif'],
+	    "inserttable":    ['InsertTable',          'Insert Table',       'editor_action(this.id)',  'insert_table.gif'],
+	    "htmlmode":       ['HtmlMode',             'View HTML Source',   'editor_setmode(\''+objname+'\')', 'ed_html.gif'],
+	    "popupeditor":    ['popupeditor',          '放大编辑',		     'editor_action(this.id)',  'fullscreen_maximize.gif'],
+	    "about":          ['about',                '帮助',               'editor_about(\''+objname+'\')',  'ed_about.gif'],
+	
+	    // Add custom buttons here:
+	    "custom1":           ['custom1',         'Purpose of button 1',  'editor_action(this.id)',  'ed_custom.gif'],
+	    "custom2":           ['custom2',         'Purpose of button 2',  'editor_action(this.id)',  'ed_custom.gif'],
+	    "custom3":           ['custom3',         'Purpose of button 3',  'editor_action(this.id)',  'ed_custom.gif'],
+	   // end: custom buttons
+	
+	    "help":           ['showhelp',             'Help using editor',  'editor_action(this.id)',  'ed_help.gif']};
+	
 
 }
-
+function writeMsg(fuc){ 
+    var kk=fuc+"";
+    kk=kk.replace(/</g,"<~");
+    kk=kk.replace(/&/g,"&~");
+    kk=kk.replace(/\r|\n|\r\n/g,"\r\n<br><pre>");
+    traceWin=window.open("","traceWindow","height=600, width=800,scrollbars=yes");
+    traceWin.document.writeln(kk);
+}
 function editor_generate(objname,userConfig) {
-
   // Default Settings
   //begin 关于格式化调查报告提示保存与自动保存
   bEditHtml = true;
@@ -119,56 +118,61 @@ function editor_generate(objname,userConfig) {
       if (userConfig[thisName]) { config[thisName] = userConfig[thisName]; }
     }
   }
+  
   document.all[objname].config = config;                  // store config settings
-
   // set size to specified size or size of original object
   var obj    = document.all[objname];
   if (!config.width || config.width == "auto") {
-    if      (obj.style.width) { config.width = obj.style.width; }      // use css style
-    else if (obj.cols)        { config.width = (obj.cols * 8) + 22; }  // col width + toolbar
-    else                      { config.width = '100%'; }               // default
+    if (obj.style.width) { 
+    	config.width = obj.style.width; }      // use css style
+    else if (obj.cols) { 
+    	config.width = (obj.cols * 8) + 22; // col width + toolbar
+    }  
+    else  {
+    	config.width = '100%';  // default
+    }              
   }
   if (!config.height || config.height == "auto") {
-    if      (obj.style.height) { config.height = obj.style.height; }   // use css style
-    else if (obj.rows)         { config.height = obj.rows * 17 }       // row height
-    else                       { config.height = '200'; }              // default
+    if(obj.style.height) { 
+    	config.height = obj.style.height;
+    	}   // use css style
+    else if (obj.rows){
+    	config.height = obj.rows * 17;
+    	}       // row height
+    else { 
+    	config.height = '200'; // default
+    	}              
   }
 
   var tblOpen  = '<table border=0 cellspacing=0 cellpadding=0 style="float: left;"  unselectable="on"><tr><td style="border: none; padding: 1 0 0 0"><nobr>';
   var tblClose = '</nobr></td></tr></table>\n';
 
   // build button toolbar
-
   var toolbar = '';
-  var btnGroup, btnItem, aboutEditor;
-  for (var btnGroup in config.toolbar) {
-
+  for ( var btnGroup=0;btnGroup<config.toolbar.length;btnGroup++) {
     // linebreak
     if (config.toolbar[btnGroup].length == 1 &&
         config.toolbar[btnGroup][0].toLowerCase() == "linebreak") {
       toolbar += '<br clear="all">';
       continue;
     }
-
     toolbar += tblOpen;
-    for (var btnItem in config.toolbar[btnGroup]) {
+    for ( var btnItem=0;btnItem<config.toolbar[btnGroup].length;btnItem++) {
       var btnName = config.toolbar[btnGroup][btnItem].toLowerCase();
-
       // fontname
       if (btnName == "fontname") {
         toolbar += '<select id="_' +objname+ '_FontName" onChange="editor_action(this.id)" unselectable="on" style="margin: 1 2 0 2; font-size: 12px;">';
         for (var fontname in config.fontnames) {
-          toolbar += '<option value="' +config.fontnames[fontname]+ '">' +fontname+ '</option>'
+          toolbar += '<option value="' +config.fontnames[fontname]+ '">' +fontname+ '</option>';
         }
         toolbar += '</select>';
         continue;
       }
-
       // fontsize
       if (btnName == "fontsize") {
         toolbar += '<select id="_' +objname+ '_FontSize" onChange="editor_action(this.id)" unselectable="on" style="margin: 1 2 0 0; font-size: 12px;">';
         for (var fontsize in config.fontsizes) {
-          toolbar += '<option value="' +config.fontsizes[fontsize]+ '">' +fontsize+ '</option>'
+          toolbar += '<option value="' +config.fontsizes[fontsize]+ '">' +fontsize+ '</option>';
         }
         toolbar += '</select>\n';
         continue;
@@ -180,7 +184,7 @@ function editor_generate(objname,userConfig) {
         + '<option value="">Font Style</option>';
         for (var i in config.fontstyles) {
           var fontstyle = config.fontstyles[i];
-          toolbar += '<option value="' +fontstyle.className+ '">' +fontstyle.name+ '</option>'
+          toolbar += '<option value="' +fontstyle.className+ '">' +fontstyle.name+ '</option>';
         }
         toolbar += '</select>';
         continue;
@@ -201,19 +205,18 @@ function editor_generate(objname,userConfig) {
       var btnOnClick = btnObj[2];
       var btnImage   = btnObj[3];
       toolbar += '<button title="' +btnTitle+ '" id="_' +objname+ '_' +btnCmdID+ '" class="btn" onClick="' +btnOnClick+ '" onmouseover="if(this.className==\'btn\'){this.className=\'btnOver\'}" onmouseout="if(this.className==\'btnOver\'){this.className=\'btn\'}" unselectable="on"><img src="' +config.imgURL + btnImage+ '" border=0 unselectable="on"></button>';
-
-
     } // end of button sub-group
     toolbar += tblClose;
   } // end of entire button set
 
   // build editor
 
-  var editor = '<span id="_editor_toolbar"><table border=0 cellspacing=0 cellpadding=0 bgcolor="buttonface" style="padding: 1 0 0 2" width=' + config.width + ' unselectable="on"><tr><td>\n'
-  + toolbar
-  + '</td></tr></table>\n'
-  + '</td></tr></table></span>\n'
-  + '<textarea ID="_' +objname + '_editor" style="width:' +config.width+ '; height:' +config.height+ '; margin-top: -1px; margin-bottom: -1px;" wrap=soft></textarea>';
+  var editor = '<span id="_editor_toolbar">'+
+	  '<table border=0 cellspacing=0 cellpadding=0 bgcolor="buttonface" style="padding: 1 0 0 2" width=' + config.width + ' unselectable="on"><tr><td>\n'
+	  + toolbar
+	  + '</td></tr></table>\n'
+	  + '</td></tr></table></span>\n'
+	  + '<textarea ID="_' +objname + '_editor" style="width:' +config.width+ '; height:' +config.height+ '; margin-top: -1px; margin-bottom: -1px;" wrap=soft></textarea>';
 
   // add context menu
   editor += '<div id="_' +objname + '_cMenu" style="position: absolute; visibility: hidden;"></div>';
@@ -228,9 +231,9 @@ function editor_generate(objname,userConfig) {
     contents = contents.replace(/\r/g, '<br>');
     document.all[objname].value = contents;
   }
-
+ // writeMsg(editor);
   // insert wysiwyg
-  document.all[objname].insertAdjacentHTML('afterEnd', editor)
+  document.all[objname].insertAdjacentHTML('afterEnd', editor);
 
   // convert htmlarea from textarea to wysiwyg editor
   editor_setmode(objname, 'init');
@@ -244,10 +247,8 @@ function editor_generate(objname,userConfig) {
 return true;
 
 }
-
 var myObjName = "";  //add by hxd in 2005/02/21
 function editor_action(button_id) {
-
   // split up button name into "editorID" and "cmdID"
   var BtnParts = Array();
   BtnParts = button_id.split("_");
@@ -288,11 +289,9 @@ function editor_action(button_id) {
   var val = (idx != null) ? button_obj[ idx ].value : null;
 
   if (0) {}   // use else if for easy cutting and pasting
-
   //
   // CUSTOM BUTTONS START HERE
   //
-
   // Custom1
   else if (cmdID == 'custom1') {
     alert("Hello, I am custom button 1!");
@@ -325,13 +324,12 @@ function editor_action(button_id) {
   else if (cmdID == 'FontSize' && val) {
     editdoc.execCommand(cmdID,0,val);
   }
-
   // FontStyle (change CSS className)
   else if (cmdID == 'FontStyle' && val) {
     editdoc.execCommand('RemoveFormat');
     editdoc.execCommand('FontName',0,'636c6173734e616d6520706c616365686f6c646572');
     var fontArray = editdoc.all.tags("FONT");
-    for (i=0; i<fontArray.length; i++) {
+    for (var i=0; i<fontArray.length; i++) {
       if (fontArray[i].face == '636c6173734e616d6520706c616365686f6c646572') {
         fontArray[i].face = "";
         fontArray[i].className = val;
@@ -340,14 +338,12 @@ function editor_action(button_id) {
     }
     button_obj.selectedIndex =0;
   }
-
   // fgColor and bgColor
   else if (cmdID == 'ForeColor' || cmdID == 'BackColor') {
     var oldcolor = _dec_to_rgb(editdoc.queryCommandValue(cmdID));
     var newcolor = showModalDialog(_editor_url + "popups/select_color.html", oldcolor, "resizable: no; help: no; status: no; scroll: no;");
     if (newcolor != null) { editdoc.execCommand(cmdID, false, "#"+newcolor); }
   }
-
   else {
     // subscript & superscript, disable one before enabling the other
     if (cmdID.toLowerCase() == 'subscript' && editdoc.queryCommandState('superscript')) { editdoc.execCommand('superscript'); }
@@ -361,19 +357,19 @@ function editor_action(button_id) {
     // insert image
     else if (cmdID.toLowerCase() == 'insertimage'){
       editdoc.sWebRootPath = sWebRootPath;  //add in 2005/04/11
+      editdoc.sCompClientID = sCompClientID;  //add in 2005/04/11
       showModalDialog(_editor_url + "popups/insert_image.html", editdoc, "resizable: no; help: no; status: no; scroll: no; ");
     }
-
     // insert table
     else if (cmdID.toLowerCase() == 'inserttable'){
       showModalDialog(_editor_url + "popups/insert_table.html?"+objname,
                                  window,
                                  "resizable: yes; help: no; status: no; scroll: no; ");
     }
-
-    else { editdoc.execCommand(cmdID); }
+    else { 
+    	editdoc.execCommand(cmdID); 
+    	}
   }
-
   editor_event(objname);
 }
 
@@ -519,7 +515,7 @@ function editor_updateToolbar(objname,action) {
 
   // update button states
   var IDList = Array('Bold','Italic','Underline','StrikeThrough','SubScript','SuperScript','JustifyLeft','JustifyCenter','JustifyRight','InsertOrderedList','InsertUnorderedList');
-  for (i=0; i<IDList.length; i++) {
+  for (var i=0; i<IDList.length; i++) {
     var btnObj = document.all["_" +objname+ "_" +IDList[i]];
     if (btnObj == null) { continue; }
     var cmdActive = editdoc.queryCommandState( IDList[i] );
@@ -641,7 +637,6 @@ function editor_setmode(objname, mode) {
     config.mode = "wysiwyg";
     var contents = editor_obj.value;
     if (mode == 'init') { contents = document.all[objname].value; } // on init use original textarea content
-
     // create editor
     editor_obj.outerHTML = RichEdit;
     editor_obj = document.all["_" +objname + "_editor"];
@@ -716,7 +711,6 @@ function editor_focus(editor_obj) {
     var myfunc = function() { editor_obj.focus(); };
     setTimeout(myfunc,100);                                     // doesn't work all the time without delay
   }
-
   else {                                                        // wysiwyg
     var editdoc = editor_obj.contentWindow.document;            // get iframe editor document object
     var editorRange = editdoc.body.createTextRange();           // editor range

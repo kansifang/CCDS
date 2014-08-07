@@ -88,7 +88,7 @@ public class PieChart {
         chart.setBackgroundPaint(Color.white);  
         plot.setBackgroundPaint(new Color(255, 255, 204));   
         //设置开始角度 
-        plot.setStartAngle(190D); 
+        plot.setStartAngle(175D); 
         //设置方向为”顺时针方向“ 
         plot.setDirection(Rotation.CLOCKWISE); 
         //设置透明度，0.5F为半透明，1为不透明，0为全透明 

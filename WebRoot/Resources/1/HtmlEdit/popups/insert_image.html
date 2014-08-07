@@ -63,6 +63,7 @@ function Init() {
   }
   txtFileName.value = txtFileName.value || "http://";
   //txtFileName.focus();
+  document.forms("SelectAttachment").attributes["action"].value="../FileUpload.jsp?CompClientID="+window.dialogArguments.sCompClientID;
 }
 
 function _isValidNumber(txtBox) {

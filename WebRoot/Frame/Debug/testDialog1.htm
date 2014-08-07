@@ -1,0 +1,26 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>查看原文件</TITLE>
+<SCRIPT language="JScript">
+<!--
+var dialogData = window.dialogArguments;
+//-->
+</SCRIPT>
+</HEAD>
+<BODY>
+<TEXTAREA NAME="testSource" ROWS="42" COLS="132"></TEXTAREA>
+<SCRIPT language="JScript">
+<!--
+try{
+	var showText = dialogData.innerHTML.replace(/\r\n/g,"NWZAP");
+	showText=showText.replace(/<INPUT type=hidden>.*<\/OBJECT>NWZAP<SCRIPT language=javascript>/g,"<SCRIPT language=javascript>");
+	showText=showText.replace(/NWZAP/g,"\r\n");
+	document.all.testSource.innerText = showText;
+}catch(e){
+	document.all.testSource.innerText = "错误："+e.message();
+}
+//-->
+</SCRIPT>
+</BODY>
+</HTML>

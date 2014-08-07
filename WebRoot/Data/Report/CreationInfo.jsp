@@ -152,7 +152,7 @@
 			bIsInsert = true;
 
 			setItemValue(0,0,"ReportConfigNo","b20140519000001");
-			setItemValue(0,0,"OneKey","<%=DateUtils.getRelativeMonth(DateUtils.getToday(),0,0)%>");
+			setItemValue(0,0,"OneKey","<%=DateUtils.getRelativeMonth(DateUtils.getToday(),0,-1)%>");
 			setItemValue(0,0,"Type","<%=sType%>");
 			setItemValue(0,0,"InputOrgName","<%=CurOrg.OrgName%>");	
 			setItemValue(0,0,"InputUserName","<%=CurUser.UserName%>");	

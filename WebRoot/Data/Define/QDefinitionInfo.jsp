@@ -181,7 +181,6 @@
 <%
 	/*~BEGIN~可编辑区~[Editable=false;CodeAreaID=Info06;Describe=定义按钮事件;]~*/
 %>
-	<script language=javascript src="<%=sWebRootPath%>/Data/Define/editor.js"> </script>
 	<script language=javascript>
 	var bIsInsert = false; //标记DW是否处于“新增状态”
 
@@ -345,14 +344,57 @@
 	bCheckBeforeUnload=false;
 	bNotCheckModified=true;
 	AsOne.AsInit();
-	init();
-	my_load(2,0,'myiframe0');
+	init();//初始化js中各种数据，为展示准备材料
+	my_load(2,0,'myiframe0');//展示吧
 	initRow(); //页面装载时，对DW当前记录进行初始化
 	displayContent("QStyle");
-	editor_generate('R0F4');
-</script>	
+</script>
+	
 <%
-		/*~END~*/
-	%>
-
+/*~END~*/
+%>
+<script language=javascript>
+	//在展示页面增加编辑框
+	var mywindow=window.frames['myiframe0'];
+	mywindow._editor_url=_editor_url;
+	//动态挂js代码
+	function IncludeJS(windowobj,sId, fileUrl,isGetSrcCode,func){ 
+		var oHead = windowobj.document.getElementsByTagName('HEAD').item(0); 
+		var oBody = windowobj.document.getElementsByTagName("BODY").item(0); 
+		if(!(oHead && oHead.length>0)){ 
+			oHead = oBody; 
+		} 
+		var scriptTag=windowobj.document.getElementById(sId);
+		if (!scriptTag){ 
+			var oScript = windowobj.document.createElement( "script" ); 
+			oScript.language = "javascript"; 
+			oScript.type = "text/javascript"; //script.setAttribute("type",'text/javascript');两种方式皆可
+			oScript.id = sId; 
+			oScript.defer = true; 
+			if(!isGetSrcCode){//把js挂到src下，让浏览器异步加载
+				/*用传统的 js appendChild方法添加 script的src ,这个是异步的，加进去，执行里面的方法不能保证，需要做一些状态判断*/
+				oScript.setAttribute("src",fileUrl);//文件的地址:_editor_url+"editor.js"
+				oHead.appendChild(oScript); 
+				oScript.onload = oScript.onreadystatechange = function(){ 
+					if ((!this.readyState) || this.readyState == "complete" || this.readyState == "loaded" ){ 
+						windowobj.eval(func); // editor_generate()方法 在 引入的js文件中 ,加载完后在此执行
+						oScript.onload = oScript.onreadystatechange = null;
+					}else{ 
+					    console.info("can not load the oScript2.js file"); 
+					} 
+				};
+			}else{
+				//用XMLHTTP取得要脚本的内容，再创建 Script 对象。
+				//另外注意编码的保持一致,因为服务器与XML使用UTF8编码传送数据。
+				oScript.text = RunJspAjax(fileUrl);//用ajax，会用utf-8编码，所以服务端要用utf-8编码，以后所有程序要使用utf-8统一编码
+				oHead.appendChild(oScript); 
+				windowobj.eval(func); 
+			}
+		} 
+	}
+	//以下两者皆可
+	IncludeJS(mywindow,"sid",_editor_url+"editor.js",false,"editor_generate('R0F4')");
+	//下面这个似乎影响性能，原因未明
+	//IncludeJS(mywindow,"sid","/Resources/1/HtmlEdit/editor.js",true,"editor_generate('R0F4')");
+</script>
 <%@ include file="/IncludeEnd.jsp"%>

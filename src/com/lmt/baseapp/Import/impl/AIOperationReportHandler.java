@@ -48,7 +48,7 @@ public class AIOperationReportHandler{
 			")tab1,"+
 			"(select ConfigNo,OneKey,Dimension,DimensionValue,Balance "+	
 				"from Batch_Import_Process "+
-				"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"' and (DimensionValue='1.各项贷款' or DimensionValue='总计@各项贷款余额')"+
+				"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"' and (DimensionValue='1.各项贷款' or DimensionValue='总计@各项贷款余额')"+//前者是针对G0103,G0107,后者针对S63
 			")tab2"+
 			" where tab1.Dimension=tab2.Dimension";
  		Sqlca.executeSQL("update Batch_Import_Process tab3 "+
@@ -111,41 +111,6 @@ public class AIOperationReportHandler{
  				"( "+
  				sSql+
  				")");
- 		//承兑按担保方式
- 		String groupBy="case when ~s表外明细@主要担保方式e~ like '保证-%' then '保证' "+
-	 			"when ~s表外明细@主要担保方式e~ like '抵押-%' then '抵押' "+
-	 			"when ~s表外明细@主要担保方式e~ = '信用' then '信用' "+
-	 			"when ~s表外明细@主要担保方式e~ like '%质押-%' or ~s表外明细@主要担保方式e~='保证金' then '质押' "+
-	 			"else '其他' end";
- 		Sqlca.executeSQL("Delete from Batch_Import_Process where HandlerFlag='"+HandlerFlag+"' and ConfigNo='b20140606000001' and OneKey='"+sKey+"'");
-	 	AIDuebillHandler.process(HandlerFlag,"b20140606000001",sKey,Sqlca,"单一担保方式",groupBy,"and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票'");
-	 	//承兑按经营类型（新）
-	 	groupBy="case "+
- 				"when ~s表外明细@经营类型(新)e~ like '%煤炭开采%' or ~s表外明细@经营类型(新)e~ like '%煤炭洗选%' then '煤炭' "+
- 				"when ~s表外明细@经营类型(新)e~ like '%焦碳%' then '焦碳' "+//焦碳—
- 				"when ~s表外明细@经营类型(新)e~ like '%制造业%' or ~s表外明细@经营类型(新)e~ like '%一般加工%' then '制造业' "+//制造业—
- 				"when ~s表外明细@经营类型(新)e~ like '%批发零售%' then '批发零售' "+//批发零售—
- 				"when ~s表外明细@经营类型(新)e~ like '%钢铁%' then '钢铁' "+
- 				"when ~s表外明细@经营类型(新)e~ like '%化工化肥%' then '化工化肥' "+
-	 			"when ~s表外明细@经营类型(新)e~ like '%房地产%' then '房地产' "+
-	 			"when ~s表外明细@经营类型(新)e~ like '%建筑施工%' then '建筑施工' "+
-	 			"when ~s表外明细@经营类型(新)e~ like '%铁矿开采%' then '铁矿开采' "+
-	 			"when ~s表外明细@经营类型(新)e~ like '%农林牧副渔%' then '农林牧副渔' "+
-	 			"when ~s表外明细@经营类型(新)e~ like '%政府平台%' then '政府平台' "+
-				"when ~s表外明细@经营类型(新)e~ like '%钢贸户%' or ~s表外明细@经营类型(新)e~ like '%钢材销售%' then '钢贸户' "+
-				"when ~s表外明细@经营类型(新)e~ like '%医药制造%' then '医药制造' "+
-				"when ~s表外明细@经营类型(新)e~ like '%燃气生产和供应%' then '燃气生产和供应' "+
-				"when ~s表外明细@经营类型(新)e~ like '%汽车维修及销售%' then '汽车维修及销售' "+
-				"when ~s表外明细@经营类型(新)e~ like '%电力%' then '电力' "+
-				"when ~s表外明细@经营类型(新)e~ like '%住宿餐饮%' then '住宿餐饮' "+
-	 			"when ~s表外明细@经营类型(新)e~ like '%交通运输%' then '交通运输' "+
-	 			"when ~s表外明细@经营类型(新)e~ like '%医院学校%' then '医院学校' "+
-	 			"when ~s表外明细@经营类型(新)e~ like '%信息技术%' then '信息技术' "+
-	 			"when ~s表外明细@经营类型(新)e~ like '%文化娱乐%' then '文化娱乐' "+
-				"when ~s表外明细@经营类型(新)e~ like '%有色冶炼%' then '有色冶炼' "+
-	 			"else '其他' end";
-	 	AIDuebillHandler.process(HandlerFlag,"b20140606000001",sKey,Sqlca,"经营类型(新)",groupBy,"and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票'");
-	 	AIDuebillHandler.afterProcess(HandlerFlag,"b20140606000001", sKey, Sqlca);
 	}
 	/**
 	 * 按各个维度插入到处理表中---//2、 对G0103_存贷款 报表进行进行处理
@@ -243,48 +208,5 @@ public class AIOperationReportHandler{
  				"( "+
  				sSql+
  				")");
- 		//对大中小微等在生成一条不良余额 形式如 大型企业@不良余额..
- 		sSql="select "+
- 				"'"+HandlerFlag+"',BII1.ConfigNo,BII1.OneKey,'企业规模明细',substr(BII1.DimensionValue,1,locate('@',BII1.DimensionValue)-1)||'@不良余额',sum(Balance)"+
-				" from Batch_Import_Process BII1"+
-				" where BII1.ConfigNo='"+sConfigNo+"' and BII1.OneKey='"+sKey+"'"+
-				" and (BII1.DimensionValue like '%1.1.3%' or BII1.DimensionValue like '%1.1.4%' or BII1.DimensionValue like '%1.1.5%' ) " +
-				" group by HandlerFlag,ConfigNo,OneKey,'企业规模明细',substr(BII1.DimensionValue,1,locate('@',BII1.DimensionValue)-1)";
- 		Sqlca.executeSQL("insert into Batch_Import_Process "+
- 				"(HandlerFlag,ConfigNo,OneKey,Dimension,DimensionValue,Balance)"+
- 				"( "+
- 				sSql+
- 				")");
- 		//通过借据明细，更新大中小微不良户数
- 		sSql="from Batch_Import_Interim BII1"+
- 						" where BII1.ConfigName='借据明细' and BII1.OneKey='"+sKey+"' "+
- 						" and BII1.~s借据明细@企业规模e~=substr(BIP.DimensionValue,1,locate('@',BIP.DimensionValue)-1)"+
- 						" and nvl(BII1.~s借据明细@余额(元)e~,0)>0"+
- 						" and (BII1.~s借据明细@五级分类e~ like '次级%' or BII1.~s借据明细@五级分类e~ like '可疑%' or BII1.~s借据明细@五级分类e~ like '损失%')";
- 		String updateSql="update Batch_Import_Process BIP set(TotalTransaction)="+
- 	 				"(select count(distinct BII1.~s借据明细@客户名称e~) "+sSql+")"+
- 	 				" where HandlerFlag='"+HandlerFlag+"' and BIP.ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"'"+
- 	 				" and exists"+
- 	 				"	(select 1 "+sSql+")"+
- 	 				" and BIP.DimensionValue like '%@不良余额'";
- 		updateSql=StringUtils.replaceWithConfig(updateSql, Sqlca);
- 		Sqlca.executeSQL(updateSql);
- 		//通过借据明细，单独更新 单户 授信总额500万元以下的小微型企业 不良户数 ---因为借据表中可没有这个规模，他只是小型和微型企业的 授信500万以下部分
- 		sSql="from Batch_Import_Interim BII1"+
- 						" where BII1.ConfigName='借据明细' and BII1.OneKey='"+sKey+"' "+
- 						" and BII1.~s借据明细@企业规模e~ in('小型企业','微小型企业') "+
- 						" and (select sum(BII2.~s借据明细@金额(元)e~) from Batch_Import_Interim BII2 " +
- 						"		where BII2.ConfigName=BII1.ConfigName " +
- 						"			and BII2.OneKey=BII1.OneKey " +
- 						"           and nvl(BII2.~s借据明细@余额(元)e~,0)>0"+
- 						"			and BII2.~s借据明细@客户名称e~=BII1.~s借据明细@客户名称e~)<=5000000"+
- 						" and nvl(BII1.~s借据明细@余额(元)e~,0)>0"+
- 						" and (BII1.~s借据明细@五级分类e~ like '次级%' or BII1.~s借据明细@五级分类e~ like '可疑%' or BII1.~s借据明细@五级分类e~ like '损失%')";
- 		updateSql="update Batch_Import_Process BIP set(TotalTransaction)="+
- 	 				"(select count(distinct BII1.~s借据明细@客户名称e~) "+sSql+")"+
- 	 				" where HandlerFlag='"+HandlerFlag+"' and BIP.ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"'"+
- 	 				" and BIP.DimensionValue='单户授信总额500万元以下的小微型企业@不良余额'";
- 		updateSql=StringUtils.replaceWithConfig(updateSql, Sqlca);
- 		Sqlca.executeSQL(updateSql);
 	}
 }

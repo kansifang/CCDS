@@ -11,7 +11,6 @@
 
     String sFullPath = Sqlca.getString("select FullPath from EDOC_PRINT where SerialNo='"+sSerialNo+"'");
     String sContentType = Sqlca.getString("select ContentType from EDOC_PRINT where SerialNo='"+sSerialNo+"'");
- 	System.out.println(sFullPath);System.out.println(sContentType);
 	String sViewType="view"; //"view" or "save"
 	if(sViewType.equals("view"))
 	{
@@ -27,7 +26,9 @@
 </form>
 
 <script language=javascript>
+	document.all.filename.value=encodeURIComponent(document.all.filename.value,'UTF-8');
 	form1.submit();
+	setTimeout("top.close();",3000);
 </script>
 <%
 	}

@@ -71,8 +71,8 @@ function getItemIndex(id) {
 
 function expandNode(id) {
 	iIndex = getItemIndex(id);
-	
-	if (iIndex!=-1) flex2(iIndex,'plus');
+	if (iIndex!=-1) 
+		flex2(iIndex,'plus');
 }	
 
 function closeNode(id) {
@@ -489,7 +489,7 @@ function writeImageSequence2(currentIndex, sequence) {
 	
 	return s2.join('');
 }
-
+//展开还是锁闭树枝
 function flex2(currentIndex, checkStr) {
 	var i;
 	var currentID = nodes[currentIndex].id;
@@ -546,6 +546,5 @@ function flex2(currentIndex, checkStr) {
 			}	
 		}
 	}
-	
 	if (currentID!='root') scroll(0,left.document.getElementById(currentID+checkStr).offsetTop-100);
 }

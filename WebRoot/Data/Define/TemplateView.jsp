@@ -30,6 +30,7 @@
 <script language=javascript>
 	document.all.filename.value=encodeURIComponent(document.all.filename.value,'UTF-8');
 	form1.submit();
+	setTimeout("top.close();",2000);
 </script>
 <%
 	}

@@ -31,7 +31,7 @@
 	var tabstrip = new Array();
 	var tabType = new Array();
 	var strip_id_increment = -1;
-	var hangtableID="tabtd"
+	var hangtableID="tabtd";
 	function doTabAction(sArg){
 		var sReturn="";
 		if(sArg=="WorkTips")
@@ -57,11 +57,27 @@
 		}
 		return sReturn;
 	}
+	function getIDInArray(tabname){
+		for(var i=0;i<tabstrip.length;i++){
+			if(tabstrip[i][1]==tabname){
+				return tabstrip[i][0];
+			}
+		}
+		return -1;
+	}
 	function newTab(tabname,url){
-		addTab(tabname,url);
-		var beginti=calBiginIndex(strip_id_increment,GbeginTabIndex);
-		hc_drawTabToTable_plus_ex(tabstrip,strip_id_increment,beginti,iMaxTabLength,hangtableID);
-		myTabAction(hangtableID,strip_id_increment,false,beginti);
+		var selectstrip_id_increment=getIDInArray(tabname);
+		if(selectstrip_id_increment==-1){
+			//增加到数组
+			addTab(tabname,url);
+			selectstrip_id_increment=strip_id_increment;
+		}
+		tabstrip[selectstrip_id_increment][6]="";//删除标志置空，"del"表示删除
+		//获取为了新tab重新画tab时应该开始的tab的序号
+		var beginti=calBiginIndex(selectstrip_id_increment,GbeginTabIndex);
+		//接着重新画tab
+		hc_drawTabToTable_plus_ex(tabstrip,selectstrip_id_increment,beginti,iMaxTabLength,hangtableID);
+		myTabAction(hangtableID,selectstrip_id_increment,false,beginti);
 		window.focus();
 	}
 	function addTab(tabname,url){
@@ -103,10 +119,10 @@
 
 <script	language=javascript>
 	//参数依次为： tab定义数组,默认显示第几项,开始标签,最大显示数,目标单元格
-	hc_drawTabToTable_plus_ex(tabstrip,1,1,iMaxTabLength,hangtableID);
+	hc_drawTabToTable_plus_ex(tabstrip,0,0,iMaxTabLength,hangtableID);
 	//设定默认页面
-	var iIndex = 0;
-	myTabAction(hangtableID,iIndex,false,1);
+	//var iIndex = 0;
+	myTabAction(hangtableID,0,false,0);
 	window.focus();
 </script>
 

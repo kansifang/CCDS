@@ -119,9 +119,9 @@
 			{"true","","Button","新增","新增一条记录","newRecord()",sResourcesPath},
 			{"true","","Button","详情","查看/修改详情","viewAndEdit()",sResourcesPath},
 			{"true","","Button","删除","删除所选中的记录","deleteRecord()",sResourcesPath},
-			{"true","","Button","格式文件上传","电子文档格式文件上传","TemplateUploadFmt()",sResourcesPath},			
-			{"true","","Button","数据定义文件上传","电子文档数据定义文件上传","TemplateUploadDef()",sResourcesPath},			
-			{"true","","Button","电子文档状态查看","电子文档状态查看","TemplateView()",sResourcesPath},				
+			{"true","","Button","上传格式文件","上传电子文档格式文件","TemplateUploadFmt()",sResourcesPath},			
+			{"true","","Button","上传数据定义文件","上传电子文档数据定义文件","TemplateUploadDef()",sResourcesPath},			
+			{"true","","Button","查看电子文档状态","查看电子文档状态","TemplateView()",sResourcesPath},				
 			{"true","","Button","打印借款合同测试","打印借款合同案例","BCSample()",sResourcesPath},	//案例，上线前请删除		
 			{"true","","Button","打印担保合同测试","打印担保合同案例","GCSample()",sResourcesPath}	//案例，上线前请删除			
 		   };

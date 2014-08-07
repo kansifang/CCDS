@@ -1,6 +1,5 @@
 <%@ page contentType="text/html; charset=GBK"%>
 <%@include file="/Resources/Include/IncludeHead.jsp"%>
-<script type='text/javascript' src='<%=sResourcesPath%>/js/jquery-1.3.2.min.js'></script>
 <%/*~BEGIN~¿É±à¼­Çø~[Editable=true;CodeAreaID=Main00;Describe=×¢ÊÍÇø;]~*/%>
 	<%
 	/*
