@@ -28,7 +28,9 @@
 <%/*~BEGIN~可编辑区~[Editable=true;CodeAreaID=Main02;Describe=定义变量，获取参数;]~*/%>
 	<%
 	//获得组件参数	
-	String sSerialNo   = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("SerialNo")));
+	String sSerialNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("SerialNo")));
+	String sConfigNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("ReportConfigNo")));
+	String sOneKey   =DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("OneKey")));	
 	%>
 <%/*~END~*/%>     
 
@@ -44,16 +46,9 @@
 	  	String sAddStringArray[] = null;
 	  	String sTabStrip[][] = new String[30][3];
 		int initTab = 1;//设定默认的 tab ，数值代表第几个tab
-		String sConfigNo="",sOneKey="";		
-		ASResultSet rs=Sqlca.getASResultSet("select ReportConfigNo,OneKey from Batch_Report where SerialNo='"+sSerialNo+"'");
-		if(rs.next()){
-			sConfigNo=DataConvert.toString(rs.getString(1));
-			sOneKey=DataConvert.toString(rs.getString(2));
-		}
-		rs.getStatement().close();
 		//获取
 		sSql = "select AttachmentNo,FileName,Attribute1,Attribute2 from Doc_Attachment where DocNo ='"+sConfigNo+"' order by FileName asc";
-		rs = Sqlca.getResultSet(sSql);
+		ASResultSet rs = Sqlca.getResultSet(sSql);
 		int tabs=0;
 		int tabsEveryRow=6;//每行显示6个
 		while(rs.next()){

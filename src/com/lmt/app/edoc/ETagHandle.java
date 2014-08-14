@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
+import org.jdom.Namespace;
 import org.jdom.xpath.XPath;
 
 /**
@@ -23,7 +24,7 @@ public class ETagHandle {
 	// 寻找标签正则表达式
 	private static String TAG_REGEX = "\\【\\※([^\\【\\※][^\\※\\】]*)\\※\\】";
 
-	// private static String TAG_REGEX = "【※([^【※][^※】]*)※】";
+	//private static String IMAGE_REGEX = "\\【\\※\\※([^\\【\\※][^\\※\\】]*)\\※\\※\\】";
 
 	/**
 	 * 获取Element名称为name的第一个父Element
@@ -341,7 +342,44 @@ public class ETagHandle {
 		List list_data = XPath.selectNodes(data, xpath_data);
 		replaceGroupTag(list_doc, list_data, data);
 	}
+	/**
+	 * 用data数据对象替换文档对象中的单值标签(包括带换行的数据)
+	 * 
+	 * @param doc
+	 *            文档对象
+	 * @param data
+	 *            数据对象
+	 * @throws JDOMException
+	 * @throws IOException
+	 */
+	/*
+	static void replaceImageTag(Document doc, Document data) throws JDOMException, IOException {
+		// 单值w:t文本标签
+		String xpath_doc_wt = "/w:wordDocument/w:body/wx:sect//w:p/w:r/w:pict/w:binData";//里面的"//"表示所有
+		// 表格内w:t文本标签
+		String xpath_doc_tbl_wt = "/w:wordDocument/w:body/wx:sect//w:tbl/w:tr//w:t";
 
+		List list_doc = XPath.selectNodes(doc, xpath_doc_wt);
+		List list_doc_temp = XPath.selectNodes(doc, xpath_doc_wt);
+
+		// 剔除表格中的w:t文本对象
+		list_doc.removeAll(XPath.selectNodes(doc, xpath_doc_tbl_wt));
+		list_doc_temp.removeAll(XPath.selectNodes(doc, xpath_doc_tbl_wt));
+
+		// 剔除不存在标签的w:t文本对象
+		for (Iterator i = list_doc_temp.iterator(); i.hasNext();) {
+			Element el_wt = (Element) i.next();
+			if (!isExistTag(el_wt.getTextTrim())) {
+				list_doc.remove(el_wt);
+			}
+		}
+		// 单值数据
+		String xpath_data = "/edoc/data/taglist/tag";
+		// 逐个单值数据循环处理
+		List list_data = XPath.selectNodes(data, xpath_data);
+		replaceGroupTag(list_doc, list_data, data);
+	}
+	*/
 	/**
 	 * 根据一组数据替换一组标签
 	 * 
@@ -355,37 +393,65 @@ public class ETagHandle {
 	 * @throws IOException
 	 */
 	static void replaceGroupTag(List list_doc, List list_data, Document data) throws JDOMException, IOException {
+		int pictindex=0;
 		// 对数据进行循环处理
 		for (Iterator i = list_data.iterator(); i.hasNext();) {
 			Element el_data = (Element) i.next();
 			String tagName = el_data.getAttributeValue("name");
 			String value = el_data.getText();
 			String isExistwp = el_data.getAttributeValue("existwp");
-
 			// 根据数据进行逐个标签文本处理
 			for (Iterator i1 = list_doc.iterator(); i1.hasNext();) {
 				Element el_wt = (Element) i1.next();
 				String text = el_wt.getTextTrim();
 				// 假如是该标签，则进行处理
 				if (isExistTag(text, tagName)) {
-					// 假如数据是多行
+					//如果是图形标记
+					if(tagName.contains("图")){//各种图：柱状图 折线图等，要加上<w:pict><w:bindData></w:bindData></w:pict>
+						Element el_wr = getFirstParent(el_wt, "w:r");//<w:r><w:t>【※AA※】</w:t></w:r>
+						el_wt.detach();//清除此元素父元素下面的所有内容
+						Namespace nsw=Namespace.getNamespace("w", "http://schemas.microsoft.com/office/word/2003/wordml");
+						Element el_wp=new Element("pict",nsw);
+						//下面增加两个元素
+						Element el_wbd=new Element("binData",nsw);
+						el_wbd.setAttribute("name","wordml://0300000"+(++pictindex)+".png",nsw);
+						el_wbd.setAttribute("space","preserve");
+						el_wbd.setText(value);
+						el_wp.addContent(el_wbd);
+						Namespace nsv=Namespace.getNamespace("v", "urn:schemas-microsoft-com:vml");
+						Namespace nso=Namespace.getNamespace("o", "urn:schemas-microsoft-com:office:office");
+						Element el_vs=new Element("shape",nsv);
+						el_vs.setAttribute("id",""+tagName);
+						el_vs.setAttribute("spid","_x0000_i1028",nso);
+						el_vs.setAttribute("type","_x0000_t75");
+						el_vs.setAttribute("style","width:6in;height:247.75pt;visibility:visible;mso-wrap-style:square");
+						Element el_vi=new Element("imagedata",nsv);
+						el_vi.setAttribute("src","wordml://0300000"+pictindex+".png");
+						el_vi.setAttribute("title","",nso);
+						el_vs.addContent(el_vi);
+						
+						el_wp.addContent(el_vs);
+						
+						el_wr.addContent(el_wp);
+						continue;
+					}
+					// 假如数据是多行  （目前还没遇到这种情况）---逻辑是:对于变迁 A，有多行数据，则在输出文档中 增加多行p:r:t,生成多行数据
 					if ("true".equals(isExistwp)) {
 						// 得到行对象
 						// System.out.println("replaceGroupTag:多行["+text+"]["+tagName+"]");
 						Element el_wp = getFirstParent(el_wt, "w:p");
 						// 获取当前对象的父对象
-						Element parent = el_wp.getParentElement();
+						Element parent = el_wp.getParentElement();//下面包含多个w:p的那个元素节点
 						int iPos = parent.indexOf(el_wp);
 						// 拷贝将原始的行标签对象
 						Element el_wp_copy = (Element) el_wp.clone();
 						el_wp.detach();
-						List list_wp = el_data.getChildren("wp");
+						List list_wp = el_data.getChildren("wp");//获取数据文档中 多个 wp
 						for (Iterator i2 = list_wp.iterator(); i2.hasNext();) {
 							// 复制行对象
 							el_wp = (Element) el_wp_copy.clone();
 							// 插入对象
 							parent.addContent(iPos++, el_wp);
-
 							// 处理行对象
 							Element el_wp_data = (Element) i2.next();
 							String wp_value = el_wp_data.getText();

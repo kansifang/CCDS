@@ -28,7 +28,7 @@
 <script language=javascript>
 	document.all.filename.value=encodeURIComponent(document.all.filename.value,'UTF-8');
 	form1.submit();
-	setTimeout("top.close();",3000);
+	setTimeout("top.close();",4000);
 </script>
 <%
 	}

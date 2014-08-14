@@ -61,6 +61,7 @@ public class FileViewServlet extends HttpServlet
         InputStream inStream = new FileInputStream(sFileName);
         int iContentLength = (int)dFile.length();
         if(iContentLength==0){
+        	inStream.close();
         	return;
         }
         if ((iContentLength < 0) || (iContentLength > 102400)){

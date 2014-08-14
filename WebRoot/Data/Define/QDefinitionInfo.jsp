@@ -79,7 +79,7 @@
 		PreparedStatement pre0 = Sqlca.conn.prepareStatement(sUpdate0);
 		pre0.clearParameters();
 		pre0.setBinaryStream(1, new ByteArrayInputStream(abyte0,0,abyte0.length), abyte0.length);
-		pre0.setString(2, DataConvert.toString(String.valueOf(abyte0.length)));
+		pre0.setInt(2, abyte0.length);
 		pre0.executeUpdate();
 		pre0.close();	   				
 	}//else if(sMethod.equals("1")){//1:display 
@@ -87,7 +87,7 @@
 	ASResultSet rs1 = Sqlca.getResultSet("select ContentLength from Doc_Attachment"+
 							" where DocNo='"+sDocNo+"' and AttachmentNo='"+sAttachmentNo+"'");
 	if(rs1.next()){		
-		int iContentLength=DataConvert.toInt(rs1.getString("ContentLength"));
+		int iContentLength=rs1.getInt("ContentLength");
 		if (iContentLength>0){
 			byte bb[] = new byte[iContentLength];
 			int iByte = 0;		

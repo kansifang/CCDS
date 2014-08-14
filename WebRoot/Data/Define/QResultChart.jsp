@@ -2,7 +2,10 @@
 <%@ include file="/IncludeBegin.jsp"%>
 <%@page import="com.lmt.app.display.*" %>
 <%@page import="org.jfree.chart.ChartFactory,org.jfree.chart.ChartUtilities,org.jfree.chart.plot.*,
-org.jfree.chart.JFreeChart"%>
+org.jfree.chart.JFreeChart,
+com.sun.org.apache.xerces.internal.impl.dv.util.Base64,
+com.lmt.app.cms.explain.AmarMethod
+"%>
 <%
 	/*~BEGIN~可编辑区~[Editable=true;CodeAreaID=List02;Describe=定义变量，获取参数;]~*/
 %>
@@ -17,6 +20,8 @@ org.jfree.chart.JFreeChart"%>
 	//01列表 02 饼状图 03柱状图04折线图 
 	String sType =   DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("Type")));
 	String sOneKey =   DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("OneKey")));
+	String sHandlerFlag =   DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("HandlerFlag")));
+	String sDimension =   DataConvert.toString(DataConvert.toRealString(1,(String)CurPage.getParameter("Dimension")));
 	
 	String sSelectName = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("R0F2")));
 	String sKeyColumn = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("R0F6")));
@@ -34,19 +39,20 @@ org.jfree.chart.JFreeChart"%>
 <%
 	//1、通过数据库查询出查询语句来执行查询
 	StringBuffer sb=new StringBuffer("");
-	ASResultSet rs1 = Sqlca.getResultSet("select ContentLength,Remark from Doc_Attachment"+
+	ASResultSet rs1 = Sqlca.getResultSet("select ContentLength,Remark,FileName from Doc_Attachment"+
 							" where AttachmentNo='"+sAttachmentNo+"'");
-	
+	String tabName="";
 	if(rs1.next()){	
+		tabName=DataConvert.toString(rs1.getString("FileName"));
 		String sFilterC=DataConvert.toString(rs1.getString("Remark"));
 		if(!"".equals(sFilterC)){
-			if(!"".equals(sFilterColumn)){
+			if(!"".equals(sFilterColumn)){//查询字段
 				sFilterColumn+=","+sFilterC;
 			}else{
 				sFilterColumn=sFilterC;
 			}
 		}
-		int iContentLength=DataConvert.toInt(rs1.getString("ContentLength"));
+		int iContentLength=rs1.getInt("ContentLength");
 		if (iContentLength>0){
 			byte bb[] = new byte[iContentLength];
 			int iByte = 0;		
@@ -76,6 +82,8 @@ org.jfree.chart.JFreeChart"%>
 	sSql=StringUtils.replaceWithRealDate(sSql, sOneKey);
 	sSql =StringFunction.replace(sSql, "~YH~", "\"");
 	sSql =StringFunction.replace(sSql, "#OneKey",sOneKey);
+	sSql =StringFunction.replace(sSql, "#HandlerFlag",sHandlerFlag);
+	sSql =StringFunction.replace(sSql, "#Dimension",sDimension);
 	ASDataObject doTemp = new ASDataObject(sSql);
 	
 	//处理sql语句中一个字段有多个  as 不能有效获得别名当做标题 ，以及 sql语句别名以数字开头时必须整个用双引号引起来，这也导致形成标题时双引号反而不能去掉
@@ -107,28 +115,42 @@ org.jfree.chart.JFreeChart"%>
 	Vector vTemp = dwTemp.genHTMLDataWindow("");
 	for(int i=0;i<vTemp.size();i++) out.print((String)vTemp.get(i));
 	//如果是图会覆盖上面的列表所以和上面不会冲突
+	JFreeChart jf=null;
 	if("02".equals(sType)){//饼状图
 		response.setContentType("image/jpeg");
 		// 创建饼状图对象
 		//JFreeChart jf = ChartFactory.createPieChart("", PieChart.getDataSet(sSql,Sqlca), true, true, true);
-		JFreeChart jf = PieChart.getJfreeChart(sSql, Sqlca);
+		jf = PieChart.getJfreeChart(sSql, Sqlca);
 		ChartUtilities.writeChartAsJPEG(response.getOutputStream(), jf, 700, 450);
 	}else if("03".equals(sType)){//柱状图
 		response.setContentType("image/jpeg");
 		// 创建柱状图对象
-		JFreeChart jf =BarChart.getJfreeChart(sSql, Sqlca);
+		jf =BarChart.getJfreeChart(sSql, Sqlca);
 		// 对柱状图对象生成图片
 		ChartUtilities.writeChartAsJPEG(response.getOutputStream(), jf, 700, 450);
 	}else if("04".equals(sType)){//折线图
 		response.setContentType("image/jpeg");
 		// 创建折线图对象
 		//JFreeChart jf = LineChart.createChart(sSql, Sqlca);
-		JFreeChart jf =LineChart.getJfreeChart(sSql, Sqlca);
+		jf =LineChart.getJfreeChart(sSql, Sqlca);
 		// 对折线图对象生成图片
 		ChartUtilities.writeChartAsJPEG(response.getOutputStream(), jf, 700, 450);
 	}
-	
-
+	//把图生成字节数组，保存到数据库，作为输出到Word时查询使用
+	if(!"01".equals(sType)&&jf!=null){
+		ByteArrayOutputStream outBA = new ByteArrayOutputStream();  
+	       ChartUtilities.writeChartAsPNG(outBA, jf, 700, 550);  
+	       String base63string=Base64.encode(outBA.toByteArray());
+	       String sWhere="HandlerFlag=upper('"+sHandlerFlag+"') and OneKey='"+sOneKey+"'"+" and Dimension='"+sDimension+"' and DimensionValue='"+tabName+"'";
+	       String sOneOneKey=Sqlca.getString("select OneKey from Batch_Import_Process where "+sWhere);
+		if(!sOneKey.equals(sOneOneKey)){
+			Sqlca.executeSQL("insert into Batch_Import_Process "+
+	 				"(HandlerFlag,OneKey,Dimension,DimensionValue)"+
+	 				"values(upper('"+sHandlerFlag+"'),'"+sOneKey+"','"+sDimension+"','"+tabName+"')");
+			AmarMethod am=new AmarMethod("PublicMethod","HandleBlobContent",null,Sqlca);
+			am.execute("U,Contentlength,Content,Batch_Import_Process,"+sWhere+","+base63string);
+		}
+	}
 %>
 <%
 	/*~END~*/

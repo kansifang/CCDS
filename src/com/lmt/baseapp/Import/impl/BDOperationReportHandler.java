@@ -18,12 +18,20 @@ public class BDOperationReportHandler{
 	public static void processS63(String HandlerFlag,String sReportConfigNo,String sKey,Transaction Sqlca) throws Exception{
  		//下面对 S63处理后的数据汇总生成一个一个不良汇总
 		//对大中小微等再生成一条不良余额 形式如 大型企业@不良余额..
+		String groupby="case when BII1.DimensionValue like '大型企业%' then 'A-大型企业'" +
+						" when BII1.DimensionValue like '中型企业%' then 'B-中型企业'"+
+						" when BII1.DimensionValue like '小型企业%' then 'C-小型企业'"+
+						" when BII1.DimensionValue like '微型企业%' then 'D-微型企业'"+
+						" when BII1.DimensionValue like '单户授信总额500万元以下的小微型企业%' then 'E-单户授信总额500万元以下的小微型企业'"+
+						" else 'Z-'||BII1.DimensionValue end";
  		String sSql="select "+
- 				"'"+HandlerFlag+"','"+sReportConfigNo+"',BII1.OneKey,'企业规模不良',substr(BII1.DimensionValue,1,locate('@',BII1.DimensionValue)-1),sum(Balance)"+
+ 				"'"+HandlerFlag+"','"+sReportConfigNo+"',BII1.OneKey,'企业规模不良'," +
+ 				groupby+","+
+ 				"sum(Balance)"+
 				" from Batch_Import_Process BII1"+
 				" where BII1.ConfigNo='b20140603000003' and BII1.OneKey='"+sKey+"' and BII1.Dimension='企业规模明细'"+//S63_规模贷款导入配置号
 				" and (BII1.DimensionValue like '%1.1.3%' or BII1.DimensionValue like '%1.1.4%' or BII1.DimensionValue like '%1.1.5%' ) " +
-				" group by HandlerFlag,ConfigNo,OneKey,'企业规模明细',substr(BII1.DimensionValue,1,locate('@',BII1.DimensionValue)-1)";
+				" group by HandlerFlag,ConfigNo,OneKey,'企业规模明细',"+groupby;
  		Sqlca.executeSQL("insert into Batch_Import_Process "+
  				"(HandlerFlag,ConfigNo,OneKey,Dimension,DimensionValue,Balance)"+
  				"( "+
@@ -33,7 +41,7 @@ public class BDOperationReportHandler{
  		//通过借据明细，更新大中小微不良户数
  		sSql="from Batch_Import_Interim BII1"+
  						" where BII1.ConfigName='借据明细' and BII1.OneKey='"+sKey+"' "+
- 						" and BII1.~s借据明细@企业规模e~=BIP.DimensionValue"+
+ 						" and BII1.~s借据明细@企业规模e~=substr(BIP.DimensionValue,3)"+//形式如：A-大型企业
  						" and nvl(BII1.~s借据明细@余额(元)e~,0)>0"+
  						" and (BII1.~s借据明细@五级分类e~ like '次级%' or BII1.~s借据明细@五级分类e~ like '可疑%' or BII1.~s借据明细@五级分类e~ like '损失%')";
  		String updateSql="update Batch_Import_Process BIP set(TotalTransaction)="+
@@ -57,7 +65,7 @@ public class BDOperationReportHandler{
  		updateSql="update Batch_Import_Process set(TotalTransaction)="+
  	 				"(select count(distinct BII1.~s借据明细@客户名称e~) "+sSql+")"+
  	 				" where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sReportConfigNo+"' and OneKey='"+sKey+"'"+
- 	 				" and DimensionValue='单户授信总额500万元以下的小微型企业'";
+ 	 				" and DimensionValue='E-单户授信总额500万元以下的小微型企业'";
  		updateSql=StringUtils.replaceWithConfig(updateSql, Sqlca);
  		Sqlca.executeSQL(updateSql);
 	}
@@ -67,7 +75,7 @@ public class BDOperationReportHandler{
 	 */
 	public static void process(String HandlerFlag,String sReportConfigNo,String sKey,Transaction Sqlca) throws Exception{
  		BDOperationReportHandler.processS63(HandlerFlag, sReportConfigNo, sKey, Sqlca);
- 		//汇总担保方式
+ 		//针对S63中的大中小规模明细，生成担保方式维度汇总
  		String sSql="select "+
  				"'"+HandlerFlag+"','"+sReportConfigNo+"','"+sKey+"','贷款单一担保方式',substr(BIP.DimensionValue,locate('@',BIP.DimensionValue)+1),sum(Balance)"+
 				" from Batch_Import_Process BIP"+
@@ -89,7 +97,7 @@ public class BDOperationReportHandler{
 		//2、计算大中小微不良总额的总计
  		//此处计算不良总额，主要是文字描述部分需要这个字段，也要计算不良率
  		sSql="select "+
- 				"HandlerFlag,ConfigNo,OneKey,Dimension,'总计',"+
+ 				"HandlerFlag,ConfigNo,OneKey,Dimension,'大中小微总计',"+
  				"round(sum(BusinessSum),2),round(sum(BusinessSumSeason),2),round(sum(Balance),2) as Balance,sum(TotalTransaction) "+
  				" from Batch_Import_Process "+
  				" where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sReportConfigNo+"' and OneKey ='"+sKey+"' and Dimension='企业规模不良'" +

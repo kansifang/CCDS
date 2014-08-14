@@ -66,11 +66,12 @@ public class EDocument
         return ETagHandle.checkTag(template, datadef);
     }
 
-    private static void replaceTag(Document document, Document document1)
+    private static void replaceTag(Document document, Document datadocument)
         throws JDOMException, IOException
     {
-        ETagHandle.replaceSimpleTag(document, document1);
-        ETagHandle.replaceTableTag(document, document1);
+        ETagHandle.replaceSimpleTag(document, datadocument);
+        //ETagHandle.replaceImageTag(document, datadocument);
+        ETagHandle.replaceTableTag(document, datadocument);
     }
 
     public String saveAsDefault(String s)
@@ -95,9 +96,9 @@ public class EDocument
         format.setIndent("   ");
         XMLOutputter xmloutputter = new XMLOutputter(format);
         Document document = builder.build(new File(templateFName));
-        Document document1 = builder.build(new File(dataDefFName));
-        document1 = EDataHandle.getData(document1, map, transaction);
-        replaceTag(document, document1);
+        Document datadocument = builder.build(new File(dataDefFName));
+        datadocument = EDataHandle.getData(datadocument, map, transaction);
+        replaceTag(document, datadocument);
         xmloutputter.output(document, new FileOutputStream(s));
         return s;
     }

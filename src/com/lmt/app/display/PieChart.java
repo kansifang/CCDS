@@ -55,8 +55,10 @@ public class PieChart {
 		ASResultSet rs=Sqlca.getASResultSet(sSql);
 		// 添加数据
 		while(rs.next()){
-			PD.setValue(rs.getString(1), rs.getDouble(2));
-			pies.add(rs.getString(1));
+			String title=rs.getString(1);
+			if(title==null)continue;
+			PD.setValue(title, rs.getDouble(2));
+			pies.add(title);
 		}
 		rs.getStatement().close();
 		JFreeChart jf = ChartFactory.createPieChart("", PD, true, true, true);
@@ -71,8 +73,9 @@ public class PieChart {
 	public static void setStyle(boolean is3D,JFreeChart chart,HashSet<String> pies){
 		// 得到图表标题，并给其设置字体
 		chart.getTitle().setFont(new Font("黑体",0,20));
-		// 得到图表底部类别，并给其设置字体
+		// 得到图表底部类别，并给其设置字体(就是底部有颜色有字体那种，饼状图上显示的话，这一部分就没必要要)
 		chart.getLegend().setItemFont(new Font("宋体",0,12));
+		chart.getLegend().setVisible(false);
 		chart.getRenderingHints().put(RenderingHints.KEY_TEXT_ANTIALIASING,RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);  
 
 		// 得到饼状图样式的样式

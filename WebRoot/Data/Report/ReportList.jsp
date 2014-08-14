@@ -180,12 +180,14 @@
 	function displayReport()
 	{
 		var sSerialNo = getItemValue(0,getRow(),"SerialNo");
+		var sReportConfigNo = getItemValue(0,getRow(),"ReportConfigNo");
+		var sOneKey = getItemValue(0,getRow(),"OneKey");
 		if(typeof(sSerialNo)=="undefined" || sSerialNo.length==0){
 			alert(getHtmlMessage('1'));//请选择一条信息！
 		}else{
 			sCompID = "ReportTab";
 			sCompURL = "/Data/Report/ReportTab.jsp";
-			sParamString = "SerialNo="+sSerialNo;
+			sParamString = "SerialNo="+sSerialNo+"&ReportConfigNo="+sReportConfigNo+"&OneKey="+sOneKey;
 			OpenComp(sCompID,sCompURL,sParamString,"_blank",OpenStyle);
 		}
 	}
