@@ -64,7 +64,7 @@ public class BDOperationReportHandler{
  						" and (BII1.~s借据明细@五级分类e~ like '次级%' or BII1.~s借据明细@五级分类e~ like '可疑%' or BII1.~s借据明细@五级分类e~ like '损失%')";
  		updateSql="update Batch_Import_Process set(TotalTransaction)="+
  	 				"(select count(distinct BII1.~s借据明细@客户名称e~) "+sSql+")"+
- 	 				" where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sReportConfigNo+"' and OneKey='"+sKey+"'"+
+ 	 				" where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sReportConfigNo+"' and OneKey='"+sKey+"' and Dimension = '企业规模不良'"+
  	 				" and DimensionValue='E-单户授信总额500万元以下的小微型企业'";
  		updateSql=StringUtils.replaceWithConfig(updateSql, Sqlca);
  		Sqlca.executeSQL(updateSql);
@@ -101,7 +101,7 @@ public class BDOperationReportHandler{
  				"round(sum(BusinessSum),2),round(sum(BusinessSumSeason),2),round(sum(Balance),2) as Balance,sum(TotalTransaction) "+
  				" from Batch_Import_Process "+
  				" where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sReportConfigNo+"' and OneKey ='"+sKey+"' and Dimension='企业规模不良'" +
- 				" and DimensionValue <> '单户授信总额500万元以下的小微型企业'"+
+ 				" and DimensionValue <> 'E-单户授信总额500万元以下的小微型企业'"+
  				" group by HandlerFlag,ConfigNo,OneKey,Dimension";
  		Sqlca.executeSQL("insert into Batch_Import_Process "+
  				"(HandlerFlag,ConfigNo,OneKey,Dimension,DimensionValue,"+
@@ -125,7 +125,7 @@ public class BDOperationReportHandler{
  				" and ConfigNo='"+sReportConfigNo+"'" +
  				" and OneKey='"+sKey+"'" +
  				" and Dimension='企业规模不良'" +
- 				" and DimensionValue='总计'"
+ 				" and DimensionValue='大中小微总计'"
  				);
  		//4、相对前一年度增加值和幅度更新
  		sSql="select tab1.Dimension,tab1.DimensionValue,"+

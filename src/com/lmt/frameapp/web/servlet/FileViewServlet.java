@@ -55,7 +55,8 @@ public class FileViewServlet extends HttpServlet
         if (sViewType.equals("view")){
           response.setHeader("Content-Disposition", "filename=" + DataConvert.toRealString(3,StringFunction.getFileName(sFileName)) + ";");
         }else {
-          response.setHeader("Content-Disposition", "attachment;filename=" + StringFunction.getFileName(sFileName) + ";");
+        	//StringFunction.getFileName(sFileName);
+          response.setHeader("Content-Disposition", "attachment;filename="+DataConvert.toRealString(3,StringFunction.getFileName(sFileName))+ ";");
         }
         ServletOutputStream outStream2 = response.getOutputStream();
         InputStream inStream = new FileInputStream(sFileName);

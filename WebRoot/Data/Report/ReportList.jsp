@@ -259,19 +259,17 @@
 		if (typeof(sReturn)=="undefined") {
 	        alert("打印电子合同失败！！");
 		    return;
-		}
-		else if (sReturn=="nodef") {
+		}else if (sReturn=="nodef") {
 			alert("对应的产品未定义电子合同模版,不能生成电子合同！");
 			return;
-		}
-		else if (sReturn=="nodoc") {
+		}else if (sReturn=="nodoc") {
 			sReturn = PopPage("/Data/Report/EDOC/EDocCreateActionAll.jsp?ObjectType="+sObjectType+"&ObjectNo="+sObjectNo+"&EDocNo="+sEDocNo,"","");
 		    if (typeof(sReturn)=="undefined") {
 		        alert("生成电子合同失败！");
 			    return;
 			}
 		}
-		popComp("EDocView","/Data/Report/EDOC/EDocView.jsp","SerialNo="+sReturn);
+		popComp("EDocView","/Data/Report/EDOC/EDocView.jsp","ViewType=save&SerialNo="+sReturn);
 	}
 	</script>
 <%/*~END~*/%>

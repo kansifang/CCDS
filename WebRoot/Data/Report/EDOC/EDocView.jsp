@@ -7,13 +7,11 @@
 </body>
 </html>
 <%
+	String sViewType = DataConvert.toString((String)CurComp.getParameter("ViewType"));//"view" or "save"
 	String sSerialNo = DataConvert.toString((String)CurComp.getParameter("SerialNo"));
 
     String sFullPath = Sqlca.getString("select FullPath from EDOC_PRINT where SerialNo='"+sSerialNo+"'");
     String sContentType = Sqlca.getString("select ContentType from EDOC_PRINT where SerialNo='"+sSerialNo+"'");
-	String sViewType="view"; //"view" or "save"
-	if(sViewType.equals("view"))
-	{
 %>
 
 <form name=form1 method=post action=<%=sWebRootPath%>/fileview>
@@ -21,7 +19,7 @@
 	<div style="display:none">
 		<input name=filename value="<%=sFullPath%>">
 		<input name=contenttype value="<%=sContentType%>">
-		<input name=viewtype value="view">		
+		<input name=viewtype value="<%=sViewType%>">		
 	</div>
 </form>
 
@@ -30,7 +28,4 @@
 	form1.submit();
 	setTimeout("top.close();",4000);
 </script>
-<%
-	}
-%>
 <%@ include file="/IncludeEnd.jsp"%>

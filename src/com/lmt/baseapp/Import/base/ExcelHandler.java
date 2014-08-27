@@ -126,8 +126,13 @@ public class ExcelHandler extends DefaultHandler {
 		//解析文件下一条记录到结果集中
 		for (int i = 0; i <= rr.getLastCellNum(); ++i) {
 			Cell cell=rr.getCell(i);
-			if(cell==null)
-				continue;
+			if(cell==null){
+				if(this.record.containsIndexInFile(i)&&this.record.getColumnObjWIF(i).isPrimaryKey()){
+					return false;//如果主标示为空直接表示没记录了
+				}else{
+					continue;
+				}
+			}
 			int CT=cell.getCellType();
 			if(this.record.containsIndexInFile(i)&&!this.record.getColumnObjWIF(i).isOutFileColumn()){
 				if("Number".equals(this.record.getColumnTypeWIF(i))){

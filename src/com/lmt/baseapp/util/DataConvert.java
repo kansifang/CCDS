@@ -244,4 +244,27 @@ public class DataConvert
       return 0;
     return Integer.parseInt(paramString);
   }
+  public static String complementSpace(int size) {
+		String spaceString = "";
+		for (int i = 0; i < size; i++) {
+			spaceString = spaceString + " ";
+		}
+		return spaceString;
+	}
+
+	public static String complementSpace(String str, int length , String encoding) {
+
+		int size = getBytes(str , encoding).length;
+		for (int i = size; i < length; i++) {
+			str = str + " ";
+		}
+		return str;
+	}
+	public static byte[] getBytes(String str , String encoding) {
+		try {
+			return str.getBytes(encoding);
+		} catch (UnsupportedEncodingException e) {
+			return str.getBytes();
+		}
+	}
 }

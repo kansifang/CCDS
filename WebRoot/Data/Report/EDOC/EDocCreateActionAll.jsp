@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=GBK"%>
-<%@page import="com.lmt.app.edoc.EDocument"%>
+<%@page import="com.lmt.app.edoc.EDocument,com.lmt.app.edoc.EDocumentText"%>
 <%@ include file="/IncludeBeginMD.jsp"%>
 
 <%/*~BEGIN~可编辑区~[Editable=true;CodeAreaID=Main00;Describe=注释区;]~*/%>
@@ -72,8 +72,8 @@ String getFilePath(String sDocNo, String sShortFileName) {
 		java.util.Date dateNow = new java.util.Date();
    		SimpleDateFormat sdfTemp = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
    		String sUpdateTime=sdfTemp.format(dateNow);
-   		String sFileName="",sFullPathFmt="",sFullPathDef="";
-		ASResultSet rs=Sqlca.getASResultSet("select FileNameFmt,FullPathFmt,FullPathDef"+ 
+   		String sFileName="",sFullPathFmt="",sFullPathDef="",sEDocType="",ContentType="";
+		ASResultSet rs=Sqlca.getASResultSet("select FileNameFmt,FullPathFmt,FullPathDef,EDocType"+ 
 										" from EDOC_DEFINE where EDocNo='"+sEDocNo+"'");
 		if(rs.next()){
 			//输出文件名
@@ -82,6 +82,8 @@ String getFilePath(String sDocNo, String sShortFileName) {
 			sFullPathFmt =DataConvert.toString( rs.getString(2));
 			//数据路径
 			sFullPathDef =DataConvert.toString( rs.getString(3));
+			//数据文档类型
+			sEDocType =DataConvert.toString( rs.getString(4));
 		}
 		rs.getStatement().close();
 		//如果不存在记录，则新增打印记录（此对象的打印信息）
@@ -93,18 +95,27 @@ String getFilePath(String sDocNo, String sShortFileName) {
    		String sFileSavePath = CurConfig.getConfigure("FileSavePath");
    		//生成文件路径
 		String sFullPathOut = getFullPath(sSerialNo, sFileName, sFileSavePath, application);
-		EDocument edoc = new EDocument(sFullPathFmt,sFullPathDef);
-   		HashMap map = new HashMap();
-		map.put("SerialNo", sObjectNo);
-		edoc.saveDoc(sFullPathOut,map,Sqlca);
-		//edoc.saveData(sFullPathOut,map,Sqlca);
-		long lFileLen = new java.io.File(sFullPathOut).length();
-		String sSql = "Update EDOC_PRINT set FullPath='"+sFullPathOut+"',ContentType='application/msword',ContentLength='"+lFileLen+"',InputTime='"+sUpdateTime+"',InputOrg='"+CurUser.OrgID+"',InputUser='"+CurUser.UserID+"' where SerialNo='"+sSerialNo+"'";
+   		if("010".equals(sEDocType)){//WORD
+   			EDocument edoc = new EDocument(sFullPathFmt,sFullPathDef);
+   	   		HashMap map = new HashMap();
+   			map.put("SerialNo", sObjectNo);
+   			edoc.saveDoc(sFullPathOut,map,Sqlca);
+   			//edoc.saveData(sFullPathOut,map,Sqlca);
+   			ContentType="application/msword";
+   		}else if("020".equals(sEDocType)){//TEXT
+   			EDocumentText edoc = new EDocumentText(sFullPathFmt,sFullPathDef);
+   			HashMap map = new HashMap();
+   			map.put("SerialNo", sObjectNo);
+   			edoc.saveDoc(sFullPathOut,map,Sqlca);
+   			ContentType="text/plain";
+   		}
+   		long lFileLen = new java.io.File(sFullPathOut).length();
+		String sSql = "Update EDOC_PRINT set FullPath='"+sFullPathOut+"',ContentType='"+ContentType+"',ContentLength='"+lFileLen+"',InputTime='"+sUpdateTime+"',InputOrg='"+CurUser.OrgID+"',InputUser='"+CurUser.UserID+"' where SerialNo='"+sSerialNo+"'";
 		Sqlca.executeSQL(sSql);
 %>		
 <script language=javascript>
 	self.returnValue = "<%=sSerialNo%>";
-    alert("生成电子合同成功！");
+    alert("生成电子文档成功！");
     self.close();
 </script>
 

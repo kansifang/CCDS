@@ -424,7 +424,7 @@ public class ETagHandle {
 						el_vs.setAttribute("id",""+tagName);
 						el_vs.setAttribute("spid","_x0000_i1028",nso);
 						el_vs.setAttribute("type","_x0000_t75");
-						el_vs.setAttribute("style","width:6in;height:247.75pt;visibility:visible;mso-wrap-style:square");
+						el_vs.setAttribute("style","width:6in;height:350pt;visibility:visible;mso-wrap-style:square");
 						Element el_vi=new Element("imagedata",nsv);
 						el_vi.setAttribute("src","wordml://0300000"+pictindex+".png");
 						el_vi.setAttribute("title","",nso);

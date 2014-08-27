@@ -39,11 +39,12 @@ com.lmt.app.cms.explain.AmarMethod
 <%
 	//1、通过数据库查询出查询语句来执行查询
 	StringBuffer sb=new StringBuffer("");
-	ASResultSet rs1 = Sqlca.getResultSet("select ContentLength,Remark,FileName from Doc_Attachment"+
+	ASResultSet rs1 = Sqlca.getResultSet("select ContentLength,Remark,FileName,Attribute3 from Doc_Attachment"+
 							" where AttachmentNo='"+sAttachmentNo+"'");
-	String tabName="";
+	String tabName="",IsUpdate="";
 	if(rs1.next()){	
 		tabName=DataConvert.toString(rs1.getString("FileName"));
+		IsUpdate=DataConvert.toString(rs1.getString("Attribute3"));
 		String sFilterC=DataConvert.toString(rs1.getString("Remark"));
 		if(!"".equals(sFilterC)){
 			if(!"".equals(sFilterColumn)){//查询字段
@@ -139,14 +140,16 @@ com.lmt.app.cms.explain.AmarMethod
 	//把图生成字节数组，保存到数据库，作为输出到Word时查询使用
 	if(!"01".equals(sType)&&jf!=null){
 		ByteArrayOutputStream outBA = new ByteArrayOutputStream();  
-	       ChartUtilities.writeChartAsPNG(outBA, jf, 700, 550);  
-	       String base63string=Base64.encode(outBA.toByteArray());
 	       String sWhere="HandlerFlag=upper('"+sHandlerFlag+"') and OneKey='"+sOneKey+"'"+" and Dimension='"+sDimension+"' and DimensionValue='"+tabName+"'";
 	       String sOneOneKey=Sqlca.getString("select OneKey from Batch_Import_Process where "+sWhere);
 		if(!sOneKey.equals(sOneOneKey)){
 			Sqlca.executeSQL("insert into Batch_Import_Process "+
 	 				"(HandlerFlag,OneKey,Dimension,DimensionValue)"+
 	 				"values(upper('"+sHandlerFlag+"'),'"+sOneKey+"','"+sDimension+"','"+tabName+"')");
+					}
+		if("1".equals(IsUpdate)){
+			ChartUtilities.writeChartAsPNG(outBA, jf, 600, 600);  
+		    String base63string=Base64.encode(outBA.toByteArray());
 			AmarMethod am=new AmarMethod("PublicMethod","HandleBlobContent",null,Sqlca);
 			am.execute("U,Contentlength,Content,Batch_Import_Process,"+sWhere+","+base63string);
 		}

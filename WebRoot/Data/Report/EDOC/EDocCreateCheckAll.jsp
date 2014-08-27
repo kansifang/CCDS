@@ -30,8 +30,7 @@
 	//假如业务品种没有定义，则提示没有定义模板
 	if (sEDocNo == null ) {
 		sReturn = "nodef";		
-	}
-	else {
+	}else {
 		sEDocNo = Sqlca.getString("select EDocNo from EDOC_DEFINE where EDocNo='"+sEDocNo+"'");
 	}
 
@@ -40,26 +39,23 @@
 	}else {
 		 sSerialNo = Sqlca.getString("Select SerialNo from EDOC_PRINT where ObjectNo='"+sObjectNo+"' and ObjectType='"+sObjectType+"' and EDocNo='"+sEDocNo+"'");
 	}
-
 	if (sSerialNo == null) {
 		sReturn = "nodoc";
-	} else {
+	}else{
 		String sFullPath = Sqlca.getString("Select FullPath from EDOC_PRINT where SerialNo='"+sSerialNo+"'");
 		java.io.File dFile = new java.io.File(sFullPath);
 		if(!dFile.exists()){	
 			sReturn = "nodoc";
-		}else {
+		}else{
 			dFile.delete();
 			Sqlca.executeSQL("delete from Edoc_Print where SerialNo='"+sSerialNo+"'");
 			sReturn = "nodoc";
 		}
 	}
-
 	//假如没有生成好的文档，看看是否有文档模板定义
 	if ("nodoc".equals(sReturn)) {
 		String sFullPathFmt = Sqlca.getString("select FullPathFmt from EDOC_DEFINE where EDocNo='"+sEDocNo+"'");
 		String sFullPathDef = Sqlca.getString("select FullPathDef from EDOC_DEFINE where EDocNo='"+sEDocNo+"'");
-
 		if (sFullPathFmt == null || sFullPathDef == null) {
 			sReturn = "nodef";
 		}else  {
@@ -73,7 +69,6 @@
 				sReturn = "nodef";	
 		}
 	}
-	
 	if ("ok".equals(sReturn)) {
 		sReturn = sSerialNo;
 	}

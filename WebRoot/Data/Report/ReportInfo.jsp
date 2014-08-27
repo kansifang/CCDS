@@ -101,6 +101,7 @@ String sSql =  " select "+
 	doTemp.setReadOnly("CodeNo,InputUserName,InputOrgName,UpdateUserName,InputTime,UpdateTime",true);
  	doTemp.setDDDWCode("SortNo","SModelFileType");
  	doTemp.setDDDWCode("CodeTypeOne","YesNo");
+ 	doTemp.setDDDWSql("EDocNo", "select EDocNo,EDocName from EDoc_Define");
 	doTemp.setVisible("CodeTypeTwo,InputUser,InputOrg,UpdateUser",false);    	
 	doTemp.setUpdateable("InputUserName,InputOrgName,UpdateUserName",false);
   			

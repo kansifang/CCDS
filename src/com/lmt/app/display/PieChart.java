@@ -6,12 +6,14 @@ import java.awt.Font;
 import java.awt.RenderingHints;
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.HashSet;
 import java.util.Iterator;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
 import org.jfree.chart.labels.StandardPieToolTipGenerator;
 import org.jfree.chart.plot.PiePlot;
 import org.jfree.chart.plot.PiePlot3D;
@@ -118,7 +120,9 @@ public class PieChart {
         	plot.setExplodePercent(it.next(),k);
         	//k=k+0.1;
         }
-      //设置扇区边框不可见  
+        //饼图标签显示百分比方法 如果百分比要包括一位小数，则使用 {0}，{1}，{2} 分别是 标签题目 值 百分比
+        plot.setLabelGenerator(new StandardPieSectionLabelGenerator("{0}：{1}，{2}",new DecimalFormat("0.00"),new DecimalFormat("0.00%")));
+        //设置扇区边框不可见  
         plot.setSectionOutlinesVisible(false);  
 	}
 	/*
