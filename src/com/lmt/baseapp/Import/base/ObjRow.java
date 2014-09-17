@@ -29,15 +29,14 @@ public class ObjRow {
 			while(rs.next()){
 				this.addColumn(rs.getString(1),rs.getString(2),rs.getString(3),"1".equals(rs.getString(4))?true:false);
 			}
-		}else{
+		}else{//以每列数据在excel中的 A B....顺序为标识来决定每列数据的对应关系
 			while(rs.next()){
 				boolean isPrimaryKey="1".equals(rs.getString(4))?true:false;
-				if(isPrimaryKey){
+				if(isPrimaryKey){//是标示键的话，仍然以标题来初始化
 					this.addColumn(rs.getString(1),rs.getString(2),rs.getString(3),isPrimaryKey);
-				}else{
+				}else{//非标示键则以序列号来初始化
 					this.addColumn(rs.getString(1),ExcelBigHandler.getNumberFromLetter(rs.getString(5))-1,rs.getString(3),isPrimaryKey);
 				}
-				
 			}
 		}
 		rs.getStatement().close();
@@ -221,7 +220,7 @@ public class ObjRow {
 		return null;
 	}
 	public ObjColumn getColumnObjWH(String head) {
-		if (head == null || head.equals("")) {
+		if (head == null || "".equals(head)) {
 			return null;
 		}
 		for (ObjColumn sC : this.columns) {
@@ -344,7 +343,7 @@ public class ObjRow {
 		this.addColumn(eh);
 	}
 	public void addColumn(String columnName, int indexInFile,String columnType,boolean primaryKey) {
-		ObjColumn eh = new ObjColumn(columnName,columnType,"",indexInFile,this.columnTCount,false,primaryKey);
+		ObjColumn eh = new ObjColumn(columnName,columnType,"NO"+this.columnTCount,indexInFile,this.columnTCount,false,primaryKey);//标题默认NO
 		this.addColumn(eh);
 	}
 	public void addColumn(String columnName, String headName) {
@@ -381,24 +380,18 @@ public class ObjRow {
 	}
 
 	public int getColumnIndexWH(String head) {
-		if (head == null || "".equals(head)) {
-			return 0;
-		}
 		ObjColumn sC = this.getColumnObjWH(head);
 		if (sC != null) {
 			return sC.getIndexInFile();
 		}
-		return 0;
+		return -1;
 	}
 	public int getColumnIndex(String column) {
-		if (column == null || "".equals(column)) {
-			return 0;
-		}
 		ObjColumn sC = this.getColumnObj(column);
 		if (sC != null) {
 			return sC.getIndexInFile();
 		}
-		return 0;
+		return -1;
 	}
 
 	public void setColumnIndexWH(String head, int index) {

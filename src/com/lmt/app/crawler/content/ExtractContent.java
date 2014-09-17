@@ -237,7 +237,7 @@ public class ExtractContent{
 			if (nodeP instanceof ParagraphTag) {
 				ArrayList tableList = new ArrayList();
 				StringBuffer temp = new StringBuffer();
-				temp.append("<p style=\"TEXT-INDENT: 2em\">");
+				temp.append("<p style='TEXT-INDENT: 2em'>");
 				tableList.add(temp);
 				temp = new StringBuffer();
 				temp.append("</p>").append(lineSign);
@@ -253,7 +253,7 @@ public class ExtractContent{
 		if (nodeP instanceof ParagraphTag) {
 			ArrayList tableList = new ArrayList();
 			StringBuffer temp = new StringBuffer();
-			temp.append("<p style=\"TEXT-INDENT: 2em\">");
+			temp.append("<p style='TEXT-INDENT: 2em'>");
 			tableList.add(temp);
 			extractParagraph(nodeP, newsbean, tableList);
 			temp = new StringBuffer();
@@ -341,7 +341,7 @@ public class ExtractContent{
 				int wordSize = 0;
 				StringBuffer node;
 				int status = 0;
-				StringBuffer lineStart = new StringBuffer("<p style=\"TEXT-INDENT: 2em\">");
+				StringBuffer lineStart = new StringBuffer("<p style='TEXT-INDENT: 2em'>");
 				StringBuffer lineEnd = new StringBuffer("</p>" + lineSign);
 				while (ti.hasNext()) {
 					Object k = ti.next();
@@ -456,7 +456,7 @@ public class ExtractContent{
 		if ((nodeList == null) || (nodeList.size() == 0)) {
 			if (nodeP instanceof ParagraphTag) {
 				StringBuffer temp = new StringBuffer();
-				temp.append("<p style=\"TEXT-INDENT: 2em\">");
+				temp.append("<p style='TEXT-INDENT: 2em'>");
 				tableList.add(temp);
 				temp = new StringBuffer();
 				temp.append("</p>").append(lineSign);

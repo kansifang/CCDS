@@ -23,6 +23,7 @@
 	<span id="progress17">&nbsp; &nbsp;</span>
 	<span id="progress18">&nbsp; &nbsp;</span>	
 	</div>
-	</td></tr></table>
+	</td>
+	</tr></table>
 	</span>
 <%/*~END~*/%>

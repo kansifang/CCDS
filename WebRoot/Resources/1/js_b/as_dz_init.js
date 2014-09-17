@@ -579,10 +579,8 @@ function init(bSetPageSize){
 		sort_begin[i]=0;
 		sort_end[i]=rr_c[i]-1;
 	}
- 
 	iCurRow = -1;
 	iCurCol = 0;
-
 	window.status="Ready";  
 	window.status=myoldstatus;  
 }

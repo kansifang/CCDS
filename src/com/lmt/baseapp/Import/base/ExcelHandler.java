@@ -28,17 +28,15 @@ public class ExcelHandler extends DefaultHandler {
 	public void setSheet(Sheet sheet) {
 		this.sheet = sheet;
 	}
-	
 	public boolean checkMeta() throws Exception{
 		//初始化开始行
 		this.initCurrentRow();
 		//校验上传文件是否为空
-		StringBuffer sb=new StringBuffer("");
 		Row headrow =getSheet().getRow(this.currentRow);
 		if(headrow.getPhysicalNumberOfCells()==0){
 			throw new Exception("上传文件为空文件！");
 		}
-		//校验上传文件中标题头是否重复
+		//校验上传文件中标题头是否重复，标题忽略所有空格
 		for(int i=0;i<headrow.getPhysicalNumberOfCells();i++){
 			String headrow1=this.changeCellToString(headrow.getCell(i));;
 			if("".equals(headrow1)){
@@ -47,7 +45,7 @@ public class ExcelHandler extends DefaultHandler {
 			for(int j=i+1;j<headrow.getPhysicalNumberOfCells();j++){
 				String headrow2=this.changeCellToString(headrow.getCell(j));
 				if(headrow1.equals(headrow2)){
-					sb.append("Excel文件中"+headrow.getCell(i).getStringCellValue().trim()+"有多个，请调整；");
+					throw new Exception("Excel文件中"+headrow1+"有多个，请调整！");
 				}
 			}
 		}
@@ -59,24 +57,22 @@ public class ExcelHandler extends DefaultHandler {
 			String headD = sC.getColumnHeadName();
 			String headName="";
 			if(!sC.isOutFileColumn()){
-				if(this.record.getColumnIndexWH(headD)>=0){
+				//等于NO情况就是以序列号为准
+				if(headD!=null&&headD.indexOf("NO")>0||this.record.getColumnIndexWH(headD)>=0){
 					continue;
 				}
-				for (int i =0;i < headrow.getPhysicalNumberOfCells();i++) {
-					headName=headrow.getCell(i).getStringCellValue().trim().replaceAll("\\s", "");
+				for(int i =0;i < headrow.getPhysicalNumberOfCells();i++) {
+					headName=this.changeCellToString(headrow.getCell(i));
 					if(headD.equals(headName)){
 						this.record.setColumnIndexWH(headD,i);
-						k=1;
+						k++;
 						break;
 					}
 				}
 				if(k==0){
-					sb.append("~"+headD+"~");
+					throw new Exception("当前批次所选择的模板定义中配置的"+headD+"在上传Excel文件中没有对应的要素；");
 				}
 			}
-		}
-		if(sb.length()>0){
-			throw new Exception("当前批次所选择的模板定义中配置的"+sb.toString()+"在上传Excel文件中没有对应的要素；");
 		}
 		return true;
 	}
@@ -173,7 +169,7 @@ public class ExcelHandler extends DefaultHandler {
 					}
 					break;
 				case Cell.CELL_TYPE_STRING:    //字符串
-					returnValue = cell.getStringCellValue().trim().replaceAll("\\s+", "pp");
+					returnValue = cell.getStringCellValue().trim().replaceAll("\\s+", "");//原来替换成pp 不知原因，所以此刻再变成替换为空字符串
 					break;
 				case Cell.CELL_TYPE_BOOLEAN:   //布尔
 					Boolean booleanValue=cell.getBooleanCellValue();

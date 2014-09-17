@@ -67,11 +67,11 @@
 				{"CodeAttribute","配置类型"},
 				{"CodeTypeOne","是否直接以序号号为准"},
 				{"Remark","备注"},
+				{"InputTime","序号"},
 				{"InputUserName","输入人"},
 				{"InputUser","输入人"},
 				{"InputOrgName","输入机构"},
 				{"InputOrg","输入机构"},
-				{"InputTime","输入时间"},
 				{"UpdateUserName","更新人"},
 				{"UpdateUser","更新人"},
 				{"UpdateTime","更新时间"}
@@ -83,11 +83,11 @@
 						"CodeDescribe,"+
 						"CodeAttribute,"+
 						"Remark,"+
+						"InputTime,"+
 						"getUserName(InputUser) as InputUserName,"+
 						"InputUser,"+
 						"getOrgName(InputOrg) as InputOrgName,"+
 						"InputOrg,"+
-						"InputTime,"+
 						"getUserName(UpdateUser) as UpdateUserName,"+
 						"UpdateUser,"+
 						"UpdateTime "+
@@ -112,7 +112,7 @@
 	doTemp.setHTMLStyle("Remark"," style={height:100px;width:400px;overflow:scroll} ");
  	doTemp.setLimit("Remark",120);
  	doTemp.setLimit("CodeTypeOne,CodeTypeTwo", 80);
-	doTemp.setReadOnly("CodeNo,InputUserName,InputOrgName,UpdateUserName,InputTime,UpdateTime",true);
+	doTemp.setReadOnly("CodeNo,InputUserName,InputOrgName,UpdateUserName,UpdateTime",true);
  	doTemp.setDDDWCode("SortNo","SModelFileType");
  	doTemp.setDDDWCode("CodeTypeOne","YesNo");
 	doTemp.setVisible("CodeTypeTwo,InputUser,InputOrg,UpdateUser",false);    	
@@ -248,7 +248,6 @@
 			setItemValue(0,0,"InputUserName","<%=CurUser.UserName%>");
 			setItemValue(0,0,"InputOrg","<%=CurOrg.OrgID%>");
 			setItemValue(0,0,"InputOrgName","<%=CurOrg.OrgName%>");
-			setItemValue(0,0,"InputTime","<%=StringFunction.getToday()%>");
 			setItemValue(0,0,"UpdateUser","<%=CurUser.UserID%>");
 			setItemValue(0,0,"UpdateUserName","<%=CurUser.UserName%>");
 			setItemValue(0,0,"UpdateTime","<%=StringFunction.getToday()%>");

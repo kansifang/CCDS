@@ -610,7 +610,7 @@ function progress_clear() {
 	progressAt = 0;
 }
 function progress_update() {
-progressAt++;
+	progressAt++;
 	if (progressAt > progressEnd) progress_clear();
 	else document.getElementById('progress'+progressAt).style.backgroundColor = progressColor;
 	progressTimer = setTimeout('progress_update()',progressInterval);

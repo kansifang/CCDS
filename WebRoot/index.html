@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <HTML>
 	<HEAD>
 		<TITLE>文档管理系统</TITLE>
@@ -188,7 +188,7 @@
 																						<TABLE class=wzb border=0 cellSpacing=0
 																							cellPadding=0 width="81%" align=center
 																							height="100%">
-																							<FORM method=post name=LogonForm action="Logon.jsp">
+																							<FORM method="post" name="LogonForm" action="Logon.jsp">
 																							<TBODY>
 																								<TR>
 																									<TD width="25%" height=21>
@@ -199,10 +199,10 @@
 																									<TD width="80%">
 																										<INPUT 
 																											onKeyPress=pressEnter(event,1)
-																											onFocus=this.style.backgroundColor='#AAAAAA'
-																											onBlur=this.style.backgroundColor='#e6faff'
-																											id=TELLERNAME class=logonkuang
-																											name=UserID>
+																											onFocus="this.style.backgroundColor='#AAAAAA'"
+																											onBlur="this.style.backgroundColor='#e6faff'"
+																											id="TELLERNAME" class="logonkuang"
+																											name="UserID">
 																									</TD>
 																								</TR>
 																								<TR>
@@ -279,8 +279,7 @@
 		</TABLE>
 	</BODY>
 </HTML>
-
-<script language="JavaScript" type="text/JavaScript">
+<script type=text/javascript>
 	document.LogonForm.UserID.value=readCookie("UserID");
 	document.LogonForm.UserID.focus();
 	doReset();
@@ -288,3 +287,4 @@
 	document.LogonForm.Password.value="000000als6";
 	doSubmit();
 </script>
+

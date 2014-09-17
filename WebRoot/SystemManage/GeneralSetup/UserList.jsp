@@ -108,12 +108,12 @@
 		String sButtons[][] = 
 	        {
 	            {((CurUser.hasRole("099") || CurUser.hasRole("299"))?"true":"false"),"","Button","新增","在当前机构中新增人员","my_add()",sResourcesPath},			
-		{"false","","Button","引入","引入人员至当前机构","my_import()",sResourcesPath},
+				{"false","","Button","引入","引入人员至当前机构","my_import()",sResourcesPath},
 	            {((CurUser.hasRole("099") || CurUser.hasRole("299"))?"true":"false"),"","Button","停用","从当前机构中删除该人员","my_del()",sResourcesPath}, 
 	            {"true","","Button","详情","查看用户详情","viewAndEdit()",sResourcesPath},
 	            {((CurUser.hasRole("099") || CurUser.hasRole("299"))?"true":"false"),"","Button","用户角色","查看并可修改人员角色","viewAndEditRole()",sResourcesPath},
 	           // {((CurUser.hasRole("099") || CurUser.hasRole("299"))?"true":"false"),"","Button","批量更新角色","批量更新角色","my_Addrole()",sResourcesPath},
-		//{((CurUser.hasRole("099") || CurUser.hasRole("299"))?"true":"false"),"","Button","多用户更新角色","多用户更新角色","MuchAddrole()",sResourcesPath},
+				//{((CurUser.hasRole("099") || CurUser.hasRole("299"))?"true":"false"),"","Button","多用户更新角色","多用户更新角色","MuchAddrole()",sResourcesPath},
 	           // {((CurUser.hasRole("099") || CurUser.hasRole("299"))?"true":"false"),"","Button","用户权限","查看并可修改人员权限","viewAndEditRight()",sResourcesPath},
 	           // {((CurUser.hasRole("099") || CurUser.hasRole("299"))?"true":"false"),"","Button","转移","转移人员至其他机构","UserChange()",sResourcesPath},                       
 	            {((CurUser.hasRole("099") || CurUser.hasRole("299"))?"true":"false"),"","Button","初始密码","初始化该用户密码","ClearPassword()",sResourcesPath}            

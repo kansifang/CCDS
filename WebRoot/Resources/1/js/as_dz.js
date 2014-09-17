@@ -156,11 +156,6 @@ var arrangements = new Array();
 var harbors = new Array();
 var bFreeFormMultiCol = false;
 
-//below can modify in jsp
-function myAfterLoadGrid(iDW){
-	setColor(iDW,sEvenColor);
-	//Add you code
-}
 
 function myAfterLoadFreeForm(iDW){
 	//Add you code
@@ -598,18 +593,6 @@ function doKeyUp(myiframe){
 }
 
 function afterKeyUp(myiframe){ }
-
-function beforeMouseDown(myiframe){
-	if(cur_frame=="myform999")
-		cur_frame=myiframe;
-		
-	return true;
-}
-	
-function doMouseDown(myiframe){ }
-
-function afterMouseDown(myiframe){ }
-
 
 function beforeKeyUp_show(e, myiframe){
 	//modify by hxd in 2008/04/10
@@ -1854,17 +1837,6 @@ function ShowMessage(str,showGb,clickHide){
 	document.getElementById("msgDiv").appendChild(txt);
 }
 
-function beforeInit(bSetPageSize){
-	var i = 0, j = 0;
-	for(i=0;i<DZ.length;i++) {
-		my_notnull_temp[i] = new Array();
-		for(j=0;j<f_c[i];j++)
-			my_notnull_temp[i][j] = DZ[i][1][j][4];
-	}
-		
-	return true;
-}
-
 function beforeInit_show(bSetPageSize){
 	var i = 0, j = 0;
 	for(i=0;i<DZ.length;i++) {
@@ -1881,19 +1853,8 @@ function trimField(myobj){
 	myobj.value=myobj.value.replace(/(^[\s]*)|([\s]*$)/g, "");
 }
 
-function beforeMRK1(myobjname,myact,my_sortorder,sort_which){
-	return true;
-}
-
-function beforeMR1(myobjname,myact,my_sortorder,sort_which,need_change){
-	return true;
-}
 
 function beforeMRK2(myobjname,myact){
-	return true;
-}
-
-function beforeMy_load(my_sortorder,sort_which,myobjname,need_change){
 	return true;
 }
 
@@ -1914,10 +1875,6 @@ function beforeCSS(iRec,myname){
 }
 
 function beforeSR_show(lastRec,iRec,myname){
-	return true;
-}
-
-function beforeMyLastCB(myframename,curItemName){
 	return true;
 }
 
@@ -1950,9 +1907,6 @@ function beforeAsSave(objname,afteraction,aftertarget,afterprop){
 	}
 }
 
-function beforeMR1S(myobjname,myact,my_sortorder,sort_which,need_change){
-	return true;
-}
 
 function before_my_load_show_action_s(myobjname,myact,my_sortorder,sort_which){
 	return true;
@@ -1974,9 +1928,6 @@ function beforeCloseCheck(){
 	return true;
 }
 
-function beforeSetPageSize(i,iSize){
-	return true;
-}
 
 function setNoCheckRequired(iDw){
 	for(i=0;i<f_c[iDw];i++) {

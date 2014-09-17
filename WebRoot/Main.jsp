@@ -34,7 +34,7 @@
 <head>
 <title><%=PG_TITLE%></title>
 </head>
-<body leftmargin="0" topmargin="0" class="windowbackground" style="{overflow:auto;overflow-x:visible;overflow-y:visible}">
+<body leftmargin="0" topmargin="0" class="windowbackground" style="{overflow:auto;overflow-x:scroll;overflow-y:visible}">
 <table width="100%" border="0" cellspacing="0" cellpadding="0" height="100%">
 <!-- add by byhu: 用于刷新本页面 -->
 <form name="DOFilter" method=post onSubmit="if(!checkDOFilterForm(this)) return false;">

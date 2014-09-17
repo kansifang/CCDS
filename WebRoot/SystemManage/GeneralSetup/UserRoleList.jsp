@@ -59,12 +59,11 @@
 	if(!sRightStringToUpdate.equals("")){
 		st = new StringTokenizer(sRightStringToUpdate,"@");
 		SqlcaRepository.executeSQL(" delete from USER_ROLE where UserID = '"+sUserID+"' ");
-	    while (st.hasMoreTokens())
-		{
-	sSplitStr = st.nextToken(); 
-	sSplit1 = StringFunction.getSeparate(sSplitStr,":",1);
-	sSplit2 = StringFunction.getSeparate(sSplitStr,":",2);
-	if(sSplit2!=null && sSplit2.equals("true")){
+	    while (st.hasMoreTokens()){
+			sSplitStr = st.nextToken(); 
+			sSplit1 = StringFunction.getSeparate(sSplitStr,":",1);
+			sSplit2 = StringFunction.getSeparate(sSplitStr,":",2);
+			if(sSplit2!=null && sSplit2.equals("true")){
 	            SqlcaRepository.executeSQL(" insert into USER_ROLE(UserID,RoleId,Grantor,BeginTime,EndTime,InputUser,InputOrg,InputTime,Status) values('"+sUserID+"','"+sSplit1+"' ,'"+CurUser.UserID+"','"+StringFunction.getToday()+"','','"+CurUser.UserID+"','"+CurOrg.OrgID+"','"+StringFunction.getToday()+" "+StringFunction.getNow()+"','1')");
 	        }
 		}
@@ -124,11 +123,9 @@
 			//获取机构级别
 			String sOrgLevel = Sqlca.getString("select OrgLevel from ORG_INFO where OrgID = '"+o_User.OrgID+"'");
 			if(sOrgLevel == null) sOrgLevel = "";
-			
 		    sSql = "select RoleID,RoleName from ROLE_INFO where 1=1 ";
 		    if(sOrgLevel.equals("0")) //机构级别OrgLevel(0：总行；3：分行；6：支行；9：网点)
-		    	 sSql += " and (RoleID like '0%' or RoleID like '1%'"+	        		
-		        		 " or RoleID like '8%') "+
+		    	 sSql += " and (RoleID like '0%' or RoleID like '1%' or RoleID like '8%' or RoleID like 'A%') "+
 		        		 " and RoleStatus = '1' ";
 		    if(sOrgLevel.equals("3")) //机构级别OrgLevel(0：总行；3：分行；6：支行；9：网点)
 		    	 sSql += " and (RoleID like '2%' or RoleID like '3%'"+	        		

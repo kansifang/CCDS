@@ -72,9 +72,9 @@
 		{"SortNo","文件类型"},
 		{"CodeDescribe","系统展示要素"},
 		{"CodeAttribute","配置类型"},
+		{"InputTime","排序号"},
 		{"UpdateUserName","更新人"},
-		{"UpdateUser","更新人"},
-		{"UpdateTime","更新时间"}
+		{"UpdateUser","更新人"}
 	};
 
 	sSql = "Select "+
@@ -82,9 +82,9 @@
 		   "CodeName,"+
 		   "getItemName('YesNo',CodeTypeOne) as CodeTypeOne,"+
 		   "getItemName('SModelFileType',SortNo) as SortNo,"+
-		   "CodeDescribe,CodeAttribute "+
+		   "CodeDescribe,CodeAttribute,InputTime "+
 		   "from CODE_CATALOG "+
-		   "Where CodeNo like 'b%' order by CodeName asc";
+		   "Where CodeNo like 'b%' order by InputTime asc";
 	ASDataObject doTemp = new ASDataObject(sSql);
 	//doTemp.multiSelectionEnabled=false;
 	doTemp.UpdateTable="CODE_CATALOG";

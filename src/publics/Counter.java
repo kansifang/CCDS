@@ -69,8 +69,14 @@ public class Counter {
         String msg = sb.toString();
         System.out.println(msg);
         */
-    	  System.out.println("2014/04".compareTo("2014/06"));
-
+    	  //System.out.println("2014/04".compareTo("2014/06"));
+    	  String S="QZ'A'QZxxxxxQZ'bb'QZ";
+    	  Pattern pattern = Pattern.compile("QZ(.+?)QZ",Pattern.CASE_INSENSITIVE);//用+?非贪婪模式，否则匹配第一个QZ和最后一个QZ
+		  Matcher matcher = pattern.matcher(S);
+		  StringBuffer sb=new StringBuffer("");
+		  while (matcher.find()) {
+				matcher.appendReplacement(sb,matcher.group(1)+"||");
+		  }
+		  System.out.println(sb.toString());
     }
-
 }

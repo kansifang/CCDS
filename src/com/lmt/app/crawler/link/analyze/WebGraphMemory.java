@@ -103,8 +103,8 @@ public class WebGraphMemory {
 		Integer id = URLToIdentifyer(URL);
 		if (id == null) {
 			id = new Integer(++nodeCount);
-			String host = this.getHost(URL)[1];
-			String name = this.getHost(URL)[0];
+			String host = this.getHost(URL)[0];
+			String name = this.getHost(URL)[1];
 			// System.out.println("HOST:"+host + " name:"+name);
 			Map<String, Integer> map = (URLToIdentifyer.get(host));
 			if (map == null) {
@@ -155,8 +155,8 @@ public class WebGraphMemory {
 	 * 根据URL制定它的ID
 	 */
 	public Integer URLToIdentifyer(String URL) {
-		String host = this.getHost(URL)[1];
-		String name = this.getHost(URL)[0];
+		String host = this.getHost(URL)[0];
+		String name = this.getHost(URL)[1];
 		// System.out.println("host:"+host + " name:"+name);
 		Map<String, Integer> map = (URLToIdentifyer.get(host));
 		if (map == null) {

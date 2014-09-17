@@ -219,6 +219,15 @@ public class AIHandlerFactory{
 	 			"when ~s表外明细@主要担保方式e~ like '%质押-%' or ~s表外明细@主要担保方式e~='保证金' then '质押' "+
 	 			"else '其他' end";
  		AIDuebillOutHandler.process(HandlerFlag,sConfigNo,sOneKey,Sqlca,"银行承兑汇票单一担保方式",groupBy,"and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票'");
+ 		//保证金比例
+ 		groupBy="QZ'A'QZ" +
+ 				"complementstring(trim(replace(" +
+ 					"case when ~s表外明细@保证金比例(%)e~>=1 then char(~s表外明细@保证金比例(%)e~)" +
+ 					"else '0'||char(~s表外明细@保证金比例(%)e~) end" +
+ 					",'.000000','%')),'0',4,'Before')" +
+ 				"LJF" +
+ 				"QZNumber:0:4:BeforeQZQZ'A'QZ~s表外明细@主要担保方式e~";
+ 		AIDuebillOutHandler.process(HandlerFlag,sConfigNo,sOneKey,Sqlca,"银行承兑汇票保证金比例",groupBy,"and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票'");
 	 	/*原来老的，为了统一月度经营报告和全面风险报告，用下面那个
 	 	groupBy="case "+
  				"when ~s表外明细@经营类型(新)e~ like '%煤炭开采%' or ~s表外明细@经营类型(新)e~ like '%煤炭洗选%' then '煤炭' "+

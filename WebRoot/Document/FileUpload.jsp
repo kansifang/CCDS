@@ -181,7 +181,9 @@ String getMD5String(String srcKey){
 	%>
 <script language=javascript>
 	//alert(getHtmlMessage(13));//上传文件成功
-	self.returnValue="<%=sConfigNo+"@"+UploadType+"@"+sReportDates.toString()+"@"+sFiles.toString()%>";
-    self.close();
+	//下面只能这样写才能兼容IE和FireFox，原来是用 window.top为self 只能支持IE
+//	alert(window.top);
+	window.top.returnValue="<%=sConfigNo+"@"+UploadType+"@"+sReportDates.toString()+"@"+sFiles.toString()%>";
+    window.top.close();
 </script>
 <%@ include file="/IncludeEnd.jsp"%>

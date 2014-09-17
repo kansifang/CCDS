@@ -77,7 +77,9 @@ public class Crawler {
             System.out.println("在Crawler中 要访问的链接："+toVisitUrl);
             if (toVisitUrl == null) {
                 continue;
-            }
+            } 
+           //该 url 放入到已访问的 URL中
+            LinkDB.addVisitedUrl(toVisitUrl);
             try {
 				this.parser=new Parser(toVisitUrl);
 				this.setEncoding();
@@ -85,23 +87,10 @@ public class Crawler {
 			} catch (ParserException e) {
 				System.out.println("在Crawler中Parser初始化失败！");
 				e.printStackTrace();
-				continue;
+				continue;//存在链接超时的情况，这时抛出异常，就继续下一个链接
 			}
-            ExtractContent EC=new ExtractContent(this.parser);
-            HtmlBean nb = EC.getBean();
-            System.out.println("在Crawler中 要访问的链接："+toVisitUrl+"内容是："+nb.getContent());
-            //1、对网页进行主题过滤---利用PageRank HITS等算法
-            if(hits!=null&&computeUrl.accept(toVisitUrl,nb,hits)){
-            	newsDao.saveToDB(nb);
-            }
-            //如果此链接符合要求 把内容保存到数据库 并返回可接受
-            //只有真正的内容页面才保存数据库，目录页面不保存
-            	
-           //该 url 放入到已访问的 URL中
-            LinkDB.addVisitedUrl(toVisitUrl);
             //提取出下载网页中的 URL 2、对链接进行过滤
             //this.parser=Parser.createParser(this.charset, toVisitUrl);
-            this.parser.reset();
             Set<String> links = ExtractLink.parse(this.parser, linkSelffilter);
             //新的未访问的 URL 入队
             for (String link : links) {
@@ -112,8 +101,19 @@ public class Crawler {
             if(hits==null){
             	hits=new HITS(wg);
             }
-            if(LinkDB.getVisitedUrlNum()==500){
+            if(wg.numNodes()>=500){
             	hits.computeHITS();
+            }
+            //内容解析
+            this.parser.reset();
+            ExtractContent EC=new ExtractContent(this.parser);
+            HtmlBean nb = EC.getBean();
+            System.out.println("在Crawler中 要访问的链接："+toVisitUrl+"内容是："+nb.getContent());
+            //1、对网页进行主题过滤---利用PageRank HITS等算法 
+            //只有真正的内容页面才保存数据库，目录页面不保存等 
+            //如果此链接符合要求 把内容保存到数据库 并返回可接受
+            if(computeUrl.accept(toVisitUrl,nb,hits)){
+            	newsDao.saveToDB(nb);
             }
         }
         newsDao.close();

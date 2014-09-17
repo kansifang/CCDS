@@ -323,21 +323,23 @@ void setCurPref(ASPreference CurPref, ASComponent CurComp) throws Exception{
     var sPageClientID = "<%=sPageClientID%>";
 </script>
 <script type=text/javascript src="<%=sResourcesPath%>/js/jquery-1.3.2.min.js"></script>
+<script type=text/javascript src="<%=sResourcesPath%>/js/as_dz.js"> </script>
+<script type=text/javascript src="<%=sResourcesPath%>/js/as_dz_middle.js"> </script>
+<script type=text/javascript src="<%=sResourcesPath%>/js/grid.js"> </script>
+<script type=text/javascript src="<%=sResourcesPath%>/js/form.js"> </script>
+<script type=text/javascript src="<%=sResourcesPath%>/js/init.js"> </script>
 <script type=text/javascript src="<%=sResourcesPath%>/js/as_control.js"></script>
 <script type=text/javascript src="<%=sResourcesPath%>/js/as_webcalendar.js"></script>
-<script type=text/javascript src="<%=sResourcesPath%>/js/xls.js"> </script>
 <script type=text/javascript src="<%=sResourcesPath%>/js/mainmenu.js"> </script>
 <script type=text/javascript src="<%=sResourcesPath%>/js/treemenu.js"> </script>
 <script type=text/javascript src="<%=sResourcesPath%>/js/tabAform.js"> </script>
 <script type=text/javascript src="<%=sResourcesPath%>/js/String.js"> </script>
-<script type=text/javascript src="<%=sResourcesPath%>/js/as_dz.js"> </script>
-<script type=text/javascript src="<%=sResourcesPath%>/js/as_dz_middle.js"> </script>
-<script type=text/javascript src="<%=sResourcesPath%>/js/as_dz_init.js"> </script>
 <script type=text/javascript src="<%=sResourcesPath%>/js/checkdatavalidity.js"> </script>
 <script type=text/javascript src="<%=sResourcesPath%>/js/common.js"> </script>
 <script type=text/javascript src="<%=sResourcesPath%>/js/message.js"> </script>
 <script type=text/javascript src="<%=sResourcesPath%>/HtmlEdit/editor.js"> </script>
-<script language=vbscript src="<%=sResourcesPath%>/js/xls.vbs"> </script>
+<script type=text/javascript src="<%=sResourcesPath%>/js/xls.js"> </script>
+<!-- <script language=vbscript src="<%=sResourcesPath%>/js/xls.vbs"> </script> -->
 <script type=text/javascript>
 var AsOne = {
 		SetDefault:function(sURL){

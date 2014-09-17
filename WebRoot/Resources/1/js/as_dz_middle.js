@@ -213,56 +213,6 @@ function getRecNum(myi,iField,sValue){
 	return -1;
 }
 
-function MRK1(myobjname,myact,my_sortorder,sort_which){
-	if(!beforeMRK1(myobjname,myact,my_sortorder,sort_which)) return;
-	
-	if(myact==6) {
-		var myobj=window.frames[myobjname];
-		var myi=myobj.name.substring(myobj.name.length-1);
-		for(var i=0;i<f_c[myi];i++) {
-			if(DZ[myi][1][i][2]==0) continue; 
-			if(myobj.document.forms[0].elements["txtField"+i].value!=""){
-				iRec = getRecNum(myi,i,myobj.document.forms[0].elements["txtField"+i].value);
-				if(iRec!=-1){
-					myobj.document.forms[0].elements["txtJump"].value=parseInt(iRec/pagesize[myi])+1;
-					MR1(myobjname,5,my_sortorder,sort_which);
-					sR(cur_sel_rec[myi],iRec,myobjname);
-					return;
-				}
-			}
-		}	
-		alert("无匹配记录！");
-		return;
-	}
-	
-	if(myact==7) {
-		var myobj=window.frames[myobjname];
-		var myi=myobj.name.substring(myobj.name.length-1);
-		for(i=0;i<f_c[myi];i++) {
-			if(DZ[myi][1][i][2]==0) continue; 
-			myobj.document.forms[0].elements["txtField"+i].value="";
-		}
-		return;
-	}
-	
-	if(myact==8) {
-		alert("save");
-		return;
-	}
-	
-	if(myact==9) {
-		alert("print");
-		return;
-	}
-	
-   	if(window.frames[myobjname].event.keyCode==13) {   
-		if(isNaN(window.frames[myobjname].document.forms[0].elements["txtJump"].value)) 
-			alert("输入内容必须为数字！");
-		else
-			MR1(myobjname,myact,my_sortorder,sort_which);
-	}
-}
-
 function myDoCalendar(myobjname,myTableName,mycell){
 	var myobj=window.frames[myobjname];
 	var myStr1 = myobj.document.all[myTableName].cells[mycell].innerHTML;
@@ -342,13 +292,6 @@ function isIEBrowser(){
 		return false;
 }
 
-function change_height(framename){
-	var myobj = frames[framename];
-	//alert(myobj.document.body.style.paddingLeft);
-	//alert("myobj.document.body.offsetWidth="+myobj.document.body.offsetWidth+",myobj.document.getElementById('tableContainer').offsetLeft="+myobj.document.getElementById('tableContainer').offsetLeft);
-	myobj.document.getElementById('tableContainer').style.width = myobj.document.body.offsetWidth-15;//- myobj.document.getElementById('tableContainer').offsetLeft*2;
-	myobj.document.getElementById('tableContainer').style.height = myobj.document.body.clientHeight - myobj.document.getElementById('tableContainer').offsetTop - 15;
-}
 
 function MRK2(myobjname,myact){
 	if(!beforeMRK2(myobjname,myact)) return;
@@ -835,136 +778,6 @@ function sR_show(lastRec,iRec,myname){
 			}
 		}
 	}		
-}
-
-function myLastCB(myframename,curItemName){
-	if(!beforeMyLastCB(myframename,curItemName)) return;
-	if(myframename=="") return;
-	if(curItemName=="") return;
-	
-	var myi,objp;
-	var iBegin,iEnd,iField,iRec;
-	myi=myframename.substring(myframename.length-1);
-	objp = window.frames[myframename];
-	last_sel_item[myi]=cur_sel_item[myi];
-	cur_sel_item[myi]=curItemName;
-		
-	if(last_sel_item[myi]!=""){
-		iBegin=last_sel_item[myi].indexOf("R");
-		iEnd=last_sel_item[myi].indexOf("F");
-		if(iBegin!=-1&&iEnd!=-1) {
-			iRec=parseInt(last_sel_item[myi].substring(iBegin+1,iEnd));
-			iField=parseInt(last_sel_item[myi].substring(iEnd+1));
-			if(("HXD"+amarValue(objp.document.forms[0].elements[last_sel_item[myi]].value,DZ[myi][1][iField][12]))!=("HXD"+DZ[myi][2][my_index[myi][iRec]][iField])) 
-				hC(objp.document.forms[0].elements[last_sel_item[myi]],myframename);
-			if(cur_sel_item[myi]!=last_sel_item[myi])
-				vI(objp.document.forms[0].elements[last_sel_item[myi]],myframename);
-		}
-	}
-}
-
-function mE(e, myframename){
- try{
- 	if(!beforeMouseDown(myframename)) return;
- 	if(myframename==""){
-		if(cur_frame!="") {
-			last_frame=cur_frame;
-			cur_frame="";
-			myLastCB(last_frame,"");
-		}
-		return;
-	}	
-	
-	if(cur_frame=="") cur_frame=myframename;
-	
-	var curItemName0 = cur_sel_item[cur_frame.substring(cur_frame.length-1)];
-	var iBegin0,iEnd0,iField0,iRec0,myi0,obj0;
-	myi0 = myframename.substring(myframename.length-1);
-	obj0 = window.frames[myframename].document.forms[0].elements[curItemName0];
-	iBegin0=curItemName0.indexOf("R");
-
-	if(iBegin0!=-1 ) {
-		iEnd0=curItemName0.indexOf("F");
-		iRec0=parseInt(curItemName0.substring(iBegin0+1,iEnd0));
-		iField0=parseInt(curItemName0.substring(iEnd0+1));
-		if(obj0.onchange!=null && ("HXD"+amarValue(obj0.value,DZ[myi0][1][iField0][12])) !=("HXD"+DZ[myi0][2][my_index[myi0][iRec0]][iField0])  )   
-		{
-			hC(obj0,myframename);
-			DZ[myi0][2][my_index[myi0][iRec0]][iField0] = real2Amarsoft(amarValue(obj0.value,DZ[myi0][1][iField0][12]));
-
-			try {
-				obj0.amar_onchange();
-			} catch(e) {  }
-		}
-	}
-	
-	var myi,objp,obj,curItemName;
-	var iBegin,iEnd,iField,iRec,sName;
-	myi=myframename.substring(myframename.length-1);
-	objp = window.frames[myframename];
-	e = e || objp.event;
-	obj = e.srcElement||e.target;
-	
-	if( obj.tagName=="BODY" || obj.tagName=="TD" || (obj.tagName=="A" && obj.href!=null) || (obj.onclick!=null) ) 	 	
-	{
-		myLastCB(cur_frame,cur_sel_item[cur_frame.substring(cur_frame.length-1)]);
-		return;
-	}
-	
-	if(typeof(obj)!='undefined' && obj.name!='undefined' && obj.name!=null && obj.name!="") 
-		curItemName=obj.name;
-	else
-		curItemName="";	
-	
-	if(obj.name=='txtJump') return; 
-	
-	if(myframename!=cur_frame) {
-		last_frame=cur_frame;
-		cur_frame=myframename;
-		myLastCB(last_frame,"");
-	}else{
-		myLastCB(myframename,curItemName);
-	}
-	
-	if(curItemName!="") {
-		if((iBegin=curItemName.indexOf("img"))!=-1) {
-			iRec=parseInt(curItemName.substring(iBegin+3));
-			sR(cur_sel_rec[myi],iRec,myframename);
-			for(var i=0;i<f_c[myi];i++) 
-				if(DZ[myi][1][i][2]==1) break; 			
-			sName="R"+iRec+"F"+i;
-			try {
-	  		if(!objp.document.forms[0].elements[sName].disabled) 
-	  			objp.document.forms[0].elements[sName].focus();
-	  		} catch(e) { }
-		}else {
-			iBegin=curItemName.indexOf("R");
-			iEnd=curItemName.indexOf("F");
-			iRec=parseInt(curItemName.substring(iBegin+1,iEnd));
-			iField=parseInt(curItemName.substring(iEnd+1));
-			iCurRow=iRec; iCurCol=iField;
-			if(iBegin!=-1) {
-				sR(cur_sel_rec[myi],iRec,myframename);
-				cur_sel_item[myi]=curItemName;
-		  	}
-		}
-	}else {
-		if(cur_sel_rec[myi]!=-1) {
-			for(i=0;i<f_c[myi];i++) 
-				if(DZ[myi][1][i][2]==1) break; 			
-			sName="R"+cur_sel_rec[myi]+"F"+i;
-			try {
-				if(!objp.document.forms[0].elements[sName].disabled && (obj.parentNode.tagName.toUpperCase()!='SELECT')) 
-					objp.document.forms[0].elements[sName].focus();
-	  		} catch(e) { }
-  		}
-	}	
-		   
-	doMouseDown(myframename);
-	afterMouseDown(myframename);
-  } catch(e) {	
-	alert(e.name+" "+e.number+" :"+e.message); 
-  } 	
 }
 
 function mE_show(e, myframename){

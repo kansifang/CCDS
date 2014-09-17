@@ -22,7 +22,8 @@
  	     	//1 一期多文件 2 多期多文件一一对应
  	 		String sUploadMethod =DataConvert.toString( DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("UploadMethod")));
      		String sKeys =DataConvert.toString( DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("OneKeys")));
-      		String sFiles =DataConvert.toString( DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("Files")));
+      		//String sFiles =DataConvert.toString( DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("Files")));
+      		String sFiles = DataConvert.toString(DataConvert.decode(request.getParameter("Files"),"UTF-8"));
       		//定义变量：SQL语句、意见详情
       		String sSql = "",sMessage="";
       		ASResultSet rs=null;

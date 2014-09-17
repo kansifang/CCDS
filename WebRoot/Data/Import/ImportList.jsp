@@ -113,7 +113,7 @@
        	//doTemp.setHTMLStyle(DataConvert.toString(StringFunction.getAttribute(sHeaders,"币种",1,0))," style={width:20px}");
     }
     doTemp.setHTMLStyle("序号"," style={width:25px}");
-    doTemp.setDDDWSql("报表类型", "select CodeNo,CodeName from Code_Catalog where CodeNo like 'b%' order by CodeName asc");
+    doTemp.setDDDWSql("报表类型", "select CodeNo,CodeName from Code_Catalog where CodeNo like 'b%' order by InputTime asc");
    // doTemp.setCheckFormat("报表日期", "3");
     //生成查询框
 	doTemp.setColumnAttribute("报表类型","IsFilter","1");
@@ -244,7 +244,7 @@
 	{
 		//Doc_Relative ObjectType=Batch ObjectNo=ConfigNo 
 		var sReturn=popComp("FileChooseDialog","/Document/FileChooseDialog.jsp","","dialogWidth=900px;dialogHeight=500px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
-   		if(typeof(sReturn)=="undefined" || sReturn=="" || sReturn=="_CANCEL_") 
+		if(typeof(sReturn)=="undefined" || sReturn=="" || sReturn=="_CANCEL_") 
    			return;
    		sReturn = sReturn.split("@");
 		var sConfigNo=sReturn[0];
@@ -253,7 +253,7 @@
 		var sFiles=sReturn[3];
    		//2、上传文件后 解析存入数据库并作初步加工处理
    		ShowMessage("正在进行文档上传后的后续操作,请耐心等待.......",true,false);
-   		sReturn=PopPage("/Data/Import/Handler.jsp?HandleType=AfterImport&ConfigNo="+sConfigNo+"&OneKeys="+sReportDates+"&UploadMethod="+sUploadMethod+"&Files="+sFiles,"","dialogWidth=650px;dialogHeight=250px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
+   		sReturn=PopPage("/Data/Import/Handler.jsp?HandleType=AfterImport&ConfigNo="+sConfigNo+"&OneKeys="+sReportDates+"&UploadMethod="+sUploadMethod+"&Files="+encodeURIComponent(encodeURIComponent(sFiles,'UTF-8')),"","dialogWidth=650px;dialogHeight=250px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
    		if(sReturn=="true"){
    			alert("处理成功！");
    		}else{

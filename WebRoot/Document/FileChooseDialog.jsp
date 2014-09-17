@@ -43,66 +43,6 @@
 %>
 
 <script language=javascript>
-	function checkItems()
-	{
-		//检查代码合法性		
-		var Input= document.forms("SelectAttachment").getElementsByTagName("input");
-		for(var i=0;i<Input.length;i++){
-			//对上传文件框进行校验
-			if(Input[i].name.indexOf("AttachmentFileName")!==-1){
-				var sFileName=Input[i].value;
-				if(sFileName!=""){
-					if("<%=sFileType%>"=="Text"){
-						if((-1==sFileName.toUpperCase().indexOf(".TXT")) && (-1==sFileName.toUpperCase().indexOf(".SQL")))
-						{
-							alert("只允许上传文本文件！");
-							return false;
-						}
-					}else if("<%=sFileType%>"=="Excel"){
-						if((-1==sFileName.toUpperCase().indexOf(".XLS")))
-						{
-							alert("只允许上传Excel文件！");
-							return false;
-						}
-					}
-					var afobj=document.getElementsByName(Input[i].name.replace("AttachmentFileName","ReportDate"))[0];
-					if(afobj.value==""){
-						alert("选择数据文件情况下，报表日期必须输入！");
-						return false;
-					}
-				}
-			}
-			//对报表日期进行校验   ReportDate 第一个框必填
-			if(Input[i].name.indexOf("ReportDate[0]")!==-1){
-				if(Input[i].value==""){
-					alert("第一个报表日期必填！");
-					return false;
-				}
-			}
-			//对报表日期进行校验   ReportDate 第一个框必填
-			if(Input[i].name.indexOf("ReportDate")!==-1){
-				var afobj=document.getElementsByName(Input[i].name.replace("ReportDate","AttachmentFileName"))[0];
-				if(Input[i].value!=""&&afobj.value==""){
-					alert("报表日期输入情况下，必须选择对应数据文件必！");
-					return false;
-				}
-			}
-		}
-		try{
-			//var fso = new ActiveXObject("Scripting.FileSystemObject");//这个玩意总是报“automation 服务器不能创建对象，没什么用，直接注释
-			//var f1 = fso.GetFile(SelectAttachment.AttachmentFileName.value);						
-		}catch(e) 
-		{
-			alert(e.name+" "+e.number+" :"+e.message);
-		}
-		
-	//	if(f1.size>2048*1024) 
-	//	{
-	//		alert("文件大于2048k，不能上传！");//文件大于2048k，不能上传！
-	//		return false;
-	//	}
-		return true;
-	}	  
 	var row=0; 
 	function addFile(){//每点击一下添加按钮就生成一个上传条 
 		var utv = document.getElementById("UploadType").value;
@@ -137,7 +77,7 @@
 		
 	} 
 	function getMonth(obj){
-		var sReturn=PopPage("/Common/ToolsA/SelectMonth.jsp","","dialogWidth=20;dialogHeight=10;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
+		var sReturn=PopPage("/Common/ToolsA/SelectMonth.jsp","","dialogWidth=420px;dialogHeight=160px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
 		if(typeof(sReturn)=="undefined"){
 			obj.value="";
 		}else{
@@ -160,6 +100,65 @@
 			}
 		}
 	}
+	function checkItems()
+	{
+		//检查代码合法性	
+		//对上传文件框进行校验
+		//var Input= document.forms("SelectAttachment").getElementsByTagName("input");
+		var sReturn=true;
+		$(":input").each(function(index){
+			if($(this).attr("name").indexOf("AttachmentFileName")!==-1){
+				if($(this).attr("value")!=""){
+					
+					if("<%=sFileType%>"=="Text"){
+						if((-1==$(this).attr("value").toUpperCase().indexOf(".TXT"))&&($(this).attr("value").toUpperCase().indexOf(".SQL")==-1))
+						{
+							alert("只允许上传文本文件！");
+							sReturn=false;
+						}
+					}else if("<%=sFileType%>"=="Excel"){
+						if(($(this).attr("value").toUpperCase().indexOf(".XLS")==-1))
+						{
+							alert("只允许上传Excel文件！");
+							sReturn=false;
+						}
+					}
+					if($(this).prev(":input").attr("value")==""){
+						alert("选择数据文件情况下，报表日期必须输入！");
+						sReturn=false;
+					}
+				}
+			}
+			//对报表日期进行校验   ReportDate 第一个框必填
+			if($(this).attr("name").indexOf("ReportDate[0]")!==-1){
+				if($(this).attr("value")==""){
+					alert("第一个报表日期必填！");
+					sReturn=false;
+				}
+			}
+			//对报表日期进行校验   ReportDate 第一个框必填
+			if($(this).attr("name").indexOf("ReportDate")!==-1){
+				if($(this).attr("value")!=""&&$(':input:eq('+(index+1)+')').attr("value")==""){
+					alert("报表日期输入情况下，必须选择对应数据文件必！");
+					sReturn=false;
+				}
+			}
+		});
+		try{
+			//var fso = new ActiveXObject("Scripting.FileSystemObject");//这个玩意总是报“automation 服务器不能创建对象，没什么用，直接注释
+			//var f1 = fso.GetFile(SelectAttachment.AttachmentFileName.value);						
+		}catch(e) 
+		{
+			alert(e.name+" "+e.number+" :"+e.message);
+		}
+		
+	//	if(f1.size>2048*1024) 
+	//	{
+	//		alert("文件大于2048k，不能上传！");//文件大于2048k，不能上传！
+	//		return false;
+	//	}
+		return sReturn;
+	}	
 	function myclick()
 	{
 		if(checkItems() ){ 
@@ -181,7 +180,6 @@
 			self.SelectAttachment.submit();
 			ShowMessage('正在进行初始化,请耐心等待.......',true,false);
 		}
-		
 	}
 </script>
 <style>
@@ -224,9 +222,8 @@
 		<td bgcolor="#F0F1DE">
 			<select name="ConfigNo" style="width=400"> 
            	<!--   <option value=''></option>-->   
-			<%=HTMLControls.generateDropDownSelect(Sqlca,"select CodeNo,CodeName from Code_Catalog where CodeNo like 'b%' order by CodeName asc",1,2,"")%>
+			<%=HTMLControls.generateDropDownSelect(Sqlca,"select CodeNo,CodeName from Code_Catalog where CodeNo like 'b%' and CodeName<>'表配置' order by InputTime asc",1,2,"")%>
         	</select>
-			</select>
 		</td>
 	</tr>
 	<tr>
@@ -248,7 +245,7 @@
 		</td>
 		<td align="right" class="black9pt" bgcolor="#D8D8AF">数据文件：</td>
 		<td bgcolor="#F0F1DE">
-			<input type="file" size=68 name="AttachmentFileName[0]"> 
+			<input type="file" size=68 name="AttachmentFileName[0]" value=""/> 
 		</td>
 	</tr>
 	</table>
@@ -262,8 +259,8 @@
 		<td align="right" class="black9pt" bgcolor="#D8D8AF" height="25">&nbsp;</td>
 		<td bgcolor="#F0F1DE" height="25" align="center">
 		<input type="hidden" name="ClearTable" value="true">
-		<input type="button" name="Confirm" value="确  认" onClick="javascipt:myclick();"class="btn" border='1'>
-		<input type="button" name="Cancel" value="取  消" onClick="javascript:self.returnValue='_CANCEL_';self.close();" class="btn" border='1'>
+		<input type="button" name="Confirm" value="确  认" onClick="javascipt:myclick();" class="btn" border='1'>
+		<input type="button" name="Cancel" value="取  消" onClick="javascript:window.top.returnValue='_CANCEL_';window.top.close();" class="btn" border='1'>
 		</td>
 	</tr>
 </table>
