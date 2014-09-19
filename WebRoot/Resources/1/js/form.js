@@ -4,7 +4,7 @@ function MR2_head(myobjname,myact){
 	sss[jjj++]=("<HEAD>");
 	sss[jjj++]=(sContentType);
 	if(DZ[myi][0][0]==1) 
-		sss[jjj++]=("<LINK href='"+sPath+"style_dw.css' rel=stylesheet>");
+		sss[jjj++]=("<LINK href='"+sPath+"style_gd.css' rel=stylesheet>");
 	else                 
 		sss[jjj++]=("<LINK href='"+sPath+"style_ff.css' rel=stylesheet>");
 	sss[jjj++]=("<LINK href='"+sPath+"../style.css' rel=stylesheet>");

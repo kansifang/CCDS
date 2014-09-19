@@ -1,3 +1,31 @@
+//grid变量
+var hmGDTable = " /**hmGDTable*/ style='border-collapse:collapse;'";//grid table
+var hmGdTdPage = " /**hmGdTdPage*/ class='GdTdPage'";//换页面操作行
+var hmGDHeaderTr = " /**hmGDHeaderTr*/ style='height:20'";//标题行background-color:green;
+var hmGDTdHeader = " /**hmGDTdHeader*/ nowrap class='GDTdHeader' ";
+var hmGDTdSerialWidth = "width=20";//行号宽度
+//var hmGdTdSerial = " /**hmGdTdSerial*/ style='cursor:pointer;font-size: 9pt;color:black;align:absmiddle;valign:top' bgcolor=#999999 noWrap align=middle valign=top width=14  class='TCSelImageUnselected' ";
+var hmGdTdSerial = " /**hmGdTdSerial*/ style='cursor:pointer;font-size: 9pt;color:black;align:absmiddle;valign:top;padding-left:4px;padding-right:4px;' bgcolor=#ECECEC  align=center valign=top " + hmGDTdSerialWidth+ "  ";//列宽度
+
+var hmGdSumTr = "";
+var hmGdSumTdSerial = " <TD nowrap id='T0' style='cursor:pointer;font-size: 9pt;color:black;align:absmiddle;valign:top' bgcolor=#EEE1D2 align=center valign=top  >总计</TD> ";
+var hmGdSumTd = " style='font-family:宋体,arial,sans-serif;font-size: 9pt ' ";
+
+var hmGdTdContent = " nowrap bgcolor=#FEFEFE";
+var hmGdTdContentInput1 = " class='GDTdContentInput' ";
+var hmGdTdContentArea1 = " class='hmGdTdContentArea' ";
+var hmGdTdContentSelect1 = " class='GdTdContentSelect' ";
+var hmGdTdContentInput2 =  " style='behavior:url("+sPath+"amarsoft_onchange.sct)' "+hmGdTdContentInput1 ;
+var hmGdTdContentArea2 =   " style='behavior:url("+sPath+"amarsoft_onchange.sct)' "+hmGdTdContentArea1;
+var hmGdTdContentSelect2 = " style='behavior:url("+sPath+"amarsoft_onchange.sct)' "+hmGdTdContentSelect1;
+if(navigator.appName != "Microsoft Internet Explorer"){
+	hmFFContentInput = " class='fftdinput' ";
+	hmFFContentArea = " class='fftdarea' ";
+	hmFFContentSelect = " class='fftdselect' " ;
+	hmGdTdContentInput2 =  hmGdTdContentInput1 ;
+	hmGdTdContentArea2 =   hmGdTdContentArea1;
+	hmGdTdContentSelect2 = hmGdTdContentSelect1;
+}
 ////////////////////////////////////////排序功能
 //点击列表页面标题对记录排序
 function getDWDataSort(my_sortorder,sort_which,myobjname,need_change){
@@ -326,7 +354,8 @@ function MR1(myobjname,myact,my_sortorder,sort_which,need_change){
 		case 5://在输入框输入的页数
 			curpage[myi]=curPP-1;
 			if(curpage[myi]<0) curpage[myi]=0;
-			if(curpage[myi]>pagenum[myi]-1) curpage[myi]=pagenum[myi]-1;			
+			if(curpage[myi]>pagenum[myi]-1) 
+				curpage[myi]=pagenum[myi]-1;			
 			break;				
 	}
 	var sss=new Array(),jjj=0;
@@ -354,8 +383,8 @@ function MR1(myobjname,myact,my_sortorder,sort_which,need_change){
 	}
 
 	sss[jjj++]=(sContentType);
-	if(DZ[myi][0][0]==1) 
-		sss[jjj++]=("<LINK href='"+sPath+"style_dw.css' rel=stylesheet>");
+	if(DZ[myi][0][0]==1) //grid or freeform
+		sss[jjj++]=("<LINK href='"+sPath+"style_gd.css' rel=stylesheet>");
 	else                 
 		sss[jjj++]=("<LINK href='"+sPath+"style_ff.css' rel=stylesheet>");
 	sss[jjj++]=("</HEAD>");
@@ -397,12 +426,14 @@ function MR1(myobjname,myact,my_sortorder,sort_which,need_change){
 	sss[jjj++]=("</span>");
 	sss[jjj++]=("<div id='tableContainer' class='tableContainer' style='overflow:auto;'>");
 	sss[jjj++]=("<table "+hmGDTable +">");
+	///////////////////////标题
 	if(isIEBrowser())
-		sss[jjj++]=("<thead class='fixedHeader'>");
+		sss[jjj++]=("<thead class='fixedHeader'>");//IE可以固定标题头部哦
 	else
 		sss[jjj++]=("<TBODY class='scrollContent fixedHeader'>");
+	//有页数才显示第一页 前一页等信息
 	if(pagenum[myi]>1 || s_p_c[myi]>1 )
-		sss[jjj++]=("	<tr style='display:BLOCK'> ");
+		sss[jjj++]=("	<tr style='display:BLOCK;'> ");
 	else
 		sss[jjj++]=("	<tr style='display:none'> ");
     sss[jjj++]=(" <td colspan="+(f_c[myi]+1)+" "+hmGdTdPage+" > ");
@@ -428,32 +459,36 @@ function MR1(myobjname,myact,my_sortorder,sort_which,need_change){
  		sss[jjj++]=("&nbsp;&nbsp;跳至&nbsp;<input type=text name='txtJump_s' style='width=30' class='GdJumpInput' onkeydown='var keynum;if(window.event){keynum=window.event.keyCode;}else if(event.which){keynum=event.which;} if(keynum==13){javascript:parent.MR1_s(\""+myobjname+"\",5,"+my_sortorder+","+sort_which+");}'>&nbsp;页"); 
  	}
     sss[jjj++]=(" </td>");
-    sss[jjj++]=("   </tr>	");
+    sss[jjj++]=("</tr>	");
+    //记录序号的标题头
     //1、显示表头，点击进行升降序排列获取记录
-    sss[jjj++]=("<TR "+hmGDHeaderTr +">");
-    if(isIEBrowser())
-    	sss[jjj++]=("<TH "+hmGDTdHeader+" style='border-left:0px'>&nbsp;</TH>");
-    else
+    sss[jjj++]=("<tr "+hmGDHeaderTr +">");
+    if(isIEBrowser()){
+    	sss[jjj++]=("<TH "+hmGDTdHeader+" style='border-left:0px;'>&nbsp;</TH>");
+	}else{
     	sss[jjj++]=("<TH "+hmGDTdHeader+">&nbsp;</TH>");
-    
-	for(i=0;i<f_c[myi];i++) {
-		if(DZ[myi][1][i][2]==0) 
+	}
+    //1、展示标题
+	for(i=0;i<f_c[myi];i++){//f_c是字段数
+		if(DZ[myi][1][i][2]==0) //visible
 			continue; 
 		myHeaderUnit=DZ[myi][1][i][0]+DZ[myi][1][i][17]+sGDTitleSpace;//Header+Unit
 		if(DZ[myi][1][i][6]==1) {//Sortable 可排序
-			if(sort_which==i) //sort_which 是字段序号 0表示第一个字段以此类推
+			if(sort_which==i){ //sort_which 表示以第几个字段来进行排序，字段序号 0表示第一个字段以此类推
 				sss[jjj++]=("<TH "+hmGDTdHeader+" " + myAlign[DZ[myi][1][i][8]] + " onclick='parent.my_load_s("+my_sortorder+","+i+",\""+myobj.name+"\")' >"+myHeaderUnit+myimgstr+"</TH>");//升降序排列获取记录
-			else              
+			}else{              
 				sss[jjj++]=("<TH "+hmGDTdHeader+" " + myAlign[DZ[myi][1][i][8]] + "  onclick='parent.my_load_s("+my_sortorder+","+i+",\""+myobj.name+"\")' >"+myHeaderUnit+"</TH>");
-		}
-		else 		          
+			}
+		}else{
 			sss[jjj++]=("<TH "+hmGDTdHeader+" " + myAlign[DZ[myi][1][i][8]] + "   >"+myHeaderUnit+"</TH>");
+		} 		          
 	}
-	sss[jjj++]=("</TR>");
+	sss[jjj++]=("</tr>");
 	if(isIEBrowser()){
 		sss[jjj++]=("</thead>");
 		sss[jjj++]=("<TBODY class='scrollContent'>");
 	}
+	//////////////////////////////////////////////////标题结束
 	var myCale;
 	var myShowSelect = "",myShowSelectVisible="";
 	var myevent_num=""; 
@@ -560,7 +595,6 @@ function MR1(myobjname,myact,my_sortorder,sort_which,need_change){
 	    sss[jjj++]=("                <img align=absmiddle class=TCNextPageA title='下一页'   src="+sWebRootPath+"/Resources/1/Support/1x1.gif width=1 height=1 onclick='javascript:parent.MR1(\""+myobjname+"\",3,"+my_sortorder+","+sort_which+")'>");
 	    sss[jjj++]=("                <img align=absmiddle class=TCLastPageA title='最后一页' src="+sWebRootPath+"/Resources/1/Support/1x1.gif width=1 height=1 onclick='javascript:parent.MR1(\""+myobjname+"\",4,"+my_sortorder+","+sort_which+")'>");
 	 }
-	 
 	//服务器端分页 
  	if(s_p_c[myi]>1 ){
  		if(pagenum[myi]>1 ){ 
@@ -619,6 +653,36 @@ function MR1(myobjname,myact,my_sortorder,sort_which,need_change){
 function myAfterLoadGrid(iDW){
 	setColor(iDW,sEvenColor);
 	//Add you code
+}
+//对所有行数据进行奇数行一个底色，偶数行一个底色
+function setColor(iDW,sColor){
+ 	var myDW,myColor; 
+ 	if(iDW==null)  
+ 		myDW = 0; 
+ 	else 
+ 		myDW = parseInt(iDW,10); 
+ 	 
+ 	if(sColor==null)  
+ 		myColor = sEvenColor; 
+ 	else 
+ 		myColor = sColor;	 
+ 		 
+ 	iCurRow = getRow(myDW); 
+ 	var i=0; 
+ 	for(i=curpage[myDW]*pagesize[myDW];i<(curpage[myDW]+1)*pagesize[myDW]&&i<rr_c[myDW];i++){ 
+ 		if(i==iCurRow) 
+ 			continue; 
+ 		if (i%2==1) {
+ 			for(var j=0;j<f_c[myDW];j++) 
+ 				if(DZ[myDW][1][j][2]!=0) 
+ 					getASObjectByIndex(myDW,i,j).style.cssText = f_css[myDW][j]+myColor; 
+ 		} 
+ 	} 
+ 	for(i=curpage[myDW]*pagesize[myDW];i<(curpage[myDW]+1)*pagesize[myDW]&&i<rr_c[myDW];i++) 
+		for(var j=0;j<f_c[myDW];j++)
+			if(DZ[myDW][1][j][2]!=0)
+				getASObjectByIndex(myDW,i,j).parentNode.style.backgroundColor = getASObjectByIndex(myDW,i,j).style.backgroundColor;
+ 	
 }
 function change_height(framename){
 	var myobj = frames[framename];

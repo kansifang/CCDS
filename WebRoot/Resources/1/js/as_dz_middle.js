@@ -338,35 +338,6 @@ function isValid(){
 	return true;
 }
 
-function setColor(iDW,sColor){
- 	var myDW,myColor; 
- 	if(iDW==null)  
- 		myDW = 0; 
- 	else 
- 		myDW = parseInt(iDW,10); 
- 	 
- 	if(sColor==null)  
- 		myColor = sEvenColor; 
- 	else 
- 		myColor = sColor;	 
- 		 
- 	iCurRow = getRow(myDW); 
- 	var i=0; 
- 	for(i=curpage[myDW]*pagesize[myDW];i<(curpage[myDW]+1)*pagesize[myDW]&&i<rr_c[myDW];i++){ 
- 		if(i==iCurRow) continue; 
- 		if (i%2==1) {
- 			for(var j=0;j<f_c[myDW];j++) 
- 				if(DZ[myDW][1][j][2]!=0) getASObjectByIndex(myDW,i,j).style.cssText = f_css[myDW][j]+myColor; 
- 		} 
- 	} 
- 	
- 	for(i=curpage[myDW]*pagesize[myDW];i<(curpage[myDW]+1)*pagesize[myDW]&&i<rr_c[myDW];i++) 
-		for(var j=0;j<f_c[myDW];j++)
-			if(DZ[myDW][1][j][2]!=0)
-				getASObjectByIndex(myDW,i,j).parentNode.style.backgroundColor = getASObjectByIndex(myDW,i,j).style.backgroundColor;
- 	
-}
-
 function my_load_show_action(myobjname,myact,my_sortorder,sort_which){
 	if(!isValid()) return;
    
@@ -674,7 +645,7 @@ function my_load_show(my_sortorder,sort_which,myobjname){
 		iCurRow=curpage[myi]*pagesize[myi];
 	}
 }
-
+//选中一条记录
 function sR(lastRec,iRec,myname){
 	if(!beforeSR(lastRec,iRec,myname)) return;
 

@@ -119,37 +119,8 @@ var hmFFContentArea = " class='fftdarea' style='behavior:url("+sPath+"amarsoft_o
 var hmFFContentSelect = " class='fftdselect' style='behavior:url("+sPath+"amarsoft_onchange.sct)' " ;
 var hmFFBlankTD = " class='FFContentTD' nowrap ";
 
-var hmGDTable = " /**hmGDTable*/ style='border-collapse:collapse;'";
-var hmGDHeaderTr = " /**hmGDHeaderTr*/ bgColor=#cccccc height=20";
-var hmGdTdPage = " /**hmGdTdPage*/ class='GdTdPage'";
-var hmGDTdHeader = " /**hmGDTdHeader*/ nowrap class='GDTdHeader' ";
-var hmGDTdSerialWidth = "width=20";//行号宽度
-//var hmGdTdSerial = " /**hmGdTdSerial*/ style='cursor:pointer;font-size: 9pt;color:black;align:absmiddle;valign:top' bgcolor=#999999 noWrap align=middle valign=top width=14  class='TCSelImageUnselected' ";
-var hmGdTdSerial = " /**hmGdTdSerial*/ style='cursor:pointer;font-size: 9pt;color:black;align:absmiddle;valign:top;padding-left:4px;padding-right:4px;' bgcolor=#ECECEC  align=center valign=top " + hmGDTdSerialWidth+ "  ";
-
-var hmGdSumTr = "";
-var hmGdSumTdSerial = " <TD nowrap id='T0' style='cursor:pointer;font-size: 9pt;color:black;align:absmiddle;valign:top' bgcolor=#EEE1D2 align=center valign=top  >总计</TD> ";
-var hmGdSumTd = " style='font-family:宋体,arial,sans-serif;font-size: 9pt ' ";
-
 var sMandatorySignal = " &nbsp;<font color=red>*</font> ";
-var hmGdTdContent = " nowrap bgcolor=#FEFEFE";
 
-var hmGdTdContentInput1 = " class='GDTdContentInput' ";
-var hmGdTdContentArea1 = " class='hmGdTdContentArea' ";
-var hmGdTdContentSelect1 = " class='GdTdContentSelect' ";
-
-var hmGdTdContentInput2 =  " style='behavior:url("+sPath+"amarsoft_onchange.sct)' "+hmGdTdContentInput1 ;
-var hmGdTdContentArea2 =   " style='behavior:url("+sPath+"amarsoft_onchange.sct)' "+hmGdTdContentArea1;
-var hmGdTdContentSelect2 = " style='behavior:url("+sPath+"amarsoft_onchange.sct)' "+hmGdTdContentSelect1;
-
-if(navigator.appName != "Microsoft Internet Explorer"){
-	hmFFContentInput = " class='fftdinput' ";
-	hmFFContentArea = " class='fftdarea' ";
-	hmFFContentSelect = " class='fftdselect' " ;
-	hmGdTdContentInput2 =  hmGdTdContentInput1 ;
-	hmGdTdContentArea2 =   hmGdTdContentArea1;
-	hmGdTdContentSelect2 = hmGdTdContentSelect1;
-}
 
 // add by byhu 2005.01.11 datawindow 排布数组
 var arrangements = new Array();
