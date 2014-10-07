@@ -1,6 +1,5 @@
 delete FROM code_library where codeNo='ConfiguratorTree' and itemNo='2540';
 INSERT INTO CODE_LIBRARY (CODENO,ITEMNO,ITEMNAME,BANKNO,SORTNO,ISINUSE,ITEMDESCRIBE,ITEMATTRIBUTE,RELATIVECODE,ATTRIBUTE1,ATTRIBUTE2,ATTRIBUTE3,ATTRIBUTE4,ATTRIBUTE5,ATTRIBUTE6,ATTRIBUTE7,ATTRIBUTE8,INPUTUSER,INPUTORG,INPUTTIME,UPDATEUSER,UPDATETIME,REMARK,HELPTEXT) VALUES ('ConfiguratorTree','2540','Î°´ó',null,'2540','1','javascript:parent.OpenComp("QDocumentList","/Common/Configurator/MetaDataManage/QDocumentList.jsp","","right","")',null,null,null,null,null,null,null,null,null,null,'system','9999','2013/08/15 23:53:35','system','2013/08/28 21:44:32',null,null);
-
 delete from DATAOBJECT_Catalog where doNo='QDocument';
 delete from DATAOBJECT_LIBRARY where doNo='QDocument';
 delete from DATAOBJECT_Catalog where doNo='QDefinition';
