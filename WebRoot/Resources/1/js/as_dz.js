@@ -721,7 +721,7 @@ function submitFilterForm(sFormName){
 	var oForm = document.forms[sFormName];
 	//for(i=0;i<oForm.elements.length;i++) alert(oForm.elements[i].name+":"+oForm.elements[i].value);
 	//oForm.submit();		
-	amarhidden.style.display = "none";
+	amarhidden.style.display = "none";//点击查询按钮时，隐藏展示区
 	onFromAction(oForm,sFormName);
 }
 function clearFilterForm(sFormName){

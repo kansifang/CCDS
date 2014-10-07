@@ -117,9 +117,9 @@ function my_load(my_sortorder,sort_which,myobjname,need_change){
 			MR1(myobjname,1,my_sortorder,sort_which,need_change);
 		else
 			MR1(myobjname,1,my_sortorder,sort_which);
-	}else               //freeform    
+	}else{               //freeform    
 		MR2(myobjname,1);
-		
+	}
 	window.status="Ready";  
 	window.status=myoldstatus;  
 	if(bShowUnloadMessage)

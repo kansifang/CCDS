@@ -60,7 +60,12 @@ input {
 .pt20song {	FONT-SIZE: 20pt}
 .pt24song {	FONT-SIZE: 24pt}
 .myunderline {	TEXT-DECORATION: underline}
-.ModuleTitle {  FONT-WEIGHT: normal;font-size: 15px; line-height: 18px; letter-spacing: 2px;padding-left:10px;filter:dropshadow(color=#FFFFFF,offx=1,offy=1,positive=1)}
+.ModuleTitle {  FONT-WEIGHT: normal;
+				font-size: 15px; 
+				line-height: 18px; 
+				letter-spacing: 2px;padding-left:10px;
+				filter:dropshadow(color=#FFFFFF,offx=1,offy=1,positive=1);/*此个不能在IE上用，鉴于此class没地方用，所以暂时不动*/
+				}
 .ButtonBar{
 	background-color:#DCDCDC;
 }
@@ -426,7 +431,9 @@ input {
 	font-family: "宋体","Arial", "Helvetica", "sans-serif";
 	font-size: 9pt;
 	color: #000000;
+	/* 这个在IE10上不能用，故所有这样的代码都去掉，此处作为遗迹留一下，如果要效果用js动态添加吧
 	filter:dropshadow(color=#FFFFFF,offx=1,offy=1,positive=1);
+	*/
 	padding: 0px 1px 0px 0px;
 	height:19px;
 	background-image: url(button/button_back.gif);
@@ -467,7 +474,6 @@ input {
 	font-family: "宋体","Arial", "Helvetica", "sans-serif";
 	font-size: 9pt;
 	color: #000000;
-	filter:dropshadow(color=#FFFFFF,offx=1,offy=1,positive=1);
 	padding: 0px 1px 0px 0px;
 	height:19px;
 	cursor:hand;
@@ -494,7 +500,6 @@ input {
 	font-family: "宋体","Arial", "Helvetica", "sans-serif";
 	font-size: 9pt;
 	color: #000000;
-	filter:dropshadow(color=#CCCCCC,offx=2,offy=2,positive=1);
 	padding: 1px 0px 0px 1px;
 	height:19px;
 	cursor:hand;
@@ -768,6 +773,9 @@ img.taboffoff
 	height:1px;
 }
 .ListDWArea{
+	background-color:#DCDCDC;
+	width：100%;
+	height：100%
 }
 .ListBottomArea{
 	height:0px;

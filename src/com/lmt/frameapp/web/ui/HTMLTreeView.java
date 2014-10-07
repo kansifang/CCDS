@@ -270,8 +270,7 @@ public class HTMLTreeView {
 						.append(sTemp).toString();
 		}
 
-		sSelect = (new StringBuilder()).append("select ")
-				.append(sSelect.substring(1)).toString();
+		sSelect = (new StringBuilder()).append("select ").append(sSelect.substring(1)).toString();
 		int iGroup = sFrom.indexOf(" group by ");
 		if (iGroup >= 0) {
 			sGroup = sFrom.substring(iGroup);

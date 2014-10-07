@@ -69,7 +69,6 @@ function hc_drawButtonWithTip(sText,sTips,sScript,ssHCResourcesPath,iconCls){
  		result += "</tr></table></span>"+"\r";
 
 		document.write(result);
-		//alert(result);
 		iCurButtonID++;
 }
 
@@ -87,7 +86,7 @@ function drawImgButton(sClassName,sTips,sScript,ssHCResourcesPath){
 
 function overButton(iButtonID){
 	//加入超时控制，防止闪屏
-    setTimeout(function overButtonIn(){
+	setTimeout(function overButtonIn(){
 		document.getElementById('buttonmiddletd'+iButtonID).className='buttonHover';
 		document.getElementById('buttonimageleft'+iButtonID).className='buttonleftimgHover';
 		document.getElementById('buttonimageright'+iButtonID).className='buttonrightimgHover';

@@ -21,7 +21,8 @@
 			out.println("<tr>");
 			for(int iBT=0;iBT<sButtons1stLine.length;iBT++)
 			{
-				if(sButtons1stLine[iBT][0]==null || !sButtons1stLine[iBT][0].equals("true")) continue;
+				if(sButtons1stLine[iBT][0]==null || !sButtons1stLine[iBT][0].equals("true")) 
+					continue;
 				
 				if(iButtonsCount>Integer.parseInt(sLineMaxButtons))
 				{

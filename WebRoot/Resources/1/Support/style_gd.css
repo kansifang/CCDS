@@ -502,9 +502,9 @@ body2 {  background-color: #FF0000}
 
 div.tableContainer {
 	clear: both;
-	height: 285px;
-	overflow: auto;
+	height: 100%;
 	width: 100%;
+	overflow: auto;
 }
 div.tableContainer table{
 	*+border:1px solid #bcbcbc;
@@ -593,6 +593,5 @@ head:first-child+body tbody[class].scrollContent {
 /* Add 16px to last TH for scrollbar padding */
 /* http://www.w3.org/TR/REC-CSS2/selector.html#adjacent-selectors */
 .scrollContent td {
-	
 	border:1px solid #bcbcbc;
 }

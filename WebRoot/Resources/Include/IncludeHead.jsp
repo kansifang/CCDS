@@ -174,6 +174,7 @@ void setCurPref(ASPreference CurPref, ASComponent CurComp) throws Exception{
 	    sPageClientID = request.getParameter("PageClientID");
 	    if(sPageClientID==null) sPageClientID="";
 %>
+<!--  --><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 		<html>
 		<head>
 		<title>пео╒</title>
@@ -326,13 +327,13 @@ void setCurPref(ASPreference CurPref, ASComponent CurComp) throws Exception{
 <script type=text/javascript src="<%=sResourcesPath%>/js/as_dz.js"> </script>
 <script type=text/javascript src="<%=sResourcesPath%>/js/as_dz_middle.js"> </script>
 <script type=text/javascript src="<%=sResourcesPath%>/js/grid.js"> </script>
-<script type=text/javascript src="<%=sResourcesPath%>/js/form.js"> </script>
+<script type=text/javascript src="<%=sResourcesPath%>/js/fform.js"> </script>
 <script type=text/javascript src="<%=sResourcesPath%>/js/init.js"> </script>
 <script type=text/javascript src="<%=sResourcesPath%>/js/as_control.js"></script>
 <script type=text/javascript src="<%=sResourcesPath%>/js/as_webcalendar.js"></script>
 <script type=text/javascript src="<%=sResourcesPath%>/js/mainmenu.js"> </script>
 <script type=text/javascript src="<%=sResourcesPath%>/js/treemenu.js"> </script>
-<script type=text/javascript src="<%=sResourcesPath%>/js/tabAform.js"> </script>
+<script type=text/javascript src="<%=sResourcesPath%>/js/tabaform.js"> </script>
 <script type=text/javascript src="<%=sResourcesPath%>/js/String.js"> </script>
 <script type=text/javascript src="<%=sResourcesPath%>/js/checkdatavalidity.js"> </script>
 <script type=text/javascript src="<%=sResourcesPath%>/js/common.js"> </script>

@@ -7,7 +7,7 @@
 %>
 	<%
 		/*
-			Author: 王业罡 2005-08-17
+			Author: xxx 2005-08-17
 			Tester:
 			Describe:文档信息列表
 			Input Param:
@@ -15,7 +15,7 @@
 	       		    ObjectType: 对象类型           		
 	        Output Param:
 
-			HistoryLog:zywei 2005/09/03 重检代码
+			HistoryLog:xxxx 2005/09/03 重检代码
 		 */
 	%>
 <%
@@ -43,8 +43,8 @@
 	//获得页面参数
 	
 	//获得组件参数
-	String sConfigNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)request.getParameter("DOFILTER_DF1_1_VALUE")));
-	String sReportDate = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)request.getParameter("DOFILTER_3_1_VALUE")));
+	String sReportDate = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)request.getParameter("DOFILTER_1_1_VALUE")));//setFilter 
+	String sConfigNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)request.getParameter("DOFILTER_DF1_1_VALUE")));//doTemp.setColumnAttribute("报表类型","IsFilter","1");
 %>
 <%
 	/*~END~*/
@@ -69,9 +69,11 @@
 	  	}
 	}
     	//定义SQL语句
-    String sSql = " SELECT  ConfigNo as 报表类型,OneKey as 报表日期,ImportIndex as 序号"+sS+",ImportNo,ImportTime,UserID"+
-    	 " FROM Batch_Import_Interim " +
-		  " WHERE 1=1 order by ImportNo asc";
+    String sSql = " SELECT  ConfigNo as 报表类型,OneKey as 报表日期,ImportIndex as 序号"+
+    				sS+
+    				",ImportNo as 导入号,ImportTime as 导入时间,UserID as 导入人"+
+    	 			" FROM Batch_Import_Interim " +
+		  			" WHERE 1=1 order by ImportNo asc";
 	//产生ASDataObject对象doTemp
     ASDataObject doTemp = new ASDataObject(sSql);
     //设置表头
@@ -90,6 +92,12 @@
 	}
     doTemp.setHTMLStyle("ImportNo"," style={width:180px}");
     doTemp.setHTMLStyle("报表日期"," style={width:50px}");
+    //生成查询框
+    doTemp.setFilter(Sqlca, "1", "报表日期", "HtmlTemplate=PopSelect;");//这个可以独立使用---不知道为什么下面的用法 能显示出弹出按钮，但下面的filterAction函数无法调用
+    //doTemp.setColumnAttribute("报表日期","IsFilter","1");
+	//doTemp.setColumnAttribute("报表日期", "FilterOptions", "HtmlTemplate=PopSelect;");
+	doTemp.setColumnAttribute("报表类型","IsFilter","1");
+	doTemp.setColumnAttribute("报表类型", "FilterOptions", "Operators=EqualsString;");
     if(sHeaders.length!=0){
     	//doTemp.setHTMLStyle(DataConvert.toString(StringFunction.getAttribute(sHeaders,"合同流水号",1,0))," style={width:95px}");
         String CustomerName=DataConvert.toString(StringFunction.getAttribute(sHeaders,"客户名称",1,0));
@@ -106,26 +114,21 @@
         }
         String IName=DataConvert.toString(StringFunction.getAttribute(sHeaders,"项目Item",1,0));
         if(!"".equals(IName)){
-        	doTemp.setHTMLStyle(ItemName," style={width:260px}");
+        	doTemp.setHTMLStyle(IName," style={width:260px}");
         	//生成查询框
-            doTemp.setColumnAttribute(ItemName,"IsFilter","1");
+            doTemp.setColumnAttribute(IName,"IsFilter","1");
         }
        	//doTemp.setHTMLStyle(DataConvert.toString(StringFunction.getAttribute(sHeaders,"币种",1,0))," style={width:20px}");
     }
     doTemp.setHTMLStyle("序号"," style={width:25px}");
     doTemp.setDDDWSql("报表类型", "select CodeNo,CodeName from Code_Catalog where CodeNo like 'b%' order by InputTime asc");
    // doTemp.setCheckFormat("报表日期", "3");
-    //生成查询框
-	doTemp.setColumnAttribute("报表类型","IsFilter","1");
-	doTemp.setColumnAttribute("报表类型", "FilterOptions", "Operators=EqualsString");
-	doTemp.generateFilters(Sqlca);
-	doTemp.setFilter(Sqlca, "3", "报表日期", "HtmlTemplate=PopSelect;");
+	doTemp.generateFilters(Sqlca);//和这个doTemp.setColumnAttribute("报表类型","IsFilter","1")配合生产查询框 filterID 以DF为前缀 即 DF1 DF2...
 	doTemp.parseFilterData(request,iPostChange);
 	CurPage.setAttribute("FilterHTML",doTemp.getFilterHtml(Sqlca));
-	 
-	 if(!doTemp.haveReceivedFilterCriteria()) {
+	if(!doTemp.haveReceivedFilterCriteria()) {
 		 doTemp.WhereClause+=" and 1=2";
-	 }
+	}
     ASDataWindow dwTemp = new ASDataWindow(CurPage,doTemp,Sqlca);
 	dwTemp.Style="1";      //设置为Grid风格
 	dwTemp.ReadOnly = "1"; //设置为只读
@@ -312,12 +315,12 @@
     		reloadSelf(); 
 		}
 	}
-	/*~[Describe=查询条件;InputParam=无;OutPutParam=SerialNo;]~*/
-	function filterAction(sObjectID,sFilterID,sObjectID2)
+	/*~[Describe=查询条件;InputParam=;OutPutParam=SerialNo;]~*/
+	function filterAction(sInputValue,sFilterID,sInputDisplay)
 	{
-		var oMyObj = document.all(sObjectID);
-		var oMyObj2 = document.all(sObjectID2);
-		if(sFilterID=="3"){
+		var oMyObj = document.all(sInputValue);
+		var oMyObj2 = document.all(sInputDisplay);
+		if(sFilterID=="1"){
 			getIndustryType(oMyObj,oMyObj2);
 		}
 	}
@@ -332,7 +335,7 @@
 			name.value=sIndustryTypeInfo;
 		}
 	}
-	document.all("DOFILTER_3_1_DISPLAY").value="<%=sReportDate%>";
+	document.all("DOFILTER_1_1_DISPLAY").value="<%=sReportDate%>";
 	</script>
 <%
 	/*~END~*/

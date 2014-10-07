@@ -10,16 +10,13 @@ if(PG_TITLE.indexOf("@")>=0){
 
 %>
 <html>
-
-
-
 <head>
 <%@ include file="/Resources/CodeParts/progressSet.jsp"%>
 <title><%=(sPageHeadPlacement.equals("WindowTitle")?sPageHead:"")%></title> 
 </head>
 <body class="ListPage" leftmargin="0" topmargin="0" >
 <%@ include file="/Resources/CodeParts/CoverTip.jsp"%>
-<table id="amarhidden" border="0" width="100%" height="100%" cellspacing="0" cellpadding="0"  id="ListTable">
+<table id="amarhidden" border="0" width="100%" height="100%" cellspacing="0" cellpadding="0" >
 	<%
 	if(sPageHeadPlacement.equals("PageTitle")){
 	%>
@@ -30,9 +27,6 @@ if(PG_TITLE.indexOf("@")>=0){
 	}
 	%>
 	<%@ include file="/Resources/CodeParts/FilterArea.jsp"%>
-
-
-
 <!-----------------------------按扭区----------------------------->
 	<tr height=1 id="ButtonTR">
 		<td id="ListButtonArea" class="ListButtonArea" valign=top>
@@ -42,10 +36,10 @@ if(PG_TITLE.indexOf("@")>=0){
 			<%@ include file="/Resources/CodeParts/ButtonSet.jsp"%>
 	    </td>
 	</tr>
-	<script language="javascript">
-		sButtonAreaHTML = document.all("ListButtonArea").innerHTML;
+	<script type="text/javascript">
+		sButtonAreaHTML = document.getElementById("ListButtonArea").innerHTML;
 		if(sButtonAreaHTML.indexOf("hc_drawButtonWithTip")<0&&sButtonAreaHTML.indexOf("FONT title")<0){
-			document.all("ButtonTR").style.display="none";
+			document.getElementById("ButtonTR").style.display="none";
 		}
 	</script>
 <!-------------------------------->
@@ -64,17 +58,13 @@ if(PG_TITLE.indexOf("@")>=0){
 	    </td>
 	</tr>
 <!-------------------------------->
-
-
-
-
 <%
 String ShowDetailArea = (String)CurPage.getAttribute("ShowDetailArea");
 if(ShowDetailArea!=null && ShowDetailArea.equalsIgnoreCase("true")){
 %>
 	<tr>
 	    <td id="ListHorizontalBar" class="ListHorizontalBar">
-			<div id=divDrag title='可拖拽改变窗口大小'  ondrag='dragFrame(event);''><img class=imgsDrag src=<%=sResourcesPath%>/1x1.gif></div>
+			<div id=divDrag title='可拖拽改变窗口大小' ondrag='dragFrame(event);'><img class=imgsDrag src=<%=sResourcesPath%>/1x1.gif></div>
 	    </td>
 	</tr>
 	<tr>
@@ -90,11 +80,10 @@ if(ShowDetailArea!=null && ShowDetailArea.equalsIgnoreCase("true")){
 		</table>
 		</td>
 	</tr>
-<script language="JavaScript">
+<script type="text/javascript">
 <%
 String DetailAreaHeight = (String)CurPage.getAttribute("DetailAreaHeight");
-if(DetailAreaHeight!=null && !DetailAreaHeight.equals(""))
-{
+if(DetailAreaHeight!=null && !DetailAreaHeight.equals("")){
 	%>
 	DWTR.height=<%=DetailAreaHeight%>;
 	<%
@@ -107,11 +96,10 @@ if(DetailAreaHeight!=null && !DetailAreaHeight.equals(""))
 //DWTR.height=232;
 function dragFrame(event) {
 	if(event.y>100 && event.y<800) { 
-		//alert(event.y+"&&"+DWTR.offsetTop);
-		DWTR.height=event.y - DWTR.offsetTop;
+		DWTR.height=event.y - DWTR.offsetTop - 5;
 	}
 	if(event.y<100) {
-		window.event.returnValue = true;
+		window.event.returnValue = false;
 	}
 }
 </script>
@@ -128,6 +116,3 @@ function dragFrame(event) {
 </table>
 </body>
 </html>
-<script>
-
-</script>

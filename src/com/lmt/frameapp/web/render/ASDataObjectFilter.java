@@ -115,8 +115,7 @@ public class ASDataObjectFilter {
 							.append(ex.toString()).toString());
 		}
 		iOptionsCount = StringFunction.getSeparateSum(sOptions, ";");
-		if (sOptions.substring(sOptions.length() - 1, sOptions.length())
-				.equals(";"))
+		if (sOptions.substring(sOptions.length() - 1, sOptions.length()).equals(";"))
 			iOptionsCount--;
 		sFilterOptions = new String[iOptionsCount][2];
 		iPos = 0;
@@ -127,12 +126,9 @@ public class ASDataObjectFilter {
 			if (iPosEnd < 0)
 				iPosEnd = sOptions.length();
 			String sSegment = sOptions.substring(iPos, iPosEnd);
-			String sTmpOptionsID = StringFunction.getSeparate(sSegment, "=", 1)
-					.trim();
-			String sTmpOptionsValue = StringFunction.getSeparate(sSegment, "=",
-					2).trim();
-			sFilterOptions[i][0] = (new StringBuilder()).append("#{")
-					.append(sTmpOptionsID).append("}").toString();
+			String sTmpOptionsID = StringFunction.getSeparate(sSegment, "=", 1).trim();
+			String sTmpOptionsValue = StringFunction.getSeparate(sSegment, "=",2).trim();
+			sFilterOptions[i][0] = (new StringBuilder()).append("#{").append(sTmpOptionsID).append("}").toString();
 			sFilterOptions[i][1] = sTmpOptionsValue;
 			iPos = iPosEnd + 1;
 		}

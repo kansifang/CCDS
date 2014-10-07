@@ -396,7 +396,7 @@ function MR1(myobjname,myact,my_sortorder,sort_which,need_change){
 
 	if(bNeedCA) 
 		sss[jjj++]=(" <object id=doit style='display:none' classid='CLSID:8BE89452-A144-49BC-9643-A3D436D83241' border=0 width=0 height=0></object>  ");
-	sss[jjj++]=("<form name='form1' class='gdform' >");
+	sss[jjj++]=("<form name='form1' class='gdform' >");//gdform 根本没有找到
 	
 	var myS=new Array("","readonly","disabled","readonly"); 
 	var myR=DZ[myi][0][2]; 
@@ -424,7 +424,7 @@ function MR1(myobjname,myact,my_sortorder,sort_which,need_change){
 	sss[jjj++]=("<input type=button name=btnPrint  value='打印' style='cursor:pointer;FONT-SIZE: 8pt;border-style:groove;text-align:center;width:30pt;height:13pt' size=1 onclick='javascript:parent.MRK1(\""+myobjname+"\",9,"+my_sortorder+","+sort_which+")'>");
 	sss[jjj++]=("</span><br>");
 	sss[jjj++]=("</span>");
-	sss[jjj++]=("<div id='tableContainer' class='tableContainer' style='overflow:auto;'>");
+	sss[jjj++]=("<div id='tableContainer' class='tableContainer'>");
 	sss[jjj++]=("<table "+hmGDTable +">");
 	///////////////////////标题
 	if(isIEBrowser())
@@ -616,7 +616,6 @@ function MR1(myobjname,myact,my_sortorder,sort_which,need_change){
 	sss[jjj++]=("</HTML>");
 	myobj.document.writeln(amarsoft2Html(sss.join('')));		
 	myobj.document.close();		
-	
 	//myobj.document.getElementById('tableContainer').style.height = myobj.document.body.clientHeight - myobj.document.getElementById('tableContainer').offsetTop; 
 	//记录当前表格的单元格的样式
 	try {
@@ -645,9 +644,10 @@ function MR1(myobjname,myact,my_sortorder,sort_which,need_change){
 		sR(-1,curpage[myi]*pagesize[myi],myobjname);
 		iCurRow=curpage[myi]*pagesize[myi];
 	}
-	
 	myAfterLoadGrid(myi);
-	change_height(myobj.name);
+	//加入超时控制，防止闪屏
+	setTimeout(function(){change_height(myobj.name);},1);
+    //setTimeout("change_height("+myobj.name+")", 1); //"change_height("+myobj.name+")"=function(){change_height(myobj.name)}
 }
 //below can modify in jsp
 function myAfterLoadGrid(iDW){
@@ -690,6 +690,7 @@ function change_height(framename){
 	//alert("myobj.document.body.offsetWidth="+myobj.document.body.offsetWidth+",myobj.document.getElementById('tableContainer').offsetLeft="+myobj.document.getElementById('tableContainer').offsetLeft);
 	myobj.document.getElementById('tableContainer').style.width = myobj.document.body.offsetWidth-15;//- myobj.document.getElementById('tableContainer').offsetLeft*2;
 	myobj.document.getElementById('tableContainer').style.height = myobj.document.body.clientHeight - myobj.document.getElementById('tableContainer').offsetTop - 15;
+	//alert(myobj.document.body.clientHeight+"@"+myobj.document.getElementById('tableContainer').offsetTop );
 }
 function beforeSetPageSize(i,iSize){
 	return true;

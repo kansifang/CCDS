@@ -21,8 +21,7 @@ public class ASWebInterface
 
     public static String generateControl(Transaction transaction, ASComponent ascomponent, String s, String s1, String s2, String s3, String s4, String s5, 
             String s6)
-        throws Exception
-    {
+        throws Exception{
         ASValuePool LSValuePool = null;
         Object obj = null;
         String s7 = "";
