@@ -210,16 +210,22 @@ public class AIHandlerFactory{
 	 * @throws Exception
 	 */
 	private static void dueBillOutHandle(String HandlerFlag,String sConfigNo,String sOneKey,Transaction Sqlca) throws Exception {
-		//1、对中间表数据进行特殊处理 	 		 	
+		//0、对中间表数据进行特殊处理 	 		 	
 		AIDuebillOutHandler.interimProcess(sConfigNo, sOneKey, Sqlca);
-		//承兑按担保方式
- 		String groupBy="case when ~s表外明细@主要担保方式e~ like '保证-%' then '保证' "+
+		//1、差额全额
+ 		String groupBy="case "+
+			 			"when nvl(~s表外明细@保证金比例(%)e~,0)=100 and (~s表外明细@主要担保方式e~ like '%本行存单' or ~s表外明细@主要担保方式e~ like '%保证金' or ~s表外明细@主要担保方式e~ like '%我行人民币存款%') then '全额银承余额' "+
+			 			"else '差额银承余额' end";
+ 		AIDuebillOutHandler.process(HandlerFlag,sConfigNo,sOneKey,Sqlca,"差额全额银行承兑汇票",groupBy,"and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票'");
+
+		//2、差额承兑按担保方式
+ 		groupBy="case when ~s表外明细@主要担保方式e~ like '保证-%' then '保证' "+
 	 			"when ~s表外明细@主要担保方式e~ like '抵押-%' then '抵押' "+
 	 			"when ~s表外明细@主要担保方式e~ = '信用' then '信用' "+
 	 			"when ~s表外明细@主要担保方式e~ like '%质押-%' or ~s表外明细@主要担保方式e~='保证金' then '质押' "+
 	 			"else '其他' end";
- 		AIDuebillOutHandler.process(HandlerFlag,sConfigNo,sOneKey,Sqlca,"银行承兑汇票单一担保方式",groupBy,"and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票'");
- 		//保证金比例
+ 		AIDuebillOutHandler.process(HandlerFlag,sConfigNo,sOneKey,Sqlca,"银行承兑汇票单一担保方式",groupBy,"and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票' and not(nvl(~s表外明细@保证金比例(%)e~,0)=100 and (~s表外明细@主要担保方式e~ like '%本行存单' or ~s表外明细@主要担保方式e~ like '%保证金' or ~s表外明细@主要担保方式e~ like '%我行人民币存款%'))");
+ 		//3、保证金比例
  		groupBy="QZ'A'QZ" +
  				"complementstring(trim(replace(" +
  					"case when ~s表外明细@保证金比例(%)e~>=1 then char(~s表外明细@保证金比例(%)e~)" +
@@ -254,7 +260,7 @@ public class AIHandlerFactory{
 				"when ~s表外明细@经营类型(新)e~ like '%有色冶炼%' then '有色冶炼' "+
 	 			"else '其他' end";
 	 	*/
-	 	//承兑按经营类型（新）
+	 	//4、承兑按经营类型（新）
  		groupBy="case "+
  				"when ~s表外明细@经营类型(新)e~ is null or ~s表外明细@经营类型(新)e~ = '' or ~s表外明细@经营类型(新)e~='其他' then 'V-其他' "+
  				"when ~s表外明细@经营类型(新)e~ like '煤炭开采' then 'A-煤炭@开采'" +

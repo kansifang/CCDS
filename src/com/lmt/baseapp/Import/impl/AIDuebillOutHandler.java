@@ -84,6 +84,46 @@ public class AIDuebillOutHandler{
  					" and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票'";
  		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
  		Sqlca.executeSQL(sSql);
+ 		//9、如果是保证金比例不为100（当然敞口金额也是0），主要担保方式为本行存单或保证金的承兑汇票的,结合合同明细，如果其中 “其他担保方式” 包含保证，则主要担保方式变为保证
+ 		sSql="update Batch_Import_Interim BII1 set " +
+					"~s表外明细@主要担保方式e~='保证-' " +
+					" where ConfigNo='"+sConfigNo+"'"+
+					" and OneKey='"+sKey+"'"+
+					" and (nvl(~s表外明细@主要担保方式e~,'') like '%保证金%' or nvl(~s表外明细@主要担保方式e~,'') like '%本行存单%' or nvl(~s表外明细@主要担保方式e~,'') like '%我行人民币存款%')"+
+					" and nvl(~s表外明细@保证金比例(%)e~,0)<>100"+
+					" and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票'" +
+					" and exists(select 1 from Batch_Import_Interim BII2 " +
+					"			where BII2.ConfigName='合同明细'" +
+					"				and BII2.OneKey=BII1.OneKey" +
+					"				and BII2.~s合同明细@客户编号e~=BII1.~s表外明细@客户编号e~" +
+					"				and BII2.~s合同明细@业务品种e~=BII1.~s表外明细@业务品种e~" +
+					"				and BII2.~s合同明细@主要担保方式e~=BII1.~s表外明细@主要担保方式e~" +
+					"				and locate('保证',BII2.~s合同明细@其他担保方式e~)>0)";
+ 		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
+ 		Sqlca.executeSQL(sSql);
+ 		//10、如果是保证金比例不为100（当然敞口金额也是0），主要担保方式为本行存单或保证金的承兑汇票的,结合合同明细，如果其中 “其他担保方式” 包含抵押，则主要担保方式变为抵押
+ 		sSql="update Batch_Import_Interim BII1 set " +
+ 					"~s表外明细@主要担保方式e~='抵押-' " +
+ 					" where ConfigNo='"+sConfigNo+"'"+
+ 					" and OneKey='"+sKey+"'"+
+ 					" and (nvl(~s表外明细@主要担保方式e~,'') like '%保证金%' or nvl(~s表外明细@主要担保方式e~,'') like '%本行存单%' or nvl(~s表外明细@主要担保方式e~,'') like '%我行人民币存款%')"+
+ 					" and nvl(~s表外明细@保证金比例(%)e~,0)<>100"+
+ 					" and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票'" +
+ 					" and exists(select 1 from Batch_Import_Interim BII2 " +
+ 					"			where BII2.ConfigName='合同明细'" +
+ 					"				and BII2.OneKey=BII1.OneKey" +
+ 					"				and BII2.~s合同明细@客户编号e~=BII1.~s表外明细@客户编号e~" +
+ 					"				and BII2.~s合同明细@业务品种e~=BII1.~s表外明细@业务品种e~" +
+ 					"				and BII2.~s合同明细@主要担保方式e~=BII1.~s表外明细@主要担保方式e~" +
+ 					"				and locate('抵押',BII2.~s合同明细@其他担保方式e~)>0)";
+ 		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
+ 		Sqlca.executeSQL(sSql);
+ 		//11、核心存在未解付的215w，在此当成全额插入
+ 		sSql="insert into Batch_Import_Interim" +
+ 					"(ConfigNo,OneKey,~s表外明细@业务品种e~,~s表外明细@主要担保方式e~,~s表外明细@保证金比例(%)e~,~s表外明细@余额(元)e~,~s表外明细@经营类型(新)e~)" +
+ 					"values('"+sConfigNo+"','"+sKey+"','银行承兑汇票','保证金',100,2150000,'煤炭开采')";
+ 		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
+ 		Sqlca.executeSQL(sSql);
 	}
 	/**
 	 * 按各个维度插入到处理表中
@@ -157,7 +197,6 @@ public class AIDuebillOutHandler{
 	public static void afterProcess1(String HandlerFlag,String sConfigNo,String sKey,Transaction Sqlca)throws Exception{
 		
 	}
-			
 	//加入小计 合计 横向纵向比较值 小计总以 DimensionValue 中以@分割为标志
 	public static void afterProcess(String HandlerFlag,String sConfigNo,String sKey,Transaction Sqlca)throws Exception{
 		String sSql="";

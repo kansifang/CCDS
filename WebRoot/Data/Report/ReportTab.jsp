@@ -47,15 +47,14 @@
 	  	String sTabStrip[][] = new String[30][3];
 		int initTab = 1;//设定默认的 tab ，数值代表第几个tab
 		//获取
-		sSql = "select AttachmentNo,FileName,Attribute1,Attribute2 from Doc_Attachment where DocNo ='"+sConfigNo+"' order by FileName asc";
+		sSql = "select AttachmentNo,FileName,Attribute1 from Doc_Attachment where DocNo ='"+sConfigNo+"' order by FileName asc";
 		ASResultSet rs = Sqlca.getResultSet(sSql);
 		int tabs=0;
 		int tabsEveryRow=6;//每行显示6个
 		while(rs.next()){
 			sAddStringArray = new String[] {"",rs.getString(2),"doTabAction('"+
-					rs.getString(3).replaceAll("#AttachmentNo",rs.getString(1))
-						.replaceAll("#Type", rs.getString(4))
-						.replaceAll("#OneKey", sOneKey)
+					rs.getString(3).replaceAll("#AttachmentNo",rs.getString(1))//这个决定了页面的SQL
+						.replaceAll("#OneKey", sOneKey)//这个和当前报告密切相关
 						+"')"};
 			sTabStrip = HTMLTab.addTabArray(sTabStrip,sAddStringArray);
 			tabs++;
