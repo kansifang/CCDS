@@ -60,11 +60,10 @@
 					{"ItemName","以序列号为准"},
 					{"Attribute1","Excel案件要素"},
 					{"Attribute3","是否主标签"},
-					{"ItemDescribe","案件对应表要素"},
+					{"ItemDescribe","DB字段"},
 					{"Attribute7","操作要素方式"},
 					{"Attribute6","要素所在表"},
 					{"ItemAttribute","要素注释"},
-					{"Attribute8","要素名称"},
 					{"Attribute2","要素类型"},
 					{"Attribute4","要素长度"},
 					{"Attribute5","要素精度"},
@@ -75,7 +74,7 @@
 				};
 	sSql =  " select  CodeNo,ItemNo,getItemName('YesNo',ItemName) as ItemName,SortNo,"+
 			" Attribute1,getItemName('YesNo',Attribute3) as Attribute3,getItemName('SModelColumns',ItemDescribe) as ItemDescribe,"+
-			" getItemName('AlterType',Attribute7) as Attribute7,Attribute6,ItemAttribute,Attribute8,getItemName('DataType',Attribute2) as Attribute2,Attribute4,Attribute5,"+
+			" getItemName('AlterType',Attribute7) as Attribute7,Attribute6,ItemAttribute,getItemName('DataType',Attribute2) as Attribute2,Attribute4,Attribute5,"+
 			" getItemName('YesNo',IsInUse) as IsInUse,"+
 			" getUserName(UpdateUser) as UpdateUserName,"+
 			" UpdateTime"+
@@ -96,14 +95,14 @@
 	//设置格式
 	doTemp.setVisible("CodeNo,ItemName",false);
 	if("01".equals(sType)){
-		doTemp.setVisible("Attribute7,Attribute6,ItemAttribute,Attribute8,Attribute4,Attribute5,Attribute7", false);
+		doTemp.setVisible("Attribute7,Attribute6,ItemAttribute,Attribute4,Attribute5", false);
 	}else{
-		doTemp.setVisible("Attribute1,Attribute3,ItemDescribe", false);
+		doTemp.setVisible("Attribute1,Attribute3", false);
 	}
 	//doTemp.setHTMLStyle("Attribute1,Attribute2,Attribute3,Attribute4"," style={width:auto} ");
 	//设置字段显示宽度	
 	//doTemp.appendHTMLStyle("Status"," style={width:90px} onDBLClick=parent.selectOrUnselect() ");
-	doTemp.setColumnAttribute("Attribute1,Attribute6,Attribute8,ItemDescribe,Attribute2,SortNo","IsFilter","1");
+	doTemp.setColumnAttribute("Attribute1,Attribute6,ItemDescribe,Attribute2,SortNo","IsFilter","1");
 	doTemp.generateFilters(Sqlca);
 	doTemp.parseFilterData(request,iPostChange);
 	CurPage.setAttribute("FilterHTML",doTemp.getFilterHtml(Sqlca));
@@ -220,7 +219,6 @@
 				"ItemDescribe,"+//要素对应表字段
 				"Attribute6,"+//要素所在表
 				"ItemAttribute,"+
-				"Attribute8,"+//要素名称
 				"Attribute2,"+//要素类型
 				"Attribute4,"+//要素长度
 				"+Attribute5,"+//要素精度
@@ -232,7 +230,6 @@
 				"ItemDescribe,"+
 				"Attribute6,"+
 				"ItemAttribute,"+
-				"Attribute8,"+
 				"Attribute2,"+
 				"Attribute4,"+
 				"+Attribute5,"+

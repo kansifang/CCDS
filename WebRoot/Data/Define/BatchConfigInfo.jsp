@@ -52,10 +52,9 @@
 					{"ItemName","以序列号初始化"},
 					{"Attribute1","要素Excel标题"},
 					{"Attribute3","是否识别标签"},
-					{"ItemDescribe","要素对应表字段"},
+					{"ItemDescribe","DB字段"},
 					{"Attribute6","要素所在表"},
 					{"ItemAttribute","要素注释"},
-					{"Attribute8","要素名称"},
 					{"Attribute2","要素类型"},
 					{"Attribute4","要素长度"},
 					{"Attribute5","要素精度"},
@@ -69,7 +68,8 @@
 				};
 	sSql =  " select  CodeNo,ItemNo,ItemName,SortNo,"+
 				" Attribute1,Attribute3,ItemDescribe,"+
-				" Attribute6,ItemAttribute,Attribute8,Attribute2,Attribute4,Attribute5,"+
+				" Attribute6,ItemAttribute,"+
+				"Attribute2,Attribute4,Attribute5,"+
 				" Attribute7,IsInUse,"+
 				" InputUser,getUserName(InputUser) as InputUserName,InputTime,"+
 				" UpdateUser,getUserName(UpdateUser) as UpdateUserName, UpdateTime"+
@@ -90,12 +90,13 @@
 	doTemp.setRequired("Attribute2", true);
 	doTemp.setVisible("CodeNo,ItemName,InputUser,UpdateUser",false);
 	if("01".equals(sType)){
-		doTemp.setVisible("Attribute6,ItemAttribute,Attribute7,Attribute8", false);
+		doTemp.setVisible("ItemAttribute", false);
+		doTemp.setUnit("ItemDescribe","<input type=button class=inputDate   value=\"...\" name=button1 onClick=\"javascript:parent.selectColumn();\"> ");
 	}else{
-		doTemp.setVisible("Attribute1,Attribute3,ItemDescribe", false);
+		doTemp.setVisible("Attribute1,Attribute3", false);
+		doTemp.setHTMLStyle("ItemDescribe"," style={width:200px} ");
+		doTemp.setUnit("Attribute6", "<font style={color:red}>表名以,分割</font>");
 	}
-	doTemp.setUnit("ItemDescribe","<input type=button class=inputDate   value=\"...\" name=button1 onClick=\"javascript:parent.selectColumn();\"> ");
-	doTemp.setHTMLStyle("Attribute8"," style={width:200px} ");
 	doTemp.setDDDWCode("IsInUse","YesNo");
 	doTemp.setDDDWCode("Attribute7", "AlterType");
 	doTemp.setDDDWCode("ItemName","YesNo");
@@ -160,21 +161,50 @@
 				//backupHis();
 			}
 			beforeUpdate();
-			var ColumnName=getItemValue(0,getRow(),"ItemDescribe");//Excel对应的表字段
-			if("<%=sType%>"=="02"){
-				addColumn();
-			}else if("<%=sType%>"=="01"){
-				if(ColumnName.length==0){
-					ColumnName=addColumn();
-					setItemValue(0,0,"ItemDescribe",ColumnName);
-				}
+			//字段名字拼接（后面用日期后缀以避免重复）
+			var ColumnType = getItemValue(0,getRow(),"Attribute2");
+			var date=new Date();
+			var autoColumnName=ColumnType+date.getFullYear()+""+(date.getMonth()+1)+""+date.getDate()+""+date.getHours()+""+date.getMinutes()+""+date.getSeconds();;
+			var AlterType = getItemValue(0,getRow(),"Attribute7");
+			var ColumnTable = getItemValue(0,getRow(),"Attribute6").toUpperCase();
+			var ColumnName=getItemValue(0,getRow(),"ItemDescribe");//表字段
+			if(ColumnName.length==0){
+				ColumnName=autoColumnName;
+				setItemValue(0,0,"ItemDescribe",ColumnName);
+			}
+			var ColumnLong = getItemValue(0,getRow(),"Attribute4");
+			var ColumnPrecision = getItemValue(0,getRow(),"Attribute5");
+			alterColumn(AlterType,ColumnTable,ColumnName,ColumnType,ColumnLong,ColumnPrecision);
+			//使用表字段的页面要同步更新字段对照表,注意用表和字段作为联合主键，因为字段维护页面可以维护任意表的字段（不过如果是根据自动拼接的字段，也不会重复了，这里主要是考虑到允许手工写入字段名）
+			if("<%=sType%>"=="01"){
+				//字段维护对照表维护，没有插入，有则更新
 				var ItemNo = PopPage("/Common/ToolsB/GetSerialNo.jsp?TableName=Code_Library&ColumnName=ItemNo&Prefix=","","resizable=yes;dialogWidth=0;dialogHeight=0;center:no;status:no;statusbar:no");
 				var ColumnType = getItemValue(0,getRow(),"Attribute2");
 				var ColumnLong = getItemValue(0,getRow(),"Attribute4");
 				var ColumnPrecision = getItemValue(0,getRow(),"Attribute5");
-				var sReturn=RunMethod("PublicMethod","GetColValue","Count(1) as Count,Code_Library,String@CodeNo@b20140323000001@String@Attribute8@"+ColumnName+",Code_Library");
+				var ColumnTable = getItemValue(0,getRow(),"Attribute6").toUpperCase();
+				var sReturn=RunMethod("PublicMethod","GetColValue","Count(1) as Count,Code_Library,String@CodeNo@b20140323000001@String@Attribute6@"+ColumnTable+"@String@ItemDescribe@"+ColumnName+",Code_Library");
 				if(sReturn.split('@')[1]==0){
-					RunMethod("PublicMethod","InsertColValue","String@CodeNo@b20140323000001@String@ItemNo@"+ItemNo+"@String@Attribute8@"+ColumnName+"@String@Attribute2@"+ColumnType+"@String@Attribute4@"+ColumnLong+"@String@Attribute5@"+ColumnPrecision+"@String@Attribute6@Batch_Import@String@Attribute7@AddColumn@String@IsInUse@1,Code_Library");
+					RunMethod("PublicMethod","InsertColValue","String@CodeNo@b20140323000001"+
+							"@String@ItemNo@"+ItemNo+
+							"@String@ItemDescribe@"+ColumnName+
+							"@String@Attribute2@"+ColumnType+
+							"@String@Attribute4@"+ColumnLong+
+							"@String@Attribute5@"+ColumnPrecision+
+							"@String@Attribute6@"+ColumnTable+
+							"@String@Attribute7@AddColumn"+
+							"@String@IsInUse@1,Code_Library");
+				}else{
+					//更新该字段的最新属性
+					RunMethod("PublicMethod","UpdateColValue","String@CodeNo@b20140323000001"+
+							"@String@ItemNo@"+ItemNo+
+							"@String@ItemDescribe@"+ColumnName+
+							"@String@Attribute2@"+ColumnType+
+							"@String@Attribute4@"+ColumnLong+
+							"@String@Attribute5@"+ColumnPrecision+
+							"@String@Attribute6@"+ColumnTable+
+							"@String@Attribute7@AlterLong"+
+							"@String@IsInUse@1,Code_Library,String@CodeNo@b20140323000001@String@Attribute6@"+ColumnTable+"@String@ItemDescribe@"+ColumnName);
 				}
 			}
 			var sortNo=getItemValue(0,getRow(),"SortNo").toUpperCase();
@@ -186,23 +216,12 @@
 			setItemValue(0,0,"SortNo",sortNo);
 			as_save("myiframe0",sPostEvents+"");
 		}
-		function addColumn(){
-			var AlterType = getItemValue(0,getRow(),"Attribute7");
-			var ColumnType = getItemValue(0,getRow(),"Attribute2");
-			var ColumnLong = getItemValue(0,getRow(),"Attribute4");
-			var ColumnPrecision = getItemValue(0,getRow(),"Attribute5");
-			var ColumnTable = getItemValue(0,getRow(),"Attribute6");
-			if(ColumnType=="String"){
-				ColumnName=ColumnType+ColumnLong;
-			}else{
-				ColumnName=ColumnType+ColumnLong+ColumnPrecision;
+		function alterColumn(AlterType,ColumnTable,ColumnName,ColumnType,ColumnLong,ColumnPrecision){
+			//执行数据库DDL的的方法，其对应的是procedure
+			var arrColumnTable=ColumnTable.split(",");
+			for(var i=0;i<arrColumnTable.length;i++){
+				RunMethod("PublicMethod","AlterColumnInDB",AlterType+","+arrColumnTable[i]+","+ColumnName+","+ColumnType+","+ColumnLong+","+ColumnPrecision);
 			}
-			var date=new Date();
-			var prefix=date.getFullYear()+""+(date.getMonth()+1)+""+date.getDate()+""+date.getHours()+""+date.getMinutes()+""+date.getSeconds();
-			ColumnName=ColumnName+prefix;//给字段名字加上后缀以避免重复
-			setItemValue(0,0,"Attribute8",ColumnName);
-			setItemValue(0,0,"Attribute6",ColumnTable.toUpperCase());
-			RunMethod("PublicMethod","AlterColumnInDB",AlterType+","+ColumnTable+","+ColumnName+","+ColumnType+","+ColumnLong+","+ColumnPrecision);
 			return ColumnName;
 		}
 		function newRecord()
@@ -281,7 +300,7 @@
 	function selectColumn()
 	{		
 		sParaString = "CodeNo,b20140323000001,CurrCodeNo,<%=sCodeNo%>";
-		setObjectValue("SelectColumn",sParaString,"@ItemDescribe@2@Attribute2@3@Attribute4@4@Attribute5@5",0,0,"");			
+		setObjectValue("SelectColumn",sParaString,"@Attribute6@2@ItemDescribe@3@Attribute2@4@Attribute4@5@Attribute5@6",0,0,"");			
 	}
    /*~[Describe=初始化选择标记;InputParam=无;OutPutParam=无;]~*/
    function initRow(){
@@ -292,8 +311,8 @@
 			setItemValue(0,0,"Attribute3","2");
 			setItemValue(0,0,"Attribute2","String");
 			setItemValue(0,0,"Attribute5","0");
-			setItemValue(0,0,"Attribute6","Batch_Import");
-			setItemValue(0,0,"Attribute7","AddColumn");
+			setItemValue(0,0,"Attribute6","Batch_Import,Batch_Import_Interim");
+			//setItemValue(0,0,"Attribute7","AddColumn");
 	        setItemValue(0,0,"IsInUse","1");
 	        setItemValue(0,0,"SortNo","000");
 	        setItemValue(0,0,"InputUser","<%=CurUser.UserID%>");

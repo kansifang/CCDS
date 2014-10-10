@@ -97,7 +97,6 @@
 	<%
 	String sSql = " select ItemNo,ItemName,ItemAttribute from CODE_LIBRARY CL"+
 			" where CodeNo = 'TabStrip'  and IsInUse = '1' ";
-	//add by lzhang 2011/04/12 增加查看角色权限控制
 	if(CurUser.UserID.equals("9999999")||CurUser.hasRole("062")||CurUser.hasRole("262")||CurUser.hasRole("462")){
 		sSql += " order by SortNo ";
 	}else{

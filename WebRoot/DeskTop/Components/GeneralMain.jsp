@@ -103,9 +103,7 @@
 				ASValuePool ap=asd.getItem(i);
 				String id=(String)ap.getAttribute("ItemNo");
 				String url=(String)ap.getAttribute("ItemAttribute");
-				if(url!=null&&url.length()>0){
-						out.println("var _"+id+"='"+url+"';");
-				}
+				out.println("var _"+id+"='"+url+"';");
 			}
 		}
 	%>
@@ -114,8 +112,10 @@
 	{
 		var sCurItemID = getCurTVItem().id;
 		var sCurItemname = getCurTVItem().name;
-        parent.parent.newTab(sCurItemname,eval("_"+sCurItemID));
-        
+		var url=eval("_"+sCurItemID);
+		if(url!=='null'&&url.length>0){
+			 parent.parent.newTab(sCurItemname,url);
+		}
 	}
 	
 	/*~[Describe=生成treeview;InputParam=无;OutPutParam=无;]~*/

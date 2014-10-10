@@ -66,9 +66,9 @@
 		//根据定义组生成 tab
 		//out.println(HTMLTab.genTabArray(sTabStrip,"tab_DeskTopInfo","document.all('tabtd')"));
 		out.println(HTMLTab.genTabArray(sTabStrip,"tab_DeskTopInfo","tabtd",tabsEveryRow));
-		String sTableStyle = "align=center cellspacing=0 cellpadding=0 border=0 width=98% height=98%";
+		String sTableStyle = "align=center cellspacing=0 cellpadding=0 border=0 width=100% height=100%";
 		String sTabHeadStyle = "";
-		String sTabHeadText = "<br>";
+		String sTabHeadText = "报告标题";
 		String sTopRight = "";
 		String sTabID = "tabtd";
 		String sIframeName = "TabContentFrame";
@@ -118,15 +118,20 @@
   		//插入一个td
   	    var c =r.insertCell();
   		c.style.backgroundColor="#D8D8AF";
-  		c.align="right";
+  		c.align="left";
   		c.id=tdidfortab;
-  		c.setAttribute("class","tabtd");
+  		//c.colspan="2";
+  		c.width="100%";
+  		//c.setAttribute("class","tabtd");
+  		//c.setAttribute("colspan","3");
+  		/*标签行插一个单元格让整个铺满
   		c =r.insertCell();
-  		c.innerHTML+="";
+  		c.innerHTML+="ccc";
   		c.setAttribute("valign","top");
   		c.setAttribute("class","tabbar");
+  		*/
   	}
-	//初始化所有分组tab
+	//初始化所有分组tab,每一行tabs一个 <table></table>
   	for(var i=0;i<parseInt("<%=rows%>");i++){
   		addRow("tabtd"+i);
   		hc_drawTabToTable("tab_DeskTopInfo"+i,tabs[i],1,document.all('tabtd'+i));

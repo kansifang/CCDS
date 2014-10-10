@@ -70,7 +70,7 @@ public class ExcelHandler extends DefaultHandler {
 					}
 				}
 				if(k==0){
-					throw new Exception("当前批次所选择的模板定义中配置的"+headD+"在上传Excel文件中没有对应的要素；");
+					throw new Exception("当前批次所选择的模板定义中配置的【"+headD+"】在上传Excel文件中没有对应的要素；");
 				}
 			}
 		}

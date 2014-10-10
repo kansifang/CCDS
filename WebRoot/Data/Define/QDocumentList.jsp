@@ -185,17 +185,6 @@
       		reloadSelf();
       	}
 	}
-	function mySelectRow()
-	{
-		//hideFilterArea();
-		var sCodeNo = getItemValue(0,getRow(),"DocNo");
-		var sType = getItemValue(0,getRow(),"CodeAttribute");
-		if(sCodeNo.length>0){
-			document.getElementById("ListHorizontalBar").parentNode.style.display="";
-			document.getElementById("ListDetailAreaTD").parentNode.style.display="";
-			OpenComp("QTabConfigList","/Data/Define/QTabConfigList.jsp","CodeNo="+sCodeNo+"&type="+sType,"DetailFrame","");
-		}
-	}
 	/*~[Describe=导出附件;InputParam=无;OutPutParam=无;]~*/
 	function exportFile()
 	{
@@ -225,6 +214,7 @@
 	AsOne.AsInit();
 	init();
 	my_load(2,0,'myiframe0');
+	hideFilterArea();
 </script>
 <%
 	/*~END~*/

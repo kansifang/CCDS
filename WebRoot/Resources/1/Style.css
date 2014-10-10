@@ -555,6 +555,10 @@ input {
 	cursor:hand;
 }
 
+.deletebtn
+{
+	cursor:hand;
+}
 .tabline
 {
 	background-color:#FFFFFF;
@@ -569,11 +573,15 @@ input {
 {
 	background-color:#DCDCDC;
 	font-weight: bold;
+	width:100%;
+	text-align : right;
 }
 
 .tabdesel
 {
 	background-color:#C4C4C4;
+	width:100%;
+	text-align : right;
 }
 
 img.tabfron
@@ -624,7 +632,6 @@ img.taboffoff
 	width:24px;
 	background-image:url(tab/offoff.gif);
 }
-
 
 
 .frameheader{
@@ -760,6 +767,7 @@ img.taboffoff
 .ListTitle{
 	height:5px;
 	background-color: #CCCCCC;
+	color:green;
 }
 .buttonback{
 	height:32px;

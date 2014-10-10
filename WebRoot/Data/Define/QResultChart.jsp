@@ -42,7 +42,7 @@ com.lmt.app.cms.explain.AmarMethod
 	String tabName="",sDisplayType="",IsUpdate="",sFilterColumn="",sKeyColumn="";
 	if(rs1.next()){	
 		tabName=DataConvert.toString(rs1.getString("FileName"));
-		PG_TITLE=tabName+"@WindowTitle";
+		PG_TITLE=tabName+"@PageTitle";//WindowTitle
 		sDisplayType=DataConvert.toString(rs1.getString("Attribute2"));
 		IsUpdate=DataConvert.toString(rs1.getString("Attribute3"));
 		sKeyColumn=DataConvert.toString(rs1.getString("FullPath"));
@@ -53,7 +53,7 @@ com.lmt.app.cms.explain.AmarMethod
 			int iByte = 0;		
 			java.io.InputStream inStream = null;
 			ASResultSet rs2 = Sqlca.getResultSet2("select DocContent from Doc_Attachment"+
-					" where AttachmentNo='"+sAttachmentNo+"'");//注意是getResultSet2
+													" where AttachmentNo='"+sAttachmentNo+"'");//注意是getResultSet2
 			if(rs2.next()){
 				inStream = rs2.getBinaryStream("DocContent");
 				while(true){
@@ -81,15 +81,6 @@ com.lmt.app.cms.explain.AmarMethod
 	sSql =StringFunction.replace(sSql, "#HandlerFlag",sHandlerFlag.toUpperCase());
 	sSql =StringFunction.replace(sSql, "#Dimension",sDimension);
 	ASDataObject doTemp = new ASDataObject(sSql);
-	
-	//处理sql语句中一个字段有多个  as 不能有效获得别名当做标题 ，以及 sql语句别名以数字开头时必须整个用双引号引起来，这也导致形成标题时双引号反而不能去掉
-	for (int i=0;i<doTemp.Columns.size();i++){
-		String sHeader=doTemp.getColumnAttribute(i, "Header");
-		if(sHeader.lastIndexOf(" as ")!=-1){
-			sHeader=sHeader.substring(sHeader.lastIndexOf(" as ")+3);
-		}
-		doTemp.setColumnAttribute(i, "Header", sHeader.replace("\"", ""));
-	}
 	if(!"".equals(sKeyColumn)){
 		doTemp.setKey(sKeyColumn,true);
 	}

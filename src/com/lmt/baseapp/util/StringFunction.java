@@ -166,6 +166,28 @@ public class StringFunction
         for(j = s.indexOf(s1, i); j >= 0 && getOccurTimes(s, s2, s3, i, j) != 0; j = s.indexOf(s1, j + s1.length()));
         return j;
     }
+    //获取s1在s中的位置,必须满s1 不在s2表示的字符串之间，s2形式为 '@'~[@]~(@)...，s1必须同时满足 不在 ''和[]和()三者之间
+    public static int indexOf(String sourceS, String s1, String s2, int biginIndex)
+    {
+        int j,k;
+        String []s2Array=s2.split("~");
+        for(j = sourceS.indexOf(s1, biginIndex); j >= 0 ; j = sourceS.indexOf(s1, j + s1.length())){
+        	k=0;
+        	for(int i=0;i<s2Array.length;i++){
+        		String[] oneS=s2Array[i].split("@");
+        		String startS=oneS[0];
+            	String endS=oneS[1];
+            	if(getOccurTimes(sourceS, startS, endS, biginIndex, j) != 0){
+            		k=-1;
+            		break;
+            	}
+        	}
+        	if(k==0){
+        		break;
+        	}
+        }
+        return j;
+    }
     public static int lastIndexOf(String s, String s1, String s2, String s3, int i)
     {
         int j;
@@ -176,7 +198,7 @@ public class StringFunction
     {
         return s.substring(i, j).indexOf(s1);
     }
-    //获取s中s1和s2成对字符串有几个
+    //获取s中在i和j之间s1比s2多几个
     public static int getOccurTimes(String s, String s1, String s2, int i, int j)
     {
         s = s.substring(i, j);
@@ -185,14 +207,13 @@ public class StringFunction
         else
             return getOccurTimes(s, s1) - getOccurTimes(s, s2);
     }
-    //获取s中si有几个
+    //获取s中有多少个s1
     public static int getOccurTimes(String s, String s1)
     {
         int i = 0;
         int j = 0;
         for(int k = s1.length(); (i = s.indexOf(s1, i) + k) > k - 1;)
             j++;
-
         return j;
     }
 

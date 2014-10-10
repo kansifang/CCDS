@@ -331,16 +331,11 @@ public class ASDataObject implements Cloneable {
 	public void parseSql(String sSql) throws Exception {
 		sSql = sSql.trim();
 		SourceSql = sSql;
-		int iPosSelect = StringFunction.indexOf(sSql.toLowerCase(), "select ",
-				"'", "'", 0);
-		int iPosFrom = StringFunction.indexOf(sSql.toLowerCase(), " from ",
-				"'", "'", 0);
-		int iPosWhere = StringFunction.indexOf(sSql.toLowerCase(), " where ",
-				"(", ")", iPosFrom + 1);
-		int iPosGroup = StringFunction.indexOf(sSql.toLowerCase(),
-				" group by ", "(", ")", iPosFrom + 1);
-		int iPosOrder = StringFunction.indexOf(sSql.toLowerCase(),
-				" order by ", "(", ")", iPosFrom + 1);
+		int iPosSelect = StringFunction.indexOf(sSql.toLowerCase(), "select ","'", "'", 0);
+		int iPosFrom = StringFunction.indexOf(sSql.toLowerCase(), " from ","'@'~(@)", 0);
+		int iPosWhere = StringFunction.indexOf(sSql.toLowerCase(), " where ","(", ")", iPosFrom + 1);
+		int iPosGroup = StringFunction.indexOf(sSql.toLowerCase()," group by ", "(", ")", iPosFrom + 1);
+		int iPosOrder = StringFunction.indexOf(sSql.toLowerCase()," order by ", "(", ")", iPosFrom + 1);
 		if (iPosSelect < 0)
 			throw new Exception(
 					(new StringBuilder())
@@ -382,43 +377,28 @@ public class ASDataObject implements Cloneable {
 	public void parseColumns() {
 		int iPos = 0;
 		int iPosComma = 0;
-		int iPosT=0;
 		String sSelect = SelectClause.substring(6).trim();
 		do {
-			int iT1 = StringFunction.indexOf(sSelect, ",", "'", "'", iPosT);
-			int iT2 = StringFunction.indexOf(sSelect, ",", "[", "]", iPosT);
-			int iT3 = StringFunction.indexOf(sSelect, ",", "(", ")", iPosT);
-			if (iT1 >= 0 && iT2 >= 0 && iT3 >= 0) {
-				if (iT2 > iT1)
-					iPosComma = iT2;
-				else
-					iPosComma = iT1;
-				if (iPosComma < iT3)
-					iPosComma = iT3;
-				if(iT3!=iT1||iT3!=iT2){//新加代码，逻辑是只有三者相等时，才能保证","同时不在'' [] ()之间
-					iPosT=iT3;
-					continue;
-				}else{
-					iPosT=iPosComma+1;
-				}
-			} else {
-				iPosComma = -1;
-			}
+			//必须保证","同时不在'' [] ()之间，才认定是Sql查询语句中的字段分隔符","
+			//20141009 重构，StringFunction增加一个新的indexOf
+			iPosComma = StringFunction.indexOf(sSelect, ",", "'@'~[@]~(@)", iPos);
 			String sColumn;
+			//识别出了一个Column，下面当然是解析喽
 			if (iPosComma >= 0)
 				sColumn = sSelect.substring(iPos, iPosComma).trim();
 			else
-				sColumn = sSelect.substring(iPos).trim();
-			int iPosAs = StringFunction.indexOf(sColumn, " as ", "'", "'", 0);
+				sColumn = sSelect.substring(iPos).trim();//既然找不到',',只能把整个字符串当成一个 Column
+			//解析 表名 字段名，字段别名 。。。。一定要有 as 哦
+			int iPosAs = StringFunction.indexOf(sColumn, " as ", "'@'~(@)", 0);
 			int iPosDot = StringFunction.indexOf(sColumn, ".", "'", "'", 0);
 			String sName;
 			String sTableName;
 			String sActualName;
 			if (iPosAs >= 0) {
-				sName = sColumn.substring(iPosAs + 3).trim();
+				sName = sColumn.substring(iPosAs + 3).trim().replace("\"", "");//这个是字段别名，当然也对应标题名,replace主要是针对别名以数字开头时，SQL语句要求加双引号，这导致，标题带双引号，故在此消除
 				if (iPosDot >= 0) {
-					sTableName = sColumn.substring(0, iPosDot).trim();
-					sActualName = sColumn.substring(iPosDot + 1, iPosAs).trim();
+					sTableName = sColumn.substring(0, iPosDot).trim();//可能是表名也可能是表的别名
+					sActualName = sColumn.substring(iPosDot + 1, iPosAs).trim();//这个肯定是字段
 				} else {
 					sTableName = "";
 					sActualName = sColumn.substring(0, iPosAs);

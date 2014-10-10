@@ -92,7 +92,7 @@
 	doTemp.setHeader(sHeaders);
 	doTemp.setDDDWCodeTable("CodeAttribute","01,导入对应配置,02,字段维护,03,种子配置");
 	doTemp.setHTMLStyle("CodeNo,SortNo,CodeDescribe,CodeAttribute"," style={width:120px;height:20px;overflow:auto;cursor:hand} onDBLClick=\"parent.viewConfigList()\"");
-	doTemp.setHTMLStyle("CodeName"," style={width:200px;height:20px;overflow:auto;cursor:hand} onDBLClick=\"parent.viewConfigList()\"");
+	doTemp.setHTMLStyle("CodeName"," style={width:200px;height:20px;cursor:hand} onDBLClick=\"parent.viewConfigList()\"");
 	//查询
  	doTemp.setColumnAttribute("CodeNo","IsFilter","1");
 	doTemp.generateFilters(Sqlca);
@@ -111,8 +111,8 @@
 	Vector vTemp = dwTemp.genHTMLDataWindow("");
 	for(int i=0;i<vTemp.size();i++) out.print((String)vTemp.get(i));
 	//added by bllou 2012-09-20 显示细项
-	CurPage.setAttribute("ShowDetailArea","false");
-	CurPage.setAttribute("DetailAreaHeight","150");
+	//CurPage.setAttribute("ShowDetailArea","false");
+	//CurPage.setAttribute("DetailAreaHeight","150");
 %>
 
 <%
@@ -254,9 +254,11 @@
 	{
 		var sCodeNo = getItemValue(0,getRow(),"CodeNo");
 		var sType = getItemValue(0,getRow(),"CodeAttribute");
-		if(sCodeNo.length>0){
-			document.getElementById("ListHorizontalBar").parentNode.style.display="";
-			document.getElementById("ListDetailAreaTD").parentNode.style.display="";
+		var listBar=document.getElementById("ListHorizontalBar");//如果不存在id 为ListHorizontalBar的标签对象，获得null
+		var listArea=document.getElementById("ListDetailAreaTD");
+		if(sCodeNo.length>0&&listBar!==null &&listArea!==null){//&&typeof(listBar)!=='undefined'&&typeof(listArea)!=='undefined'
+			listBar.parentNode.style.display="";
+			listArea.parentNode.style.display="";
 			OpenComp("BatchConfigList","/Data/Define/BatchConfigList.jsp","CodeNo="+sCodeNo+"&type="+sType,"DetailFrame","");
 		}
 	}
@@ -280,8 +282,8 @@
 	init();
 	bHighlightFirst = true;//自动选中第一条记录
 	my_load(2,0,'myiframe0');
+	hideFilterArea();//必须在my_load下面才有效果，原因待查
 	mySelectRow();
-	//hideFilterArea();
 </script>	
 <%
 		/*~END~*/

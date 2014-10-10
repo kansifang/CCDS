@@ -49,7 +49,7 @@
 		String sHeaders1[][] = {
 									{"SerialNo","流水号"},
 									{"OneKey","报告日期"},
-									{"ReportConfigNo","维度配置号"},
+									{"ReportConfigName","维度配置号"},
 									{"EDocNo","报告模板"},
 									{"Remark","备注"},
 									{"BusinessSum","合同金额"},
@@ -60,6 +60,7 @@
 		String sSql1 =  " select "+
 							//" case when II.InspectType like '%010' then '2' else '1' end as IsDataHandle,"+
 							" SerialNo,ReportConfigNo,"+
+							" (select DocTitle from Doc_Library where DocNo=ReportConfigNo) as ReportConfigName,"+
 							" OneKey,Type,EDocNo,Remark,"+
 							" getUserName(InputUserID) as InputUser,"+
 							" getOrgName(InputOrgId) as InputOrg"+
@@ -81,7 +82,7 @@
 		doTemp.setAlign("BusinessSum,Balance","3");
 		doTemp.setType("BusinessSum,Balance","Number");
 		doTemp.setCheckFormat("BusinessSum,Balance","2");
-		doTemp.setDDDWSql("ReportConfigNo", "select DocNo,DocTitle from Doc_Library where DocNo like 'QDT%'");
+		//doTemp.setDDDWSql("ReportConfigNo", "");
 		//设置html格式
 	  	doTemp.setHTMLStyle("InspectType"," style={width:100px} ");
 	  	doTemp.setHTMLStyle("ObjectNo,CustomerName,BusinessTypeName"," style={width:120px} ");
@@ -145,9 +146,11 @@
 		}
 		sReturn = sReturn.split("@");
 		var sSerialNo=sReturn[0];
+		var sReportConfigNo = sReturn[1];
+		var sOneKey = sReturn[2];
 		sCompID = "ReportTab";
 		sCompURL = "/Data/Report/ReportTab.jsp";
-		sParamString = "SerialNo="+sSerialNo;
+		sParamString = "SerialNo="+sSerialNo+"&ReportConfigNo="+sReportConfigNo+"&OneKey="+sOneKey;
 		OpenComp(sCompID,sCompURL,sParamString,"_blank",OpenStyle);
 		reloadSelf();
 	}
