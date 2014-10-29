@@ -12,7 +12,7 @@ function editor_defaultConfig(objname) {
 	this.version = "1.02";
 	this.width =  "auto";
 	this.height = "auto";
-	this.bodyStyle = 'background-color: #FFFFFF; font-family: "Verdana"; font-size: x-small;';
+	this.bodyStyle = 'background-color: #FFFFDF; font-family: "Comic Sans MS"; font-size:18 pt;';
 	this.imgURL = _editor_url + 'images/';
 	this.debug  = 0;
 	this.replaceNextlines = 0; // replace nextlines from spaces (on output)
@@ -34,6 +34,7 @@ function editor_defaultConfig(objname) {
 	    ['about']
 	    ];
 	this.fontnames = {
+		"Comic Sans MS": "Comic Sans MS",
 	    "宋体":            "sans-serif, arial, helvetica",
 	    "黑体":            "黑体, sans-serif, arial, helvetica",
 	    "楷体":            "楷体, sans-serif, arial, helvetica",
@@ -44,19 +45,18 @@ function editor_defaultConfig(objname) {
 	    "Times New Roman": "times new roman, times, serif",
 	    "Verdana":         "Verdana, Arial, Helvetica, sans-serif",
 	    "impact":          "impact",
-	    "WingDings":       "WingDings"};
+	    "WingDings":       "WingDings"
+	};
 	this.fontsizes = {
+		"5 (18 pt)": "5",
 	    "1 (8 pt)":  "1",
 	    "2 (10 pt)": "2",
 	    "3 (12 pt)": "3",
 	    "4 (14 pt)": "4",
-	    "5 (18 pt)": "5",
 	    "6 (24 pt)": "6",
 	    "7 (36 pt)": "7"
 	  };
-	
 	//this.stylesheet = "http://www.???.com/sample.css"; // full URL to stylesheet
-	
 	this.fontstyles = [     // make sure these exist in the header of page the content is being display as well in or they won't work!
 	//    { name: "headline",     className: "headline",  classStyle: "font-family: arial black, arial; font-size: 28px; letter-spacing: -2px;" },
 	//    { name: "arial red",    className: "headline2", classStyle: "font-family: arial black, arial; font-size: 12px; letter-spacing: -2px; color:red" },
@@ -87,16 +87,12 @@ function editor_defaultConfig(objname) {
 	    "htmlmode":       ['HtmlMode',             'View HTML Source',   'editor_setmode(\''+objname+'\')', 'ed_html.gif'],
 	    "popupeditor":    ['popupeditor',          '放大编辑',		     'editor_action(this.id)',  'fullscreen_maximize.gif'],
 	    "about":          ['about',                '帮助',               'editor_about(\''+objname+'\')',  'ed_about.gif'],
-	
 	    // Add custom buttons here:
 	    "custom1":           ['custom1',         'Purpose of button 1',  'editor_action(this.id)',  'ed_custom.gif'],
 	    "custom2":           ['custom2',         'Purpose of button 2',  'editor_action(this.id)',  'ed_custom.gif'],
 	    "custom3":           ['custom3',         'Purpose of button 3',  'editor_action(this.id)',  'ed_custom.gif'],
 	   // end: custom buttons
-	
 	    "help":           ['showhelp',             'Help using editor',  'editor_action(this.id)',  'ed_help.gif']};
-	
-
 }
 function writeMsg(fuc){ 
     var kk=fuc+"";
@@ -118,7 +114,6 @@ function editor_generate(objname,userConfig) {
       if (userConfig[thisName]) { config[thisName] = userConfig[thisName]; }
     }
   }
-  
   document.all[objname].config = config;                  // store config settings
   // set size to specified size or size of original object
   var obj    = document.all[objname];
@@ -273,7 +268,7 @@ function editor_action(button_id) {
     myObjName = objname;
 	var sScreenWidth = screen.availWidth;
 	var sScreenHeight = screen.availHeight;
-	var sDefaultModelessDialogStyle = "dialogLeft="+(sScreenWidth*0.2)+";dialogWidth="+(sScreenWidth*0.6)+"px;dialogHeight="+(sScreenHeight*3/4)+"px;resizable=yes;status:no;maximize:yes;help:no;";
+	var sDefaultModelessDialogStyle = "dialogLeft="+(sScreenWidth*0.5)+";dialogWidth="+(sScreenWidth*0.7)+"px;dialogHeight="+(sScreenHeight*3/4)+"px;resizable=yes;status:no;maximize:yes;help:no;";
     window.showModalDialog(_editor_url + "popups/fullscreen.html?"+objname,window.self,sDefaultModelessDialogStyle); 
     return;
   }
@@ -379,7 +374,6 @@ function editor_event(objname,runDelay) {
   if (runDelay == null) { runDelay = 0; }
   var editdoc;
   var editEvent = editor_obj.contentWindow ? editor_obj.contentWindow.event : event;
-
   // catch keypress events
     if (editEvent && editEvent.keyCode) {
       var ord       = editEvent.keyCode;    // ascii order of key pressed
@@ -446,8 +440,8 @@ function editor_updateToolbar(objname,action) {
       if (tbObj == null) { continue; }
       var isBtn = (tbObj.tagName.toLowerCase() == "button") ? true : false;
 
-      if (action == "enable")  { tbObj.disabled = false; if (isBtn) { tbObj.className = 'btn' }}
-      if (action == "disable") { tbObj.disabled = true;  if (isBtn) { tbObj.className = 'btnNA' }}
+      if (action == "enable")  { tbObj.disabled = false; if (isBtn) { tbObj.className = 'btn'; }}
+      if (action == "disable") { tbObj.disabled = true;  if (isBtn) { tbObj.className = 'btnNA'; }}
     }
     return;
   }
@@ -464,7 +458,7 @@ function editor_updateToolbar(objname,action) {
     if (fontname == null) { fontname_obj.value = null; }
     else {
       var found = 0;
-      for (i=0; i<fontname_obj.length; i++) {
+      for (var i=0; i<fontname_obj.length; i++) {
         if (fontname.toLowerCase() == fontname_obj[i].text.toLowerCase()) {
           fontname_obj.selectedIndex = i;
           found = 1;
@@ -481,8 +475,11 @@ function editor_updateToolbar(objname,action) {
     if (fontsize == null) { fontsize_obj.value = null; }
     else {
       var found = 0;
-      for (i=0; i<fontsize_obj.length; i++) {
-        if (fontsize == fontsize_obj[i].value) { fontsize_obj.selectedIndex = i; found=1; }
+      for (var i=0; i<fontsize_obj.length; i++) {
+        if (fontsize == fontsize_obj[i].value) { 
+        	fontsize_obj.selectedIndex = i; 
+        	found=1; 
+        }
       }
       if (found != 1) { fontsize_obj.value = null; }     // for sizes not in list
     }
@@ -595,7 +592,7 @@ function editor_setmode(objname, mode) {
 
   // wait until document is fully loaded
   if (document.readyState != 'complete') {
-    setTimeout(function() { editor_setmode(objname,mode) }, 25);
+    setTimeout(function() { editor_setmode(objname,mode); }, 25);
     return;
   }
 
@@ -681,14 +678,14 @@ function editor_setmode(objname, mode) {
     editdoc.objname = objname;
 
     // set event handlers
-    editdoc.onkeydown      = function() { editor_event(objname); }
-    editdoc.onkeypress     = function() { editor_event(objname); }
-    editdoc.onkeyup        = function() { editor_event(objname); }
-    editdoc.onmouseup      = function() { editor_event(objname); }
-    editdoc.body.ondrop    = function() { editor_event(objname, 100); }     // these events fire before they occur
-    editdoc.body.oncut     = function() { editor_event(objname, 100); }
-    editdoc.body.onpaste   = function() { editor_event(objname, 100); }
-    editdoc.body.onblur    = function() { editor_event(objname, -1); }
+    editdoc.onkeydown      = function() { editor_event(objname); };
+    editdoc.onkeypress     = function() { editor_event(objname); };
+    editdoc.onkeyup        = function() { editor_event(objname); };
+    editdoc.onmouseup      = function() { editor_event(objname); };
+    editdoc.body.ondrop    = function() { editor_event(objname, 100); };     // these events fire before they occur
+    editdoc.body.oncut     = function() { editor_event(objname, 100); };
+    editdoc.body.onpaste   = function() { editor_event(objname, 100); };
+    editdoc.body.onblur    = function() { editor_event(objname, -1); };
 
     // bring focus to editor
     if (mode != 'init') {             // don't focus on page load, only on mode switch
@@ -812,9 +809,11 @@ function editor_insertHTML(objname, str1,str2, reqSel) {
 function editor_getHTML(objname) {
   var editor_obj = document.all["_" +objname + "_editor"];
   var isTextarea = (editor_obj.tagName.toLowerCase() == 'textarea');
-
-  if (isTextarea) { return editor_obj.value; }
-  else            { return editor_obj.contentWindow.document.body.innerHTML; }
+  if (isTextarea) { 
+	  return editor_obj.value; 
+  }else{ 
+	  return editor_obj.contentWindow.document.body.innerHTML; 
+  }
 }
 
 function editor_setHTML(objname, html) {

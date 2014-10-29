@@ -1,3 +1,4 @@
+<%@page import="java.lang.reflect.Array"%>
 <%@ page contentType="text/html; charset=GBK"%>
 <%@ include file="/IncludeBegin.jsp"%>
 
@@ -46,14 +47,21 @@
 	  	String sAddStringArray[] = null;
 	  	String sTabStrip[][] = new String[30][3];
 		int initTab = 1;//设定默认的 tab ，数值代表第几个tab
-		//获取
-		sSql = "select AttachmentNo,FileName,Attribute1 from Doc_Attachment where DocNo ='"+sConfigNo+"' order by FileName asc";
+		//标签组所在的记录 parentAttachmentNo=attachmentNo
+		sSql = "select AttachmentNo,Attribute4,Attribute1 from Doc_Attachment where DocNo ='"+sConfigNo+"' and nvl(AttachmentNo,'')=nvl(ParentAttachmentNo,'') order by Attribute4 asc";
 		ASResultSet rs = Sqlca.getResultSet(sSql);
 		int tabs=0;
 		int tabsEveryRow=6;//每行显示6个
 		while(rs.next()){
-			sAddStringArray = new String[] {"",rs.getString(2),"doTabAction('"+
-					rs.getString(3).replaceAll("#AttachmentNo",rs.getString(1))//这个决定了页面的SQL
+			String sPatentAttachmentNo=rs.getString(1);
+			String sTabName=rs.getString(2);
+			String sURL=rs.getString(3);
+			sSql = "select AttachmentNo from Doc_Attachment where DocNo ='"+sConfigNo+"' and nvl(ParentAttachmentNo,'')='"+sPatentAttachmentNo+"' order by FileName asc";
+			String[]AAttachmentNos=Sqlca.getStringArray(sSql);
+			String sAttachmentNos=StringFunction.toArrayString(AAttachmentNos,"@");
+			sAddStringArray = new String[]{"",sTabName,
+					"doTabAction('"+
+						sURL.replaceAll("#AttachmentNo",sAttachmentNos)//这个决定了页面的SQL
 						.replaceAll("#OneKey", sOneKey)//这个和当前报告密切相关
 						+"')"};
 			sTabStrip = HTMLTab.addTabArray(sTabStrip,sAddStringArray);
@@ -96,6 +104,7 @@
   	function doTabAction(ssOpenUrl)
   	{	
   	  	var sOpenUrl=ssOpenUrl;
+  	  	
   	    sOpenUrl=sOpenUrl.replace(/~/g,"\""); 
   		//sOpenUrl=sOpenUrl.replace(/#TargetJSP/g,"<%="sCurrentItemNo".substring(0,"sCurrentItemNo".length()-3)%>");  
   		//sOpenUrl=sOpenUrl.replace("#AttachmentNo","<%=sConfigNo%>");

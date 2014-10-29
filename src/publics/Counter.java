@@ -1,7 +1,6 @@
 package publics;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.lmt.baseapp.util.StringFunction;
 
 public class Counter {
 
@@ -70,6 +69,7 @@ public class Counter {
         System.out.println(msg);
         */
     	  //System.out.println("2014/04".compareTo("2014/06"));
+    	/*
     	  String S="QZ'A'QZxxxxxQZ'bb'QZ";
     	  Pattern pattern = Pattern.compile("QZ(.+?)QZ",Pattern.CASE_INSENSITIVE);//用+?非贪婪模式，否则匹配第一个QZ和最后一个QZ
 		  Matcher matcher = pattern.matcher(S);
@@ -78,5 +78,9 @@ public class Counter {
 				matcher.appendReplacement(sb,matcher.group(1)+"||");
 		  }
 		  System.out.println(sb.toString());
+		  */
+    	String[] AAttachmentNos={"AA","BB"};
+    	String sAttachmentNos=StringFunction.toArrayString(AAttachmentNos,"','");
+    	System.out.println(sAttachmentNos);
     }
 }

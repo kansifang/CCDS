@@ -59,10 +59,13 @@ function cloneObject(obj) {
 
   for (var n in obj) {
     var node = obj[n];
-    if (typeof node == 'object') { newObj[n] = cloneObject(node); }
-    else                         { newObj[n] = node; }
+    if (typeof node == 'object'){ 
+    	newObj[n] = cloneObject(node); 
+    }
+    else{ 
+    	newObj[n] = node; 
+    }
   }
-  
   return newObj;
 }
 
@@ -104,8 +107,9 @@ function init() {
   resize_editor();
 
   // switch mode if needed
-  if (parent_config.mode == 'textedit') { editor_setmode(objname, 'textedit'); }
-
+  if (parent_config.mode == 'textedit') { 
+	  editor_setmode(objname, 'textedit'); 
+	}
   // set child window contents
   var parentHTML = opener.editor_getHTML(parent_objname);
   editor_setHTML(objname, parentHTML);
@@ -129,8 +133,12 @@ function update_parent() {
 </head>
 <body scroll="no" onload="init()" onunload="update_parent()">
 
-<div style="margin: 0 0 0 0; border-width: 1; border-style: solid; border-color: threedshadow threedhighlight threedhighlight threedshadow; "></div>
+<div style="margin: 0 0 0 0; border-width: 1; border-style: solid; border-color: threedshadow threedhighlight threedhighlight threedshadow; ">
+</div>
 
-<textarea name="editor" style="width:100%; height:300px"></textarea><br>
+<textarea name="editor" style="width:100%; height:300px">
+</textarea>
+<br>
 
-</body></html>
+</body>
+</html>
