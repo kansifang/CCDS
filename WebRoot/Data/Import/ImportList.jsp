@@ -100,23 +100,35 @@
 	doTemp.setColumnAttribute("报表类型", "FilterOptions", "Operators=EqualsString;");
     if(sHeaders.length!=0){
     	//doTemp.setHTMLStyle(DataConvert.toString(StringFunction.getAttribute(sHeaders,"合同流水号",1,0))," style={width:95px}");
-        String CustomerName=DataConvert.toString(StringFunction.getAttribute(sHeaders,"客户名称",1,0));
-        if(!"".equals(CustomerName)){
-        	doTemp.setHTMLStyle(CustomerName," style={width:250px}");
+        String ItemName=DataConvert.toString(StringFunction.getAttribute(sHeaders,"客户名称",1,0));
+        if(!"".equals(ItemName)){
+        	doTemp.setHTMLStyle(ItemName," style={width:250px}");
         	//生成查询框
-            doTemp.setColumnAttribute(CustomerName,"IsFilter","1");
+            doTemp.setColumnAttribute(ItemName,"IsFilter","1");
         }
-        String ItemName=DataConvert.toString(StringFunction.getAttribute(sHeaders,"项目",1,0));
+        ItemName=DataConvert.toString(StringFunction.getAttribute(sHeaders,"项目",1,0));
         if(!"".equals(ItemName)){
         	doTemp.setHTMLStyle(ItemName," style={width:260px}");
         	//生成查询框
             doTemp.setColumnAttribute(ItemName,"IsFilter","1");
         }
-        String IName=DataConvert.toString(StringFunction.getAttribute(sHeaders,"项目Item",1,0));
-        if(!"".equals(IName)){
-        	doTemp.setHTMLStyle(IName," style={width:260px}");
+        ItemName=DataConvert.toString(StringFunction.getAttribute(sHeaders,"项目Item",1,0));
+        if(!"".equals(ItemName)){
+        	doTemp.setHTMLStyle(ItemName," style={width:260px}");
         	//生成查询框
-            doTemp.setColumnAttribute(IName,"IsFilter","1");
+            doTemp.setColumnAttribute(ItemName,"IsFilter","1");
+        }
+        ItemName=DataConvert.toString(StringFunction.getAttribute(sHeaders,"借据起始日",1,0));
+        if(!"".equals(ItemName)){
+        	doTemp.setHTMLStyle(ItemName," style={width:260px}");
+        	//生成查询框
+            doTemp.setColumnAttribute(ItemName,"IsFilter","1");
+        }
+        ItemName=DataConvert.toString(StringFunction.getAttribute(sHeaders,"业务品种",1,0));
+        if(!"".equals(ItemName)){
+        	doTemp.setHTMLStyle(ItemName," style={width:260px}");
+        	//生成查询框
+            doTemp.setColumnAttribute(ItemName,"IsFilter","1");
         }
        	//doTemp.setHTMLStyle(DataConvert.toString(StringFunction.getAttribute(sHeaders,"币种",1,0))," style={width:20px}");
     }
@@ -246,23 +258,17 @@
 	function ImportBatch(sType)
 	{
 		//Doc_Relative ObjectType=Batch ObjectNo=ConfigNo 
+		//var sReturn=PopPage("/Document/FileChooseDialog.jsp","window","dialogWidth=900px;dialogHeight=500px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
 		var sReturn=popComp("FileChooseDialog","/Document/FileChooseDialog.jsp","","dialogWidth=900px;dialogHeight=500px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
 		if(typeof(sReturn)=="undefined" || sReturn=="" || sReturn=="_CANCEL_") 
    			return;
-   		sReturn = sReturn.split("@");
-		var sConfigNo=sReturn[0];
-		var sUploadMethod=sReturn[1];
-		var sReportDates=sReturn[2];
-		var sFiles=sReturn[3];
-   		//2、上传文件后 解析存入数据库并作初步加工处理
-   		ShowMessage("正在进行文档上传后的后续操作,请耐心等待.......",true,false);
-   		sReturn=PopPage("/Data/Import/Handler.jsp?HandleType=AfterImport&ConfigNo="+sConfigNo+"&OneKeys="+sReportDates+"&UploadMethod="+sUploadMethod+"&Files="+encodeURIComponent(encodeURIComponent(sFiles,'UTF-8')),"","dialogWidth=650px;dialogHeight=250px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
+   		//放到FileFileUpload.jsp中处理
+   		//sReturn=PopPage("/Data/Import/Handler.jsp?HandleType=AfterImport&ConfigNo="+sConfigNo+"&OneKeys="+sReportDates+"&UploadMethod="+sUploadMethod+"&Files="+encodeURIComponent(encodeURIComponent(sFiles,'UTF-8')),"","dialogWidth=650px;dialogHeight=250px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
    		if(sReturn=="true"){
    			alert("处理成功！");
    		}else{
    			alert("处理失败！");
    		}
-   		try{hideMessage();}catch(e) {};
    		reloadSelf(); 
 	}
 	function summation()

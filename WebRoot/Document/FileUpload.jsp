@@ -1,7 +1,9 @@
 <%@ page contentType="text/html; charset=GBK"%>
 <%@ include file="/IncludeBegin.jsp"%>
 <%@page import="com.lmt.frameapp.web.uad.*"%>
-<%@page import="java.security.NoSuchAlgorithmException"%>
+<%@page import="java.security.NoSuchAlgorithmException,
+com.lmt.app.cms.javainvoke.BizletExecutor,
+com.lmt.baseapp.util.ASValuePool"%>
 
 <%
 	/*~BEGIN~可编辑区~[Editable=true;CodeAreaID=Main00;Describe=注释区;]~*/
@@ -81,35 +83,27 @@ String getMD5String(String srcKey){
 		//调用页面与当前页面共用一个组件，故这样获取参数
 		String sDocNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("DocNo")));
 %>
-	<%
-			StringBuffer sReportDates=new StringBuffer();
-			StringBuffer sFiles=new StringBuffer();
+<%
+		String sReturn="true";
+		StringBuffer sReportDates=null;
+		StringBuffer sFiles=null;
 
-			AmarsoftUpload myAmarsoftUpload = new AmarsoftUpload();
-			myAmarsoftUpload.initialize(pageContext);
-			myAmarsoftUpload.upload(); 
-			
-			//FileChooseDialog进行文件上传时，form表单中的input值不能用request.getParamete来获取，因为变成流了，
-			//AmarsoftUpload已通过读取流还原成了form的键值对的形式，故可以下面这样使用
-			String sConfigNo=DataConvert.toString(myAmarsoftUpload.getRequest().getParameter("ConfigNo"));
-			String UploadType=DataConvert.toString(myAmarsoftUpload.getRequest().getParameter("UploadType"));
-			
-			
-	   		//2、保存文件并插入文档目录下
+		AmarsoftUpload myAmarsoftUpload = new AmarsoftUpload();
+		myAmarsoftUpload.initialize(pageContext);
+		myAmarsoftUpload.upload(); 
+		//FileChooseDialog进行文件上传时，form表单中的input值不能用request.getParamete来获取，因为变成流了，
+		//AmarsoftUpload已通过读取流还原成了form的键值对的形式，故可以下面这样使用
+		int start=0,end=0;
+		int iGroups=Integer.valueOf(DataConvert.toString(myAmarsoftUpload.getRequest().getParameter("groups")))+1;
+		for(int k=0;k<iGroups;k++){
+			int sRows=Integer.valueOf(DataConvert.toString(myAmarsoftUpload.getRequest().getParameter("rows"+k)))+1;
+			end+=sRows;
+			String sConfigNo=DataConvert.toString(myAmarsoftUpload.getRequest().getParameter("ConfigNo"+k));
+			String UploadType=DataConvert.toString(myAmarsoftUpload.getRequest().getParameter("UploadType"+k));
+	   		//保存文件并插入文档目录下
 			Files files=myAmarsoftUpload.getFiles();
 			int fileCount=files.getCount();
-			if("1".equals(UploadType)){
-				sReportDates.append(myAmarsoftUpload.getRequest().getParameter("ReportDate[0]"));
-			}else if("2".equals(UploadType)){
-				for(int i=0;i<fileCount;i++){
-					String reportDate=DataConvert.toString(myAmarsoftUpload.getRequest().getParameter("ReportDate["+i+"]"));
-					sReportDates.append(reportDate).append("~");
-				}
-			}
-			if(sReportDates.lastIndexOf("~")==sReportDates.length()-1){
-				sReportDates.deleteCharAt(sReportDates.length()-1);
-			}
-			String sBatchNo=sConfigNo+"_"+myAmarsoftUpload.getRequest().getParameter("ReportDate[0]");
+			String sBatchNo=sConfigNo+"_"+myAmarsoftUpload.getRequest().getParameter("ReportDate"+k+"[0]");//每一组的第一个日期
 			//1、插入文档目录，所传文件将放到该目录下
 			if("".equals(sDocNo)){
 				sDocNo=DataConvert.toString(Sqlca.getString("select Doc_Library.DocNo from Doc_Relative,Doc_Library where Doc_Relative.DocNo=Doc_Library.DocNo and ObjectType='Batch' and ObjectNo='"+sConfigNo+"' and DocAttribute='02'"));
@@ -120,7 +114,9 @@ String getMD5String(String srcKey){
 		   		}
 			}
 			com.lmt.frameapp.web.uad.File lfile=null;
-			for(int i=0;i<files.getCount()&&!(lfile=files.getFile(i)).isMissing();i++){
+			//2、开始把上传文件进行存放
+			sFiles=new StringBuffer();
+			for(;start<Integer.valueOf(end)&&!(lfile=files.getFile(start)).isMissing();start++){
 				String sAttachmentNo = DBFunction.getSerialNoFromDB("DOC_ATTACHMENT","AttachmentNo","DocNo='"+sDocNo+"'","","000",new java.util.Date(),Sqlca);   
 				Sqlca.executeSQL("insert into DOC_ATTACHMENT(DocNo,AttachmentNo) values('"+sDocNo+"','"+sAttachmentNo+"')");
 				ASResultSet rs = Sqlca.getASResultSetForUpdate("SELECT DOC_ATTACHMENT.* FROM DOC_ATTACHMENT WHERE DocNo='"+sDocNo+"' and AttachmentNo='"+sAttachmentNo+"'");
@@ -132,8 +128,8 @@ String getMD5String(String srcKey){
 	              		String sFileSaveMode = CurConfig.getConfigure("FileSaveMode");
 	              		//得到不带路径的文件名
 	            		String sFileName = StringFunction.getFileName(lfile.getFileName());
-	              		//存放文件服务器中
-	               		if(sFileSaveMode.equals("Disk")) {	                	
+	            		//存放文件服务器中
+	               		if(sFileSaveMode.equals("Disk")){	                	
 		               		String sFileSavePath = CurConfig.getConfigure("FileSavePath");
 		               		String sFileNameType = CurConfig.getConfigure("FileNameType");
 		               		String sFullPath=getFullPath(sFileSavePath, sDocNo, sAttachmentNo,"",sFileName, sFileNameType, application);
@@ -160,30 +156,54 @@ String getMD5String(String srcKey){
 							lfile.fileToField(Sqlca,"update DOC_ATTACHMENT set DocContent=? where DocNo='"+sDocNo+"' and AttachmentNo='"+sAttachmentNo+"'");
 						}	
 	                  }catch(Exception e){
-		               	out.println("An error occurs : " + e.toString());               
+		               	out.println("文件上传失败!An error occurs : " + e.toString());               
 		               	Sqlca.executeSQL("delete FROM doc_attachment WHERE DocNo='"+sDocNo+"' and AttachmentNo='"+sAttachmentNo+"'");
 		               	rs.getStatement().close();
 		               	myAmarsoftUpload = null;
-	%>          
-	              <script language=javascript>
-	                  alert(getHtmlMessage(10));//上传文件失败！
-	                  self.close();
-	              </script>
-	<%
-		}           
-		        	}
+					}           
+		        }
 	    	}
-			myAmarsoftUpload = null;
 			//最终获得文件全路径拼成的字符串
 			if(sFiles.lastIndexOf("~")==sFiles.length()-1){
 				sFiles.deleteCharAt(sFiles.length()-1);
 			}
-	%>
-<script language=javascript>
+			//获取 报表日期，如果是多文件则进行拼接
+			sReportDates=new StringBuffer();
+			if("1".equals(UploadType)){
+				sReportDates.append(myAmarsoftUpload.getRequest().getParameter("ReportDate"+k+"[0]"));
+			}else if("2".equals(UploadType)){
+				for(int i=0;i<sRows;i++){
+					String reportDate=DataConvert.toString(myAmarsoftUpload.getRequest().getParameter("ReportDate"+k+"["+i+"]"));
+					sReportDates.append(reportDate).append("~");
+				}
+			}
+			if(sReportDates.lastIndexOf("~")==sReportDates.length()-1){
+				sReportDates.deleteCharAt(sReportDates.length()-1);
+			}
+			//导入后的数据处理
+			//2、上传文件后 解析存入数据库并作初步加工处理
+			BizletExecutor be=new BizletExecutor();
+			ASValuePool asp=new ASValuePool();
+			asp.setAttribute("HandleType", "AfterImport");
+			asp.setAttribute("UploadMethod", UploadType);
+			asp.setAttribute("ConfigNo", sConfigNo);
+			asp.setAttribute("OneKeys", sReportDates.toString());
+			asp.setAttribute("Files", sFiles.toString());
+			asp.setAttribute("CurUser", CurUser);
+			sReturn=(String)be.execute(Sqlca, "com.lmt.baseapp.Import.impl.HandlerFactory", asp);
+		}
+		myAmarsoftUpload = null;
+%>
+<script type="text/javascript">
+	//下面这个两个总要配合使用，这里只是存档，以后会用到，用java类代替页面来进行数据处理，因为，往页面通过路径传参数的的长度是有限制的，而sFiles拼接字符串有可能很长
+		//PopPage("/Data/Import/Handler.jsp?HandleType=AfterImport&ConfigNo="+sConfigNo+"&OneKeys="+sReportDates+"&UploadMethod="+sUploadMethod+"&Files="+encodeURIComponent(encodeURIComponent(sFiles,'UTF-8')),"","dialogWidth=650px;dialogHeight=250px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
+		//String sFiles = DataConvert.toString(DataConvert.decode(request.getParameter("Files"),"UTF-8"));
+	//-->
 	//alert(getHtmlMessage(13));//上传文件成功
 	//下面只能这样写才能兼容IE和FireFox，原来是用 window.top为self 只能支持IE
-//	alert(window.top);
-	window.top.returnValue="<%=sConfigNo+"@"+UploadType+"@"+sReportDates.toString()+"@"+sFiles.toString()%>";
+	//window.top指的是OpenCompDialog.jsp,(打开顺序是ImportList.jsp——>OpenCompDialog.jsp——>FileChooseDialog.jsp——>Filepload.jsp)
+	//通过returnValue返回的值长度是一定的
+	window.top.returnValue="<%=sReturn%>";
     window.top.close();
 </script>
 <%@ include file="/IncludeEnd.jsp"%>

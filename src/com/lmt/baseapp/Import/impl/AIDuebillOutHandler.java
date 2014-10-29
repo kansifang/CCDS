@@ -75,8 +75,8 @@ public class AIDuebillOutHandler{
  					" and nvl(~s表外明细@币种e~,'')<>'01'";
  		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
  		Sqlca.executeSQL(sSql);
- 		//8、如果是本行存单或保证金，保证金比例是0（当然敞口金额也是0）的承兑汇票的保证金比例变成100
- 		sSql="update Batch_Import_Interim set ~s表外明细@保证金比例(%)e~=100"+
+ 		//8、如果是本行存单或保证金，保证金比例是0（当然敞口金额也是0）的承兑汇票的保证金比例变成100 风险敞口变为0
+ 		sSql="update Batch_Import_Interim set ~s表外明细@保证金比例(%)e~=100,~s表外明细@风险敞口e~=0"+
  					" where ConfigNo='"+sConfigNo+"'"+
  					" and OneKey='"+sKey+"'"+
  					" and (nvl(~s表外明细@主要担保方式e~,'') like '%保证金%' or nvl(~s表外明细@主要担保方式e~,'') like '%本行存单%' or nvl(~s表外明细@主要担保方式e~,'') like '%我行人民币存款%')"+
@@ -84,7 +84,7 @@ public class AIDuebillOutHandler{
  					" and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票'";
  		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
  		Sqlca.executeSQL(sSql);
- 		//9、如果是保证金比例不为100（当然敞口金额也是0），主要担保方式为本行存单或保证金的承兑汇票的,结合合同明细，如果其中 “其他担保方式” 包含保证，则主要担保方式变为保证
+ 		//9、如果是保证金比例不为100（当然敞口>0），主要担保方式为本行存单或保证金的承兑汇票的,结合合同明细，如果其中 “其他担保方式” 包含保证，则主要担保方式变为保证
  		sSql="update Batch_Import_Interim BII1 set " +
 					"~s表外明细@主要担保方式e~='保证-' " +
 					" where ConfigNo='"+sConfigNo+"'"+
@@ -101,7 +101,7 @@ public class AIDuebillOutHandler{
 					"				and locate('保证',BII2.~s合同明细@其他担保方式e~)>0)";
  		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
  		Sqlca.executeSQL(sSql);
- 		//10、如果是保证金比例不为100（当然敞口金额也是0），主要担保方式为本行存单或保证金的承兑汇票的,结合合同明细，如果其中 “其他担保方式” 包含抵押，则主要担保方式变为抵押
+ 		//10、如果是保证金比例不为100（当然敞口>0），主要担保方式为本行存单或保证金的承兑汇票的,结合合同明细，如果其中 “其他担保方式” 包含抵押，则主要担保方式变为抵押
  		sSql="update Batch_Import_Interim BII1 set " +
  					"~s表外明细@主要担保方式e~='抵押-' " +
  					" where ConfigNo='"+sConfigNo+"'"+
@@ -118,7 +118,16 @@ public class AIDuebillOutHandler{
  					"				and locate('抵押',BII2.~s合同明细@其他担保方式e~)>0)";
  		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
  		Sqlca.executeSQL(sSql);
- 		//11、核心存在未解付的215w，在此当成全额插入
+ 		//11、主要担保方式为银行承兑汇票的,如果保证金比例为100，保证金比例变成0 风险敞口变为余额
+ 		sSql="update Batch_Import_Interim set ~s表外明细@保证金比例(%)e~=0,~s表外明细@风险敞口e~=~s表外明细@余额(元)e~"+
+					" where ConfigNo='"+sConfigNo+"'"+
+					" and OneKey='"+sKey+"'"+
+					" and nvl(~s表外明细@主要担保方式e~,'') like '%银行承兑汇票%'"+
+					" and nvl(~s表外明细@保证金比例(%)e~,0)=100"+
+					" and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票'";
+		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
+		Sqlca.executeSQL(sSql);
+ 		//12、核心存在未解付的215w，在此当成全额插入
  		sSql="insert into Batch_Import_Interim" +
  					"(ConfigNo,OneKey,~s表外明细@业务品种e~,~s表外明细@主要担保方式e~,~s表外明细@保证金比例(%)e~,~s表外明细@余额(元)e~,~s表外明细@经营类型(新)e~)" +
  					"values('"+sConfigNo+"','"+sKey+"','银行承兑汇票','保证金',100,2150000,'煤炭开采')";
@@ -149,7 +158,7 @@ public class AIDuebillOutHandler{
 			isSeason=true;
 		}
 		String sSql="";
- 		//1、按各种维度汇总到处理表中
+		/**********************************解析处理分组字段************************************************/
 		String groupbyClause="",groupbyColumn="";
 		//修理group by 中的分组字段
 		groupbyClause=groupBy.replaceAll("LJF",",");
@@ -160,27 +169,32 @@ public class AIDuebillOutHandler{
 		Pattern pattern=Pattern.compile("QZ(.+?)QZ",Pattern.CASE_INSENSITIVE);
 		Matcher matcher=pattern.matcher(groupBy);
 		while(matcher.find()){
-			String gs=matcher.group(1);
+			String gs=matcher.group(1);//Number:0:4:Before
 			if(gs.startsWith("Number")){
 				String []gsa=gs.split(":");
-				String groupBypart=groupBy.substring(0,matcher.start(1));//获取形如 XXXLJFQZNumberQZXXXXX 中 QZNumberQZ之前的String
-				groupBypart=groupBypart.substring(0,groupBypart.lastIndexOf("LJF"));//获取形如 XXXLJFQZNumberQZXXXXX 中 LJF之前的String
+				//获取形如 XXXLJFQZNumber:0:4:BeforeQZXXXXX 中 QZNumberQZ之前的 XXXLJF
+				String groupBypart=groupBy.substring(0,matcher.start(1));
+				//获取形如 XXXLJFQZNumber:0:4:BeforeQZXXXXX 中 LJF之前的XXX
+				groupBypart=groupBypart.substring(0,groupBypart.lastIndexOf("LJF"));
 				String partitionby="partition by "+groupBypart.replaceAll("LJF",",").replaceAll("QZ(.+?)QZ","");
 				gs="complementstring(trim(char(row_number()over("+partitionby+"))),'"+gsa[1]+"',"+gsa[2]+",'"+gsa[3]+"')";
 			}
-			matcher.appendReplacement(sb, gs+"||");
+			matcher.appendReplacement(sb,gs+"||");
 		}
 		matcher.appendTail(sb);
 		if(!"".equals(sb.toString())){
 			groupbyColumn=sb.toString();
 		}
 		groupbyColumn=groupbyColumn.replaceAll("LJF","||'@'||");//分组字段之间的连接符，查询值里面用一般用@
- 		sSql="select "+
+		/**********************************解析处理分组字段************************************************/
+		//1、按各种维度汇总到处理表中
+		sSql="select "+
  				"'"+HandlerFlag+"',ConfigNo,OneKey,'"+Dimension+"',"+("".equals(groupbyColumn)?"":groupbyColumn+",")+
 				"round(sum(case when ~s表外明细@借据起始日e~ like '"+sKey+"%' then ~s表外明细@金额(元)e~ end)/10000,2) as BusinessSum,"+//按月投放金额
 				(isSeason==true?"round(sum(case when ~s表外明细@借据起始日e~ >= '"+startsmonth+"/01' and ~s表外明细@借据起始日e~ <= '"+sKey+"/31' then ~s表外明细@金额(元)e~ end)/10000,2)":"0")+","+//如果是季度末，计算按季投放金额,如果是半年末计算半年投放，整年....
 				"round(case when sum(~s表外明细@金额(元)e~)<>0 then sum(~s表外明细@金额(元)e~*~s表外明细@执行年利率(%)e~)/sum(~s表外明细@金额(元)e~) else 0 end,2) as BusinessRate, "+//加权利率
 				"round(sum(~s表外明细@余额(元)e~)/10000,2) as Balance, "+
+				"round(sum(~s表外明细@风险敞口e~)/10000,2) as CKBalance, "+
 				"count(distinct ~s表外明细@客户名称e~) "+
 				"from Batch_Import_Interim "+
 				" where ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"' and nvl(~s表外明细@余额(元)e~,0)>0 "+sWhere+
@@ -188,7 +202,7 @@ public class AIDuebillOutHandler{
 		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
  		Sqlca.executeSQL("insert into Batch_Import_Process "+
  				"(HandlerFlag,ConfigNo,OneKey,Dimension,DimensionValue,"+
- 				"BusinessSum,BusinessSumSeason,BusinessRate,Balance,TotalTransaction)"+
+ 				"BusinessSum,BusinessSumSeason,BusinessRate,Balance,CKBalance,TotalTransaction)"+
  				"( "+
  				sSql+
  				")");

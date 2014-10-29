@@ -150,7 +150,7 @@ public class AIHandlerFactory{
 	 						"when case when ~s借据明细@期限日e~>1 then (~s借据明细@期限月e~+1) else ~s借据明细@期限月e~ end <=12 then '2M(6-12]' "+//常常有12个月零1天那种，先处理为12个月吧，遗留数据有几笔（00000231001，00000230881，00000231541，00000253001）
 	 						"when case when ~s借据明细@期限日e~>0 then (~s借据明细@期限月e~+1) else ~s借据明细@期限月e~ end <=36 then '3M(12-36]' "+
 	 						"when case when ~s借据明细@期限日e~>0 then (~s借据明细@期限月e~+1) else ~s借据明细@期限月e~ end <=60 then '4M(36-60]' "+
-	 						"else '5M(60' end,~s借据明细@业务品种e~";
+	 						"else '5M(60' endLJF~s借据明细@业务品种e~";
 	 	AIDuebillInHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"期限业务品种",groupBy,"");
 	 	
 	 	groupBy="case when ~s借据明细@主要担保方式e~ like '保证-%' then '保证' "+
@@ -292,7 +292,7 @@ public class AIHandlerFactory{
 	 			"when ~s表外明细@经营类型(新)e~ like '医院学校' then 'S-医院学校' "+
 	 			"when ~s表外明细@经营类型(新)e~ like '信息技术' then 'T-信息技术' "+
 	 			"when ~s表外明细@经营类型(新)e~ like '文化娱乐' then 'U-文化娱乐' "+
-	 			"else 'W-'||~s表外明细@经营类型(新)e~ end";
+	 			"else 'W-'LJF~s表外明细@经营类型(新)e~ end";
  		AIDuebillOutHandler.process(HandlerFlag,sConfigNo,sOneKey,Sqlca,"银行承兑汇票经营类型(新)",groupBy,"and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票'");
 	 	//单独完成一些复杂的操作
 	 	AIDuebillOutHandler.afterProcess1(HandlerFlag,sConfigNo, sOneKey, Sqlca);

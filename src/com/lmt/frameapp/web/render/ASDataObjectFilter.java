@@ -292,16 +292,11 @@ public class ASDataObjectFilter {
 				String sEditSourceCode = StringFunction.getSeparate(
 						sEditSource, ":", 2);
 				for (int i = 0; i < sFilterInputs.length; i++) {
-					if (sEditSourceType != null
-							&& sEditSourceType.equals("Sql")) {
-						sFilterHtmlText = StringFunction.replace(
-								sFilterHtmlText,
+					if (sEditSourceType != null&& sEditSourceType.equals("Sql")) {
+						sFilterHtmlText = StringFunction.replace(sFilterHtmlText,
 								(new StringBuilder()).append("#{Options#{")
 										.append(sFilterInputs[i][0])
-										.append("}}").toString(), HTMLControls
-										.generateDropDownSelect(Sqlca,
-												sEditSourceCode, 1, 2,
-												sFilterInputs[i][1]));
+										.append("}}").toString(),HTMLControls.generateDropDownSelect(Sqlca,sEditSourceCode,1,2,sFilterInputs[i][1]));
 						continue;
 					}
 					if (sEditSourceType != null

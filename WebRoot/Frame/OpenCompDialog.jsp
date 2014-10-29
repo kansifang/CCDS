@@ -34,13 +34,13 @@
 		<td bgcolor="#CCCCCC" id="TitleTD">
 		</td>
 	</tr>                         	
-<form  name="buff" align=center>
+	<form  name="buff" align=center>
 	<tr> 
 			<td id="selectPage">
 				<iframe name="ObjectList" width=100% height=100% frameborder=0 =no src="<%=sWebRootPath%>/Blank.jsp"></iframe>
 			</td>
 	</tr>
-</form>
+	</form>
 </table>
 
 </body>

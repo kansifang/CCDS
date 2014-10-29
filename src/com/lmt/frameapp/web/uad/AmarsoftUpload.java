@@ -162,7 +162,7 @@ public class AmarsoftUpload {
 							.append("upload: Upload do...while...[")
 							.append(iTimes).append("][").append(m_currentIndex)
 							.append("]").toString());
-			if (iTimes > 10 || m_currentIndex >= m_totalBytes)
+			if (iTimes > 102 || m_currentIndex >= m_totalBytes)//iTimes表示允许前台Form之要素的个数，原来为10，只能上传4个文件，改成100，可以上传多谢
 				break;
 			String s1 = getDataHeader();
 			m_currentIndex = m_currentIndex + 2;

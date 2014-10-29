@@ -843,8 +843,7 @@ public class ASDataObject implements Cloneable {
 		String sReturn = "";
 		for (int i = 0; i < Filters.size(); i++) {
 			ASDataObjectFilter dofTemp = (ASDataObjectFilter) Filters.get(i);
-			sReturn = (new StringBuilder()).append(sReturn)
-					.append(dofTemp.getFilterHtml(Sqlca)).toString();
+			sReturn = (new StringBuilder()).append(sReturn).append(dofTemp.getFilterHtml(Sqlca)).toString();
 		}
 
 		return sReturn;

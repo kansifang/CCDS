@@ -49,6 +49,7 @@
 		String sHeaders1[][] = {
 									{"SerialNo","流水号"},
 									{"OneKey","报告日期"},
+									{"ReportConfigNo","维度配置号"},
 									{"ReportConfigName","维度配置号"},
 									{"EDocNo","报告模板"},
 									{"Remark","备注"},
@@ -75,10 +76,9 @@
 		//设置关键字
 		doTemp.setKey("SerialNo",true);
 		//设置不可见项
-		doTemp.setVisible("Type,BusinessType,ObjectType,CustomerID,InspectType,InputUserID,InputOrgID",false);
+		doTemp.setVisible("ReportConfigNo,Type,BusinessType,ObjectType,CustomerID,InspectType,InputUserID,InputOrgID",false);
 		//设置不可更新项
 		doTemp.setUpdateable("BusinessType,BusinessSum,CustomerName",false);
-		doTemp.setUpdateable("CustomerName,InputUserName,InputOrgName",false);
 		doTemp.setAlign("BusinessSum,Balance","3");
 		doTemp.setType("BusinessSum,Balance","Number");
 		doTemp.setCheckFormat("BusinessSum,Balance","2");
@@ -89,9 +89,9 @@
 		doTemp.setHTMLStyle("UpdateDate,InputUserName"," style={width:80px} ");
 		doTemp.setHTMLStyle("ObjectNo,CustomerName"," style={width:250px} ");
 		doTemp.setCheckFormat("ReportDate","3");
+		doTemp.setDDDWSql("ReportConfigNo", "select DocNo,DocTitle from Doc_Library where DocNo like 'QDT%'");
 		//配置查询项
-		doTemp.setColumnAttribute("BCSerialNo,CustomerName,BusinessSum","IsFilter","1");
-		doTemp.setColumnAttribute("ObjectNo,CustomerName,ReportDate","IsFilter","1");
+		doTemp.setColumnAttribute("ReportConfigNo","IsFilter","1");
 		doTemp.generateFilters(Sqlca);
 		doTemp.parseFilterData(request,iPostChange);
 		CurPage.setAttribute("FilterHTML",doTemp.getFilterHtml(Sqlca));//不知何用，暂时保留，以后再探！
@@ -99,6 +99,7 @@
 	  	ASDataWindow dwTemp = new ASDataWindow(CurPage,doTemp,Sqlca);
 	  	dwTemp.Style="1";      //设置为Grid风格
 	  	dwTemp.ReadOnly = "1"; //设置为只读
+	  	dwTemp.setPageSize(10);
 	  
 	  	Vector vTemp = dwTemp.genHTMLDataWindow("");
 	  	for(int i=0;i<vTemp.size();i++) out.print((String)vTemp.get(i));
@@ -219,8 +220,8 @@
 			alert(getHtmlMessage('1'));//请选择一条信息！
 			return;
 		}
-		ShowMessage("正在进行文档上传后的后续操作,请耐心等待.......",true,false);
-   		sReturn=PopPage("/Data/Import/Handler.jsp?HandleType=BeforeDisplay&ConfigNo="+sReportConfigNo+"&OneKeys="+sOneKey,"","dialogWidth=650px;dialogHeight=250px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
+		ShowMessage("正在进行加工处理,请耐心等待.......",true,false);
+   		var sReturn=RunMethod("BusinessManage","HandlerFactory","BeforeDisplay,"+sReportConfigNo+","+sOneKey);
    		if(sReturn=="true"){
    			alert("处理成功！");
    		}else{

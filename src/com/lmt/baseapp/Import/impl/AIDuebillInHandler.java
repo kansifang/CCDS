@@ -1,5 +1,8 @@
 package com.lmt.baseapp.Import.impl;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.lmt.baseapp.util.StringFunction;
 import com.lmt.baseapp.util.StringUtils;
 import com.lmt.frameapp.sql.Transaction;
@@ -119,11 +122,36 @@ public class AIDuebillInHandler{
 			isSeason=true;
 		}
 		String sSql="";
+		/**********************************解析处理分组字段************************************************/
+		String groupbyClause="",groupbyColumn="";
+		//修理group by 中的分组字段
+		groupbyClause=groupBy.replaceAll("LJF",",");
+		groupbyClause=groupbyClause.replaceAll("QZ(.+?)QZ","");
+		//修理select中的分组字段
+		groupbyColumn=groupBy;
+		StringBuffer sb=new StringBuffer("");
+		Pattern pattern=Pattern.compile("QZ(.+?)QZ",Pattern.CASE_INSENSITIVE);
+		Matcher matcher=pattern.matcher(groupBy);
+		while(matcher.find()){
+			String gs=matcher.group(1);
+			if(gs.startsWith("Number")){
+				String []gsa=gs.split(":");
+				String groupBypart=groupBy.substring(0,matcher.start(1));//获取形如 XXXLJFQZNumberQZXXXXX 中 QZNumberQZ之前的String
+				groupBypart=groupBypart.substring(0,groupBypart.lastIndexOf("LJF"));//获取形如 XXXLJFQZNumberQZXXXXX 中 LJF之前的String
+				String partitionby="partition by "+groupBypart.replaceAll("LJF",",").replaceAll("QZ(.+?)QZ","");
+				gs="complementstring(trim(char(row_number()over("+partitionby+"))),'"+gsa[1]+"',"+gsa[2]+",'"+gsa[3]+"')";
+			}
+			matcher.appendReplacement(sb,gs+"||");
+		}
+		matcher.appendTail(sb);
+		if(!"".equals(sb.toString())){
+			groupbyColumn=sb.toString();
+		}
+		groupbyColumn=groupbyColumn.replaceAll("LJF","||'@'||");//分组字段之间的连接符，查询值里面用一般用@
+		/**********************************解析处理分组字段************************************************/
  		//1、按各种维度汇总到处理表中
-		String groupColumns=groupBy.replaceAll(",","||'@'||");
-		groupColumns=("".equals(groupColumns)?"":groupColumns+",");
  		sSql="select "+
- 				"'"+HandlerFlag+"',ConfigNo,OneKey,'"+Dimension+"',"+groupColumns+
+ 				"'"+HandlerFlag+"',ConfigNo,OneKey,'"+Dimension+"',"+("".equals(groupbyColumn)?"":groupbyColumn+",")+
 				"round(sum(case when ~s借据明细@借据起始日e~ like '"+sKey+"%' then ~s借据明细@金额(元)e~ end)/10000,2) as BusinessSum,"+//按月投放金额
 				(isSeason==true?"round(sum(case when ~s借据明细@借据起始日e~ >= '"+startsmonth+"/01' and ~s借据明细@借据起始日e~ <= '"+sKey+"/31' then ~s借据明细@金额(元)e~ end)/10000,2)":"0")+","+//如果是季度末，计算按季投放金额,如果是半年末计算半年投放，整年....
 				"round(case when sum(~s借据明细@金额(元)e~)<>0 then sum(~s借据明细@金额(元)e~*~s借据明细@执行年利率(%)e~)/sum(~s借据明细@金额(元)e~) else 0 end,2) as BusinessRate, "+//加权利率
@@ -131,7 +159,7 @@ public class AIDuebillInHandler{
 				"count(distinct ~s借据明细@客户名称e~) "+
 				"from Batch_Import_Interim "+
 				" where ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"' and nvl(~s借据明细@余额(元)e~,0)>0 "+sWhere+
-				" group by ConfigNo,OneKey"+("".equals(groupBy)?"":","+groupBy);
+				" group by ConfigNo,OneKey"+("".equals(groupbyClause)?"":","+groupbyClause);
 		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
  		Sqlca.executeSQL("insert into Batch_Import_Process "+
  				"(HandlerFlag,ConfigNo,OneKey,Dimension,DimensionValue,"+
