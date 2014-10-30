@@ -48,21 +48,21 @@
 	  	String sTabStrip[][] = new String[30][3];
 		int initTab = 1;//设定默认的 tab ，数值代表第几个tab
 		//标签组所在的记录 parentAttachmentNo=attachmentNo
-		sSql = "select AttachmentNo,Attribute4,Attribute1 from Doc_Attachment where DocNo ='"+sConfigNo+"' and nvl(AttachmentNo,'')=nvl(ParentAttachmentNo,'') order by Attribute4 asc";
+		sSql = "select AttachmentNo,Attribute4 from Doc_Attachment where DocNo ='"+sConfigNo+"' and nvl(AttachmentNo,'')=nvl(ParentAttachmentNo,'') order by Attribute4 asc";
 		ASResultSet rs = Sqlca.getResultSet(sSql);
 		int tabs=0;
 		int tabsEveryRow=6;//每行显示6个
 		while(rs.next()){
 			String sPatentAttachmentNo=rs.getString(1);
 			String sTabName=rs.getString(2);
-			String sURL=rs.getString(3);
-			sSql = "select AttachmentNo from Doc_Attachment where DocNo ='"+sConfigNo+"' and nvl(ParentAttachmentNo,'')='"+sPatentAttachmentNo+"' order by FileName asc";
-			String[]AAttachmentNos=Sqlca.getStringArray(sSql);
-			String sAttachmentNos=StringFunction.toArrayString(AAttachmentNos,"@");
+			sSql = "select replace(Attribute1,'#AttachmentNo',AttachmentNo) "+//AttachmentNo决定了页面的SQL
+					" from Doc_Attachment where DocNo ='"+sConfigNo+"'"+
+					" and nvl(ParentAttachmentNo,'')='"+sPatentAttachmentNo+"' order by FileName asc";
+			String[]sAURLS=Sqlca.getStringArray(sSql);
+			String sURLS=StringFunction.toArrayString(sAURLS,"@");
 			sAddStringArray = new String[]{"",sTabName,
 					"doTabAction('"+
-						sURL.replaceAll("#AttachmentNo",sAttachmentNos)//这个决定了页面的SQL
-						.replaceAll("#OneKey", sOneKey)//这个和当前报告密切相关
+						sURLS.replaceAll("#OneKey", sOneKey)//这个和当前报告密切相关
 						+"')"};
 			sTabStrip = HTMLTab.addTabArray(sTabStrip,sAddStringArray);
 			tabs++;
@@ -102,14 +102,18 @@
 <%/*~BEGIN~可编辑区[Editable=true;CodeAreaID=Main05;Describe=树图事件;]~*/%>
 	<script language=javascript>
   	function doTabAction(ssOpenUrl)
-  	{	
-  	  	var sOpenUrl=ssOpenUrl;
-  	  	
-  	    sOpenUrl=sOpenUrl.replace(/~/g,"\""); 
-  		//sOpenUrl=sOpenUrl.replace(/#TargetJSP/g,"<%="sCurrentItemNo".substring(0,"sCurrentItemNo".length()-3)%>");  
-  		//sOpenUrl=sOpenUrl.replace("#AttachmentNo","<%=sConfigNo%>");
-  		//sOpenUrl=sOpenUrl.replace("#SerialNo","<%=sSerialNo%>");
-		eval(sOpenUrl);
+  	{
+  	  	var ssOpenUrl=ssOpenUrl.replace(/~/g,"\"");
+  	  	var sOpenUrl=ssOpenUrl.split("@");
+  		eval(sOpenUrl[0]);
+  		//有附属页面就另外打开
+  		var OpenStyle="width="+(sScreenWidth*0.6)+"px,height="+sScreenHeight*0.8+"px,top=0,right=0,toolbar=no,scrollbars=yes,resizable=yes,status=no,menubar=no";
+  		if(sOpenUrl.length>1){
+  			for(var i=1;i<sOpenUrl.length;i++){
+				var xxx=sOpenUrl[i].replace("<%=sIframeName%>",""+i).replace("#style",OpenStyle);
+  				eval(xxx);
+  			}
+  		}
 		return true;
   	}
   	

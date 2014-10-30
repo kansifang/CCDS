@@ -1,7 +1,10 @@
 <%@ page contentType="text/html;charset=GBK"%>
 <%@ include file="/IncludeBegin.jsp"%>
 <%@page import="com.lmt.app.display.*" %>
-<%@page import="org.jfree.chart.ChartFactory,org.jfree.chart.ChartUtilities,org.jfree.chart.plot.*,
+<%@page import="org.jfree.chart.ChartFactory,
+org.jfree.chart.ChartUtilities,
+org.jfree.chart.servlet.ServletUtilities,
+org.jfree.chart.plot.*,
 org.jfree.chart.JFreeChart,
 com.sun.org.apache.xerces.internal.impl.dv.util.Base64,
 com.lmt.app.cms.explain.AmarMethod
@@ -108,12 +111,10 @@ com.lmt.app.cms.explain.AmarMethod
 				//生成HTMLDataWindow
 				Vector vTemp = dwTemp.genHTMLDataWindow("");
 			%>
-			<div style="position:absolute; overflow:auto;">
 			<%
 				for(int i=0;i<vTemp.size();i++) 
 					out.print((String)vTemp.get(i));
 			%>
-			</div>
 			<%//依次为：
 			//0.是否显示
 			//1.注册目标组件号(为空则自动取当前组件)
@@ -152,13 +153,46 @@ com.lmt.app.cms.explain.AmarMethod
 					jf =LineChart.getJfreeChart(sSql, Sqlca);
 				}
 				%>
-				<div style="position:absolute;overflow:auto;">
+<HTML> 
+<HEAD> 
+<TITLE><%=PG_TITLE %></TITLE> 
+<style>
+.ListPage{
+	background-color: #DCDCDC;
+	margin-bottom : 0px;
+	margin-left : 0px;
+	margin-right : 0px;
+	margin-top : 0px;
+	overflow:scroll;
+	overflow-x:auto;
+	overflow-y:auto;
+}
+</style>
+</HEAD> 
+<BODY class="ListPage"> 
+<p>xxxxxxxxxxx</p>
 				<%
-				response.setContentType("image/jpeg");
+				//下面的注释部分是直接输出到页面，这个会导致整个页面被这个图片覆盖，想增加其他内容妄想，故采取<img src='...这样的形式
+				//response.setContentType("image/jpeg");
+				//ServletOutputStream sos=response.getOutputStream();
+				//sos.print(PG_TITLE);
 				//输出图片
-				ChartUtilities.writeChartAsJPEG(response.getOutputStream(), jf, 700, 450);
+				//ChartUtilities.writeChartAsJPEG(sos, jf, 700, 450);
+				org.jfree.chart.entity.StandardEntityCollection sec = new org.jfree.chart.entity.StandardEntityCollection(); 
+				org.jfree.chart.ChartRenderingInfo info = new org.jfree.chart.ChartRenderingInfo(sec); 
+	            PrintWriter pw = new PrintWriter(out);//输出MAP信息 
+	            //700是图片长度，450是图片高度
+	            //String filename = ServletUtilities.saveChartAsPNG(jf,700,450,info,session); 
+	            String imgName=PG_TITLE;
+	            String filename = ServletUtilities.saveChartAsJPEG(jf,700,450,info,session); 
+	            ChartUtilities.writeImageMap(pw,imgName,info,false); 
+	            String graphURL = request.getContextPath() + "/DisplayChart?filename=" + filename;
 				%>
-				</div>
+<p ALIGN=CENTER> 
+<img src="<%=graphURL%>" width=600 height=400 border=0 usemap="#<%=imgName%>" ondblclick="window.open('<%=graphURL%>','_blank','')"> 
+</p> 
+</BODY> 
+</HTML>
 				<%
 				//把图生成字节数组，保存到数据库，作为输出到Word时查询使用
 				//判断是否已保存图像数据

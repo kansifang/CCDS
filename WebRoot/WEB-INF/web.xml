@@ -66,6 +66,10 @@
         <servlet-name>GetNewsServlet</servlet-name>
         <servlet-class>com.lmt.frameapp.web.servlet.GetNewsServlet</servlet-class>
     </servlet>
+   	<servlet>
+     <servlet-name>DisplayChart</servlet-name> 
+     <servlet-class>org.jfree.chart.servlet.DisplayChart</servlet-class> 
+   	</servlet> 
 <!--  
   	<servlet>
 		<servlet-name>OTIInit</servlet-name>
@@ -105,6 +109,10 @@
         <servlet-name>GetNewsServlet</servlet-name>
         <url-pattern>/GetNewsServlet</url-pattern>
     </servlet-mapping>
+   <servlet-mapping>
+     <servlet-name>DisplayChart</servlet-name>
+      <url-pattern>/DisplayChart</url-pattern>
+   </servlet-mapping> 
 <!--  
 	<welcome-file-list id="WelcomeFileList_1">
        <welcome-file>index.html</welcome-file>
