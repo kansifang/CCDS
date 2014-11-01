@@ -3,6 +3,8 @@ package com.lmt.baseapp.util;
 import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.lmt.frameapp.sql.Transaction;
 
@@ -127,6 +129,62 @@ public class StringUtils
     }
     return sExcelCol;
   }
+  private static String[]getToReplace(String s,String sStart,String sEnd){
+	  	int ss=s.indexOf(sStart);
+		int se=s.indexOf(sEnd);
+		String toReplaceS="";
+		if(se+sEnd.length()>s.length()){
+			toReplaceS=s.substring(ss,s.length());
+		}else{
+			toReplaceS=s.substring(ss, se+sEnd.length());
+		}
+		String configContent=s.substring(ss+sStart.length(), se);
+		return new String[]{configContent,toReplaceS};
+  }
+  public static String getOrgName(String sOrgID, Connection conn, String version) throws Exception
+  {
+    String sSql = "";
+    if (version.equalsIgnoreCase("2005")) {
+      sSql = "select OrgName from Org_INFO where SortNo = '" + sOrgID.trim() + "'";
+    }
+    else {
+      sSql = "SELECT OrgName FROM ORG_INFO WHERE OrgID = '" + sOrgID.trim() + "'";
+    }
+
+    ResultSet rs = conn.createStatement().executeQuery(sSql);
+    String sOrgName = "";
+    if (rs.next()) {
+      sOrgName = rs.getString("OrgName");
+    }
+    rs.getStatement().close();
+    return sOrgName;
+  }
+
+  public static String convertCodeset(String s, int i){
+    if (s == null) {
+      return s;
+    }
+    String s1 = s;
+    try {
+      switch (i) {
+      case 2:
+        s1 = new String(s.getBytes("ISO8859-1"), "gb2312");
+        break;
+      case 0:
+        s1 = new String(s.getBytes("GBK"), "ISO8859-1");
+        break;
+      case 1:
+        s1 = new String(s.getBytes("ISO8859-1"), "GBK");
+        break;
+      default:
+        s1 = s;
+      }
+    }
+    catch (UnsupportedEncodingException e) {
+      return s1;
+    }
+    return s1;
+  }
   //把s中以sStart开始sEnd结尾的字符串，用配置表中 ItemDescribe（真正的数据库字段）代替
   public static String replaceWithConfig(String s,Transaction Sqlca) throws Exception
   {
@@ -169,61 +227,48 @@ public class StringUtils
 	};
     return s;
   }
-  private static String[]getToReplace(String s,String sStart,String sEnd){
-	  	int ss=s.indexOf(sStart);
-		int se=s.indexOf(sEnd);
-		String toReplaceS="";
-		if(se+sEnd.length()>s.length()){
-			toReplaceS=s.substring(ss,s.length());
-		}else{
-			toReplaceS=s.substring(ss, se+sEnd.length());
+  /**
+   * groupBy="QZ'A'QZ" +//前面加前缀 A
+ 				"complementstring(trim(replace(" +
+ 					"case when ~s表外明细@保证金比例(%)e~>=1 then char(~s表外明细@保证金比例(%)e~)" +
+ 					"else '0'||char(~s表外明细@保证金比例(%)e~) end" +
+ 					",'.000000','%')),'0',4,'Before')" +//////////0表示在内容前面补0 4表示整个字符的长度
+ 				"LJF" +//表示各字段之间的连接符 在Sql中 group by 中处理为, select中处理为@ 
+ 				"QZNumber:0:4:BeforeQZQZ'A'QZ~s表外明细@主要担保方式e~";//
+   * @param groupBy
+   * @return
+   * @throws Exception
+   */
+  public static String[] replaceWithRealSql(String groupBy) throws Exception{
+	  String groupbyClause="",groupbyColumn="";
+	  //修理group by 中的分组字段
+	  groupbyClause=groupBy.replaceAll("LJF",",");
+	  groupbyClause=groupbyClause.replaceAll("QZ(.+?)QZ","");
+	  groupbyClause=("".equals(groupbyClause)?"":","+groupbyClause);
+	  //修理select中的分组字段
+	  groupbyColumn=groupBy;
+	  StringBuffer sb=new StringBuffer("");
+	  Pattern pattern=Pattern.compile("QZ(.+?)QZ",Pattern.CASE_INSENSITIVE);
+	  Matcher matcher=pattern.matcher(groupBy);
+	  while(matcher.find()){
+		String QZContent=matcher.group(1);
+		if(QZContent.startsWith("Number")){
+			String []gsa=QZContent.split(":");
+			//获取形如 XXXLJFQZNumberQZXXXXX 中 QZNumberQZ之前的 XXX
+			String groupBypart=groupBy.substring(0,matcher.start(0)).replaceAll("QZ(.+?)QZ","").replaceAll("LJF",",");
+			if(groupBypart.length()>0){
+				groupBypart="partition by "+groupBypart.substring(0,groupBypart.lastIndexOf(","));
+			}
+			QZContent="complementstring(trim(char(row_number()over("+groupBypart+"))),'"+gsa[1]+"',"+gsa[2]+",'"+gsa[3]+"')";
 		}
-		String configContent=s.substring(ss+sStart.length(), se);
-		return new String[]{configContent,toReplaceS};
-  }
-  public static String getOrgName(String sOrgID, Connection conn, String version) throws Exception
-  {
-    String sSql = "";
-    if (version.equalsIgnoreCase("2005")) {
-      sSql = "select OrgName from Org_INFO where SortNo = '" + sOrgID.trim() + "'";
-    }
-    else {
-      sSql = "SELECT OrgName FROM ORG_INFO WHERE OrgID = '" + sOrgID.trim() + "'";
-    }
-
-    ResultSet rs = conn.createStatement().executeQuery(sSql);
-    String sOrgName = "";
-    if (rs.next()) {
-      sOrgName = rs.getString("OrgName");
-    }
-    rs.getStatement().close();
-    return sOrgName;
-  }
-
-  public static String convertCodeset(String s, int i)
-  {
-    if (s == null) {
-      return s;
-    }
-    String s1 = s;
-    try {
-      switch (i) {
-      case 2:
-        s1 = new String(s.getBytes("ISO8859-1"), "gb2312");
-        break;
-      case 0:
-        s1 = new String(s.getBytes("GBK"), "ISO8859-1");
-        break;
-      case 1:
-        s1 = new String(s.getBytes("ISO8859-1"), "GBK");
-        break;
-      default:
-        s1 = s;
-      }
-    }
-    catch (UnsupportedEncodingException e) {
-      return s1;
-    }
-    return s1;
+		matcher.appendReplacement(sb,QZContent+"||");
+	  }
+	  matcher.appendTail(sb);
+	  if(!"".equals(sb.toString())){
+		groupbyColumn=sb.toString();
+	  }
+	  groupbyColumn=groupbyColumn.replaceAll("LJF","||'@'||");//分组字段之间的连接符，查询值里面用用@代替
+	  groupbyColumn=("".equals(groupbyColumn)?"":groupbyColumn+",");
+	  return new String[]{groupbyColumn,groupbyClause};
   }
 }

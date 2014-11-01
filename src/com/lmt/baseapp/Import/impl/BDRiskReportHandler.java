@@ -8,6 +8,39 @@ import com.lmt.frameapp.sql.Transaction;
  * @msg. 历史押品信息导入初始化
  */
 public class BDRiskReportHandler{
+	/**
+	 * 风险报告数据加工
+	 * @param sheet
+	 * @param icol
+	 * @return
+	 * @throws Exception 
+	 * @throws Exception
+	 */
+	public static void riskReportHandle(String HandlerFlag,String sReportConfigNo,String sOneKey,Transaction Sqlca) throws Exception {
+		//1、对中间表数据进行特殊处理 	 		 	
+		BDRiskReportHandler.interimProcess(sReportConfigNo, sOneKey, Sqlca);
+		BDRiskReportHandler.process(HandlerFlag,sReportConfigNo, sOneKey, Sqlca,"归属条线贴现","QZNumber:0:1:BeforeQZManageDepartFlag","");
+		//归属条线（个人 公司一块考虑）
+		String groupBy="'一般贷款'LJFQZNumber:0:1:BeforeQZcase "+
+				" when BusinessType like '%垫款' then '垫款' " +
+				" when OperateOrgID='能源事业部' then '能源事业部' " +
+ 				" when ManageDepartFlag is null or ManageDepartFlag='' or ManageDepartFlag = '公司条线' then '公司条线' " +
+ 				" when ManageDepartFlag = '小企业条线' then '小企业条线'"+
+ 				" when ManageDepartFlag = '零售条线' then '零售条线' end";
+		BDRiskReportHandler.process(HandlerFlag,sReportConfigNo, sOneKey, Sqlca,"垫款能源部归属条线贴现",groupBy,"");
+		//五级分类（个人 公司一块考虑）
+		groupBy="case "+
+	 				" when Classify is null or Classify='' or Classify like '正常%' then 'A-正常贷款@正常类' " +
+	 				" when Classify like '关注%' then 'A-正常贷款@关注类'"+
+	 				" when Classify like '次级%' then 'B-不良贷款@次级类' " +
+	 				" when Classify like '可疑%' then 'B-不良贷款@可疑类'"+
+	 				" when Classify like '损失%' then 'B-不良贷款@损失类' end";
+		BDRiskReportHandler.process(HandlerFlag,sReportConfigNo, sOneKey, Sqlca,"五级分类",groupBy,"");
+		//4、加工后，进行合计，横向纵向分析
+	 	BDRiskReportHandler.afterProcess(HandlerFlag,sReportConfigNo, sOneKey, Sqlca);
+	 	//最后收底
+	 	BDRiskReportHandler.lastProcess(HandlerFlag,sReportConfigNo, sOneKey, Sqlca);
+	}
 	//对导入数据加工处理,插入到中间表Batch_Import_Interim
 	public static void interimProcess(String sReportConfigNo,String sKey,Transaction Sqlca) throws Exception{
 		String sSql="";
@@ -63,10 +96,9 @@ public class BDRiskReportHandler{
 					" where ConfigName in('个人明细','借据明细') and OneKey='"+sKey+"'"+
 					" and (ConfigName='个人明细' and ~s个人明细@业务品种e~ not in('个人委托贷款','个人住房公积金贷款') or ConfigName='借据明细')" +
 					sWhere;
-		String groupColumns=groupBy.replaceAll(",","||'@'||");
-		groupColumns=("".equals(groupColumns)?"":groupColumns+",");
+		String[] groupColumnClause=StringUtils.replaceWithRealSql(groupBy);
 		String sSql="select "+
- 				"'"+HandlerFlag+"','"+sReportConfigNo+"',OneKey,'"+Dimension+"',"+groupColumns+
+ 				"'"+HandlerFlag+"','"+sReportConfigNo+"',OneKey,'"+Dimension+"',"+groupColumnClause[0]+
 				"round(sum(case when PutOutDate like '"+sKey+"%' then BusinessSum end)/10000,2),"+//按月投放金额
 				(isSeason==true?"round(sum(case when PutOutDate like '"+last2month+"%' or PutOutDate like '"+last1month+"%' or PutOutDate like '"+sKey+"%' then BusinessSum end)/10000,2)":"0")+","+//如果是季度末，计算按季投放金额
 				"round(case when sum(BusinessSum)<>0 then sum(BusinessSum*BusinessRate)/sum(BusinessSum) else 0 end,2), "+//加权利率
@@ -74,7 +106,7 @@ public class BDRiskReportHandler{
 				"count(distinct CustomerName),'"+StringFunction.getTodayNow()+"'"+
 				" from ("+sCSql+")tab"+
 				" where nvl(Balance,0)>0"+
-				" group by OneKey"+("".equals(groupBy)?"":","+groupBy)+
+				" group by OneKey"+groupColumnClause[1]+
 				" union all"+
 				" select "+
 				"'"+HandlerFlag+"','"+sReportConfigNo+"','"+sKey+"','"+Dimension+"','贴现',"+

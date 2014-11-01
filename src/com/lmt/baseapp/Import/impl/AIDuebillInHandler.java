@@ -11,6 +11,107 @@ import com.lmt.frameapp.sql.Transaction;
  * @msg. 历史押品信息导入初始化
  */
 public class AIDuebillInHandler{
+	/**
+	 * 表内借据导入后处理
+	 * @param sheet
+	 * @param icol
+	 * @return
+	 * @throws Exception 
+	 * @throws Exception
+	 */
+	public static void dueBillInHandle(String HandlerFlag,String sConfigNo,String sOneKey,Transaction Sqlca) throws Exception {
+		//1、对中间表数据进行特殊处理 	 		 	
+		AIDuebillInHandler.interimProcess(sConfigNo, sOneKey, Sqlca);
+		//经营类型分组
+ 		String groupBy="case "+
+ 				"when ~s借据明细@经营类型(新)e~ is null or ~s借据明细@经营类型(新)e~ = '' or ~s借据明细@经营类型(新)e~='其他' then 'V-其他' "+
+ 				"when ~s借据明细@经营类型(新)e~ like '煤炭开采' then 'A-煤炭@开采'" +
+ 				"when ~s借据明细@经营类型(新)e~ like '煤炭洗选' then 'A-煤炭@洗选' "+
+ 				"when ~s借据明细@经营类型(新)e~ like '焦碳—独立焦化' then 'B-焦碳@独立焦化' "+//焦碳—
+ 				"when ~s借据明细@经营类型(新)e~ like '焦碳—煤焦一体' or ~s借据明细@经营类型(新)e~ = '焦碳' then 'B-焦碳@煤焦一体' "+//焦碳—
+ 				"when ~s借据明细@经营类型(新)e~ like '焦碳—焦钢一体' then 'B-焦碳@焦钢一体' "+//焦碳—
+ 				"when ~s借据明细@经营类型(新)e~ like '焦碳—限期保留' then 'B-焦碳@限期保留' "+//焦碳—
+ 				"when ~s借据明细@经营类型(新)e~ like '焦碳—气源厂' then 'B-焦碳@气源厂' "+//焦碳—
+ 				"when ~s借据明细@经营类型(新)e~ like '焦碳—热回收' then 'B-焦碳@热回收' "+//焦碳—
+ 				"when ~s借据明细@经营类型(新)e~ like '批发零售%' then 'C-批发零售' "+//批发零售—
+ 				"when ~s借据明细@经营类型(新)e~ like '制造业—水泥' then 'D-制造业@水泥' "+//制造业—
+ 				"when ~s借据明细@经营类型(新)e~ like '制造业—平板玻璃' then 'D-制造业@平板玻璃' "+//制造业—
+ 				"when ~s借据明细@经营类型(新)e~ like '制造业%' then 'D-制造业@其他' "+//制造业—
+ 				"when ~s借据明细@经营类型(新)e~ like '钢铁' then 'E-钢铁' "+
+ 				"when ~s借据明细@经营类型(新)e~ like '房地产' then 'F-房地产' "+
+ 				"when ~s借据明细@经营类型(新)e~ like '化工化肥' then 'G-化工化肥' "+
+	 			"when ~s借据明细@经营类型(新)e~ like '建筑施工' or ~s借据明细@经营类型(新)e~ like '工程建筑' or ~s借据明细@经营类型(新)e~ like '建筑工程' then 'H-建筑施工' "+
+	 			"when ~s借据明细@经营类型(新)e~ like '铁矿开采' then 'I-铁矿开采' "+
+	 			"when ~s借据明细@经营类型(新)e~ like '农林牧副渔' then 'J-农林牧副渔' "+
+	 			"when ~s借据明细@经营类型(新)e~ like '政府平台' then 'K-政府平台' "+
+				"when ~s借据明细@经营类型(新)e~ like '钢贸户' or ~s借据明细@经营类型(新)e~ like '%钢材销售%' then 'L-钢贸户' "+
+				"when ~s借据明细@经营类型(新)e~ like '医药制造' then 'M-医药制造' "+
+				"when ~s借据明细@经营类型(新)e~ like '燃气生产和供应' then 'N-燃气生产和供应' "+
+				"when ~s借据明细@经营类型(新)e~ like '汽车维修及销售' then 'O-汽车维修及销售' "+
+				"when ~s借据明细@经营类型(新)e~ like '电力' then 'P-电力' "+
+				"when ~s借据明细@经营类型(新)e~ like '住宿餐饮' then 'Q-住宿餐饮' "+
+	 			"when ~s借据明细@经营类型(新)e~ like '交通运输' then 'R-交通运输' "+
+	 			"when ~s借据明细@经营类型(新)e~ like '医院学校' then 'S-医院学校' "+
+	 			"when ~s借据明细@经营类型(新)e~ like '信息技术' then 'T-信息技术' "+
+	 			"when ~s借据明细@经营类型(新)e~ like '文化娱乐' then 'U-文化娱乐' "+
+	 			"else 'W-'||~s借据明细@经营类型(新)e~ end";
+	 	AIDuebillInHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"经营类型(新)",groupBy,"");
+	 	//期限业务品种分组
+	 	groupBy="case when case when ~s借据明细@期限日e~>0 then (~s借据明细@期限月e~+1) else ~s借据明细@期限月e~ end <=6  then '1M6]' "+
+	 						"when case when ~s借据明细@期限日e~>1 then (~s借据明细@期限月e~+1) else ~s借据明细@期限月e~ end <=12 then '2M(6-12]' "+//常常有12个月零1天那种，先处理为12个月吧，遗留数据有几笔（00000231001，00000230881，00000231541，00000253001）
+	 						"when case when ~s借据明细@期限日e~>0 then (~s借据明细@期限月e~+1) else ~s借据明细@期限月e~ end <=36 then '3M(12-36]' "+
+	 						"when case when ~s借据明细@期限日e~>0 then (~s借据明细@期限月e~+1) else ~s借据明细@期限月e~ end <=60 then '4M(36-60]' "+
+	 						"else '5M(60' endLJF~s借据明细@业务品种e~";
+	 	AIDuebillInHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"期限业务品种",groupBy,"");
+	 	
+	 	groupBy="case when ~s借据明细@主要担保方式e~ like '保证-%' then '保证' "+
+	 			"when ~s借据明细@主要担保方式e~ like '抵押-%' then '抵押' "+
+	 			"when ~s借据明细@主要担保方式e~ = '信用' then '信用' "+
+	 			"when ~s借据明细@主要担保方式e~ like '%质押-%' or ~s借据明细@主要担保方式e~='保证金' then '质押' "+
+	 			"else '其他' end";
+	 	AIDuebillInHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"单一担保方式",groupBy,"");
+	 	
+	 	groupBy="case " +
+	 				" when ~s借据明细@业务品种e~ like '%垫款'  then 'G-上浮50%以上@0-垫款' "+
+	 				" when ~s借据明细@归属条线e~ = '小企业条线' and (~s借据明细@利率浮动方式e~='浮动比率(%)' and ~s借据明细@利率浮动值e~>50 or ~s借据明细@利率浮动方式e~='浮动点' and ~s借据明细@利率浮动值e~/(~s借据明细@执行年利率(%)e~-~s借据明细@利率浮动值e~)*100>50) then 'G-上浮50%以上@1-公司条线' "+
+	 				" when ~s借据明细@归属条线e~ = '公司条线' and (~s借据明细@利率浮动方式e~='浮动比率(%)' and ~s借据明细@利率浮动值e~>50 or ~s借据明细@利率浮动方式e~='浮动点' and ~s借据明细@利率浮动值e~/(~s借据明细@执行年利率(%)e~-~s借据明细@利率浮动值e~)*100>50) then 'G-上浮50%以上@2-小企业条线' "+
+	 				" when ~s借据明细@归属条线e~ = '零售条线' and (~s借据明细@利率浮动方式e~='浮动比率(%)' and ~s借据明细@利率浮动值e~>50 or ~s借据明细@利率浮动方式e~='浮动点' and ~s借据明细@利率浮动值e~/(~s借据明细@执行年利率(%)e~-~s借据明细@利率浮动值e~)*100>50) then 'G-上浮50%以上@3-零售条线' "+
+	 				" when ~s借据明细@利率浮动方式e~='浮动比率(%)' and ~s借据明细@利率浮动值e~>30 or ~s借据明细@利率浮动方式e~='浮动点' and ~s借据明细@利率浮动值e~/(~s借据明细@执行年利率(%)e~-~s借据明细@利率浮动值e~)*100>30 then 'F-上浮30%-50%（含50%）' "+
+	 				" when ~s借据明细@利率浮动方式e~='浮动比率(%)' and ~s借据明细@利率浮动值e~>20 or ~s借据明细@利率浮动方式e~='浮动点' and ~s借据明细@利率浮动值e~/(~s借据明细@执行年利率(%)e~-~s借据明细@利率浮动值e~)*100>20 then 'E-上浮20%-30%（含30%）' "+
+	 				" when ~s借据明细@利率浮动方式e~='浮动比率(%)' and ~s借据明细@利率浮动值e~>10 or ~s借据明细@利率浮动方式e~='浮动点' and ~s借据明细@利率浮动值e~/(~s借据明细@执行年利率(%)e~-~s借据明细@利率浮动值e~)*100>10 then 'D-上浮10%-20%（含20%）' "+
+	 				" when ~s借据明细@利率浮动方式e~='浮动比率(%)' and ~s借据明细@利率浮动值e~>0 or ~s借据明细@利率浮动方式e~='浮动点' and ~s借据明细@利率浮动值e~/(~s借据明细@执行年利率(%)e~-~s借据明细@利率浮动值e~)*100>0 then 'C-上浮10%以内（含10%）' "+
+	 				" when ~s借据明细@利率浮动方式e~='浮动比率(%)' and ~s借据明细@利率浮动值e~=0 or ~s借据明细@利率浮动方式e~='浮动点' and ~s借据明细@利率浮动值e~/(~s借据明细@执行年利率(%)e~-~s借据明细@利率浮动值e~)*100=0 then 'B-基准利率' "+
+	 				" else 'A-下浮10%以内（含10%）' end";
+	 	AIDuebillInHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"利率浮动区间",groupBy,"");//and ~s借据明细@业务品种e~ not like '%垫款'
+	 	
+	 	AIDuebillInHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"企业规模","~s借据明细@企业规模e~","");
+	 	
+	 	AIDuebillInHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"业务品种","~s借据明细@业务品种e~","");
+	 	
+	 	groupBy="case  "+
+	 			"when ~s借据明细@国家地区e~ like '%吕梁市%' then 'B-吕梁市' "+
+	 			"when ~s借据明细@国家地区e~ like '%晋中市%' then 'C-晋中市' "+
+	 			"when ~s借据明细@国家地区e~ like '%临汾市%' then 'D-临汾市' "+
+	 			"when ~s借据明细@国家地区e~ like '%运城市%' then 'E-运城市' "+
+	 			"when ~s借据明细@国家地区e~ like '%长治市%' then 'F-长治市' "+
+	 			"when ~s借据明细@国家地区e~ like '%朔州市%' then 'G-朔州市' "+
+	 			"when ~s借据明细@国家地区e~ like '%忻州市%' then 'H-忻州市' "+
+	 			"when ~s借据明细@国家地区e~ like '%大同市%' then 'I-大同市' "+
+	 			"when ~s借据明细@国家地区e~ like '%晋城市%' then 'J-晋城市' "+
+	 			"when ~s借据明细@国家地区e~ like '%阳泉市%' then 'K-阳泉市' "+
+	 			//"when ~s借据明细@国家地区e~ like '%石家庄市%' then '石家庄市' "+
+	 			//"when ~s借据明细@国家地区e~ like '%武汉市%' then '武汉市' "+
+	 			"when ~s借据明细@国家地区e~ like '%佛山市%' then 'L-佛山市' "+
+	 			"else 'A-太原市' end";//剩下的默认都是太原市when ~s借据明细@国家地区e~ like '%太原市%' then '太原市'
+	 	AIDuebillInHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"地区分类",groupBy,"");
+	 	
+	 	AIDuebillInHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"机构分类","~s借据明细@直属行名称e~","");
+	 	
+	 	//单独完成一些复杂的操作
+	 	AIDuebillInHandler.afterProcess1(HandlerFlag,sConfigNo, sOneKey, Sqlca);
+	 	//4、加工后，进行合计，横向纵向分析
+	 	AIDuebillInHandler.afterProcess(HandlerFlag,sConfigNo, sOneKey, Sqlca);
+	}
 	//对导入数据加工处理,插入到中间表Batch_Import_Interim
 	public static void interimProcess(String sConfigNo,String sKey,Transaction Sqlca) throws Exception{
 		//修改 王秀梅这个贷款 短期流动资金贷款 由零售条线 修改为 公司条线 ，经营类型为 批发零售—其它
@@ -121,37 +222,10 @@ public class AIDuebillInHandler{
 			startsmonth=StringFunction.getRelativeAccountMonth(sKey,"month", -11);
 			isSeason=true;
 		}
-		String sSql="";
-		/**********************************解析处理分组字段************************************************/
-		String groupbyClause="",groupbyColumn="";
-		//修理group by 中的分组字段
-		groupbyClause=groupBy.replaceAll("LJF",",");
-		groupbyClause=groupbyClause.replaceAll("QZ(.+?)QZ","");
-		//修理select中的分组字段
-		groupbyColumn=groupBy;
-		StringBuffer sb=new StringBuffer("");
-		Pattern pattern=Pattern.compile("QZ(.+?)QZ",Pattern.CASE_INSENSITIVE);
-		Matcher matcher=pattern.matcher(groupBy);
-		while(matcher.find()){
-			String gs=matcher.group(1);
-			if(gs.startsWith("Number")){
-				String []gsa=gs.split(":");
-				String groupBypart=groupBy.substring(0,matcher.start(1));//获取形如 XXXLJFQZNumberQZXXXXX 中 QZNumberQZ之前的String
-				groupBypart=groupBypart.substring(0,groupBypart.lastIndexOf("LJF"));//获取形如 XXXLJFQZNumberQZXXXXX 中 LJF之前的String
-				String partitionby="partition by "+groupBypart.replaceAll("LJF",",").replaceAll("QZ(.+?)QZ","");
-				gs="complementstring(trim(char(row_number()over("+partitionby+"))),'"+gsa[1]+"',"+gsa[2]+",'"+gsa[3]+"')";
-			}
-			matcher.appendReplacement(sb,gs+"||");
-		}
-		matcher.appendTail(sb);
-		if(!"".equals(sb.toString())){
-			groupbyColumn=sb.toString();
-		}
-		groupbyColumn=groupbyColumn.replaceAll("LJF","||'@'||");//分组字段之间的连接符，查询值里面用一般用@
-		/**********************************解析处理分组字段************************************************/
+		String[] groupColumnClause=StringUtils.replaceWithRealSql(groupBy);
  		//1、按各种维度汇总到处理表中
- 		sSql="select "+
- 				"'"+HandlerFlag+"',ConfigNo,OneKey,'"+Dimension+"',"+("".equals(groupbyColumn)?"":groupbyColumn+",")+
+		String sSql="select "+
+ 				"'"+HandlerFlag+"',ConfigNo,OneKey,'"+Dimension+"',"+groupColumnClause[0]+
 				"round(sum(case when ~s借据明细@借据起始日e~ like '"+sKey+"%' then ~s借据明细@金额(元)e~ end)/10000,2) as BusinessSum,"+//按月投放金额
 				(isSeason==true?"round(sum(case when ~s借据明细@借据起始日e~ >= '"+startsmonth+"/01' and ~s借据明细@借据起始日e~ <= '"+sKey+"/31' then ~s借据明细@金额(元)e~ end)/10000,2)":"0")+","+//如果是季度末，计算按季投放金额,如果是半年末计算半年投放，整年....
 				"round(case when sum(~s借据明细@金额(元)e~)<>0 then sum(~s借据明细@金额(元)e~*~s借据明细@执行年利率(%)e~)/sum(~s借据明细@金额(元)e~) else 0 end,2) as BusinessRate, "+//加权利率
@@ -159,7 +233,7 @@ public class AIDuebillInHandler{
 				"count(distinct ~s借据明细@客户名称e~) "+
 				"from Batch_Import_Interim "+
 				" where ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"' and nvl(~s借据明细@余额(元)e~,0)>0 "+sWhere+
-				" group by ConfigNo,OneKey"+("".equals(groupbyClause)?"":","+groupbyClause);
+				" group by ConfigNo,OneKey"+groupColumnClause[1];
 		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
  		Sqlca.executeSQL("insert into Batch_Import_Process "+
  				"(HandlerFlag,ConfigNo,OneKey,Dimension,DimensionValue,"+

@@ -11,6 +11,104 @@ import com.lmt.frameapp.sql.Transaction;
  * @msg. 历史押品信息导入初始化
  */
 public class AIDuebillOutHandler{
+	/**
+	 * 表外借据导入后处理
+	 * @param sheet
+	 * @param icol
+	 * @return
+	 * @throws Exception 
+	 * @throws Exception
+	 */
+	public static void dueBillOutHandle(String HandlerFlag,String sConfigNo,String sOneKey,Transaction Sqlca) throws Exception {
+		//0、对中间表数据进行特殊处理 	 		 	
+		AIDuebillOutHandler.interimProcess(sConfigNo, sOneKey, Sqlca);
+		//1、差额全额
+ 		String groupBy="case "+
+			 			"when nvl(~s表外明细@保证金比例(%)e~,0)=100 and (~s表外明细@主要担保方式e~ like '%本行存单' or ~s表外明细@主要担保方式e~ like '%保证金' or ~s表外明细@主要担保方式e~ like '%我行人民币存款%') then '全额银承余额' "+
+			 			"else '差额银承余额' end";
+ 		AIDuebillOutHandler.process(HandlerFlag,sConfigNo,sOneKey,Sqlca,"差额全额银行承兑汇票",groupBy,"and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票'");
+
+		//2、差额承兑按担保方式
+ 		groupBy="case when ~s表外明细@主要担保方式e~ like '保证-%' then '保证' "+
+	 			"when ~s表外明细@主要担保方式e~ like '抵押-%' then '抵押' "+
+	 			"when ~s表外明细@主要担保方式e~ = '信用' then '信用' "+
+	 			"when ~s表外明细@主要担保方式e~ like '%质押-%' or ~s表外明细@主要担保方式e~='保证金' then '质押' "+
+	 			"else '其他' end";
+ 		AIDuebillOutHandler.process(HandlerFlag,sConfigNo,sOneKey,Sqlca,"银行承兑汇票单一担保方式",groupBy,"and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票' and not(nvl(~s表外明细@保证金比例(%)e~,0)=100 and (~s表外明细@主要担保方式e~ like '%本行存单' or ~s表外明细@主要担保方式e~ like '%保证金' or ~s表外明细@主要担保方式e~ like '%我行人民币存款%'))");
+ 		//3、保证金比例
+ 		groupBy="QZ'A'QZ" +
+ 				"complementstring(trim(replace(" +
+ 					"case when ~s表外明细@保证金比例(%)e~>=1 then char(~s表外明细@保证金比例(%)e~)" +
+ 					"else '0'||char(~s表外明细@保证金比例(%)e~) end" +
+ 					",'.000000','%')),'0',4,'Before')" +
+ 				"LJF" +
+ 				"QZNumber:0:4:BeforeQZQZ'A'QZ~s表外明细@主要担保方式e~";
+ 		AIDuebillOutHandler.process(HandlerFlag,sConfigNo,sOneKey,Sqlca,"银行承兑汇票保证金比例",groupBy,"and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票'");
+	 	/*原来老的，为了统一月度经营报告和全面风险报告，用下面那个
+	 	groupBy="case "+
+ 				"when ~s表外明细@经营类型(新)e~ like '%煤炭开采%' or ~s表外明细@经营类型(新)e~ like '%煤炭洗选%' then '煤炭' "+
+ 				"when ~s表外明细@经营类型(新)e~ like '%焦碳%' then '焦碳' "+//焦碳—
+ 				"when ~s表外明细@经营类型(新)e~ like '%制造业%' or ~s表外明细@经营类型(新)e~ like '%一般加工%' then '制造业' "+//制造业—
+ 				"when ~s表外明细@经营类型(新)e~ like '%批发零售%' then '批发零售' "+//批发零售—
+ 				"when ~s表外明细@经营类型(新)e~ like '%钢铁%' then '钢铁' "+
+ 				"when ~s表外明细@经营类型(新)e~ like '%化工化肥%' then '化工化肥' "+
+	 			"when ~s表外明细@经营类型(新)e~ like '%房地产%' then '房地产' "+
+	 			"when ~s表外明细@经营类型(新)e~ like '%建筑施工%' then '建筑施工' "+
+	 			"when ~s表外明细@经营类型(新)e~ like '%铁矿开采%' then '铁矿开采' "+
+	 			"when ~s表外明细@经营类型(新)e~ like '%农林牧副渔%' then '农林牧副渔' "+
+	 			"when ~s表外明细@经营类型(新)e~ like '%政府平台%' then '政府平台' "+
+				"when ~s表外明细@经营类型(新)e~ like '%钢贸户%' or ~s表外明细@经营类型(新)e~ like '%钢材销售%' then '钢贸户' "+
+				"when ~s表外明细@经营类型(新)e~ like '%医药制造%' then '医药制造' "+
+				"when ~s表外明细@经营类型(新)e~ like '%燃气生产和供应%' then '燃气生产和供应' "+
+				"when ~s表外明细@经营类型(新)e~ like '%汽车维修及销售%' then '汽车维修及销售' "+
+				"when ~s表外明细@经营类型(新)e~ like '%电力%' then '电力' "+
+				"when ~s表外明细@经营类型(新)e~ like '%住宿餐饮%' then '住宿餐饮' "+
+	 			"when ~s表外明细@经营类型(新)e~ like '%交通运输%' then '交通运输' "+
+	 			"when ~s表外明细@经营类型(新)e~ like '%医院学校%' then '医院学校' "+
+	 			"when ~s表外明细@经营类型(新)e~ like '%信息技术%' then '信息技术' "+
+	 			"when ~s表外明细@经营类型(新)e~ like '%文化娱乐%' then '文化娱乐' "+
+				"when ~s表外明细@经营类型(新)e~ like '%有色冶炼%' then '有色冶炼' "+
+	 			"else '其他' end";
+	 	*/
+	 	//4、承兑按经营类型（新）
+ 		groupBy="case "+
+ 				"when ~s表外明细@经营类型(新)e~ is null or ~s表外明细@经营类型(新)e~ = '' or ~s表外明细@经营类型(新)e~='其他' then 'V-其他' "+
+ 				"when ~s表外明细@经营类型(新)e~ like '煤炭开采' then 'A-煤炭@开采'" +
+ 				"when ~s表外明细@经营类型(新)e~ like '煤炭洗选' then 'A-煤炭@洗选' "+
+ 				"when ~s表外明细@经营类型(新)e~ like '焦碳—独立焦化' then 'B-焦碳@独立焦化' "+//焦碳—
+ 				"when ~s表外明细@经营类型(新)e~ like '焦碳—煤焦一体' or ~s表外明细@经营类型(新)e~ = '焦碳' then 'B-焦碳@煤焦一体' "+//焦碳—
+ 				"when ~s表外明细@经营类型(新)e~ like '焦碳—焦钢一体' then 'B-焦碳@焦钢一体' "+//焦碳—
+ 				"when ~s表外明细@经营类型(新)e~ like '焦碳—限期保留' then 'B-焦碳@限期保留' "+//焦碳—
+ 				"when ~s表外明细@经营类型(新)e~ like '焦碳—气源厂' then 'B-焦碳@气源厂' "+//焦碳—
+ 				"when ~s表外明细@经营类型(新)e~ like '焦碳—热回收' then 'B-焦碳@热回收' "+//焦碳—
+ 				"when ~s表外明细@经营类型(新)e~ like '批发零售%' then 'C-批发零售' "+//批发零售—
+ 				"when ~s表外明细@经营类型(新)e~ like '制造业—水泥' then 'D-制造业@水泥' "+//制造业—
+ 				"when ~s表外明细@经营类型(新)e~ like '制造业—平板玻璃' then 'D-制造业@平板玻璃' "+//制造业—
+ 				"when ~s表外明细@经营类型(新)e~ like '制造业%' then 'D-制造业@其他' "+//制造业—
+ 				"when ~s表外明细@经营类型(新)e~ like '钢铁' then 'E-钢铁' "+
+ 				"when ~s表外明细@经营类型(新)e~ like '房地产' then 'F-房地产' "+
+ 				"when ~s表外明细@经营类型(新)e~ like '化工化肥' then 'G-化工化肥' "+
+	 			"when ~s表外明细@经营类型(新)e~ like '建筑施工' or ~s表外明细@经营类型(新)e~ like '工程建筑' or ~s表外明细@经营类型(新)e~ like '建筑工程' then 'H-建筑施工' "+
+	 			"when ~s表外明细@经营类型(新)e~ like '铁矿开采' then 'I-铁矿开采' "+
+	 			"when ~s表外明细@经营类型(新)e~ like '农林牧副渔' then 'J-农林牧副渔' "+
+	 			"when ~s表外明细@经营类型(新)e~ like '政府平台' then 'K-政府平台' "+
+				"when ~s表外明细@经营类型(新)e~ like '钢贸户' or ~s表外明细@经营类型(新)e~ like '%钢材销售%' then 'L-钢贸户' "+
+				"when ~s表外明细@经营类型(新)e~ like '医药制造' then 'M-医药制造' "+
+				"when ~s表外明细@经营类型(新)e~ like '燃气生产和供应' then 'N-燃气生产和供应' "+
+				"when ~s表外明细@经营类型(新)e~ like '汽车维修及销售' then 'O-汽车维修及销售' "+
+				"when ~s表外明细@经营类型(新)e~ like '电力' then 'P-电力' "+
+				"when ~s表外明细@经营类型(新)e~ like '住宿餐饮' then 'Q-住宿餐饮' "+
+	 			"when ~s表外明细@经营类型(新)e~ like '交通运输' then 'R-交通运输' "+
+	 			"when ~s表外明细@经营类型(新)e~ like '医院学校' then 'S-医院学校' "+
+	 			"when ~s表外明细@经营类型(新)e~ like '信息技术' then 'T-信息技术' "+
+	 			"when ~s表外明细@经营类型(新)e~ like '文化娱乐' then 'U-文化娱乐' "+
+	 			"else 'W-'||~s表外明细@经营类型(新)e~ end";
+ 		AIDuebillOutHandler.process(HandlerFlag,sConfigNo,sOneKey,Sqlca,"银行承兑汇票经营类型(新)",groupBy,"and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票'");
+	 	//单独完成一些复杂的操作
+	 	AIDuebillOutHandler.afterProcess1(HandlerFlag,sConfigNo, sOneKey, Sqlca);
+	 	//4、加工后，进行合计，横向纵向分析
+	 	AIDuebillOutHandler.afterProcess(HandlerFlag,sConfigNo, sOneKey, Sqlca);
+	}
 	//对导入数据加工处理,插入到中间表Batch_Import_Interim
 	public static void interimProcess(String sConfigNo,String sKey,Transaction Sqlca) throws Exception{
  		String sSql="";
@@ -157,39 +255,10 @@ public class AIDuebillOutHandler{
 			startsmonth=StringFunction.getRelativeAccountMonth(sKey,"month", -11);
 			isSeason=true;
 		}
-		String sSql="";
-		/**********************************解析处理分组字段************************************************/
-		String groupbyClause="",groupbyColumn="";
-		//修理group by 中的分组字段
-		groupbyClause=groupBy.replaceAll("LJF",",");
-		groupbyClause=groupbyClause.replaceAll("QZ(.+?)QZ","");
-		//修理select中的分组字段
-		groupbyColumn=groupBy;
-		StringBuffer sb=new StringBuffer("");
-		Pattern pattern=Pattern.compile("QZ(.+?)QZ",Pattern.CASE_INSENSITIVE);
-		Matcher matcher=pattern.matcher(groupBy);
-		while(matcher.find()){
-			String gs=matcher.group(1);//Number:0:4:Before
-			if(gs.startsWith("Number")){
-				String []gsa=gs.split(":");
-				//获取形如 XXXLJFQZNumber:0:4:BeforeQZXXXXX 中 QZNumberQZ之前的 XXXLJF
-				String groupBypart=groupBy.substring(0,matcher.start(1));
-				//获取形如 XXXLJFQZNumber:0:4:BeforeQZXXXXX 中 LJF之前的XXX
-				groupBypart=groupBypart.substring(0,groupBypart.lastIndexOf("LJF"));
-				String partitionby="partition by "+groupBypart.replaceAll("LJF",",").replaceAll("QZ(.+?)QZ","");
-				gs="complementstring(trim(char(row_number()over("+partitionby+"))),'"+gsa[1]+"',"+gsa[2]+",'"+gsa[3]+"')";
-			}
-			matcher.appendReplacement(sb,gs+"||");
-		}
-		matcher.appendTail(sb);
-		if(!"".equals(sb.toString())){
-			groupbyColumn=sb.toString();
-		}
-		groupbyColumn=groupbyColumn.replaceAll("LJF","||'@'||");//分组字段之间的连接符，查询值里面用一般用@
-		/**********************************解析处理分组字段************************************************/
+		String[] groupColumnClause=StringUtils.replaceWithRealSql(groupBy);
 		//1、按各种维度汇总到处理表中
-		sSql="select "+
- 				"'"+HandlerFlag+"',ConfigNo,OneKey,'"+Dimension+"',"+("".equals(groupbyColumn)?"":groupbyColumn+",")+
+		String sSql="select "+
+ 				"'"+HandlerFlag+"',ConfigNo,OneKey,'"+Dimension+"',"+groupColumnClause[0]+
 				"round(sum(case when ~s表外明细@借据起始日e~ like '"+sKey+"%' then ~s表外明细@金额(元)e~ end)/10000,2) as BusinessSum,"+//按月投放金额
 				(isSeason==true?"round(sum(case when ~s表外明细@借据起始日e~ >= '"+startsmonth+"/01' and ~s表外明细@借据起始日e~ <= '"+sKey+"/31' then ~s表外明细@金额(元)e~ end)/10000,2)":"0")+","+//如果是季度末，计算按季投放金额,如果是半年末计算半年投放，整年....
 				"round(case when sum(~s表外明细@金额(元)e~)<>0 then sum(~s表外明细@金额(元)e~*~s表外明细@执行年利率(%)e~)/sum(~s表外明细@金额(元)e~) else 0 end,2) as BusinessRate, "+//加权利率
@@ -198,7 +267,7 @@ public class AIDuebillOutHandler{
 				"count(distinct ~s表外明细@客户名称e~) "+
 				"from Batch_Import_Interim "+
 				" where ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"' and nvl(~s表外明细@余额(元)e~,0)>0 "+sWhere+
-				" group by ConfigNo,OneKey"+("".equals(groupbyClause)?"":","+groupbyClause);
+				" group by ConfigNo,OneKey"+groupColumnClause[1];
 		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
  		Sqlca.executeSQL("insert into Batch_Import_Process "+
  				"(HandlerFlag,ConfigNo,OneKey,Dimension,DimensionValue,"+

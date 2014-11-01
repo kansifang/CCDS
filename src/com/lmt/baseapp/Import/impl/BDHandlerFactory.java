@@ -11,44 +11,12 @@ public class BDHandlerFactory{
 		BDHandlerFactory.beforeHandle(HandlerFlag,sReportConfigNo,sOneKey,CurUser,Sqlca);
 		//目前只有风险报告有展示前的再处理
 		if("RiskReport".toUpperCase().equals(HandlerFlag)){//全面风险报告
-			BDHandlerFactory.riskReportHandle(HandlerFlag,sReportConfigNo, sOneKey, Sqlca);
+			BDRiskReportHandler.riskReportHandle(HandlerFlag,sReportConfigNo, sOneKey, Sqlca);
 		}else if("SuperviseReport".toUpperCase().equals(HandlerFlag)){
 			BDHandlerFactory.superviseReportHandle(HandlerFlag,sReportConfigNo, sOneKey, Sqlca);
 		}else if("OperationReport".toUpperCase().equals(HandlerFlag)){//月度经营报告仍没想好怎么在这处理，先暂时不用
 			BDHandlerFactory.operationReportHandle(HandlerFlag,sReportConfigNo, sOneKey, Sqlca);
 		}
-	}
-	/**
-	 * 风险报告数据加工
-	 * @param sheet
-	 * @param icol
-	 * @return
-	 * @throws Exception 
-	 * @throws Exception
-	 */
-	private static void riskReportHandle(String HandlerFlag,String sReportConfigNo,String sOneKey,Transaction Sqlca) throws Exception {
-		//1、对中间表数据进行特殊处理 	 		 	
-		BDRiskReportHandler.interimProcess(sReportConfigNo, sOneKey, Sqlca);
-		//归属条线（个人 公司一块考虑）
-		String groupBy="case "+
-				" when BusinessType like '%垫款' then '0-垫款' " +
-				" when OperateOrgID='能源事业部' then 'A-能源事业部' " +
- 				" when ManageDepartFlag is null or ManageDepartFlag='' or ManageDepartFlag = '公司条线' then 'B-公司条线' " +
- 				" when ManageDepartFlag = '小企业条线' then 'C-小企业条线'"+
- 				" when ManageDepartFlag = '零售条线' then 'D-零售条线' end";
-		BDRiskReportHandler.process(HandlerFlag,sReportConfigNo, sOneKey, Sqlca,"归属条线","'一般贷款',"+groupBy,"");
-		//五级分类（个人 公司一块考虑）
-		groupBy="case "+
-	 				" when Classify is null or Classify='' or Classify like '正常%' then 'A-正常贷款@正常类' " +
-	 				" when Classify like '关注%' then 'A-正常贷款@关注类'"+
-	 				" when Classify like '次级%' then 'B-不良贷款@次级类' " +
-	 				" when Classify like '可疑%' then 'B-不良贷款@可疑类'"+
-	 				" when Classify like '损失%' then 'B-不良贷款@损失类' end";
-		BDRiskReportHandler.process(HandlerFlag,sReportConfigNo, sOneKey, Sqlca,"五级分类",groupBy,"");
-		//4、加工后，进行合计，横向纵向分析
-	 	BDRiskReportHandler.afterProcess(HandlerFlag,sReportConfigNo, sOneKey, Sqlca);
-	 	//最后收底
-	 	BDRiskReportHandler.lastProcess(HandlerFlag,sReportConfigNo, sOneKey, Sqlca);
 	}
 	/**
 	 * 季度监管报告数据加工

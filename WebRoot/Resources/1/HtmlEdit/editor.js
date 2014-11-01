@@ -12,7 +12,7 @@ function editor_defaultConfig(objname) {
 	this.version = "1.02";
 	this.width =  "auto";
 	this.height = "auto";
-	this.bodyStyle = 'background-color: #FFFFDF; font-family: "Comic Sans MS"; font-size:18 pt;';
+	this.bodyStyle = 'background-color: #FFFFDF; font-family: "Comic Sans MS"; font-size:18 pt;overflow-x:auto;overflow-y:auto;';
 	this.imgURL = _editor_url + 'images/';
 	this.debug  = 0;
 	this.replaceNextlines = 0; // replace nextlines from spaces (on output)
@@ -268,7 +268,7 @@ function editor_action(button_id) {
     myObjName = objname;
 	var sScreenWidth = screen.availWidth;
 	var sScreenHeight = screen.availHeight;
-	var sDefaultModelessDialogStyle = "dialogLeft="+(sScreenWidth*0.5)+";dialogWidth="+(sScreenWidth*0.7)+"px;dialogHeight="+(sScreenHeight*3/4)+"px;resizable=yes;status:no;maximize:yes;help:no;";
+	var sDefaultModelessDialogStyle = "dialogLeft="+(sScreenWidth*0.8)+";dialogWidth="+(sScreenWidth*0.9)+"px;dialogHeight="+(sScreenHeight*0.9)+"px;resizable=yes;status:no;maximize:yes;help:no;overflow-x:auto;overflow-y:auto;";
     window.showModalDialog(_editor_url + "popups/fullscreen.html?"+objname,window.self,sDefaultModelessDialogStyle); 
     return;
   }

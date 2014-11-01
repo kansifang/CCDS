@@ -380,9 +380,7 @@
 					if ((!this.readyState) || this.readyState == "complete" || this.readyState == "loaded" ){ 
 						windowobj.eval(func); // editor_generate()方法 在 引入的js文件中 ,加载完后在此执行
 						oScript.onload = oScript.onreadystatechange = null;
-					}else{ 
-					    console.info("can not load the oScript2.js file"); 
-					} 
+					}
 				};
 			}else{
 				//用XMLHTTP取得要脚本的内容，再创建 Script 对象。
