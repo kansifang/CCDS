@@ -3,15 +3,14 @@ package com.lmt.app.display;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GradientPaint;
+import java.awt.RenderingHints;
 import java.io.File;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.HashSet;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.axis.NumberAxis;
@@ -69,7 +68,7 @@ public class BarChart {
 			bars.add(barlable);			
 		}
 		rs.getStatement().close();
-		JFreeChart jf = ChartFactory.createBarChart3D("", "", "", PD, PlotOrientation.VERTICAL, true, true, false);
+		JFreeChart jf = ChartFactory.createBarChart3D("", "", "", PD, PlotOrientation.VERTICAL, true, true, false);//PlotOrientation.HORIZONTAL 表示纵坐标和横坐标互换
 		// 给柱状图对象设置样式
 		BarChart.setStyle(jf,bars.size());
 		return jf;
@@ -82,12 +81,19 @@ public class BarChart {
 		// 得到图表标题，并给其设置字体
 		//1、设置标题的字体 
 		TextTitle textTitle = chart.getTitle(); 
-		String fontA = "华文细黑"; 
+		String fontA = "宋体"; 
 		textTitle.setFont(new Font(fontA,Font.PLAIN,13)); 
 		textTitle.setBackgroundPaint(new GradientPaint(0.0F, 0.0F, Color.decode("#EEF7FF"), 250F, 0.0F, Color.white, true)); 
 		textTitle.setExpandToFitSpace(true); 
 		//得到图表底部类别，并给其设置字体
-		chart.getLegend().setItemFont(new Font("宋体",0,12));
+		chart.getLegend().setItemFont(new Font("黑体",0,12));
+		chart.getLegend().setVisible(true);//每个条目的说明是否展示（最下面那个）
+		//将jfreechart里RenderingHints做文字渲染参数的修改
+				//VALUE_TEXT_ANTIALIAS_OFF表示将文字的抗锯齿关闭.
+				//使用的关闭抗锯齿后，字体尽量选择12到14号的宋体字。
+				//这样文字最清晰好看 
+		chart.getRenderingHints().put(RenderingHints.KEY_TEXT_ANTIALIASING,RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+
 		//得到柱状图样式的样式
 		CategoryPlot plot = (CategoryPlot) chart.getCategoryPlot(); 
         plot.setBackgroundPaint(new Color(255, 255, 204));    
@@ -98,32 +104,41 @@ public class BarChart {
         //plot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
         plot.setRangeGridlinePaint(Color.black); 
         // 设置是否有横线 
-        plot.setRangeGridlinesVisible(false); 
-        NumberAxis numberaxis = (NumberAxis) plot.getRangeAxis(); 
-        numberaxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits()); 
+        plot.setRangeGridlinesVisible(true); 
+        
+        NumberAxis rangenumberaxis = (NumberAxis) plot.getRangeAxis(); 
+        rangenumberaxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits()); 
         //设置纵坐标名称的字体 
-        numberaxis.setLabelFont(new Font(fontA,Font.PLAIN,16)); 
+        rangenumberaxis.setLabelFont(new Font(fontA,Font.PLAIN,14)); 
         //设置纵坐标上显示的数字字体 
-        numberaxis.setTickLabelFont(new Font("Fixedsys",Font.PLAIN,13)); 
+        rangenumberaxis.setTickLabelFont(new Font(fontA,Font.PLAIN,10)); 
+        // 顶端设置 
+        rangenumberaxis.setUpperMargin(0.51D); 
         ////2、设置横坐标 
         //plot.setDomainAxisLocation(AxisLocation.TOP_OR_RIGHT);
         plot.setDomainGridlinePaint(Color.white); 
         plot.setDomainGridlinesVisible(true); 
         //设置横坐标名称的字体 
-        CategoryAxis categoryaxis = plot.getDomainAxis(); 
-        categoryaxis.setLabelFont(new Font(fontA,Font.PLAIN,16)); 
+        CategoryAxis domainaxis = plot.getDomainAxis(); 
+        domainaxis.setLabelFont(new Font(fontA,Font.PLAIN,14)); 
         //设置横坐标上显示各个业务子项的字体 
-        categoryaxis.setTickLabelFont(new Font(fontA,Font.PLAIN,12)); 
-        categoryaxis.setMaximumCategoryLabelLines(100); 
-        categoryaxis.setMaximumCategoryLabelWidthRatio(100); 
+        domainaxis.setTickLabelFont(new Font(fontA,Font.HANGING_BASELINE,13)); 
+        domainaxis.setMaximumCategoryLabelLines(100); 
+        domainaxis.setMaximumCategoryLabelWidthRatio(100); 
         //横坐标数据倾斜45度 
-        categoryaxis.setCategoryLabelPositions(CategoryLabelPositions.DOWN_45); 
-        // 顶端设置 
-        numberaxis.setUpperMargin(0.14999999999999999D); 
+        domainaxis.setCategoryLabelPositions(CategoryLabelPositions.DOWN_45); 
+        
         //3、设置图表内容各种属性 
         BarRenderer3D customBarRenderer = (BarRenderer3D) plot.getRenderer(); 
+        customBarRenderer.setBaseItemLabelFont(new Font(fontA, Font.PLAIN, 11));
+        customBarRenderer.setBaseItemLabelsVisible(true);
+
+        // 避免因为数值过小，显示不明显，或则看不到
+        customBarRenderer.setMinimumBarLength(10);
+
+        
         customBarRenderer.setBaseOutlinePaint(Color.BLACK);//边框为黑色
-        customBarRenderer.setItemLabelAnchorOffset(10D);// 标签显示与设定位置的距离
+        customBarRenderer.setItemLabelAnchorOffset(0D);// 标签显示与设定位置的距离
         //设置柱子的最大宽度 
         customBarRenderer.setMaximumBarWidth(0.04); 
         //设置柱子上比例数值的显示，如果按照默认方式显示，数值为方向正常显示    
@@ -134,14 +149,14 @@ public class BarChart {
          customBarRenderer.setNegativeItemLabelPosition(itemLabelPosition);  
        //下面的设置是为了解决，当柱子的比例过小，而导致表示该柱子比例的数值无法显示的问题    
          //设置不能在柱子上正常显示的那些数值的显示方式，将这些数值显示在柱子外面    
-         ItemLabelPosition itemLabelPositionFallback=new ItemLabelPosition(ItemLabelAnchor.OUTSIDE12,TextAnchor.BASELINE_LEFT,TextAnchor.HALF_ASCENT_LEFT,-1.57D);    
+         ItemLabelPosition itemLabelPositionFallback=new ItemLabelPosition(ItemLabelAnchor.INSIDE12,TextAnchor.BASELINE_LEFT,TextAnchor.HALF_ASCENT_LEFT,-1.57D);    
        //设置不能正常显示的柱子label的position   
          customBarRenderer.setPositiveItemLabelPositionFallback(itemLabelPositionFallback);   
          customBarRenderer.setNegativeItemLabelPositionFallback(itemLabelPositionFallback);   
         // 显示每个柱的数值，并修改该数值的字体属性    
          customBarRenderer.setIncludeBaseInRange(true);    
          // 设置每个平行柱之间距离    
-         customBarRenderer.setItemMargin(0.05);  
+         customBarRenderer.setItemMargin(0.1);  
  		// 自定义线段的绘制风格 
  		for (int i = 0; i < bars; i++)  { 
  			int colorN=i%2;
@@ -151,13 +166,13 @@ public class BarChart {
  				//以下设置，将按照指定格式，制定内容显示每个柱的数值。可以显示柱名称，所占百分比    
  				//customBarRenderer.setSeriesItemLabelGenerator(i,new StandardCategoryItemLabelGenerator("{2}",java.text.NumberFormat.getPercentInstance()));
  				customBarRenderer.setSeriesItemLabelsVisible(i, true);
- 				customBarRenderer.setSeriesPositiveItemLabelPosition(i,new ItemLabelPosition(ItemLabelAnchor.OUTSIDE1, TextAnchor.BOTTOM_CENTER)); 
+ 				customBarRenderer.setSeriesPositiveItemLabelPosition(i,new ItemLabelPosition(ItemLabelAnchor.INSIDE12, TextAnchor.BOTTOM_CENTER)); 
  				customBarRenderer.setSeriesItemLabelFont(i, new Font("黑体", Font.TRUETYPE_FONT,15));
  			}else{   
  				customBarRenderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator());
  				//customBarRenderer.setSeriesItemLabelGenerator(i,new StandardCategoryItemLabelGenerator("{2}",java.text.NumberFormat.getPercentInstance()));
  				customBarRenderer.setSeriesItemLabelsVisible(i, true);
- 				customBarRenderer.setSeriesPositiveItemLabelPosition(i,new ItemLabelPosition(ItemLabelAnchor.OUTSIDE12, TextAnchor.TOP_CENTER)); 
+ 				customBarRenderer.setSeriesPositiveItemLabelPosition(i,new ItemLabelPosition(ItemLabelAnchor.INSIDE12, TextAnchor.TOP_CENTER)); 
  				customBarRenderer.setSeriesItemLabelFont(i, new Font("黑体", Font.TRUETYPE_FONT,15));
  			}
  		}  

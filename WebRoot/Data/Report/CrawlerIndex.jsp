@@ -9,14 +9,36 @@
         <title>新闻抓取</title>
     </head>
     <body>
-        <form action="<%=sWebRootPath%>/GetNewsServlet" method="post" id="newsform">
+        <form id="newsform" action="<%=sWebRootPath%>/GetNewsServlet" method="post" >
         <div align="center">
-        	新闻首页地址： 
-	        <input name="newsfield" id="newsfield" type="text" value="http://news.sohu.com/" style="border-width:inherit;width:1000px">
+        <table>
+        	<tr><td cospan=2>新闻期限：</td></tr> 
+	        <tr><td>开始日</td>
+	        <td>
+	        	<input type=text size=15 value="<%=StringFunction.getRelativeMonth(StringFunction.getToday(),-1)%>" name="startDate" ondblclick="getMonth(this)">
+	  		</td>
+	  		</tr>      
+	  		<tr><td> 截止日</td>
+	        <td>
+	        	<input type=text size=15 value="<%=StringFunction.getToday()%>" name="endDate" ondblclick="getMonth(this)">
+	  		</td>
+	  		</tr>    
 	        <input name="CompClientID" type="hidden" value="<%=sCompClientID%>">
-	        <input type="submit" id="newsSubmit" value="提交">
+	        <tr><td cospan=2><input type="submit" id="newsSubmit" value="提交"></td></tr> 
+	        </table>
         </div>
         </form>
         </body>
 </html>
+<script language=javascript>
+function getMonth(obj){
+	//SelectMonth
+	var sReturn=PopPage("/Common/ToolsA/SelectDate.jsp","","dialogWidth:300px;dialogHeight:240px;center:yes;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
+	if(typeof(sReturn)=="undefined"){
+		obj.value="";
+	}else{
+		obj.value=sReturn;
+	}
+}
+</script>
 <%@	include file="/IncludeEnd.jsp"%>

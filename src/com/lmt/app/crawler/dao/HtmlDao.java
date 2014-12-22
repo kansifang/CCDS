@@ -19,6 +19,7 @@ import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
 
 import com.lmt.baseapp.util.DBFunction;
+import com.lmt.baseapp.util.StringFunction;
 import com.lmt.frameapp.ARE;
 import com.lmt.frameapp.config.ASConfigure;
 import com.lmt.frameapp.sql.ASResultSet;
@@ -30,17 +31,14 @@ import com.lmt.frameapp.sql.Transaction;
  * @author guanminglin <guanminglin@gmail.com>
  */
 public class HtmlDao {
-
-    private Parser parser = null;   //用于分析网页的分析器。
     private HtmlBean bean = new HtmlBean();
     private Transaction Sqlca = null;    //数据库连接管理器。
     private PreparedStatement pstmt = null;
     int n=0;//插入数据库条数计数器
-
     public HtmlDao(){
         	ASConfigure asconfigure = ASConfigure.getASConfigure();
         	String sDataSource=null;
-        	 String sql = "insert into Batch_Html(SerialNo,newstitle,newsauthor,newscontent,newsurl,newsdate) values(?,?,?,?,?,?)";
+        	 String sql = "insert into Batch_Html(SerialNo,newstitle,newsauthor,newscontent,newsurl,newsdate,updateDate) values(?,?,?,?,?,?,?)";
         	try {
         		sDataSource = asconfigure.getConfigure("DataSource");
         		Sqlca = ConnectionManager.getTransaction(sDataSource);
@@ -50,8 +48,6 @@ public class HtmlDao {
     			System.out.println("连接数据库失败！连接参数：<br>DataSource:"+ sDataSource);
     		}
     }
-
-   
     /**
      *  设置新闻对象，让新闻对象里有新闻数据
      * @param newsTitle 新闻标题
@@ -75,7 +71,7 @@ public class HtmlDao {
     public ArrayList<HtmlBean> getNewsList(String columns,String sfromwhere,int pageindex,int pageSize) {
     	ArrayList<HtmlBean> list = new ArrayList<HtmlBean>();
         String sSql="select num,"+columns+" from "+
-        				"(select row_number()over(order by SerialNo desc) as num,"+columns+" "+sfromwhere+")tab "+
+        				"(select row_number()over(order by NewsDate desc,SerialNo desc) as num,"+columns+" "+sfromwhere+")tab "+
 		        	" where num>"+(pageindex*pageSize)+
 		        	" and num<="+(pageindex*pageSize+pageSize);
         try {
@@ -140,10 +136,12 @@ public class HtmlDao {
             pstmt.setString(4, bean.getContent());
             pstmt.setString(5, bean.getURL());
             pstmt.setString(6, bean.getLastUpdateTime());
+            pstmt.setString(7, StringFunction.getTodayNow());
             pstmt.addBatch();
             n++;
-            if(n>=50){
+            if(n>=100){
             	pstmt.executeBatch();
+            	Sqlca.conn.commit();
             	n=0;
             }
         } catch (SQLException ex) {
@@ -154,6 +152,10 @@ public class HtmlDao {
     }
     public void close(){
     	try{
+    		Sqlca.executeSQL("delete from Batch_Html BPT1" +
+				" where BPT1.SerialNo<(select max(BPT2.SerialNo) from Batch_Html BPT2 " +
+				"					where BPT1.NewsTitle=BPT2.NewsTitle " +
+				"                   and BPT1.Newsdate=BPT2.Newsdate)");
     		if(pstmt!=null){
 				pstmt.executeBatch();
 				pstmt.close();

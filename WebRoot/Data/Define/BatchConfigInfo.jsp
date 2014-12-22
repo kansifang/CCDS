@@ -49,17 +49,18 @@
 <%
 	String sHeaders[][] = {
 					{"ItemNo","流水号"},
+					{"SortNo","要素序号"},
 					{"ItemName","以序列号初始化"},
 					{"Attribute1","要素Excel标题"},
-					{"Attribute3","是否识别标签"},
-					{"ItemDescribe","DB字段"},
+					{"Attribute3","要素识别标签"},
+					{"Attribute8","要素最大长度"},
 					{"Attribute6","要素所在表"},
-					{"ItemAttribute","要素注释"},
-					{"Attribute2","要素类型"},
-					{"Attribute4","要素长度"},
-					{"Attribute5","要素精度"},
+					{"ItemDescribe","字段名称"},
+					{"ItemAttribute","字段注释"},
+					{"Attribute2","字段类型"},
+					{"Attribute4","字段长度"},
+					{"Attribute5","字段精度"},
 					{"Attribute7","操作要素方式"},
-					{"SortNo","序号"},
 					{"IsInUse","有效"},
 					{"InputUserName","登记人"},
 					{"InputTime","登记时间"},
@@ -67,8 +68,8 @@
 					{"UpdateTime","更新时间"}
 				};
 	sSql =  " select  CodeNo,ItemNo,ItemName,SortNo,"+
-				" Attribute1,Attribute3,ItemDescribe,"+
-				" Attribute6,ItemAttribute,"+
+				" Attribute1,Attribute3,Attribute8,"+
+				" Attribute6,ItemDescribe,ItemAttribute,"+
 				"Attribute2,Attribute4,Attribute5,"+
 				" Attribute7,IsInUse,"+
 				" InputUser,getUserName(InputUser) as InputUserName,InputTime,"+
@@ -174,37 +175,40 @@
 			}
 			var ColumnLong = getItemValue(0,getRow(),"Attribute4");
 			var ColumnPrecision = getItemValue(0,getRow(),"Attribute5");
-			alterColumn(AlterType,ColumnTable,ColumnName,ColumnType,ColumnLong,ColumnPrecision);
-			//使用表字段的页面要同步更新字段对照表,注意用表和字段作为联合主键，因为字段维护页面可以维护任意表的字段（不过如果是根据自动拼接的字段，也不会重复了，这里主要是考虑到允许手工写入字段名）
-			if("<%=sType%>"=="01"){
-				//字段维护对照表维护，没有插入，有则更新
-				var ItemNo = PopPage("/Common/ToolsB/GetSerialNo.jsp?TableName=Code_Library&ColumnName=ItemNo&Prefix=","","resizable=yes;dialogWidth=0;dialogHeight=0;center:no;status:no;statusbar:no");
-				var ColumnType = getItemValue(0,getRow(),"Attribute2");
-				var ColumnLong = getItemValue(0,getRow(),"Attribute4");
-				var ColumnPrecision = getItemValue(0,getRow(),"Attribute5");
-				var ColumnTable = getItemValue(0,getRow(),"Attribute6").toUpperCase();
-				var sReturn=RunMethod("PublicMethod","GetColValue","Count(1) as Count,Code_Library,String@CodeNo@b20140323000001@String@Attribute6@"+ColumnTable+"@String@ItemDescribe@"+ColumnName+",Code_Library");
-				if(sReturn.split('@')[1]==0){
-					RunMethod("PublicMethod","InsertColValue","String@CodeNo@b20140323000001"+
-							"@String@ItemNo@"+ItemNo+
-							"@String@ItemDescribe@"+ColumnName+
-							"@String@Attribute2@"+ColumnType+
-							"@String@Attribute4@"+ColumnLong+
-							"@String@Attribute5@"+ColumnPrecision+
-							"@String@Attribute6@"+ColumnTable+
-							"@String@Attribute7@AddColumn"+
-							"@String@IsInUse@1,Code_Library");
-				}else{
-					//更新该字段的最新属性
-					RunMethod("PublicMethod","UpdateColValue","String@CodeNo@b20140323000001"+
-							"@String@ItemNo@"+ItemNo+
-							"@String@ItemDescribe@"+ColumnName+
-							"@String@Attribute2@"+ColumnType+
-							"@String@Attribute4@"+ColumnLong+
-							"@String@Attribute5@"+ColumnPrecision+
-							"@String@Attribute6@"+ColumnTable+
-							"@String@Attribute7@AlterLong"+
-							"@String@IsInUse@1,Code_Library,String@CodeNo@b20140323000001@String@Attribute6@"+ColumnTable+"@String@ItemDescribe@"+ColumnName);
+			if(AlterType.length>0){
+				alterColumn(AlterType,ColumnTable,ColumnName,ColumnType,ColumnLong,ColumnPrecision);
+				//使用表字段的页面要同步更新字段对照表,注意用表和字段作为联合主键，因为字段维护页面可以维护任意表的字段
+				//（不过如果是根据自动拼接的字段，也不会重复了，这里主要是考虑到允许手工写入字段名）
+				if("<%=sType%>"=="01"){
+					//字段维护对照表维护，没有插入，有则更新
+					var ItemNo = PopPage("/Common/ToolsB/GetSerialNo.jsp?TableName=Code_Library&ColumnName=ItemNo&Prefix=","","resizable=yes;dialogWidth=0;dialogHeight=0;center:no;status:no;statusbar:no");
+					var ColumnType = getItemValue(0,getRow(),"Attribute2");
+					var ColumnLong = getItemValue(0,getRow(),"Attribute4");
+					var ColumnPrecision = getItemValue(0,getRow(),"Attribute5");
+					var ColumnTable = getItemValue(0,getRow(),"Attribute6").toUpperCase();
+					var sReturn=RunMethod("PublicMethod","GetColValue","Count(1) as Count,Code_Library,String@CodeNo@b20140323000001@String@Attribute6@"+ColumnTable+"@String@ItemDescribe@"+ColumnName+",Code_Library");
+					if(sReturn.split('@')[1]==0){
+						RunMethod("PublicMethod","InsertColValue","String@CodeNo@b20140323000001"+
+								"@String@ItemNo@"+ItemNo+
+								"@String@ItemDescribe@"+ColumnName+
+								"@String@Attribute2@"+ColumnType+
+								"@String@Attribute4@"+ColumnLong+
+								"@String@Attribute5@"+ColumnPrecision+
+								"@String@Attribute6@"+ColumnTable+
+								"@String@Attribute7@AddColumn"+
+								"@String@IsInUse@1,Code_Library");
+					}else{
+						//更新该字段的最新属性
+						RunMethod("PublicMethod","UpdateColValue","String@CodeNo@b20140323000001"+
+								"@String@ItemNo@"+ItemNo+
+								"@String@ItemDescribe@"+ColumnName+
+								"@String@Attribute2@"+ColumnType+
+								"@String@Attribute4@"+ColumnLong+
+								"@String@Attribute5@"+ColumnPrecision+
+								"@String@Attribute6@"+ColumnTable+
+								"@String@Attribute7@AlterLong"+
+								"@String@IsInUse@1,Code_Library,String@CodeNo@b20140323000001@String@Attribute6@"+ColumnTable+"@String@ItemDescribe@"+ColumnName);
+					}
 				}
 			}
 			var sortNo=getItemValue(0,getRow(),"SortNo").toUpperCase();

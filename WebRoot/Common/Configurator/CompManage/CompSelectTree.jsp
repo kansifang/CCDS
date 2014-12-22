@@ -111,9 +111,11 @@
 	{
 		
 		top.returnValue = getCurTVItem().value+"@"+getCurTVItem().name+"@"+getCurTVItem().id;
-		if(confirm("您选择了\n\n组件ID: ["+getCurTVItem().id+"]\n组件名: ["+getCurTVItem().name+"]\n排序号:["+getCurTVItem().value+"]\n\n确认吗?"))
+		if(confirm("您选择了\n\n组件ID: ["+getCurTVItem().value+"]\n组件名: ["+getCurTVItem().name+"]\n排序号:["+getCurTVItem().id+"]\n\n确认吗?")){
 			top.close();
-		else top.returnValue="";
+		}
+		else 
+			top.returnValue="";
 			
 		
 		//setTitle(getCurTVItem().name);

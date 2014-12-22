@@ -23,7 +23,7 @@
 
 <%@ page contentType="text/html; charset=GBK"%>
 <%@ include file="/IncludeBeginMD.jsp"%>
-<%@ page import="com.lmt.app.lending.bizlets.*,com.amarsoft.biz.bizlet.Bizlet" %>
+<%@ page import="com.lmt.app.cms.*,com.lmt.app.cms.javainvoke.Bizlet" %>
 
 
 <%

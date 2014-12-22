@@ -1,4 +1,4 @@
-package com.lietu.vips;
+package com.lmt.app.crawler.removenoise.vips;
 
 import java.util.ArrayList;
 

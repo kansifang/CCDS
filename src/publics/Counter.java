@@ -1,5 +1,8 @@
 package publics;
 
+import java.util.regex.Pattern;
+
+import com.lmt.baseapp.Import.base.ExcelBigHandler;
 import com.lmt.baseapp.util.StringFunction;
 
 public class Counter {
@@ -79,8 +82,25 @@ public class Counter {
 		  }
 		  System.out.println(sb.toString());
 		  */
+    	/*
     	String[] AAttachmentNos={"AA","BB"};
     	String sAttachmentNos=StringFunction.toArrayString(AAttachmentNos,"','");
     	System.out.println(sAttachmentNos);
+    	*/
+    	/*
+    	String url="http://finance.www.ap2p.se1arch.finance.com/xxx/jj";
+    	if(url.matches("([a-zA-z]+://)?([\\w-]+\\.)+[\\w-]+(/[\\w- ./%&=]*)?")
+    			&&url.matches("^(?!.*?app)(?!.*?search)(?!.*?tool).*finance.*$")){
+    		System.out.println(1);
+    	}else{
+    		System.out.println(2);
+    	}
+    	System.out.println("aaaa1111bbbb".matches(".*\\d+.*"));
+    	System.out.println(Pattern.matches(".*finance.*", "http://finance.ifeng.com/"));
+    	*/
+    	//转化Z为26 ，A为1等
+        System.out.println("1="+ExcelBigHandler.getLetterFromNumber(200));
+        System.out.println("A="+ExcelBigHandler.getNumberFromLetter("200"));
+        
     }
 }

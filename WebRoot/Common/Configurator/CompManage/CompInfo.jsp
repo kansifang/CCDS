@@ -245,13 +245,14 @@
 	function setSortNo(){
 		var sCurCompID = getItemValue(0,0,"CompID");
 		var sReturn="";
-		sReturn = popComp("SelectComp","/Common/Configurator/CompManage/CompSelectTree.jsp","","");
+		sReturn = popComp("SelectComp","/Common/Configurator/CompManage/CompSelectTree.jsp","_blank","");
+		alert(sReturn);
 		if(typeof(sReturn)=="undefined" || sReturn=="") return;
 		var sReturns = sReturn.split("@");
 		var sTargetCompID = sReturns[0];
 		var sTargetCompName = sReturns[1];
 		var sTargetOrderNo = sReturns[2];
-		var sInjectionType = PopPage("/Common/Configurator/CompManage/SelectInjectionTypeDialog.jsp","","dialogwidth:200px;dialogheight:150px");
+		var sInjectionType = PopPage("/Common/Configurator/CompManage/SelectInjectionTypeDialog.jsp","","dialogwidth:400px;dialogheight:150px");
 		if(typeof(sInjectionType)=="undefined" || sInjectionType=="") return;
 		sReturn  = PopPage("/Common/Configurator/CompManage/InjectOrderNo.jsp?CurCompID="+sCurCompID+"&TargetCompID="+sTargetCompID+"&TargetOrderNo="+sTargetOrderNo+"&InjectionType="+sInjectionType,"","dialogwidth:400px;dialogheight:300px");
 		if(typeof(sReturn)!="undefined" && sReturn!="failed"){

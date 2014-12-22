@@ -1,4 +1,4 @@
-package com.lietu.simhash;
+package com.lmt.app.crawler._09_removerepetition.SimHash;
 
 import java.io.UnsupportedEncodingException;
 

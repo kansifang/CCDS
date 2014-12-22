@@ -46,6 +46,8 @@ public class ExtractContent{
 	protected static final int lineSign_size = lineSign.length();
     private Parser parser = null;   //用于分析网页的分析器。
     private HtmlBean bean = new HtmlBean();
+    public ExtractContent(){
+    }
     public ExtractContent(Parser parser){
 		this.parser = parser;
     	this.parse();
@@ -63,7 +65,7 @@ public class ExtractContent{
         //System.out.println(newsauthor); 
        // this.bean.setAuthor(this.getNewsAuthor());
         // System.out.println(newsContent);  
-        //this.bean.setContent(this.getPlainText());
+        this.bean.setURL(this.parser.getURL());
         parseP();
 	}
 	public void parseP(){
@@ -80,150 +82,6 @@ public class ExtractContent{
 			System.out.println(e);
 		}
 	}
-	/**
-     * 获取新闻的内容
-     * @param newsContentFilter
-     * @param parser
-     * @return  content 新闻内容
-     */
-    public String getContent() {
-    	this.parser.reset();
-    	 NodeFilter contentFilter = new AndFilter(new TagNameFilter("div"), new HasAttributeFilter("id", "contentText"));
-        String content = null;
-        StringBuilder builder = new StringBuilder();
-        try {
-            NodeList newsContentList = (NodeList) parser.parse(contentFilter);
-            for (int i = 0; i < newsContentList.size(); i++) {
-                Div newsContenTag = (Div) newsContentList.elementAt(i);
-                builder = builder.append(newsContenTag.getStringText());
-            }
-            content = builder.toString();  //转换为String 类型。
-            if (content != null) {
-                parser.reset();
-                //parser = Parser.createParser(content, "utf-8");
-                StringBean sb = new StringBean();
-                sb.setCollapse(true);
-                parser.visitAllNodesWith(sb);
-                content = sb.getStrings();
-                //String s = "\";} else{ document.getElementById('TurnAD444').innerHTML = \"\";} } showTurnAD444(intTurnAD444); }catch(e){}";
-                content = content.replaceAll("\\\".*[a-z].*\\}", "");
-                content = content.replace("[我来说两句]", "");
-            } else {
-               System.out.println("没有得到新闻内容！");
-            }
-        } catch (ParserException ex) {
-            Logger.getLogger(HtmlDao.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return content;
-    }
-
-    /**
-     * 根据提供的URL，获取此URL对应网页所有的纯文本信息，次方法得到的信息不是很纯，
-     *常常会得到我们不想要的数据。不过如果你只是想得到某个URL 里的所有纯文本信息，该方法还是很好用的。
-     * @param url 提供的URL链接
-     * @return RL对应网页的纯文本信息
-     * @throws ParserException
-     */
-    public String getPlainText(){
-        StringBean sb = new StringBean();
-        //设置不需要得到页面所包含的链接信息
-        sb.setLinks(false);
-        //设置将不间断空格由正规空格所替代
-        sb.setReplaceNonBreakingSpaces(true);
-        //设置将一序列空格由一个单一空格所代替
-        sb.setCollapse(true);
-        //传入要解析的URL
-        this.parser.reset();
-        try {
-			this.parser.visitAllNodesWith(sb);
-		} catch (ParserException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        //sb.setURL(this.parser.getURL());
-        //返回解析后的网页纯文本信息
-        return sb.getStrings();
-    }
-	// 从一个字符串中提取出host
-	private String getLinkUrl(String link) {
-		String urlDomaiPattern = "(http://[^/]*?" + "/)(.*?)";
-		Pattern pattern = Pattern.compile(urlDomaiPattern,Pattern.CASE_INSENSITIVE + Pattern.DOTALL);
-		Matcher matcher = pattern.matcher(link);
-		String url = "";
-		while (matcher.find()) {
-			int start = matcher.start(1);
-			int end = matcher.end(1);
-			url = link.substring(start, end - 1).trim();
-		}
-		return url;
-	}
-	
-	 /**
-     * 获得新闻的标题
-     * @param titleFilter
-     * @param parser
-     * @return
-     */
-    public String getTitle() {
-    	this.parser.reset();
-    	NodeFilter titleFilter = new TagNameFilter("h1");
-        StringBuffer titleName = new StringBuffer("");
-        try {
-            NodeList titleNodeList = (NodeList) parser.parse(titleFilter);
-            for (int i = 0; i < titleNodeList.size(); i++) {
-                HeadingTag title = (HeadingTag) titleNodeList.elementAt(i);
-                titleName.append(title.getStringText()+"\n");
-            }
-        } catch (ParserException ex) {
-            Logger.getLogger(HtmlDao.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return titleName.toString();
-    }
-
-    /**
-     * 获得新闻的责任编辑，也就是作者。
-     * @param newsauthorFilter
-     * @param parser
-     * @return
-     */
-    public String getNewsAuthor() {
-    	this.parser.reset();
-    	NodeFilter newsauthorFilter = new AndFilter(new TagNameFilter("span"), new HasAttributeFilter("class", "editer"));
-        String newsAuthor = "";
-        try {
-            NodeList authorList = (NodeList) parser.parse(newsauthorFilter);
-            for (int i = 0; i < authorList.size(); i++) {
-                Node authorSpan = authorList.elementAt(i);
-                newsAuthor = authorSpan.toPlainTextString();
-            }
-
-        } catch (ParserException ex) {
-            Logger.getLogger(HtmlDao.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return newsAuthor;
-
-    }
-    /*
-     * 获得新闻的日期
-     */
-    public String getNewsDate() {
-    	this.parser.reset();
-    	NodeFilter newsdateFilter = new AndFilter(new TagNameFilter("div"), new HasAttributeFilter("class", "time"));
-        String newsDate = null;
-        try {
-            NodeList dateList = (NodeList) parser.parse(newsdateFilter);
-            for (int i = 0; i < dateList.size(); i++) {
-                Node dateTag = dateList.elementAt(i);
-                newsDate = dateTag.toPlainTextString();
-            }
-        } catch (ParserException ex) {
-            Logger.getLogger(HtmlDao.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        return newsDate;
-    }
-
-
 	/**
 	 * 递归钻取正文信息
 	 * 
@@ -264,13 +122,12 @@ public class ExtractContent{
 		}else if (nodeP instanceof TitleTag) {
 			String title=((TitleTag) nodeP).getChildrenHTML().toString().split("[|\\-_]")[0];
 			newsbean.setTitle(title);
-		//有的网页 <span 在 <p中 有的则不在
-		}else if (nodeP instanceof Span){
+		//有的网页 <span 在 <p <div 有的则不在
+		}else if(nodeP instanceof Div||nodeP instanceof Span){
 			StringBuffer spanWord = new StringBuffer();
 			getSpanWord(nodeP, spanWord);
 			if ((spanWord != null) && (spanWord.length() > 0)) {
 				String text = collapse(spanWord.toString().replaceAll("&nbsp;", "").replaceAll("　", ""));
-				StringBuffer temp = new StringBuffer();
 				//设置时间戳
 				if(newsbean.getLastUpdateTime()==null){
 					Pattern p = Pattern.compile("[0-9]{4}[年|\\-|/][0-9]{1,2}[月|\\-|/][0-9]{1,2}日?\\s*[012]{1}[0-9]{1}:[0-6]{1}[0-9]{1}");
@@ -282,7 +139,6 @@ public class ExtractContent{
 							time = time.replaceAll("月", "/");	
 							time = time.replaceAll("日", " ");
 							time = time.replaceAll("-", "/");	
-							System.out.println(time);	
 							newsbean.setLastUpdateTime(time);
 						}
 					}
@@ -416,33 +272,6 @@ public class ExtractContent{
 		}
 		return null;
 	}
-
-	/**
-	 * 设置图象连接
-	 * 
-	 * @param nodeP
-	 * @param siteUrl
-	 */
-	private void setLinkImg(Node nodeP, String url) {
-		NodeList nodeList = nodeP.getChildren();
-		try {
-			for (NodeIterator e = nodeList.elements(); e.hasMoreNodes();) {
-				Node node = (Node) e.nextNode();
-				if (node instanceof ImageTag) {
-					ImageTag img = (ImageTag) node;
-					if (img.getImageURL().toLowerCase().indexOf("http://") < 0) {
-						img.setImageURL(url + img.getImageURL());
-					} else {
-						img.setImageURL(img.getImageURL());
-					}
-				}
-			}
-		} catch (Exception e) {
-			return;
-		}
-		return;
-	}
-
 	/**
 	 * 钻取段落中的内容
 	 * 
@@ -466,7 +295,7 @@ public class ExtractContent{
 			return null;
 		}
 		try {
-			for (NodeIterator e = nodeList.elements(); e.hasMoreNodes();) {
+			for (NodeIterator e = nodeList.elements(); e.hasMoreNodes();){
 				Node node = (Node) e.nextNode();
 				if (node instanceof ScriptTag || node instanceof StyleTag|| node instanceof SelectTag){
 					
@@ -488,7 +317,7 @@ public class ExtractContent{
 						temp.append(text);
 						tableList.add(temp);
 					}
-				} else if (node instanceof Span) {//有的网页 <span 在 <p中 有的则不在
+				} else if (node instanceof Div||node instanceof Span) {//有的网页 <span在 <p中, 有的则不在 故在此如果有时间 就再更新一下
 					StringBuffer spanWord = new StringBuffer();
 					getSpanWord(node, spanWord);
 					if ((spanWord != null) && (spanWord.length() > 0)) {
@@ -517,7 +346,7 @@ public class ExtractContent{
 					String tag = node.toHtml();
 					if (tag.length() <= 10) {
 						tag = tag.toLowerCase();
-						if ((tag.indexOf("strong") >= 0)|| (tag.indexOf("b") >= 0)) {
+						if ((tag.indexOf("strong") >= 0)|| (tag.indexOf("b") >= 0)) {//strong b 都是对字体加粗的标签
 							StringBuffer temp = new StringBuffer();
 							temp.append(tag);
 							tableList.add(temp);
@@ -540,19 +369,45 @@ public class ExtractContent{
 		}
 		return tableList;
 	}
-
+	/**
+	 * 设置图象连接
+	 * 
+	 * @param nodeP
+	 * @param siteUrl
+	 */
+	private void setLinkImg(Node nodeP, String url) {
+		NodeList nodeList = nodeP.getChildren();
+		try {
+			for (NodeIterator e = nodeList.elements(); e.hasMoreNodes();) {
+				Node node = (Node) e.nextNode();
+				if (node instanceof ImageTag) {
+					ImageTag img = (ImageTag) node;
+					if (img.getImageURL().toLowerCase().indexOf("http://") < 0) {
+						img.setImageURL(url + img.getImageURL());
+					} else {
+						img.setImageURL(img.getImageURL());
+					}
+				}
+			}
+		} catch (Exception e) {
+			return;
+		}
+		return;
+	}
 	protected void getSpanWord(Node nodeP, StringBuffer spanWord) {
 		NodeList nodeList = nodeP.getChildren();
 		try {
 			for (NodeIterator e = nodeList.elements(); e.hasMoreNodes();) {
 				Node node = (Node) e.nextNode();
 				if (node instanceof ScriptTag || node instanceof StyleTag|| node instanceof SelectTag) {
-				
+					
 				} else if (node instanceof TextNode) {
 					spanWord.append(node.getText());
 				} else if (node instanceof Span) {
 					getSpanWord(node, spanWord);
 				} else if (node instanceof ParagraphTag) {
+					getSpanWord(node, spanWord);
+				} else if (node instanceof Div) {
 					getSpanWord(node, spanWord);
 				} else if (node instanceof TagNode) {
 					String tag = node.toHtml().toLowerCase();
@@ -567,7 +422,33 @@ public class ExtractContent{
 		}
 		return;
 	}
-
+    /**
+     * 根据提供的URL，获取此URL对应网页所有的纯文本信息，次方法得到的信息不是很纯，
+     *常常会得到我们不想要的数据。不过如果你只是想得到某个URL 里的所有纯文本信息，该方法还是很好用的。
+     * @param url 提供的URL链接
+     * @return RL对应网页的纯文本信息
+     * @throws ParserException
+     */
+    public String getPlainText(){
+        StringBean sb = new StringBean();
+        //设置不需要得到页面所包含的链接信息
+        sb.setLinks(false);
+        //设置将不间断空格由正规空格所替代
+        sb.setReplaceNonBreakingSpaces(true);
+        //设置将一序列空格由一个单一空格所代替
+        sb.setCollapse(true);
+        //传入要解析的URL
+        this.parser.reset();
+        try {
+			this.parser.visitAllNodesWith(sb);
+		} catch (ParserException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        //sb.setURL(this.parser.getURL());
+        //返回解析后的网页纯文本信息
+        return sb.getStrings();
+    }
 	/**
 	 * 判断TABLE是否是表单
 	 * 
@@ -662,8 +543,7 @@ public class ExtractContent{
 		}
 		return;
 	}
-
-	private String collapse(String string) {
+	public static String collapse(String string) {
 		int chars;
 		int length;
 		int state;
@@ -672,9 +552,9 @@ public class ExtractContent{
 		chars = string.length();
 		if (0 != chars) {
 			length = buffer.length();
-			state = ((0 == length) || (buffer.charAt(length - 1) == ' ') || ((lineSign_size <= length) && buffer
-					.substring(length - lineSign_size, length).equals(lineSign))) ? 0
-					: 1;
+			state = ((0 == length) 
+					|| (buffer.charAt(length - 1) == ' ') 
+					|| ((lineSign_size <= length) && buffer.substring(length - lineSign_size, length).equals(lineSign))) ? 0: 1;
 			for (int i = 0; i < chars; i++) {
 				character = string.charAt(i);
 				switch (character) {
@@ -708,6 +588,9 @@ public class ExtractContent{
 		this.bean = bean;
 	}
 	public static void main(String[] args) {
+		//ExtractContent ec=new ExtractContent();
+		//String xxx=ec.getLinkUrl("http://www.ifeng.com/sss/xxx");
+		//System.out.println(xxx);
 		//ExtractContent console = new ExtractContent("http://www.eastmoney.com/","");
 		//URL c = new URL();
 		//c.setCharSet("utf-8");//

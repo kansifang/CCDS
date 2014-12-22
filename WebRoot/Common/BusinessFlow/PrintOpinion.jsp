@@ -3,7 +3,6 @@
 <%@page import="javax.servlet.jsp.*"%>
 <%@page import="javax.servlet.http.*"%>
 <%@page import="javax.servlet.*" %>
-<%@page import="com.amarsoft.*" %>
 <%@page import="java.*" %>
 
 

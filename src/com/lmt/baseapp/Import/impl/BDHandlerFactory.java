@@ -15,7 +15,7 @@ public class BDHandlerFactory{
 		}else if("SuperviseReport".toUpperCase().equals(HandlerFlag)){
 			BDHandlerFactory.superviseReportHandle(HandlerFlag,sReportConfigNo, sOneKey, Sqlca);
 		}else if("OperationReport".toUpperCase().equals(HandlerFlag)){//月度经营报告仍没想好怎么在这处理，先暂时不用
-			BDHandlerFactory.operationReportHandle(HandlerFlag,sReportConfigNo, sOneKey, Sqlca);
+			BDOperationReportHandler.operationReportHandle(HandlerFlag,sReportConfigNo, sOneKey, Sqlca);
 		}
 	}
 	/**
@@ -33,22 +33,6 @@ public class BDHandlerFactory{
 		BDSuperviseReportHandler.process(HandlerFlag,sReportConfigNo, sOneKey, Sqlca,"对公对私明细","","");
 	 	//4、加工后，进行合计，横向纵向分析
 	 	BDSuperviseReportHandler.afterProcess(HandlerFlag,sReportConfigNo, sOneKey, Sqlca);
-	}
-	/**
-	 * 月度经营报告处理
-	 * @param sheet
-	 * @param icol
-	 * @return
-	 * @throws Exception 
-	 * @throws Exception
-	 */
-	private static void operationReportHandle(String HandlerFlag,String sReportConfigNo,String sOneKey,Transaction Sqlca) throws Exception {
-		//1、对中间表数据进行特殊处理 	 		 	
-		BDOperationReportHandler.interimProcess(sReportConfigNo, sOneKey, Sqlca);
-		//
-		BDOperationReportHandler.process(HandlerFlag,sReportConfigNo, sOneKey, Sqlca);
-	 	//4、加工后，进行合计，横向纵向分析
-		BDOperationReportHandler.afterProcess(HandlerFlag,sReportConfigNo, sOneKey, Sqlca);
 	}
 	/**
 	 * 借据导入后处理

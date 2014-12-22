@@ -19,7 +19,7 @@ public class BDRiskReportHandler{
 	public static void riskReportHandle(String HandlerFlag,String sReportConfigNo,String sOneKey,Transaction Sqlca) throws Exception {
 		//1、对中间表数据进行特殊处理 	 		 	
 		BDRiskReportHandler.interimProcess(sReportConfigNo, sOneKey, Sqlca);
-		BDRiskReportHandler.process(HandlerFlag,sReportConfigNo, sOneKey, Sqlca,"归属条线贴现","QZNumber:0:1:BeforeQZManageDepartFlag","");
+		BDRiskReportHandler.process(HandlerFlag,sReportConfigNo, sOneKey, Sqlca,"归属条线贴现","'一般贷款'LJFQZNumber:0:1:BeforeQZManageDepartFlag"," and nvl(ManageDepartFlag,'')<>''");
 		//归属条线（个人 公司一块考虑）
 		String groupBy="'一般贷款'LJFQZNumber:0:1:BeforeQZcase "+
 				" when BusinessType like '%垫款' then '垫款' " +
@@ -27,15 +27,25 @@ public class BDRiskReportHandler{
  				" when ManageDepartFlag is null or ManageDepartFlag='' or ManageDepartFlag = '公司条线' then '公司条线' " +
  				" when ManageDepartFlag = '小企业条线' then '小企业条线'"+
  				" when ManageDepartFlag = '零售条线' then '零售条线' end";
-		BDRiskReportHandler.process(HandlerFlag,sReportConfigNo, sOneKey, Sqlca,"垫款能源部归属条线贴现",groupBy,"");
+		BDRiskReportHandler.process(HandlerFlag,sReportConfigNo, sOneKey, Sqlca,"垫款能源部归属条线贴现",groupBy," and nvl(ManageDepartFlag,'')<>''");
 		//五级分类（个人 公司一块考虑）
 		groupBy="case "+
 	 				" when Classify is null or Classify='' or Classify like '正常%' then 'A-正常贷款@正常类' " +
 	 				" when Classify like '关注%' then 'A-正常贷款@关注类'"+
-	 				" when Classify like '次级%' then 'B-不良贷款@次级类' " +
-	 				" when Classify like '可疑%' then 'B-不良贷款@可疑类'"+
-	 				" when Classify like '损失%' then 'B-不良贷款@损失类' end";
-		BDRiskReportHandler.process(HandlerFlag,sReportConfigNo, sOneKey, Sqlca,"五级分类",groupBy,"");
+	 				" when Classify like '次级%' then " +
+	 				"  case when ManageDepartFlag is null or ManageDepartFlag='' or ManageDepartFlag = '公司条线' then 'B-不良贷款~公司条线@次级类' " +
+	 				" 	when ManageDepartFlag = '小企业条线' then 'B-不良贷款~小企业条线@次级类'"+
+	 				" 	when ManageDepartFlag = '零售条线' then 'B-不良贷款~零售条线@次级类' end"+
+	 				" when Classify like '可疑%' then "+
+	 				"  case when ManageDepartFlag is null or ManageDepartFlag='' or ManageDepartFlag = '公司条线' then 'B-不良贷款~公司条线@可疑类' " +
+	 				" 	when ManageDepartFlag = '小企业条线' then 'B-不良贷款~小企业条线@可疑类'"+
+	 				" 	when ManageDepartFlag = '零售条线' then 'B-不良贷款~零售条线@可疑类' end"+
+	 				" when Classify like '损失%' then " +
+	 				"  case when ManageDepartFlag is null or ManageDepartFlag='' or ManageDepartFlag = '公司条线' then 'B-不良贷款~公司条线@损失类' " +
+	 				" 	when ManageDepartFlag = '小企业条线' then 'B-不良贷款~小企业条线@损失类'"+
+	 				" 	when ManageDepartFlag = '零售条线' then 'B-不良贷款~零售条线@损失类' end"+
+	 				" end";
+		BDRiskReportHandler.process(HandlerFlag,sReportConfigNo, sOneKey, Sqlca,"五级分类",groupBy," and nvl(ManageDepartFlag,'')<>''");
 		//4、加工后，进行合计，横向纵向分析
 	 	BDRiskReportHandler.afterProcess(HandlerFlag,sReportConfigNo, sOneKey, Sqlca);
 	 	//最后收底
@@ -94,18 +104,18 @@ public class BDRiskReportHandler{
 					" Case when ConfigName='个人明细' then ~s个人明细@管户机构e~ else ~s借据明细@管户机构e~ end OperateOrgID " +
 					" from Batch_Import_Interim"+
 					" where ConfigName in('个人明细','借据明细') and OneKey='"+sKey+"'"+
-					" and (ConfigName='个人明细' and ~s个人明细@业务品种e~ not in('个人委托贷款','个人住房公积金贷款') or ConfigName='借据明细')" +
-					sWhere;
+					" and (ConfigName='个人明细' and ~s个人明细@业务品种e~ not in('个人委托贷款','个人住房公积金贷款') or ConfigName='借据明细')";
 		String[] groupColumnClause=StringUtils.replaceWithRealSql(groupBy);
 		String sSql="select "+
  				"'"+HandlerFlag+"','"+sReportConfigNo+"',OneKey,'"+Dimension+"',"+groupColumnClause[0]+
 				"round(sum(case when PutOutDate like '"+sKey+"%' then BusinessSum end)/10000,2),"+//按月投放金额
 				(isSeason==true?"round(sum(case when PutOutDate like '"+last2month+"%' or PutOutDate like '"+last1month+"%' or PutOutDate like '"+sKey+"%' then BusinessSum end)/10000,2)":"0")+","+//如果是季度末，计算按季投放金额
 				"round(case when sum(BusinessSum)<>0 then sum(BusinessSum*BusinessRate)/sum(BusinessSum) else 0 end,2), "+//加权利率
-				"round(sum(Balance)/10000,2) as Balance, "+
+				"round(sum(nvl(Balance,0))/10000,2) as Balance, "+
 				"count(distinct CustomerName),'"+StringFunction.getTodayNow()+"'"+
 				" from ("+sCSql+")tab"+
-				" where nvl(Balance,0)>0"+
+				" where 1=1 /*nvl(Balance,0)>0*/"+
+				sWhere+
 				" group by OneKey"+groupColumnClause[1]+
 				" union all"+
 				" select "+
@@ -129,7 +139,7 @@ public class BDRiskReportHandler{
 	public static void afterProcess(String HandlerFlag,String sReportConfigNo,String sKey,Transaction Sqlca)throws Exception{
 		String sSql="";
 		String sLastYearEnd=StringFunction.getRelativeAccountMonth(sKey.substring(0, 4)+"/12","year",-1);
-		//1、插入各个维度的小计
+		//0、插入各个维度的小计 以@为标记
  		sSql="select "+
  				"HandlerFlag,ConfigNo,OneKey,Dimension,substr(DimensionValue,1,locate('@',DimensionValue)-1)||'@小计',"+
 			"round(sum(BusinessSum),2),round(sum(BusinessSumSeason),2),round(sum(Balance),2),sum(TotalTransaction) "+
@@ -142,12 +152,25 @@ public class BDRiskReportHandler{
  				"( "+
  				sSql+
  				")");
+ 		//1、插入各个维度的中计 以~为标记
+ 		sSql="select "+
+ 				"HandlerFlag,ConfigNo,OneKey,Dimension,substr(DimensionValue,1,locate('~',DimensionValue)-1)||'@中计',"+
+			"round(sum(BusinessSum),2),round(sum(BusinessSumSeason),2),round(sum(Balance),2),sum(TotalTransaction) "+
+			"from Batch_Import_Process "+
+			"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sReportConfigNo+"' and OneKey ='"+sKey+"' and locate('小计',DimensionValue)=0 and locate('~',DimensionValue)>0 "+
+			"group by HandlerFlag,ConfigNo,OneKey,Dimension,substr(DimensionValue,1,locate('~',DimensionValue)-1)";
+ 		Sqlca.executeSQL("insert into Batch_Import_Process "+
+ 				"(HandlerFlag,ConfigNo,OneKey,Dimension,DimensionValue,"+
+ 				"BusinessSum,BusinessSumSeason,Balance,TotalTransaction)"+
+ 				"( "+
+ 				sSql+
+ 				")");
 		//2、插入各个维度的总计
  		sSql="select "+
  				"HandlerFlag,ConfigNo,OneKey,Dimension,'总计@总计',"+
 			"round(sum(BusinessSum),2),round(sum(BusinessSumSeason),2),round(sum(Balance),2) as Balance,sum(TotalTransaction) "+
 			"from Batch_Import_Process "+
-			"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sReportConfigNo+"' and OneKey ='"+sKey+"' and locate('小计',DimensionValue)=0 "+
+			"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sReportConfigNo+"' and OneKey ='"+sKey+"' and locate('小计',DimensionValue)=0 and locate('中计',DimensionValue)=0 "+
 			"group by HandlerFlag,ConfigNo,OneKey,Dimension";
  		Sqlca.executeSQL("insert into Batch_Import_Process "+
  				"(HandlerFlag,ConfigNo,OneKey,Dimension,DimensionValue,"+

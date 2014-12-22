@@ -9,7 +9,7 @@ public class ObjColumn {
 	private  boolean primaryKey=false;//是否主键
 	private  int indexInFile=-1;//字段在上传文件中对应列序号，从0开始
 	private  int index=-1;//字段在ExcelResultset(即内存)中的序号，从0开始，
-	private  int columnSize=0;
+	private  int columnSize=0;//一个字段的长度（以字节为单位计算）
 	private  String columnSValue="";//字段是String情况下会有值
 	private  Double columnDValue=0.0;//字段是double情况下会有值
 	private  String columnHeadName=null;//字段在文件中的标题名
@@ -35,7 +35,7 @@ public class ObjColumn {
 	 * @param index 字段序号
 	 * @param outFileColumn
 	 */
-	public ObjColumn(String columnName,String columnType,String columnHeadName,int indexInFile,int index,boolean outFileColumn,boolean primaryKey) {
+	public ObjColumn(String columnName,String columnType,String columnHeadName,int indexInFile,int index,boolean outFileColumn,boolean primaryKey,int columnSize) {
 		this.columnName = columnName.toUpperCase();
 		this.columnType = columnType;
 		this.primaryKey=primaryKey;
@@ -43,6 +43,7 @@ public class ObjColumn {
 		this.indexInFile = indexInFile;
 		this.index = index;
 		this.outFileColumn=outFileColumn;
+		this.columnSize=columnSize;
 	}
 	public void setColumnName(String columnEName) {
 		this.columnName = columnEName.toUpperCase();

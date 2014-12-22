@@ -52,5 +52,4 @@ function getCheckType(){
 	}
 }
 </script>
-
 <%@ include file="/IncludeEnd.jsp"%>

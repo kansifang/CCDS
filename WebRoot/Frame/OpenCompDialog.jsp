@@ -115,7 +115,7 @@
 
 		//检查下级页面的dw
 		if(oFrame.frames.length==0) return false;
-		for(i=0;i<oFrame.frames.length;i++){
+		for(var i=0;i<oFrame.frames.length;i++){
 			if(checkFrameModified(oFrame.frames[i],iGenerations)) return true;
 		}
 		return false;

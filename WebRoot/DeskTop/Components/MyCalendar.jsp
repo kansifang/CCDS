@@ -582,30 +582,30 @@ function showTipOfToday(id,e,sText){
 	  	}
 	}
 </script>
-	<table border="0" cellspacing="0" cellpadding="0">
-		<tr>
-		<td valign="top" nowrap>
-			<img name='movefrom_report_chosen' onclick='prev();' border='0' src='<%=sResourcesPath%>/chooser_orange/triangle-left.png' alt='Remove selected items' />
-		</td>
-		<td onMouseOver="showlayerforCP(0,this)" valign="top" nowrap>
-			<span id="tbSelYear" style='width:25;cursor:hand' onClick='SelectYearOrDay="Y";fDrawYear(document.getElementById("tbSelYear").innerHTML,60, 40, "11px", "", 1);displayD();' onchange='fDrawCal(document.getElementById("tbSelYear").innerHTML, document.getElementById("tbSelMonth").innerHTML, 30, 20, "11px", "", 1)'>
-			</span>年
-		</td>
-		<td nowrap valign="top">
-			<span id="tbSelMonth" style='width:10;cursor:hand' onClick='SelectYearOrDay="M";displayD();fDrawCal(document.getElementById("tbSelYear").innerHTML, document.getElementById("tbSelMonth").innerHTML, 30, 20, "11px", "", 1);' onchange='fDrawCal(document.getElementById("tbSelYear").innerHTML, document.getElementById("tbSelMonth").innerHTML, 30, 20, "11px", "", 1);'>
-			</span>月
-		</td>
-		<td nowrap valign="top">
-			<span id="tbSelDay" style='width:10;'></span>日
-		</td>
-		<td nowrap>
-			<img  name='movefrom_report_chosen' onclick='next();' border='0' src='<%=sResourcesPath%>/chooser_orange/triangle-right.png' alt='next'/>
-		</td>
-		<td id=du nowrap>
-			<img style='cursor:hand' name='movefrom_report_chosen' onClick='displayD();' border='0' src='<%=sResourcesPath%>/chooser_orange/scroll_arrow_down.gif' alt='detail'/>
-		</td>
-		</tr>
-	</table>
+<table border="0" cellspacing="0" cellpadding="0">
+	<tr>
+	<td valign="top" nowrap>
+		<img name='movefrom_report_chosen' onclick='prev();' border='0' src='<%=sResourcesPath%>/chooser_orange/triangle-left.png' alt='Remove selected items' />
+	</td>
+	<td onMouseOver="showlayerforCP(0,this)" valign="top" nowrap>
+		<span id="tbSelYear" style='width:25;cursor:hand' onClick='SelectYearOrDay="Y";fDrawYear(document.getElementById("tbSelYear").innerHTML,60, 40, "11px", "", 1);displayD();' onchange='fDrawCal(document.getElementById("tbSelYear").innerHTML, document.getElementById("tbSelMonth").innerHTML, 30, 20, "11px", "", 1)'>
+		</span>年
+	</td>
+	<td nowrap valign="top">
+		<span id="tbSelMonth" style='width:10;cursor:hand' onClick='SelectYearOrDay="M";displayD();fDrawCal(document.getElementById("tbSelYear").innerHTML, document.getElementById("tbSelMonth").innerHTML, 30, 20, "11px", "", 1);' onchange='fDrawCal(document.getElementById("tbSelYear").innerHTML, document.getElementById("tbSelMonth").innerHTML, 30, 20, "11px", "", 1);'>
+		</span>月
+	</td>
+	<td nowrap valign="top">
+		<span id="tbSelDay" style='width:10;'></span>日
+	</td>
+	<td nowrap>
+		<img  name='movefrom_report_chosen' onclick='next();' border='0' src='<%=sResourcesPath%>/chooser_orange/triangle-right.png' alt='next'/>
+	</td>
+	<td id=du nowrap>
+		<img style='cursor:hand' name='movefrom_report_chosen' onClick='displayD();' border='0' src='<%=sResourcesPath%>/chooser_orange/scroll_arrow_down.gif' alt='detail'/>
+	</td>
+	</tr>
+</table>
 <div id="MyCalendar" style="position:absolute; right:0px; top:60px; width:180px; visibility:hidden;background:green">
 </div>
 <div id="sMenu0" style="position:absolute; left:0px; top:0px; visibility:hidden">

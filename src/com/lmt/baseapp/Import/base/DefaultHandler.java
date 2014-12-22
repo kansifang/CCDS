@@ -19,33 +19,16 @@ public abstract class DefaultHandler {
 	protected int rowCount = 0;
 	protected int currentRow = 0;
 	protected boolean eof = false;
-	protected int rowSize = 0;
-	protected boolean reInitPara=true;
 			
 	public DefaultHandler(ObjRow or,Transaction sqlca) throws SQLException {
 		this.record=or;
 		this.Sqlca = sqlca;
-	}
-	;
-	public boolean isReInitPara() {
-		return reInitPara;
-	}
-	public void setReInitPara(boolean reInitPara) {
-		this.reInitPara = reInitPara;
 	}
 	public Transaction getSqlca() {
 		return Sqlca;
 	}
 	public void setSqlca(Transaction sqlca) {
 		Sqlca = sqlca;
-	}
-
-	public int getRowSize() {
-		return rowSize;
-	}
-
-	public void setRowSize(int rowSize) {
-		this.rowSize = rowSize;
 	}
 
 	public int getRowCount() {
@@ -75,12 +58,6 @@ public abstract class DefaultHandler {
 	}
 	public void setRecord(ObjRow record) {
 		this.record = record;
-	}
-	protected void init()throws Exception{
-		if(this.reInitPara){
-			this.initPara();
-			this.reInitPara=false;
-		}
 	}
 	//≥ı ºªØmetadata
 	public void initMeta(String configNo,String Key,ASUser curUser) throws Exception {

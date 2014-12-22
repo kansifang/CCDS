@@ -1,4 +1,4 @@
-package com.lietu.simhash;
+package com.lmt.app.crawler._09_removerepetition.SimHash;
 
 /**
  * Hash algorithm by Bob Jenkins, 1996.

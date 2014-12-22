@@ -1,4 +1,4 @@
-package com.test;
+package com.lmt.app.crawler._09_removerepetition.compress;
 
 public class TestMain {
 

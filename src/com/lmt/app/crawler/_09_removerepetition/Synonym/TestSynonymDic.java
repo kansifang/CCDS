@@ -1,5 +1,4 @@
-package com.lietu.dup.test;
-import com.lietu.dup.SynonymDic;
+package com.lmt.app.crawler._09_removerepetition.Synonym;
 
 public class TestSynonymDic {
 

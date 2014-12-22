@@ -1,4 +1,4 @@
-package knncluster;
+package com.lmt.app.crawler.Chap10.DocCluster.knncluster;
 
 import java.lang.Math;
 

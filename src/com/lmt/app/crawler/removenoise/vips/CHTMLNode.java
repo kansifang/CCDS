@@ -1,4 +1,4 @@
-package com.lietu.vips;
+package com.lmt.app.crawler.removenoise.vips;
 
 import java.util.ArrayList;
 
@@ -7,7 +7,7 @@ import org.lobobrowser.html.domimpl.UINode;
 import org.w3c.dom.NodeList;
 
 public class CHTMLNode {
-	// 下面的属性为HTML本身的属性
+	// 涓嬮潰鐨勫睘鎬т负HTML鏈韩鐨勫睘鎬�
 	public String innerHTML;
 	public String outerHTML;
 	public String innerText;
@@ -28,25 +28,25 @@ public class CHTMLNode {
 	// public HTMLElementImpl htmlElement3;
 	// public HTMLElementImpl htmlElement4;
 
-	private int behaviorID;// 用以标记当前Node上的行为
+	private int behaviorID;// 鐢ㄤ互鏍囪褰撳墠Node涓婄殑琛屼负
 
-	// 下面的属性属于VIPS本身的属性
-	// 当前结点所在的结点池
+	// 涓嬮潰鐨勫睘鎬у睘浜嶸IPS鏈韩鐨勫睘鎬�
+	// 褰撳墠缁撶偣鎵�湪鐨勭粨鐐规睜
 	public NodePool nodePool;
 
 	private ArrayList nodeBehaviorList;
 	private ArrayList heightList;
 	private boolean isTRNode;
 	public int DOC;
-	// 如果topLevel为3,同时它在整个兄弟中排行4,那么该结点的编号为1-2-3-4
+	// 濡傛灉topLevel涓�,鍚屾椂瀹冨湪鏁翠釜鍏勫紵涓帓琛�,閭ｄ箞璇ョ粨鐐圭殑缂栧彿涓�-2-3-4
 
-	// 该结点四周的分割条
-	public Splitter spLeft; // 该结点左侧的分割条
-	public Splitter spUp; // 上侧的分割条
-	public Splitter spRight; // 右侧的分割条
-	public Splitter spButtom; // 下侧的分割条
+	// 璇ョ粨鐐瑰洓鍛ㄧ殑鍒嗗壊鏉�
+	public Splitter spLeft; // 璇ョ粨鐐瑰乏渚х殑鍒嗗壊鏉�
+	public Splitter spUp; // 涓婁晶鐨勫垎鍓叉潯
+	public Splitter spRight; // 鍙充晶鐨勫垎鍓叉潯
+	public Splitter spButtom; // 涓嬩晶鐨勫垎鍓叉潯
 
-	// 当前结点中可能存在的显式分隔条
+	// 褰撳墠缁撶偣涓彲鑳藉瓨鍦ㄧ殑鏄惧紡鍒嗛殧鏉�
 	private ArrayList explicitSpList;
 
 	public boolean textNode;
@@ -58,10 +58,10 @@ public class CHTMLNode {
 		tagName = "#text";
 	}
 
-	// 传入当前结点的IHTMLElement结构
+	// 浼犲叆褰撳墠缁撶偣鐨処HTMLElement缁撴瀯
 	public CHTMLNode(HTMLElementImpl inNode) {
 		nodePool = null;
-		// 分隔条初始化
+		// 鍒嗛殧鏉″垵濮嬪寲
 		spLeft = null;
 		spRight = null;
 		spUp = null;
@@ -109,7 +109,7 @@ public class CHTMLNode {
 		offsetRight = offsetLeft + offsetWidth;
 		offsetButtom = offsetTop + offsetHeight;
 
-		// 根据IHTMLElement结点得到该结点的IHTMLElement2结构
+		// 鏍规嵁IHTMLElement缁撶偣寰楀埌璇ョ粨鐐圭殑IHTMLElement2缁撴瀯
 		// int sourceindex = inNode.getId();
 		// IHTMLDocument2 docu =(IHTMLDocument2)inNode.document;
 		// htmlElement2 = (IHTMLElement2)docu.all.item(sourceindex,0);
@@ -130,7 +130,7 @@ public class CHTMLNode {
 
 	private boolean checkRight(ArrayList heightList) {
 		// IEnumerator enumer = heightList.GetEnumerator();
-		// 定位到第一个元素之前
+		// 瀹氫綅鍒扮涓�釜鍏冪礌涔嬪墠
 		int i = 0;
 
 		int firstHeight = (Integer) heightList.get(0);
@@ -139,19 +139,19 @@ public class CHTMLNode {
 				i++;
 				continue;
 			}
-			// 出现不相等的情况
+			// 鍑虹幇涓嶇浉绛夌殑鎯呭喌
 			break;
 		}
 
 		if (i == heightList.size() - 1)
 			return true;
 
-		// 如果发现并不是所有的矩形的右边
+		// 濡傛灉鍙戠幇骞朵笉鏄墍鏈夌殑鐭╁舰鐨勫彸杈�
 		return false;
 	}
 
-	// 如果当前结点是矩形的，则什么都不处理
-	// 如果当前结点是非矩形的，则分别取出所有的结点
+	// 濡傛灉褰撳墠缁撶偣鏄煩褰㈢殑锛屽垯浠�箞閮戒笉澶勭悊
+	// 濡傛灉褰撳墠缁撶偣鏄潪鐭╁舰鐨勶紝鍒欏垎鍒彇鍑烘墍鏈夌殑缁撶偣
 	public ArrayList getAllSubNode() {
 		ArrayList blockList = new ArrayList();
 		if (isRectangular()) {
@@ -171,10 +171,10 @@ public class CHTMLNode {
 		return blockList;
 	}
 
-	// 判断当前TR的结点所代表的区域是否是矩形
+	// 鍒ゆ柇褰撳墠TR鐨勭粨鐐规墍浠ｈ〃鐨勫尯鍩熸槸鍚︽槸鐭╁舰
 	public boolean isRectangular() {
-		// 遍历处理htmlNode的每一个孩子结点,分别记录它们的大小
-		// 得到所有结点的集合
+		// 閬嶅巻澶勭悊htmlNode鐨勬瘡涓�釜瀛╁瓙缁撶偣,鍒嗗埆璁板綍瀹冧滑鐨勫ぇ灏�
+		// 寰楀埌鎵�湁缁撶偣鐨勯泦鍚�
 		if (isTRNode == true) {
 			NodeList allChild = htmlElement.getChildNodes();
 			for (int i = 0; i < allChild.getLength(); ++i) {
@@ -189,9 +189,9 @@ public class CHTMLNode {
 	}
 
 	public int DrawNode(Object obj) {
-		// 对于当前结点的每一个child,都调用addbehavior
-		// 有一些特殊的结点，比如TR，CENTER，DIV等等，使用绘制时候不会显示任何内容，此时必须对孩子结点进行
-		// 绘制
+		// 瀵逛簬褰撳墠缁撶偣鐨勬瘡涓�釜child,閮借皟鐢╝ddbehavior
+		// 鏈変竴浜涚壒娈婄殑缁撶偣锛屾瘮濡俆R锛孋ENTER锛孌IV绛夌瓑锛屼娇鐢ㄧ粯鍒舵椂鍊欎笉浼氭樉绀轰换浣曞唴瀹癸紝姝ゆ椂蹇呴』瀵瑰瀛愮粨鐐硅繘琛�
+		// 缁樺埗
 		if(this.tagName.equals("TR") || this.tagName.equals("CENTER") || this.tagName.equals("DIV")) {
 			NodeList allChild =  htmlElement.getChildNodes();
 			for(int i=0;i<allChild.getLength();++i) {
@@ -218,7 +218,7 @@ public class CHTMLNode {
 				|| this.tagName.equals("DIV") ) {
 			NodeList allChild = htmlElement.getChildNodes();
 			for (int i = 0; i < allChild.getLength(); i++) {
-				// 从behaviorList中得到第i个behaviorID
+				// 浠巄ehaviorList涓緱鍒扮i涓猙ehaviorID
 				NodeInfo info = (NodeInfo) nodeBehaviorList.getElementAt(i);
 				info.node.removeBehavior(info.behaviorID);
 			}
@@ -232,13 +232,13 @@ public class CHTMLNode {
 		// htmlElement2.doScroll("down");
 	}
 
-	// 判断当前的结点是否是inline结点
+	// 鍒ゆ柇褰撳墠鐨勭粨鐐规槸鍚︽槸inline缁撶偣
 	// the DOM node with inline text HTML tags, which affect that appearence of
 	// text and can be applied to a String
 	// of characters without introcducing line break;,such as <B> <BIG> <EM>
-	// inline结点通常只影响文字的外观,因此对于布局本身影响不大
+	// inline缁撶偣閫氬父鍙奖鍝嶆枃瀛楃殑澶栬,鍥犳瀵逛簬甯冨眬鏈韩褰卞搷涓嶅ぇ
 	public boolean isInlineNode() {
-		// 判断当前结点的tag是否是下面的一些组合即可
+		// 鍒ゆ柇褰撳墠缁撶偣鐨則ag鏄惁鏄笅闈㈢殑涓�簺缁勫悎鍗冲彲
 		if (htmlElement.getNodeName().equals("B")
 				|| htmlElement.getNodeName().equals("BIG")
 				|| htmlElement.getNodeName().equals("#text")
@@ -277,12 +277,12 @@ public class CHTMLNode {
 		}
 	}
 
-	// inline之外的所有的结点我们统统称之为linebreak node
+	// inline涔嬪鐨勬墍鏈夌殑缁撶偣鎴戜滑缁熺粺绉颁箣涓簂inebreak node
 	public boolean isLineBreakNode() {
 		return !isInlineNode();
 	}
 
-	// 在子结点中是否存在Line Break结点
+	// 鍦ㄥ瓙缁撶偣涓槸鍚﹀瓨鍦↙ine Break缁撶偣
 	private boolean hasLineBreakNodeInChildrens(){
 		NodeList allChild =  htmlElement.getChildNodes();
 		for(int i=0;i<allChild.getLength();++i) {
@@ -326,7 +326,7 @@ public class CHTMLNode {
 		return true;
 	}
 
-	// 如果当前结点内部包含IMG标签，则肯定不是InValid结点
+	// 濡傛灉褰撳墠缁撶偣鍐呴儴鍖呭惈IMG鏍囩锛屽垯鑲畾涓嶆槸InValid缁撶偣
 	public boolean hasImgInChilds(CHTMLNode node) {
 		boolean hasImage = false;
 
@@ -347,7 +347,7 @@ public class CHTMLNode {
 		return hasImage;
 	}
 
-	// 判断当前的给定字符是否是类似于\r\n \r\n的格式
+	// 鍒ゆ柇褰撳墠鐨勭粰瀹氬瓧绗︽槸鍚︽槸绫讳技浜嶾r\n \r\n鐨勬牸寮�
 	private boolean isRNChar(String inStr) {
 		if (inStr == null)
 			return true;
@@ -365,10 +365,10 @@ public class CHTMLNode {
 		return false;
 	}
 
-	// 判断当前的结点是否是分隔条结点
+	// 鍒ゆ柇褰撳墠鐨勭粨鐐规槸鍚︽槸鍒嗛殧鏉＄粨鐐�
 	public boolean isSplitterNode() {
-		// 判断一个结点是否可能是分隔条结点可以根据下面的几个方面
-		// 如果当前结点是HR
+		// 鍒ゆ柇涓�釜缁撶偣鏄惁鍙兘鏄垎闅旀潯缁撶偣鍙互鏍规嵁涓嬮潰鐨勫嚑涓柟闈�
+		// 濡傛灉褰撳墠缁撶偣鏄疕R
 		if (this.tagName == "HR")
 			return true;
 
@@ -381,24 +381,24 @@ public class CHTMLNode {
 		if (this.tagName.startsWith("/"))
 			return false;
 
-		// form标签的大小为0,0，因此可能被误判为splitternode
+		// form鏍囩鐨勫ぇ灏忎负0,0锛屽洜姝ゅ彲鑳借璇垽涓簊plitternode
 		if (this.tagName == "FORM" && this.innerText.trim() != "")
 			return false;
 
-		// 有的时候网页设计人员会使用比较细的图片做为分隔符，因此我们必须能够检测出来
+		// 鏈夌殑鏃跺�缃戦〉璁捐浜哄憳浼氫娇鐢ㄦ瘮杈冪粏鐨勫浘鐗囧仛涓哄垎闅旂锛屽洜姝ゆ垜浠繀椤昏兘澶熸娴嬪嚭鏉�
 
-		// 如果当前结点的宽度或者高度小于15，那么应该是分隔条
+		// 濡傛灉褰撳墠缁撶偣鐨勫搴︽垨鑰呴珮搴﹀皬浜�5锛岄偅涔堝簲璇ユ槸鍒嗛殧鏉�
 		if (this.offsetHeight <= 10 || this.offsetWidth <= 10)
 			return true;
 
-		// 如果一个TR被认定为是分隔条结点，那么它的所有的TD结点都不需要再判断
+		// 濡傛灉涓�釜TR琚瀹氫负鏄垎闅旀潯缁撶偣锛岄偅涔堝畠鐨勬墍鏈夌殑TD缁撶偣閮戒笉闇�鍐嶅垽鏂�
 		return false;
 	}
 
-	// 判断当前结点是否是有效的结点
-	// 所谓有效的结点就是能够从浏览器中观察到的结点
+	// 鍒ゆ柇褰撳墠缁撶偣鏄惁鏄湁鏁堢殑缁撶偣
+	// 鎵�皳鏈夋晥鐨勭粨鐐瑰氨鏄兘澶熶粠娴忚鍣ㄤ腑瑙傚療鍒扮殑缁撶偣
 	public boolean isValidNode() {
-		// 如果结点的宽度或者高度为0,那么该结点为无效结点,比如<P>,<BR>等等
+		// 濡傛灉缁撶偣鐨勫搴︽垨鑰呴珮搴︿负0,閭ｄ箞璇ョ粨鐐逛负鏃犳晥缁撶偣,姣斿<P>,<BR>绛夌瓑
 		if (htmlElement.getUINode().getBounds().width == 0 
 				|| htmlElement.getUINode().getBounds().height == 0) {
 			if (this.tagName == "FORM" && this.innerText.trim() != "")
@@ -409,17 +409,17 @@ public class CHTMLNode {
 		if (htmlElement.getNodeName().equals("SCRIPT") )
 			return false;
 
-		// 对于表格而言,<TD></TD>也应该为无效结点
-		// 如果结点的innerText为null，那么必须检查该结点内部是否有
-		// IMG标签，
+		// 瀵逛簬琛ㄦ牸鑰岃█,<TD></TD>涔熷簲璇ヤ负鏃犳晥缁撶偣
+		// 濡傛灉缁撶偣鐨刬nnerText涓簄ull锛岄偅涔堝繀椤绘鏌ヨ缁撶偣鍐呴儴鏄惁鏈�
+		// IMG鏍囩锛�
 
-		// innerText或者是null,或者是\r\n \r\n ...形式
+		// innerText鎴栬�鏄痭ull,鎴栬�鏄痋r\n \r\n ...褰㈠紡
 
 		if (isRNChar(htmlElement.getInnerText())) {
 			if (htmlElement.getNodeName().equals("IMG"))
 				return true;
 
-			// 检查当前结点内部是否有IMG标签
+			// 妫�煡褰撳墠缁撶偣鍐呴儴鏄惁鏈塈MG鏍囩
 			if (hasImgInChilds(this))
 				return true;
 
@@ -430,7 +430,7 @@ public class CHTMLNode {
 		return true;
 	}
 
-	// 该结点是文本结点,纯粹的文本结点
+	// 璇ョ粨鐐规槸鏂囨湰缁撶偣,绾补鐨勬枃鏈粨鐐�
 	public boolean isTextNode() {
 		if (htmlElement.getNodeName().equals("#text"))
 			return true;
@@ -438,21 +438,21 @@ public class CHTMLNode {
 			return false;
 	}
 
-	// 判断当前结点已经当前结点下的所有孩子结点是否都是虚拟文本结点
+	// 鍒ゆ柇褰撳墠缁撶偣宸茬粡褰撳墠缁撶偣涓嬬殑鎵�湁瀛╁瓙缁撶偣鏄惁閮芥槸铏氭嫙鏂囨湰缁撶偣
 
-	// 判断当前结点是否是虚拟文本结点
-	// 如果当前结点是inlineNode,并且它的内部的所有结点都是inline node
-	// 则该结点就是虚拟文本结点
+	// 鍒ゆ柇褰撳墠缁撶偣鏄惁鏄櫄鎷熸枃鏈粨鐐�
+	// 濡傛灉褰撳墠缁撶偣鏄痠nlineNode,骞朵笖瀹冪殑鍐呴儴鐨勬墍鏈夌粨鐐归兘鏄痠nline node
+	// 鍒欒缁撶偣灏辨槸铏氭嫙鏂囨湰缁撶偣
 
-	// 判断当前结点的孩子结点全部是虚拟文本结点
-	// 一个结点是虚拟文本结点，必须满足下面的几个条件
-	// 1.所有结点都是文本结点
-	// 2.如果一个结点是虚拟文本结点，该结点的父结点不是inline结点，
-	// 但是该结点的父结点只有它一个孩子结点，没有其余的孩子结点，那么它的父结点也是
-	// 虚拟文本结点
+	// 鍒ゆ柇褰撳墠缁撶偣鐨勫瀛愮粨鐐瑰叏閮ㄦ槸铏氭嫙鏂囨湰缁撶偣
+	// 涓�釜缁撶偣鏄櫄鎷熸枃鏈粨鐐癸紝蹇呴』婊¤冻涓嬮潰鐨勫嚑涓潯浠�
+	// 1.鎵�湁缁撶偣閮芥槸鏂囨湰缁撶偣
+	// 2.濡傛灉涓�釜缁撶偣鏄櫄鎷熸枃鏈粨鐐癸紝璇ョ粨鐐圭殑鐖剁粨鐐逛笉鏄痠nline缁撶偣锛�
+	// 浣嗘槸璇ョ粨鐐圭殑鐖剁粨鐐瑰彧鏈夊畠涓�釜瀛╁瓙缁撶偣锛屾病鏈夊叾浣欑殑瀛╁瓙缁撶偣锛岄偅涔堝畠鐨勭埗缁撶偣涔熸槸
+	// 铏氭嫙鏂囨湰缁撶偣
 
-	// 以当前结点为根结点,如果当前结点的孩子结点中出现一个linebreak结点,则该结点并不是
-	// RealVirtualText结点
+	// 浠ュ綋鍓嶇粨鐐逛负鏍圭粨鐐�濡傛灉褰撳墠缁撶偣鐨勫瀛愮粨鐐逛腑鍑虹幇涓�釜linebreak缁撶偣,鍒欒缁撶偣骞朵笉鏄�
+	// RealVirtualText缁撶偣
 	private boolean isRealVirtualTextNode(CHTMLNode node) {
 		NodeList allChild = node.htmlElement.getChildNodes();
 		for(int i=0;i<allChild.getLength();++i) {
@@ -469,19 +469,19 @@ public class CHTMLNode {
 		if (this.tagName == "LI" || this.tagName == "SELECT" || this.tagName == "MARQUEE" || this.tagName == "FORM")
 			return true;
 
-		// 如果当前结点中
+		// 濡傛灉褰撳墠缁撶偣涓�
 
 		if (this.tagName == "UL" || this.tagName == "OL")
 			return false;
-		// 如果当前结点是虚拟文本结点,
+		// 濡傛灉褰撳墠缁撶偣鏄櫄鎷熸枃鏈粨鐐�
 		if (isRealVirtualTextNode(this))
 			return true;
 
-		// 对当前结点的所有孩子结点进行处理,如果当前的孩子结点中存在一个
-		// LineBreak结点,则返回false
+		// 瀵瑰綋鍓嶇粨鐐圭殑鎵�湁瀛╁瓙缁撶偣杩涜澶勭悊,濡傛灉褰撳墠鐨勫瀛愮粨鐐逛腑瀛樺湪涓�釜
+		// LineBreak缁撶偣,鍒欒繑鍥瀎alse
 
-		// 如果当前结点并不是虚拟结点,但是它的第一个孩子结点数目不为1的结点是虚拟结点
-		// 那么该结点也是虚拟结点
+		// 濡傛灉褰撳墠缁撶偣骞朵笉鏄櫄鎷熺粨鐐�浣嗘槸瀹冪殑绗竴涓瀛愮粨鐐规暟鐩笉涓�鐨勭粨鐐规槸铏氭嫙缁撶偣
+		// 閭ｄ箞璇ョ粨鐐逛篃鏄櫄鎷熺粨鐐�
 		CHTMLNode tmpNode = getNonOneChildNode(this);
 		if (isRealVirtualTextNode(tmpNode))
 			return true;
@@ -489,11 +489,11 @@ public class CHTMLNode {
 		return false;
 	}
 
-	// 如果当前结点的孩子结点中包含<HR>标签,则继续进行分割
+	// 濡傛灉褰撳墠缁撶偣鐨勫瀛愮粨鐐逛腑鍖呭惈<HR>鏍囩,鍒欑户缁繘琛屽垎鍓�
 
-	// 得到当前结点的孩子结点数目
+	// 寰楀埌褰撳墠缁撶偣鐨勫瀛愮粨鐐规暟鐩�
 	public int getChildrenNum() {
-		// 先转换为IHTMLDOMNode结点
+		// 鍏堣浆鎹负IHTMLDOMNode缁撶偣
 		//IHTMLDOMNode domNode = (IHTMLDOMNode) this.htmlElement;
 		//IHTMLDOMChildrenCollection allchild = (IHTMLDOMChildrenCollection) domNode.childNodes;
 		
@@ -504,7 +504,7 @@ public class CHTMLNode {
 		// return allChild.length;
 	}
 
-	// 该结点具有唯一的一个结点,并且该结点非文本结点
+	// 璇ョ粨鐐瑰叿鏈夊敮涓�殑涓�釜缁撶偣,骞朵笖璇ョ粨鐐归潪鏂囨湰缁撶偣
 	private boolean hasOnlyOneNoneText(CHTMLNode node) {
 		if (node.getChildrenNum() == 1) {
 			/*
@@ -519,37 +519,37 @@ public class CHTMLNode {
 		return false;
 	}
 
-	// 下面的几个方法用以更方面的获取当前结点的属性
-	// 获取当前结点的背景色
+	// 涓嬮潰鐨勫嚑涓柟娉曠敤浠ユ洿鏂归潰鐨勮幏鍙栧綋鍓嶇粨鐐圭殑灞炴�
+	// 鑾峰彇褰撳墠缁撶偣鐨勮儗鏅壊
 	public String getBgColor() {
 		return htmlElement.getStyle().getBackgroundColor();
 	}
 
-	// 获取字体的颜色
+	// 鑾峰彇瀛椾綋鐨勯鑹�
 	public String getFgColor() {
 		return htmlElement.getStyle().getColor();
 	}
 
-	// 获取字体的大小
+	// 鑾峰彇瀛椾綋鐨勫ぇ灏�
 	public String getFontSize() {
 		return htmlElement.getStyle().getFontSize();
 	}
 
-	// 获取字体的粗细
+	// 鑾峰彇瀛椾綋鐨勭矖缁�
 	public String getFontWeight() {
 		return htmlElement.getStyle().getFontWeight();
 	}
 
-	// 获取字体的类型
+	// 鑾峰彇瀛椾綋鐨勭被鍨�
 	public String getFontFamily() {
 		return htmlElement.getStyle().getFontFamily();
 	}
 
-	// 判断当前结点的背景色是否与所有的子结点都相同
-	// 如果不相同,则继续分割
+	// 鍒ゆ柇褰撳墠缁撶偣鐨勮儗鏅壊鏄惁涓庢墍鏈夌殑瀛愮粨鐐归兘鐩稿悓
+	// 濡傛灉涓嶇浉鍚�鍒欑户缁垎鍓�
 	public boolean isSameBgColor() {
 		String bgColor = getBgColor();
-		// 判断每一个子结点的背景是否相同
+		// 鍒ゆ柇姣忎竴涓瓙缁撶偣鐨勮儗鏅槸鍚︾浉鍚�
 		NodeList allChild = htmlElement.getChildNodes();
 		for(int i=0;i<allChild.getLength();++i) {
 			HTMLElementImpl child = (HTMLElementImpl)allChild.item(i);
@@ -562,7 +562,7 @@ public class CHTMLNode {
 
 	}
 
-	// 判断当前结点的字体粗细是否与子结点的完全相同
+	// 鍒ゆ柇褰撳墠缁撶偣鐨勫瓧浣撶矖缁嗘槸鍚︿笌瀛愮粨鐐圭殑瀹屽叏鐩稿悓
 	public boolean isSameFontWeight() {
 		String fontWeight = getFontWeight();
 		NodeList allChild =  htmlElement.getChildNodes();
@@ -575,7 +575,7 @@ public class CHTMLNode {
 		return true;
 	}
 
-	// 判断当前结点的字体粗细是否与子结点的完全相同
+	// 鍒ゆ柇褰撳墠缁撶偣鐨勫瓧浣撶矖缁嗘槸鍚︿笌瀛愮粨鐐圭殑瀹屽叏鐩稿悓
 	public boolean isSameFontSize() {
 		String fontSize = getFontSize();
 		NodeList allChild =  htmlElement.getChildNodes();
@@ -590,7 +590,7 @@ public class CHTMLNode {
 
 	public boolean isSameForeColor() {
 		String foreColor = getFgColor();
-		// 判断每一个子结点的背景是否相同
+		// 鍒ゆ柇姣忎竴涓瓙缁撶偣鐨勮儗鏅槸鍚︾浉鍚�
 		NodeList allChild =  htmlElement.getChildNodes();
 		for(int i=0;i<allChild.getLength();++i) {
 			HTMLElementImpl child = (HTMLElementImpl)allChild.item(i);
@@ -602,8 +602,8 @@ public class CHTMLNode {
 
 	}
 
-	// 当前结点的所有的子结点的字体是否一致
-	// 如果有一个不一致,返回false
+	// 褰撳墠缁撶偣鐨勬墍鏈夌殑瀛愮粨鐐圭殑瀛椾綋鏄惁涓�嚧
+	// 濡傛灉鏈変竴涓笉涓�嚧,杩斿洖false
 	public boolean isSameFontFamily() {
 		String fontFamily = getFontFamily();
 		NodeList allChild =  htmlElement.getChildNodes();
@@ -616,10 +616,10 @@ public class CHTMLNode {
 		return true;
 	}
 
-	// 判断当前结点是否是End结点,即不可继续分割
-	// 对于所有的End Node,它的DOC的值将被设置为10,表示不再可以被分割
+	// 鍒ゆ柇褰撳墠缁撶偣鏄惁鏄疎nd缁撶偣,鍗充笉鍙户缁垎鍓�
+	// 瀵逛簬鎵�湁鐨凟nd Node,瀹冪殑DOC鐨勫�灏嗚璁剧疆涓�0,琛ㄧず涓嶅啀鍙互琚垎鍓�
 	private boolean isEndNode() {
-		// End Node包括两种,一种就是图片IMG,一种就是文本
+		// End Node鍖呮嫭涓ょ,涓�灏辨槸鍥剧墖IMG,涓�灏辨槸鏂囨湰
 		// is IHTMLImgElement || htmlElement is IHTMLTextElement
 		if(htmlElement.getNodeName().equals("IMG")
 				|| htmlElement.getNodeName().equals("TEXT") )
@@ -628,25 +628,25 @@ public class CHTMLNode {
 			return false;
 	}
 
-	// 判断当前结点的孩子结点是否都是同一类型,通常情况下
+	// 鍒ゆ柇褰撳墠缁撶偣鐨勫瀛愮粨鐐规槸鍚﹂兘鏄悓涓�被鍨�閫氬父鎯呭喌涓�
 	private boolean isSameTypeNode() {
 		return false;
 	}
 
-	// 判断当前结点是否可以继续分割为更小的结点
-	// 判断给定的结点是否可以分割,主要通过以下以下原则
-	// 1.当前结点本身的属性
-	// 1.如果当前结点并不是矩形,则必须进行分割
-	// 2.如果当前结点的DOC小于PDOC,则必须进行分割
-	// 2.当前结点的子结点的属性
-	// 1.子结点的类型
-	// 2.子结点的数目
+	// 鍒ゆ柇褰撳墠缁撶偣鏄惁鍙互缁х画鍒嗗壊涓烘洿灏忕殑缁撶偣
+	// 鍒ゆ柇缁欏畾鐨勭粨鐐规槸鍚﹀彲浠ュ垎鍓�涓昏閫氳繃浠ヤ笅浠ヤ笅鍘熷垯
+	// 1.褰撳墠缁撶偣鏈韩鐨勫睘鎬�
+	// 1.濡傛灉褰撳墠缁撶偣骞朵笉鏄煩褰�鍒欏繀椤昏繘琛屽垎鍓�
+	// 2.濡傛灉褰撳墠缁撶偣鐨凞OC灏忎簬PDOC,鍒欏繀椤昏繘琛屽垎鍓�
+	// 2.褰撳墠缁撶偣鐨勫瓙缁撶偣鐨勫睘鎬�
+	// 1.瀛愮粨鐐圭殑绫诲瀷
+	// 2.瀛愮粨鐐圭殑鏁扮洰
 	public boolean isDividable(int currentLevel, int pDOC) {
-		// 当分割层次达到了pDOC后通过返回false禁止继续分割
+		// 褰撳垎鍓插眰娆¤揪鍒颁簡pDOC鍚庨�杩囪繑鍥瀎alse绂佹缁х画鍒嗗壊
 		if (currentLevel == pDOC)
 			return false;
 
-		// 如果当前结点是非矩形,必须继续进行分割
+		// 濡傛灉褰撳墠缁撶偣鏄潪鐭╁舰,蹇呴』缁х画杩涜鍒嗗壊
 		if (!isRectangular())
 			return true;
 
@@ -656,22 +656,22 @@ public class CHTMLNode {
 		if (hasOnlyOneNoneText(this))
 			return true;
 
-		// 如果当前结点是该页面块DOM树的根结点，同时只有一个孩子结点，那么分割该结点
+		// 濡傛灉褰撳墠缁撶偣鏄椤甸潰鍧桪OM鏍戠殑鏍圭粨鐐癸紝鍚屾椂鍙湁涓�釜瀛╁瓙缁撶偣锛岄偅涔堝垎鍓茶缁撶偣
 
-		// 如果当前结点的所有的孩子结点都是文本结点或者是虚拟文本结点，那么不分割该节点。
-		// 如果当前所有孩子结点的字体大小和字体重量都是相同的，那么该页面块的DoC设置为10，否则设置为9。
-		// 如果当前结点的所有结点都是虚拟文本结点，那么该结点将不再分隔
+		// 濡傛灉褰撳墠缁撶偣鐨勬墍鏈夌殑瀛╁瓙缁撶偣閮芥槸鏂囨湰缁撶偣鎴栬�鏄櫄鎷熸枃鏈粨鐐癸紝閭ｄ箞涓嶅垎鍓茶鑺傜偣銆�
+		// 濡傛灉褰撳墠鎵�湁瀛╁瓙缁撶偣鐨勫瓧浣撳ぇ灏忓拰瀛椾綋閲嶉噺閮芥槸鐩稿悓鐨勶紝閭ｄ箞璇ラ〉闈㈠潡鐨凞oC璁剧疆涓�0锛屽惁鍒欒缃负9銆�
+		// 濡傛灉褰撳墠缁撶偣鐨勬墍鏈夌粨鐐归兘鏄櫄鎷熸枃鏈粨鐐癸紝閭ｄ箞璇ョ粨鐐瑰皢涓嶅啀鍒嗛殧
 		if (isVirtualTextNode())
 			return false;
 
 		// If one of the child nodes of the DOM node is line-break node, then
 		// divide this DOM node
 		// Rule5
-		// 如果当前DOM结点的孩子结点中有一个line-break结点，那么该结点将被继续分割
+		// 濡傛灉褰撳墠DOM缁撶偣鐨勫瀛愮粨鐐逛腑鏈変竴涓猯ine-break缁撶偣锛岄偅涔堣缁撶偣灏嗚缁х画鍒嗗壊
 		if (hasLineBreakNodeInChildrens())
 			return true;
 
-		// 如果当前结点内部包含HR标签,则必须进行继续分割
+		// 濡傛灉褰撳墠缁撶偣鍐呴儴鍖呭惈HR鏍囩,鍒欏繀椤昏繘琛岀户缁垎鍓�
 		// Rule6
 		if (hasHRNodeInChildrens())
 			return true;
@@ -690,18 +690,18 @@ public class CHTMLNode {
 		return false;
 	}
 
-	// 整个处理过程分为三步:
-	// 1.检测逻辑块
-	// 2.检测各个逻辑块之间的分割条
-	// 3.重新合并
+	// 鏁翠釜澶勭悊杩囩▼鍒嗕负涓夋:
+	// 1.妫�祴閫昏緫鍧�
+	// 2.妫�祴鍚勪釜閫昏緫鍧椾箣闂寸殑鍒嗗壊鏉�
+	// 3.閲嶆柊鍚堝苟
 
-	// pDOC是预先设定的DOC值
-	// currentLevel是当前的分割层次,由于pDOC本身的概念并不是特别的容易掌握
-	// 因此我们先尝试使用level的概念替代,每次divideDOMTree后currentLevel都将增加一
-	// 当currentLevel达到pDOC之后,分割将停止
-	// pool目前是body
+	// pDOC鏄鍏堣瀹氱殑DOC鍊�
+	// currentLevel鏄綋鍓嶇殑鍒嗗壊灞傛,鐢变簬pDOC鏈韩鐨勬蹇靛苟涓嶆槸鐗瑰埆鐨勫鏄撴帉鎻�
+	// 鍥犳鎴戜滑鍏堝皾璇曚娇鐢╨evel鐨勬蹇垫浛浠�姣忔divideDOMTree鍚巆urrentLevel閮藉皢澧炲姞涓�
+	// 褰揷urrentLevel杈惧埌pDOC涔嬪悗,鍒嗗壊灏嗗仠姝�
+	// pool鐩墠鏄痓ody
 
-	// 获取当前结点的第一个孩子结点
+	// 鑾峰彇褰撳墠缁撶偣鐨勭涓�釜瀛╁瓙缁撶偣
 	public CHTMLNode getFirstChildNode() {
 		return (CHTMLNode) htmlElement.getFirstChild();
 		//if (allChild.length > 0)
@@ -710,8 +710,8 @@ public class CHTMLNode {
 		//	return null;
 	}
 
-	// 获取该给定结点中第一个孩子结点不为1的结点
-	// 如果当前结点是文本接点，直接返回
+	// 鑾峰彇璇ョ粰瀹氱粨鐐逛腑绗竴涓瀛愮粨鐐逛笉涓�鐨勭粨鐐�
+	// 濡傛灉褰撳墠缁撶偣鏄枃鏈帴鐐癸紝鐩存帴杩斿洖
 	private CHTMLNode getNonOneChildNode(CHTMLNode node) {
 		CHTMLNode childNode = node;
 		while (hasOnlyOneNoneText(childNode)) {
@@ -723,7 +723,7 @@ public class CHTMLNode {
 		return childNode;
 	}
 
-	// 判断当前结点是不是可视结点，所谓可视结点，就是可以通过绘制边框显示出来的
+	// 鍒ゆ柇褰撳墠缁撶偣鏄笉鏄彲瑙嗙粨鐐癸紝鎵�皳鍙缁撶偣锛屽氨鏄彲浠ラ�杩囩粯鍒惰竟妗嗘樉绀哄嚭鏉ョ殑
 	public boolean isNonVisualNode() {
 		if (this.isVirtualTextNode())
 			return false;
@@ -735,7 +735,7 @@ public class CHTMLNode {
 		return false;
 	}
 
-	// 函数返回的是所有的当前分隔条获取的所有的分隔条结点列表
+	// 鍑芥暟杩斿洖鐨勬槸鎵�湁鐨勫綋鍓嶅垎闅旀潯鑾峰彇鐨勬墍鏈夌殑鍒嗛殧鏉＄粨鐐瑰垪琛�
 	public ArrayList divideDOMTree(NodePool pool, int pDOC) {
 		ArrayList list = new ArrayList();
 		ArrayList spNodeList = new ArrayList();
@@ -767,10 +767,10 @@ public class CHTMLNode {
 			spRight = sp;
 	}
 
-	// 得到当前结点的父亲结点
+	// 寰楀埌褰撳墠缁撶偣鐨勭埗浜茬粨鐐�
 	public CHTMLNode getParent() {
 		return new CHTMLNode((HTMLElementImpl) htmlElement.getParentNode());
 	}
 
-	// 获取可视结点
+	// 鑾峰彇鍙缁撶偣
 }

@@ -1,4 +1,4 @@
-package com.lietu.vips;
+package com.lmt.app.crawler.removenoise.vips;
 
 //内容块的类型
 public enum BlockType {

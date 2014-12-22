@@ -49,7 +49,7 @@ public class PieChart {
 		// 返回数据
 		return PD;
 	}
-	public static JFreeChart getJfreeChart(String sSql,Transaction Sqlca) throws Exception{
+	public static JFreeChart getJfreeChart(String sSql,Transaction Sqlca,String bAutoRatio) throws Exception{
     	//获取数据
     	HashSet<String> pies=new HashSet<String>();
     	// 创建柱状数据对象
@@ -66,13 +66,13 @@ public class PieChart {
 		JFreeChart jf = ChartFactory.createPieChart("", PD, true, true, true);
 		//JFreeChart jf = ChartFactory.createPieChart3D("", PD, true, true, true);
 		// 给柱状图对象设置样式
-		PieChart.setStyle(false,jf,pies);
+		PieChart.setStyle(false,jf,pies,bAutoRatio);
 		return jf;
     }
 	/*
 	 * 对图表对象设置样式
 	 */
-	public static void setStyle(boolean is3D,JFreeChart chart,HashSet<String> pies){
+	public static void setStyle(boolean is3D,JFreeChart chart,HashSet<String> pies,String bAutoRatio){
 		// 得到图表标题，并给其设置字体
 		chart.getTitle().setFont(new Font("黑体",0,20));
 		// 得到图表底部类别，并给其设置字体(就是底部有颜色有字体那种，饼状图上显示的话，这一部分就没必要要)
@@ -121,7 +121,9 @@ public class PieChart {
         	//k=k+0.1;
         }
         //饼图标签显示百分比方法 如果百分比要包括一位小数，则使用 {0}，{1}，{2} 分别是 标签题目 值 百分比
-        plot.setLabelGenerator(new StandardPieSectionLabelGenerator("{0}：{1}，{2}",new DecimalFormat("0.00"),new DecimalFormat("0.00%")));
+        if("1".equals(bAutoRatio)){
+        	plot.setLabelGenerator(new StandardPieSectionLabelGenerator("{0}：{1}，{2}",new DecimalFormat("0.00"),new DecimalFormat("0.00%")));
+        }
         //设置扇区边框不可见  
         plot.setSectionOutlinesVisible(false);  
 	}

@@ -69,7 +69,7 @@ public class AIDuebillInHandler{
 	 			"when ~s借据明细@主要担保方式e~ = '信用' then '信用' "+
 	 			"when ~s借据明细@主要担保方式e~ like '%质押-%' or ~s借据明细@主要担保方式e~='保证金' then '质押' "+
 	 			"else '其他' end";
-	 	AIDuebillInHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"单一担保方式",groupBy,"");
+	 	AIDuebillInHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"贷款单一担保方式",groupBy,"");
 	 	
 	 	groupBy="case " +
 	 				" when ~s借据明细@业务品种e~ like '%垫款'  then 'G-上浮50%以上@0-垫款' "+
@@ -161,6 +161,14 @@ public class AIDuebillInHandler{
  					"and nvl(~s借据明细@管户人e~,'')<>''";
  		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
  		Sqlca.executeSQL(sSql); 
+ 		//4、管户机构 为迎泽支行的直属行名称由 总行营业部 变为 龙城直属支行
+ 		sSql="update Batch_Import_Interim set ~s借据明细@直属行名称e~='龙城直属支行'"+
+ 					" where ConfigNo='"+sConfigNo+"' "+
+ 					" and OneKey='"+sKey+"' "+
+ 					" and nvl(~s借据明细@直属行名称e~,'')='总行营业部'"+
+ 					" and nvl(~s借据明细@管户机构e~,'')='总行营业部'";
+ 		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
+ 		Sqlca.executeSQL(sSql);
  		//4、直属行名称中带晋商银行的 如果 根据 管户机构 来更新
  		sSql="update Batch_Import_Interim set ~s借据明细@直属行名称e~=~s借据明细@管户机构e~"+
  					" where ConfigNo='"+sConfigNo+"' "+

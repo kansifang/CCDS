@@ -1,4 +1,4 @@
-package com.lietu.simhash;
+package com.lmt.app.crawler._09_removerepetition.SimHash;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.lietu.seg.result.CnToken;
-import com.lietu.textSim.StopSet;
+import com.lmt.app.crawler.Chap10.SVM.classify.StopSet;
 
 public class TextSimHash {
 	public static HashSet<String> getKeyWord(HashMap<String,Integer> hmcount,int no)

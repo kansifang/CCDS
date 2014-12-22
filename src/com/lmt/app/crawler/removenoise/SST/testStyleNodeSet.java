@@ -1,4 +1,6 @@
-package com.lmt.app.crawler.Chap07.SST;
+package com.lmt.app.crawler.removenoise.SST;
+
+import java.io.UnsupportedEncodingException;
 
 import org.w3c.dom.Node;
 
@@ -7,7 +9,7 @@ import junit.framework.TestCase;
 public class testStyleNodeSet extends TestCase {
         private static String str1 = "<tr><a href=\"www.daum.net\">中国</a></tr>";
         private static String str2 = "<tr><a href=\"www.daum.net\">中国</a><p>汽车</p></tr>";
-        public void testEquals() {
+        public void testEquals() throws UnsupportedEncodingException {
                 Node node = null;
                 ElementNode root = ElementNode.getInstanceOf();
                 
@@ -16,7 +18,6 @@ public class testStyleNodeSet extends TestCase {
                 
                 node = (Node)StyleTree.parseBytes(str2.getBytes());
                 root.trainNode(node);
-                
                 root.printInformation();
         }
 }

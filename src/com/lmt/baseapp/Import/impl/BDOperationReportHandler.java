@@ -8,6 +8,22 @@ import com.lmt.frameapp.sql.Transaction;
  * @msg. 历史押品信息导入初始化
  */
 public class BDOperationReportHandler{
+	/**
+	 * 月度经营报告处理
+	 * @param sheet
+	 * @param icol
+	 * @return
+	 * @throws Exception 
+	 * @throws Exception
+	 */
+	public static void operationReportHandle(String HandlerFlag,String sReportConfigNo,String sOneKey,Transaction Sqlca) throws Exception {
+		//1、对中间表数据进行特殊处理 	 		 	
+		BDOperationReportHandler.interimProcess(sReportConfigNo, sOneKey, Sqlca);
+		//
+		BDOperationReportHandler.process(HandlerFlag,sReportConfigNo, sOneKey, Sqlca);
+	 	//4、加工后，进行合计，横向纵向分析
+		BDOperationReportHandler.afterProcess(HandlerFlag,sReportConfigNo, sOneKey, Sqlca);
+	}
 	//对导入数据加工处理,插入到中间表Batch_Import_Interim
 	public static void interimProcess(String sReportConfigNo,String sKey,Transaction Sqlca) throws Exception{
 	}

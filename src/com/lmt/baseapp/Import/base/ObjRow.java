@@ -17,6 +17,7 @@ import com.lmt.frameapp.sql.Transaction;
  */
 public class ObjRow {
 	protected int columnTCount = 0;//列总数
+	protected int rowTSize = 0;//列总大小（以字节算）
 	protected ArrayList<ObjColumn> columns = new ArrayList<ObjColumn>();
 	protected String[][] aReplaceBWithAInValue = null;//字段值中的A需要由B替换 譬如[['A','B'],['C','D']]
 	//初始化metadata
@@ -24,18 +25,26 @@ public class ObjRow {
 		this.columns.clear();
 		//加载模板定义
 		String isIndex=Sqlca.getString("select CodeTypeOne from Code_Catalog where CodeNo='"+configNo+"'");
-		ASResultSet rs=Sqlca.getASResultSet("select ItemDescribe,Attribute1,Attribute2,Attribute3,SortNo from Code_Library where CodeNo='"+configNo+"' and IsInUse='1'");
+		ASResultSet rs=Sqlca.getASResultSet("select ItemDescribe,Attribute1,Attribute2,Attribute3,SortNo,Attribute8 from Code_Library where CodeNo='"+configNo+"' and IsInUse='1'");
 		if(!"1".equals(isIndex)){
 			while(rs.next()){
 				this.addColumn(rs.getString(1),rs.getString(2),rs.getString(3),"1".equals(rs.getString(4))?true:false);
 			}
-		}else{//以每列数据在excel中的 A B....顺序为标识来决定每列数据的对应关系
+		}else{
+			//以序号为准
+			//以每列数据在excel中的 A,B....或text等文件的1,2...顺序为标识来决定每列数据的对应关系
 			while(rs.next()){
 				boolean isPrimaryKey="1".equals(rs.getString(4))?true:false;
 				if(isPrimaryKey){//是标示键的话，仍然以标题来初始化
 					this.addColumn(rs.getString(1),rs.getString(2),rs.getString(3),isPrimaryKey);
 				}else{//非标示键则以序列号来初始化
-					this.addColumn(rs.getString(1),ExcelBigHandler.getNumberFromLetter(rs.getString(5))-1,rs.getString(3),isPrimaryKey);
+					String sIndex=DataConvert.toString(rs.getString(5));
+					int index=ExcelBigHandler.getNumberFromLetter(sIndex);
+					if(index==0){//等于0意味着 sIndex本身就是数字
+						index=Integer.valueOf(sIndex);
+					}
+					int sColumnSize=DataConvert.toInt(rs.getString(6));
+					this.addColumn(rs.getString(1),index-1,rs.getString(3),isPrimaryKey,sColumnSize);
 				}
 			}
 		}
@@ -45,7 +54,7 @@ public class ObjRow {
 		this.addColumn("ConfigName", "配置名称","String",true,false);//记录Excel要素和数据要素对应关系的配置信息号，同时标识同一种类型数据（大类）
 		this.addColumn("OneKey", "主键","String",true,false);//标识同一种类型数据进一步区分（小类），譬如同一种报表的不同期次，就把ReportDate传进来
 		this.addColumn("ImportNo", "批量号","String",true,false);//主要是为了区分批次之间（在大类+小类的前提下的最新和以前批次的区分）
-		this.addColumn("ImportIndex", "批量序列号","String",true,false);//记录批次内序列
+		this.addColumn("ImportIndex", "批量序列号","Number",true,false);//记录批次内序列
 		this.addColumn("ImportTime", "批量时间","String",true,false);//记录批次时间
 		this.addColumn("UserID", "导入人","String",true,false);
 		//对字段值中特殊字符处理方式
@@ -91,6 +100,12 @@ public class ObjRow {
 	}
 	public void setColumnTCount() {
 		this.columnTCount = this.columns.size();
+	}
+	public int getRowTSize() {
+		return rowTSize;
+	}
+	public void setRowTSize(int rowSize) {
+		this.rowTSize = rowSize;
 	}
 	public ArrayList<ObjColumn> getColumns() {
 		return columns;
@@ -328,26 +343,27 @@ public class ObjRow {
 		}
 		this.columns.add(EHTCcolumn);
 		this.columnTCount++;
+		this.rowTSize+=EHTCcolumn.getColumnSize();//计算字段总长度
 		return true;
 	}
 	public void addColumn(String columnName, String headName, int indexInFile) {
-		ObjColumn eh = new ObjColumn(columnName, "String",headName, indexInFile,this.columnTCount,false,false);
+		ObjColumn eh = new ObjColumn(columnName, "String",headName, indexInFile,this.columnTCount,false,false,0);
 		this.addColumn(eh);
 	}
 	public void addColumn(String columnName, String headName,String columnType,boolean outFileColumn,boolean primaryKey) {
-		ObjColumn eh = new ObjColumn(columnName,columnType,headName,-1,this.columnTCount,outFileColumn,primaryKey);
+		ObjColumn eh = new ObjColumn(columnName,columnType,headName,-1,this.columnTCount,outFileColumn,primaryKey,0);
 		this.addColumn(eh);
 	}
 	public void addColumn(String columnName, String headName,String columnType,boolean primaryKey) {
-		ObjColumn eh = new ObjColumn(columnName,columnType,headName,-1,this.columnTCount,false,primaryKey);
+		ObjColumn eh = new ObjColumn(columnName,columnType,headName,-1,this.columnTCount,false,primaryKey,0);
 		this.addColumn(eh);
 	}
-	public void addColumn(String columnName, int indexInFile,String columnType,boolean primaryKey) {
-		ObjColumn eh = new ObjColumn(columnName,columnType,"NO"+this.columnTCount,indexInFile,this.columnTCount,false,primaryKey);//标题默认NO
+	public void addColumn(String columnName, int indexInFile,String columnType,boolean primaryKey,int columnSize) {
+		ObjColumn eh = new ObjColumn(columnName,columnType,"NO"+this.columnTCount,indexInFile,this.columnTCount,false,primaryKey,columnSize);//标题默认NO
 		this.addColumn(eh);
 	}
 	public void addColumn(String columnName, String headName) {
-		ObjColumn eh = new ObjColumn(columnName,"String",headName,-1,this.columnTCount,false,false);
+		ObjColumn eh = new ObjColumn(columnName,"String",headName,-1,this.columnTCount,false,false,0);
 		this.addColumn(eh);
 	}
 	public boolean containsIndexInFile(int indexInFile) {

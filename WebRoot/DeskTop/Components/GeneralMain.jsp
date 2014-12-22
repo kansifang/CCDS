@@ -70,7 +70,8 @@
 
 		//定义树图结构
 		String sSqlTreeView = "from CODE_LIBRARY where CodeNo='"+sCodeNo+"' and IsInUse='1' ";
-		sSqlTreeView += "and ItemNo not like '0020%' ";//视图filter
+		sSqlTreeView += "and (nvl(RelativeCode,'')='' or exists(select 1 from User_Role where UserID='"+CurUser.UserID+"' and locate(RoleID,RelativeCode)>0 and Status='1')) ";//视图filter
+		sSqlTreeView += "and (nvl(Attribute1,'')='' or not exists(select 1 from User_Role where UserID='"+CurUser.UserID+"' and locate(RoleID,Attribute1)>0 and Status='1')) ";//视图filter
 		//参数从左至右依次为： ID字段,Name字段,Value字段,Script字段,Picture字段,From子句,OrderBy子句,Sqlca
 		tviTemp.initWithSql("SortNo","ItemName","ItemNo","ItemDescribe","",sSqlTreeView,"Order By SortNo",Sqlca);
 	%>
@@ -131,7 +132,6 @@
 
 
 
-
 <%
 	/*~BEGIN~可编辑区[Editable=true;CodeAreaID=Main06;Describe=在页面装载时执行,初始化;]~*/
 %>
@@ -140,6 +140,8 @@
 	//var pWindow=window.dialogArguments;
 	startMenu();
 	expandNode('root');		
+	expandNode('0200');	
+	expandNode('0500');	
 	selectItem('<%=sExpandItemNo%>');	
 	</script>
 <%

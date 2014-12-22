@@ -7,8 +7,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.lmt.app.crawler.Crawler;
-import com.lmt.app.crawler.dao.HtmlDao;
+import com.lmt.app.crawler.ui.BreadthCrawlerUI;
 
 /**
  *
@@ -49,15 +48,31 @@ public class GetNewsServlet extends HttpServlet {
     protected void processRequest(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
             response.setContentType("text/html;charset=GBK");
-            String url = request.getParameter("newsfield");  
+            final String sStartDate = request.getParameter("startDate");  
+            final String sEndDate = request.getParameter("endDate");  
+            /*
             Thread thread = new Thread(new Runnable() {
                 public void run() {
-                    new Crawler().crawling();
+                    try {
+						new Crawler().crawling(sStartDate,sEndDate);
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						System.out.println("没有找到种子文件！");
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						System.out.println("解析文件时出错！");
+					}
                 }
             });
             thread.start();
-            HtmlDao news=new HtmlDao();
-            request.getSession().setAttribute("newsList",news.getNewsList("SerialNo,NewsTitle,NewsAuthor,NewsContent,NewsURL,NewsDate"," from Batch_Html where 1=1",1,8));
+            */
+            java.awt.EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    new BreadthCrawlerUI().setVisible(true);
+                }
+            });
             response.sendRedirect("Data/Report/CrawlerList.jsp?CompClientID="+request.getParameter("CompClientID"));
     }
 }

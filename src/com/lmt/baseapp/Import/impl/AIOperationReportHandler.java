@@ -8,6 +8,21 @@ import com.lmt.frameapp.sql.Transaction;
  * @msg. 历史押品信息导入初始化
  */
 public class AIOperationReportHandler{
+	/**
+	 * 月度经营报告处理
+	 * @param sheet
+	 * @param icol
+	 * @return
+	 * @throws Exception 
+	 * @throws Exception
+	 */
+	public static void operationReportHandle(String HandlerFlag,String sConfigNo,String sOneKey,Transaction Sqlca) throws Exception {
+		//1、对中间表数据进行特殊处理 	 		 	
+		AIOperationReportHandler.interimProcess(sConfigNo, sOneKey, Sqlca);
+	 	AIOperationReportHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca);
+	 	//4、加工后，进行合计，横向纵向分析
+	 	AIOperationReportHandler.afterProcess(HandlerFlag,sConfigNo, sOneKey, Sqlca);
+	}
 	//对导入数据加工处理,插入到中间表Batch_Import_Interim
 	public static void interimProcess(String sConfigNo,String sKey,Transaction Sqlca) throws Exception{
 		String sSql="";
@@ -41,15 +56,16 @@ public class AIOperationReportHandler{
 		String sLastMonthEnd=StringFunction.getRelativeAccountMonth(sKey,"month",-1);
 		//3、计算占比
  		sSql="select tab1.Dimension,tab1.DimensionValue,"+
- 				"case when nvl(tab2.Balance,0)<>0 then round(tab1.Balance/tab2.Balance*100,2) else 0 end as BalanceRatio from "+
-			"(select ConfigNo,OneKey,Dimension,DimensionValue,Balance "+
-				"from Batch_Import_Process "+
-				"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"'"+
-			")tab1,"+
-			"(select ConfigNo,OneKey,Dimension,DimensionValue,Balance "+	
-				"from Batch_Import_Process "+
-				"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"' and (DimensionValue='1.各项贷款' or DimensionValue='总计@各项贷款余额')"+//前者是针对G0103,G0107,后者针对S63
-			")tab2"+
+ 				"case when nvl(tab2.Balance,0)<>0 then round(tab1.Balance/tab2.Balance*100,2) else 0 end as BalanceRatio " +
+ 			"from "+
+				"(select ConfigNo,OneKey,Dimension,DimensionValue,Balance "+
+					"from Batch_Import_Process "+
+					"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"'"+
+				")tab1,"+
+				"(select ConfigNo,OneKey,Dimension,DimensionValue,Balance "+	
+					"from Batch_Import_Process "+
+					"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"' and (locate('各项贷款',DimensionValue)>0)"+//G0103,G0107,S63都有一项汇总项：各项贷款（余额）
+				")tab2"+
 			" where tab1.Dimension=tab2.Dimension";
  		Sqlca.executeSQL("update Batch_Import_Process tab3 "+
  				"set(BalanceRatio)="+
@@ -122,7 +138,7 @@ public class AIOperationReportHandler{
 				",round(~s"+sConfigName+"@本外币合计e~/10000,2)"+
 				" from Batch_Import_Interim "+
 				" where ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"' "+
-				" and ~s"+sConfigName+"@项目e~ like '1%' ";
+				" and ~s"+sConfigName+"@项目e~ like '1%' order by ImportIndex asc";
 		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
  		Sqlca.executeSQL("insert into Batch_Import_Process "+
  				"(HandlerFlag,ConfigNo,OneKey,Dimension,DimensionValue"+
@@ -137,11 +153,12 @@ public class AIOperationReportHandler{
 	 */
 	public static void processG0107(String sConfigName,String HandlerFlag,String sConfigNo,String sKey,Transaction Sqlca) throws Exception{
  		String sSql="select "+
- 				"'"+HandlerFlag+"',ConfigNo,OneKey,'行业明细',~s"+sConfigName+"@项目e~"+
+ 				"'"+HandlerFlag+"',ConfigNo,OneKey,'行业明细',ImportIndex||'-'||~s"+sConfigName+"@项目e~"+
 				",round(~s"+sConfigName+"@各项贷款e~/10000,2)"+
 				" from Batch_Import_Interim "+
 				" where ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"' "+
-				" and (~s"+sConfigName+"@项目e~ like '1%' or ~s"+sConfigName+"@项目e~ like '2%' or ~s"+sConfigName+"@项目e~ like '4%')";
+				" and (~s"+sConfigName+"@项目e~ like '1%' or ~s"+sConfigName+"@项目e~ like '2%' or ~s"+sConfigName+"@项目e~ like '4%')" +
+				" order by ImportIndex asc";
 		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
  		Sqlca.executeSQL("insert into Batch_Import_Process "+
  				"(HandlerFlag,ConfigNo,OneKey,Dimension,DimensionValue"+

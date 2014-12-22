@@ -1,11 +1,9 @@
-package com.lietu.dup.test;
+package com.lmt.app.crawler._09_removerepetition.Synonym;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
-import com.lietu.dup.SynonymReplace;
 
 public class TestSynonymReplace {
 	private static String path = System.getProperty("user.dir") + "/NorthAmerica_importer.mdb";

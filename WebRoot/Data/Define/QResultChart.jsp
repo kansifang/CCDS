@@ -40,18 +40,19 @@ com.lmt.app.cms.explain.AmarMethod
 <%
 	//1、通过数据库查询出查询语句来执行查询
 	StringBuffer sb=null;
-	ASResultSet rs1 = Sqlca.getResultSet("select AttachmentNo,ContentLength,Remark,FileName,Attribute2,Attribute3,FullPath"+
+	ASResultSet rs1 = Sqlca.getResultSet("select AttachmentNo,ContentLength,Remark,FileName,Attribute2,Attribute3,FullPath,Attribute4"+
 			" from Doc_Attachment"+
 			" where AttachmentNo in('"+sAttachmentNo.replaceAll("@", "','")+"')");
-	String tabName="",sDisplayType="",IsUpdate="",sFilterColumn="",sKeyColumn="";
+	String tabName="",sDisplayType="",IsUpdate="",sFilterColumn="",sKeyColumn="",sAutoChartRatio="";
 	while(rs1.next()){	
 		String subAttachmentNo=rs1.getString("AttachmentNo");
 		tabName=DataConvert.toString(rs1.getString("FileName"));
-		PG_TITLE=tabName+"@PageTitle";//WindowTitle
+		PG_TITLE=tabName+"@WindowTitle";// PageTitle
 		sDisplayType=DataConvert.toString(rs1.getString("Attribute2"));
 		IsUpdate=DataConvert.toString(rs1.getString("Attribute3"));
 		sKeyColumn=DataConvert.toString(rs1.getString("FullPath"));
 		sFilterColumn=DataConvert.toString(rs1.getString("Remark"));
+		sAutoChartRatio=DataConvert.toString(rs1.getString("Attribute4"));
 		int iContentLength=rs1.getInt("ContentLength");
 		if(iContentLength>0){
 			byte bb[] = new byte[iContentLength];
@@ -107,34 +108,33 @@ com.lmt.app.cms.explain.AmarMethod
 				dwTemp.Style="1";      //设置DW风格 1:Grid 2:Freeform
 				dwTemp.ReadOnly = "1"; //设置是否只读 1:只读 0:可写
 				dwTemp.setPageSize(40);
-				
 				//生成HTMLDataWindow
 				Vector vTemp = dwTemp.genHTMLDataWindow("");
-			%>
-			<%
+				%>
+				<%
 				for(int i=0;i<vTemp.size();i++) 
 					out.print((String)vTemp.get(i));
 			%>
 			<%//依次为：
-			//0.是否显示
-			//1.注册目标组件号(为空则自动取当前组件)
-			//2.类型(Button/ButtonWithNoAction/HyperLinkText/TreeviewItem/PlainText/Blank)
-			//3.按钮文字
-			//4.说明文字
-			//5.事件
-			//6.资源图片路径
-			String sButtons[][] = {
-				{"true","","Button","新增","新增一条记录","newRecord()",sResourcesPath},
-				{"true","","Button","详情","查看/修改详情","viewAndEdit()",sResourcesPath},
-				{"true","","Button","删除","删除所选中的记录","deleteRecord()",sResourcesPath},
-				//{"false","","Button","更新","更新数据库","convertStyle()",sResourcesPath},
-				//{"true","","Button","保存","保存所有修改,并返回列表页面","save()",sResourcesPath},
-				};
-			if("02".equals(sDisplayType)){
-				sButtons[0][0]="false";
-				sButtons[1][0]="false";
-				sButtons[2][0]="false";
-			}
+				//0.是否显示
+				//1.注册目标组件号(为空则自动取当前组件)
+				//2.类型(Button/ButtonWithNoAction/HyperLinkText/TreeviewItem/PlainText/Blank)
+				//3.按钮文字
+				//4.说明文字
+				//5.事件
+				//6.资源图片路径
+				String sButtons[][] = {
+					{"true","","Button","新增","新增一条记录","newRecord()",sResourcesPath},
+					{"true","","Button","详情","查看/修改详情","viewAndEdit()",sResourcesPath},
+					{"true","","Button","删除","删除所选中的记录","deleteRecord()",sResourcesPath},
+					//{"false","","Button","更新","更新数据库","convertStyle()",sResourcesPath},
+					//{"true","","Button","保存","保存所有修改,并返回列表页面","save()",sResourcesPath},
+					};
+				if("02".equals(sDisplayType)){
+					sButtons[0][0]="false";
+					sButtons[1][0]="false";
+					sButtons[2][0]="false";
+				}
 			%>
 			<%@include file="/Resources/CodeParts/List05.jsp"%>
 			<%
@@ -143,7 +143,7 @@ com.lmt.app.cms.explain.AmarMethod
 				if("02".equals(sDisplayType)){//饼状图
 					// 创建饼状图对象
 					//JFreeChart jf = ChartFactory.createPieChart("", PieChart.getDataSet(sSql,Sqlca), true, true, true);
-					jf = PieChart.getJfreeChart(sSql, Sqlca);
+					jf = PieChart.getJfreeChart(sSql, Sqlca,sAutoChartRatio);
 				}else if("03".equals(sDisplayType)){//柱状图
 					// 创建柱状图对象
 					jf =BarChart.getJfreeChart(sSql, Sqlca);
@@ -151,6 +151,10 @@ com.lmt.app.cms.explain.AmarMethod
 					// 创建折线图对象
 					//JFreeChart jf = LineChart.createChart(sSql, Sqlca);
 					jf =LineChart.getJfreeChart(sSql, Sqlca);
+				}else if("05".equals(sDisplayType)){//折线图
+					// 创建折线图对象
+					//JFreeChart jf = LineChart.createChart(sSql, Sqlca);
+					jf =BarALineChart.getJfreeChart(sSql, Sqlca);
 				}
 				%>
 <HTML> 
@@ -184,26 +188,26 @@ com.lmt.app.cms.explain.AmarMethod
 	            //700是图片长度，450是图片高度
 	            //String filename = ServletUtilities.saveChartAsPNG(jf,700,450,info,session); 
 	            String imgName=PG_TITLE;
-	            String filename = ServletUtilities.saveChartAsJPEG(jf,700,450,info,session); 
+	            String filename = ServletUtilities.saveChartAsJPEG(jf,700,400,info,session); 
 	            ChartUtilities.writeImageMap(pw,imgName,info,false); 
 	            String graphURL = request.getContextPath() + "/DisplayChart?filename=" + filename;
 				%>
 <p ALIGN=CENTER> 
-<img src="<%=graphURL%>" width=600 height=400 border=0 usemap="#<%=imgName%>" ondblclick="window.open('<%=graphURL%>','_blank','')"> 
+<img src="<%=graphURL%>" width=700 height=400 border=0 usemap="#<%=imgName%>" ondblclick="window.open('<%=graphURL%>','_blank','')"> 
 </p> 
 </BODY> 
 </HTML>
 				<%
-				//把图生成字节数组，保存到数据库，作为输出到Word时查询使用
-				//判断是否已保存图像数据
-			    String sWhere="HandlerFlag=upper('"+sHandlerFlag+"') and OneKey='"+sOneKey+"'"+" and Dimension='"+sDimension+"' and DimensionValue='"+tabName+"'";
-			    String sOneOneKey=Sqlca.getString("select OneKey from Batch_Import_Process where "+sWhere);
-			    if(!sOneKey.equals(sOneOneKey)){
-					Sqlca.executeSQL("insert into Batch_Import_Process "+
-			 				"(HandlerFlag,OneKey,Dimension,DimensionValue)"+
-			 				"values(upper('"+sHandlerFlag+"'),'"+sOneKey+"','"+sDimension+"','"+tabName+"')");
-				}
 				if("1".equals(IsUpdate)){
+					//把图生成字节数组，保存到数据库，作为输出到Word时查询使用
+					//判断是否已保存图像数据
+				    String sWhere="HandlerFlag=upper('"+sHandlerFlag+"') and OneKey='"+sOneKey+"'"+" and Dimension='"+sDimension+"' and DimensionValue='"+tabName+"'";
+				    String sOneOneKey=Sqlca.getString("select OneKey from Batch_Import_Process where "+sWhere);
+				    if(!sOneKey.equals(sOneOneKey)){
+						Sqlca.executeSQL("insert into Batch_Import_Process "+
+				 				"(HandlerFlag,OneKey,Dimension,DimensionValue)"+
+				 				"values(upper('"+sHandlerFlag+"'),'"+sOneKey+"','"+sDimension+"','"+tabName+"')");
+					}
 					ByteArrayOutputStream outBA = new ByteArrayOutputStream();  
 					ChartUtilities.writeChartAsPNG(outBA, jf, 600, 600);  
 				    String base63string=Base64.encode(outBA.toByteArray());

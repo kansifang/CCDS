@@ -73,7 +73,7 @@
     				sS+
     				",ImportNo as 导入号,ImportTime as 导入时间,UserID as 导入人"+
     	 			" FROM Batch_Import_Interim " +
-		  			" WHERE 1=1 order by ImportNo asc";
+		  			" WHERE 1=1 order by ImportIndex asc";
 	//产生ASDataObject对象doTemp
     ASDataObject doTemp = new ASDataObject(sSql);
     //设置表头
@@ -81,7 +81,7 @@
     //可更新的表
     doTemp.UpdateTable = "Batch_Import_Interim";
     //设置关键字
-	doTemp.setKey("ImportNo,ImportIndex",true);
+	doTemp.setKey("ConfigNo,ImportNo,ImportIndex",true);
 	//设置不可见项
     doTemp.setVisible("报表类型,ImportFlag",false);
     //设置风格
@@ -244,7 +244,7 @@
 	function viewDoc()
 	{
 		var sBatchNo=getItemValue(0,getRow(),"报表类型");
-		var sUserID=getItemValue(0,getRow(),"UserID");
+		var sUserID=getItemValue(0,getRow(),"导入人");
     	if (typeof(sUserID)=="undefined" || sUserID.length==0)
     	{
         	alert(getHtmlMessage(1));  //请选择一条记录！
@@ -259,7 +259,7 @@
 	{
 		//Doc_Relative ObjectType=Batch ObjectNo=ConfigNo 
 		//var sReturn=PopPage("/Document/FileChooseDialog.jsp","window","dialogWidth=900px;dialogHeight=500px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
-		var sReturn=popComp("FileChooseDialog","/Document/FileChooseDialog.jsp","","dialogWidth=900px;dialogHeight=500px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
+		var sReturn=popComp("FileChooseDialog","/Document/FileChooseDialog.jsp","_self","dialogWidth=900px;dialogHeight=500px;resizable=yes;scrollbars=no;status:yes;minimize:yes;maximize:yes;help:no;");
 		if(typeof(sReturn)=="undefined" || sReturn=="" || sReturn=="_CANCEL_") 
    			return;
    		//放到FileFileUpload.jsp中处理

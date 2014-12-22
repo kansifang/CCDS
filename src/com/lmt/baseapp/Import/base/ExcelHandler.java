@@ -4,16 +4,13 @@ import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
-import com.lmt.baseapp.user.ASUser;
 import com.lmt.baseapp.util.StringFunction;
-import com.lmt.frameapp.sql.ASResultSet;
 import com.lmt.frameapp.sql.Transaction;
 
 public class ExcelHandler extends DefaultHandler {
@@ -111,7 +108,7 @@ public class ExcelHandler extends DefaultHandler {
 	public boolean next() throws Exception {
 		//DecimalFormat nf = new DecimalFormat("#0");
 		this.currentRow ++;
-		if (this.currentRow >= this.rowCount) {
+		if (this.currentRow >= this.getRowCount()) {
 			return false;
 		}
 		Row rr = this.sheet.getRow(this.currentRow);
@@ -144,7 +141,7 @@ public class ExcelHandler extends DefaultHandler {
 			}
 		}
 		//设置文件外的一些要素的值，譬如导入日期，此处设置显然是每天记录是不一样的
-		this.record.setString("ImportIndex", (this.currentRow+1)+"");
+		this.record.setDouble("ImportIndex", (this.currentRow+1));
 		this.record.setString("ImportTime", StringFunction.getTodayNow());
 		return true;
 	}

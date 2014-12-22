@@ -46,8 +46,7 @@ Transaction getSqlca(Transaction SqlcaRepository, String sAppID, String sDataSou
         if(sAppDataSourceName.equals(sDataSource) && sAppProviderURL.equals(sDataSource))
         {
             Sqlca = SqlcaRepository;
-        }else
-        {
+        }else{
             try{
                 dsApp = ConnectionManager.getDataSource(sAppDataSourceName);
                 Sqlca = ConnectionManager.getTransaction(dsApp);

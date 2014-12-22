@@ -57,8 +57,8 @@
 	//获得页面参数	
 	String sDocNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("docNo")));
 	String sAttachmentNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("attachmentNo")));
-	//String sColumn = DataConvert.toString(DataConvert.toRealString(5,(String)CurPage.getParameter("R0F6")));用下面代替
-	String sColumn = DataConvert.toString(DataConvert.decode(request.getParameter("R0F6"),"UTF-8"));
+	//String sColumn = DataConvert.toString(DataConvert.toRealString(5,(String)CurPage.getParameter("R0F7")));用下面代替
+	String sColumn = DataConvert.toString(DataConvert.decode(request.getParameter("R0F7"),"UTF-8"));
 	String sMethod = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("method")));
 %>
 <%
@@ -244,6 +244,7 @@
 			setItemValue(0,0,"QStyle","02");
 			setItemValue(0,0,"Attribute2","01");
 			setItemValue(0,0,"Attribute3","2");
+			setItemValue(0,0,"Attribute4","2");
 			setItemValue(0,0,"Attribute1","OpenComp(~QResultChart~,~/Data/Define/QResultChart.jsp~,~AttachmentNo=#AttachmentNo&OneKey=#OneKey&HandlerFlag=DuebillOut&Dimension=银行承兑汇票单一担保方式~,~TabContentFrame~,~~)");
 			bIsInsert = true;
 		}
@@ -267,6 +268,13 @@
 	}
 	</script>
 	<script type="text/javascript">
+	function selectFileName()
+	{	
+		var sDocNo=getItemValue(0,0,"DocNo");
+		var sAttachmentNo=getItemValue(0,0,"AttachmentNo");
+		var sParaString = "DocNo,"+sDocNo+",AttachmentNo,"+sAttachmentNo;
+		setObjectValue("SelectFileName",sParaString,"@ParentAttachmentNo@0@ParentFileName@1",0,0,"");			
+	}
 	<!--
 	//according to value of QStyle,display different element
 	function displayContent(element){
@@ -297,7 +305,7 @@
 		var sDocNo="<%=sDocNo%>";
 		var sAttachmentNo=getItemValue(0,0,"AttachmentNo");
 		var sStyle=getItemValue(0,0,"QStyle");
-		var objectArray =document.frames("myiframe0").document.getElementsByName("R0F6");
+		var objectArray =document.frames("myiframe0").document.getElementsByName("R0F7");
 		//对表单内容进行编码，在服务端用DataConvert.toRealString(5,s)或DataConvert.decode(s,"GBK")进行解码
 		//objectArray[0].value=asConvU2G(objectArray[0].value); 用下面代替
 		objectArray[0].value=encodeURIComponent(objectArray[0].value,'UTF-8');
@@ -392,8 +400,8 @@
 		} 
 	}
 	//以下两者皆可
-	IncludeJS(mywindow,"sid",_editor_url+"editor.js",false,"editor_generate('R0F6')");
+	IncludeJS(mywindow,"sid",_editor_url+"editor.js",false,"editor_generate('R0F7')");
 	//下面这个似乎影响性能，原因未明
-	//IncludeJS(mywindow,"sid","/Resources/1/HtmlEdit/editor.js",true,"editor_generate('R0F6')");
+	//IncludeJS(mywindow,"sid","/Resources/1/HtmlEdit/editor.js",true,"editor_generate('R0F7')");
 </script>
 <%@ include file="/IncludeEnd.jsp"%>

@@ -3,6 +3,7 @@ package com.lmt.baseapp.Import.impl;
 import com.lmt.baseapp.Import.base.EntranceImpl;
 import com.lmt.baseapp.Import.base.ExcelBigEntrance;
 import com.lmt.baseapp.Import.base.ExcelEntrance;
+import com.lmt.baseapp.Import.base.TextEntrance;
 import com.lmt.baseapp.user.ASUser;
 import com.lmt.frameapp.sql.Transaction;
 public class AIHandlerFactory{
@@ -25,6 +26,15 @@ public class AIHandlerFactory{
 		 	Sqlca.executeSQL("Delete from Batch_Import_Interim where ConfigNo='"+sConfigNo+"' and OneKey='"+sOneKey+"'");
 		 	EntranceImpl efih_Iterim=new ExcelBigEntrance(sFiles,"Batch_Import_Interim",CurUser,Sqlca);
 		 	efih_Iterim.action(sConfigNo,sOneKey);
+		}else if("02".equals(sFileType)){//text
+			//导入文件到原始表，始终保持原滋原味
+	 		Sqlca.executeSQL("Delete from Batch_Import where ConfigNo='"+sConfigNo+"' and OneKey='"+sOneKey+"'");
+		 	EntranceImpl efih=new TextEntrance(sFiles,"Batch_Import",CurUser,Sqlca);
+		 	efih.action(sConfigNo,sOneKey);
+			//再导入到中间表，可以进行加工
+		 	Sqlca.executeSQL("Delete from Batch_Import_Interim where ConfigNo='"+sConfigNo+"' and OneKey='"+sOneKey+"'");
+		 	EntranceImpl efih_Iterim=new TextEntrance(sFiles,"Batch_Import_Interim",CurUser,Sqlca);
+		 	efih_Iterim.action(sConfigNo,sOneKey);
 		}
 		//更新配置号和报表日期
  		//String sSerialNo  = DBFunction.getSerialNo("Batch_Case","SerialNo",Sqlca);
@@ -39,7 +49,7 @@ public class AIHandlerFactory{
 		if("Customer".toUpperCase().equals(HandlerFlag)){
 			AIHandlerFactory.customerHandle(sConfigNo, sOneKey, Sqlca);
 		}else if("Contract".toUpperCase().equals(HandlerFlag)){
-			AIHandlerFactory.contractHandle(HandlerFlag,sConfigNo, sOneKey, Sqlca);
+			AIContractHandler.contractHandle(HandlerFlag,sConfigNo, sOneKey, Sqlca);
 		}else if("Duebill".toUpperCase().equals(HandlerFlag)){
 			AIDuebillInHandler.dueBillInHandle(HandlerFlag,sConfigNo, sOneKey, Sqlca);
 		}else if("DuebillOut".toUpperCase().equals(HandlerFlag)){
@@ -47,7 +57,7 @@ public class AIHandlerFactory{
 		}else if("DuebillR".toUpperCase().equals(HandlerFlag)){
 			AIHandlerFactory.dueBillRHandle(HandlerFlag,sConfigNo, sOneKey, Sqlca);
 		}else if("OperationReport".toUpperCase().equals(HandlerFlag)){
-			AIHandlerFactory.operationReportHandle(HandlerFlag,sConfigNo, sOneKey, Sqlca);
+			AIOperationReportHandler.operationReportHandle(HandlerFlag,sConfigNo, sOneKey, Sqlca);
 		}
 	}
 	/**
@@ -76,30 +86,6 @@ public class AIHandlerFactory{
 	 	AfterImportCustomerHandler.afterProcess(sConfigNo, sOneKey, Sqlca);
 	 	*/
 	}
-	/**
-	 * 合同导入后处理
-	 * @param sheet
-	 * @param icol
-	 * @return
-	 * @throws Exception 
-	 * @throws Exception
-	 */
-	private static void contractHandle(String HandlerFlag,String sConfigNo,String sOneKey,Transaction Sqlca) throws Exception {
-		//1、对中间表数据进行特殊处理 	 		 	
-		AIContractHandler.interimProcess(sConfigNo, sOneKey, Sqlca);
-	 	String groupBy="case when ~s合同明细@其他担保方式e~ like '%保证%' and ~s合同明细@其他担保方式e~ like '%软抵押%' then '保证+软抵押' "+
-	 			"when ~s合同明细@其他担保方式e~ like '%保证%' and ~s合同明细@其他担保方式e~ like '%抵押%' and ~s合同明细@其他担保方式e~ like '%质押%' then '保证+抵质押' "+
-	 			"when ~s合同明细@其他担保方式e~ = '保证' then '单一保证' "+
-	 			"when ~s合同明细@其他担保方式e~ like '%信用%' and ~s合同明细@其他担保方式e~ like '%软抵押%' then '信用+软抵押' "+
-	 			"when ~s合同明细@其他担保方式e~ = '信用' then '单一信用' "+
-	 			"when ~s合同明细@其他担保方式e~ = '抵押' then '单一抵押' "+
-	 			"when ~s合同明细@其他担保方式e~ = '质押' then '单一质押' "+
-	 			"when ~s合同明细@其他担保方式e~ like '%抵押%' and ~s合同明细@其他担保方式e~ like '%质押%' then '抵押+质押' "+
-	 			"else '其他担保' end";
-	 	AIContractHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"混合担保方式",groupBy);
-	 	//4、加工后，进行合计，横向纵向分析
-	 	AIContractHandler.afterProcess(HandlerFlag,sConfigNo, sOneKey, Sqlca);
-	}
 	
 	/**
 	 * 零售借据导入后处理
@@ -119,20 +105,5 @@ public class AIHandlerFactory{
  		AIDuebillRetailHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"归属条线",groupBy,"and (~s个人明细@业务品种e~<>'个人委托贷款' and ~s个人明细@业务品种e~<>'个人住房公积金贷款')");
 	 	//4、加工后，进行合计，横向纵向分析
  		AIDuebillRetailHandler.afterProcess(HandlerFlag,sConfigNo, sOneKey, Sqlca);
-	}
-	/**
-	 * 月度经营报告处理
-	 * @param sheet
-	 * @param icol
-	 * @return
-	 * @throws Exception 
-	 * @throws Exception
-	 */
-	private static void operationReportHandle(String HandlerFlag,String sConfigNo,String sOneKey,Transaction Sqlca) throws Exception {
-		//1、对中间表数据进行特殊处理 	 		 	
-		AIOperationReportHandler.interimProcess(sConfigNo, sOneKey, Sqlca);
-	 	AIOperationReportHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca);
-	 	//4、加工后，进行合计，横向纵向分析
-	 	AIOperationReportHandler.afterProcess(HandlerFlag,sConfigNo, sOneKey, Sqlca);
 	}
 }

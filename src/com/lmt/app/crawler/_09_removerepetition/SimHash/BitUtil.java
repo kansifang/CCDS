@@ -1,4 +1,4 @@
-package com.lietu.simhash;
+package com.lmt.app.crawler._09_removerepetition.SimHash;
 
 public class BitUtil {
 	/** Returns the number of bits set in the long */

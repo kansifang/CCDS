@@ -1,7 +1,7 @@
 <%@ page contentType="text/html; charset=GBK"%>
 <%@ include file="/IncludeBegin.jsp"%>
 <%@page import="java.util.List" %>
-<%@page import="java.util.ArrayList,java.util.Iterator" %>
+<%@page import="java.util.ArrayList,java.util.Iterator,java.util.regex.Pattern,java.util.regex.Matcher" %>
 <%@page import="com.lmt.app.crawler.dao.*" %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
    "http://www.w3.org/TR/html4/loose.dtd">
@@ -16,6 +16,7 @@
     <%
 	    String sSerialNo=request.getParameter("SerialNo");
     %>
+    	<div style="width:100%;height:100%; overflow:scroll; border:1px solid;">
         <table border="0">
             <thead>
                 <tr>
@@ -27,22 +28,32 @@
             <tbody>
             	<%
             		HtmlDao news=new HtmlDao();
-            	            	          			HtmlBean nb=news.getNews("SerialNo,NewsTitle,NewsAuthor,NewsContent,NewsURL,NewsDate"," from Batch_Html where SerialNo='"+sSerialNo+"'");
-            	            	          			if(nb.getSerialNo().equals(sSerialNo)){
-            	            	          				String Content=nb.getContent();
-            	            	          				Content=StringFunction.replace(Content,"¡¡¡¡", "<p>");
+          			HtmlBean nb=news.getNews("SerialNo,NewsTitle,NewsAuthor,NewsContent,NewsURL,NewsDate"," from Batch_Html where SerialNo='"+sSerialNo+"'");
+          			if(nb.getSerialNo().equals(sSerialNo)){
+          				String Content=nb.getContent();
+          				//Content=Content.replaceAll("[¡££¡]\\s{1,}","<p>&nbsp;&nbsp;&nbsp;&nbsp;");
+          				StringBuffer sb=new StringBuffer();
+          				Pattern pattern=Pattern.compile("([¡££¡])(\\s{1,})");
+          				Matcher matcher=pattern.matcher(Content);
+          				while(matcher.find()){
+          					matcher.appendReplacement(sb, matcher.group(1)+"<p>&nbsp;&nbsp;&nbsp;&nbsp;");
+          				}
+          				matcher.appendTail(sb);
             	%>
             	<tr>
                     <td align="center" ><span style="font-size:20px;cursor:hand;text-decoration:underline" onclick="window.open('<%=nb.getURL()%>','_blank','')"><%=nb.getTitle()%></strong></span></td>
                 </tr>
                 <tr>
-                   <td><span style="COLOR:#000000; FONT-SIZE: 15px;"><%=Content%></span></td>
+                   <td>
+                   <span style="COLOR:#000000; FONT-SIZE: 15px;"><%=sb.toString()%></span>
+                   </td>
                 </tr>
             	<%		
             		}
             	%>
             </tbody>
         </table>
+        </div>
      </body>
     <script>
     	var curRow=0;

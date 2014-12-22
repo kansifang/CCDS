@@ -1,8 +1,5 @@
 package com.lmt.baseapp.Import.impl;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.lmt.baseapp.util.StringFunction;
 import com.lmt.baseapp.util.StringUtils;
 import com.lmt.frameapp.sql.Transaction;
@@ -23,19 +20,11 @@ public class AIDuebillOutHandler{
 		//0、对中间表数据进行特殊处理 	 		 	
 		AIDuebillOutHandler.interimProcess(sConfigNo, sOneKey, Sqlca);
 		//1、差额全额
- 		String groupBy="case "+
+ 		String groupBy="'银承'LJFcase "+
 			 			"when nvl(~s表外明细@保证金比例(%)e~,0)=100 and (~s表外明细@主要担保方式e~ like '%本行存单' or ~s表外明细@主要担保方式e~ like '%保证金' or ~s表外明细@主要担保方式e~ like '%我行人民币存款%') then '全额银承余额' "+
 			 			"else '差额银承余额' end";
  		AIDuebillOutHandler.process(HandlerFlag,sConfigNo,sOneKey,Sqlca,"差额全额银行承兑汇票",groupBy,"and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票'");
-
-		//2、差额承兑按担保方式
- 		groupBy="case when ~s表外明细@主要担保方式e~ like '保证-%' then '保证' "+
-	 			"when ~s表外明细@主要担保方式e~ like '抵押-%' then '抵押' "+
-	 			"when ~s表外明细@主要担保方式e~ = '信用' then '信用' "+
-	 			"when ~s表外明细@主要担保方式e~ like '%质押-%' or ~s表外明细@主要担保方式e~='保证金' then '质押' "+
-	 			"else '其他' end";
- 		AIDuebillOutHandler.process(HandlerFlag,sConfigNo,sOneKey,Sqlca,"银行承兑汇票单一担保方式",groupBy,"and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票' and not(nvl(~s表外明细@保证金比例(%)e~,0)=100 and (~s表外明细@主要担保方式e~ like '%本行存单' or ~s表外明细@主要担保方式e~ like '%保证金' or ~s表外明细@主要担保方式e~ like '%我行人民币存款%'))");
- 		//3、保证金比例
+		//3、保证金比例
  		groupBy="QZ'A'QZ" +
  				"complementstring(trim(replace(" +
  					"case when ~s表外明细@保证金比例(%)e~>=1 then char(~s表外明细@保证金比例(%)e~)" +
@@ -104,7 +93,38 @@ public class AIDuebillOutHandler{
 	 			"when ~s表外明细@经营类型(新)e~ like '文化娱乐' then 'U-文化娱乐' "+
 	 			"else 'W-'||~s表外明细@经营类型(新)e~ end";
  		AIDuebillOutHandler.process(HandlerFlag,sConfigNo,sOneKey,Sqlca,"银行承兑汇票经营类型(新)",groupBy,"and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票'");
-	 	//单独完成一些复杂的操作
+ 		
+	 	//2、差额承兑按单一担保方式
+ 		groupBy="case when ~s表外明细@主要担保方式e~ like '保证-%' then '保证' "+
+	 			"when ~s表外明细@主要担保方式e~ like '抵押-%' then '抵押' "+
+	 			"when ~s表外明细@主要担保方式e~ = '信用' then '信用' "+
+	 			"when ~s表外明细@主要担保方式e~ like '%质押-%' or ~s表外明细@主要担保方式e~='保证金' then '质押' "+
+	 			"else '其他' end";
+ 		AIDuebillOutHandler.process(HandlerFlag,sConfigNo,sOneKey,Sqlca,"银行承兑汇票单一担保",groupBy,"and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票' and not(nvl(~s表外明细@保证金比例(%)e~,0)=100 and (~s表外明细@主要担保方式e~ like '%本行存单' or ~s表外明细@主要担保方式e~ like '%保证金' or ~s表外明细@主要担保方式e~ like '%我行人民币存款%'))");
+ 		groupBy="case when ~s表外明细@企业规模e~ = '小型企业' or ~s表外明细@企业规模e~ = '微小型企业' then '0、小微型企业' "+
+ 				"when ~s表外明细@企业规模e~ = '中型企业' then '1、中型企业'"+
+	 			"else '2、'||~s表外明细@企业规模e~ end";
+ 		AIDuebillOutHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"银行承兑汇票企业规模",groupBy,"and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票' and not(nvl(~s表外明细@保证金比例(%)e~,0)=100 and (~s表外明细@主要担保方式e~ like '%本行存单' or ~s表外明细@主要担保方式e~ like '%保证金' or ~s表外明细@主要担保方式e~ like '%我行人民币存款%'))");
+	 		 	
+	 	groupBy="case  "+
+	 			"when ~s表外明细@国家地区e~ like '%吕梁市%' then 'B-吕梁市' "+
+	 			"when ~s表外明细@国家地区e~ like '%晋中市%' then 'C-晋中市' "+
+	 			"when ~s表外明细@国家地区e~ like '%临汾市%' then 'D-临汾市' "+
+	 			"when ~s表外明细@国家地区e~ like '%运城市%' then 'E-运城市' "+
+	 			"when ~s表外明细@国家地区e~ like '%长治市%' then 'F-长治市' "+
+	 			"when ~s表外明细@国家地区e~ like '%朔州市%' then 'G-朔州市' "+
+	 			"when ~s表外明细@国家地区e~ like '%忻州市%' then 'H-忻州市' "+
+	 			"when ~s表外明细@国家地区e~ like '%大同市%' then 'I-大同市' "+
+	 			"when ~s表外明细@国家地区e~ like '%晋城市%' then 'J-晋城市' "+
+	 			"when ~s表外明细@国家地区e~ like '%阳泉市%' then 'K-阳泉市' "+
+	 			//"when ~s表外明细@国家地区e~ like '%石家庄市%' then '石家庄市' "+
+	 			//"when ~s表外明细@国家地区e~ like '%武汉市%' then '武汉市' "+
+	 			"when ~s表外明细@国家地区e~ like '%佛山市%' then 'L-佛山市' "+
+	 			"else 'A-太原市' end";//剩下的默认都是太原市when ~s表外明细@国家地区e~ like '%太原市%' then '太原市'
+	 	AIDuebillOutHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"银行承兑汇票地区",groupBy,"and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票' and not(nvl(~s表外明细@保证金比例(%)e~,0)=100 and (~s表外明细@主要担保方式e~ like '%本行存单' or ~s表外明细@主要担保方式e~ like '%保证金' or ~s表外明细@主要担保方式e~ like '%我行人民币存款%'))");
+	 	
+	 	AIDuebillOutHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"银行承兑汇票机构","~s表外明细@直属行名称e~","and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票' and not(nvl(~s表外明细@保证金比例(%)e~,0)=100 and (~s表外明细@主要担保方式e~ like '%本行存单' or ~s表外明细@主要担保方式e~ like '%保证金' or ~s表外明细@主要担保方式e~ like '%我行人民币存款%'))");
+ 		//单独完成一些复杂的操作
 	 	AIDuebillOutHandler.afterProcess1(HandlerFlag,sConfigNo, sOneKey, Sqlca);
 	 	//4、加工后，进行合计，横向纵向分析
 	 	AIDuebillOutHandler.afterProcess(HandlerFlag,sConfigNo, sOneKey, Sqlca);
@@ -142,8 +162,8 @@ public class AIDuebillOutHandler{
 		*/
  		//3、直属行名称 晋城、晋中、长治直属行名称，根据 管户人 名字后面的括号内的标志更新
  		sSql="update Batch_Import_Interim set ~s表外明细@直属行名称e~="+
- 					"case when ~s表外明细@管户人e~ like '%晋城%' or ~s表外明细@管户人e~='段林虎' then '晋城分行筹备组' "+
- 					"when ~s表外明细@管户人e~ like '%晋中%' then '晋中分行筹备组' "+
+ 					"case when ~s表外明细@管户人e~ like '%晋城%' or ~s表外明细@管户人e~='段林虎' then '晋城分行' "+
+ 					"when ~s表外明细@管户人e~ like '%晋中%' then '晋中分行' "+
  					"when ~s表外明细@管户人e~ like '%长治%' then '长治分行' "+
  					"else ~s表外明细@直属行名称e~ end "+
  					"where ConfigNo='"+sConfigNo+"' "+
@@ -151,6 +171,14 @@ public class AIDuebillOutHandler{
  					"and nvl(~s表外明细@管户人e~,'')<>''";
  		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
  		Sqlca.executeSQL(sSql); 
+ 		//4、管户机构 为迎泽支行的直属行名称由 总行营业部 变为 龙城直属支行
+ 		sSql="update Batch_Import_Interim set ~s表外明细@直属行名称e~='龙城直属支行'"+
+ 					" where ConfigNo='"+sConfigNo+"' "+
+ 					" and OneKey='"+sKey+"' "+
+ 					" and nvl(~s表外明细@直属行名称e~,'')='总行营业部'"+
+ 					" and nvl(~s表外明细@管户机构e~,'')='总行营业部'";
+ 		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
+ 		Sqlca.executeSQL(sSql);
  		//4、直属行名称中带晋商银行的 如果 根据 管户机构 来更新
  		sSql="update Batch_Import_Interim set ~s表外明细@直属行名称e~=~s表外明细@管户机构e~"+
  					" where ConfigNo='"+sConfigNo+"' "+
@@ -182,24 +210,7 @@ public class AIDuebillOutHandler{
  					" and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票'";
  		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
  		Sqlca.executeSQL(sSql);
- 		//9、如果是保证金比例不为100（当然敞口>0），主要担保方式为本行存单或保证金的承兑汇票的,结合合同明细，如果其中 “其他担保方式” 包含保证，则主要担保方式变为保证
- 		sSql="update Batch_Import_Interim BII1 set " +
-					"~s表外明细@主要担保方式e~='保证-' " +
-					" where ConfigNo='"+sConfigNo+"'"+
-					" and OneKey='"+sKey+"'"+
-					" and (nvl(~s表外明细@主要担保方式e~,'') like '%保证金%' or nvl(~s表外明细@主要担保方式e~,'') like '%本行存单%' or nvl(~s表外明细@主要担保方式e~,'') like '%我行人民币存款%')"+
-					" and nvl(~s表外明细@保证金比例(%)e~,0)<>100"+
-					" and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票'" +
-					" and exists(select 1 from Batch_Import_Interim BII2 " +
-					"			where BII2.ConfigName='合同明细'" +
-					"				and BII2.OneKey=BII1.OneKey" +
-					"				and BII2.~s合同明细@客户编号e~=BII1.~s表外明细@客户编号e~" +
-					"				and BII2.~s合同明细@业务品种e~=BII1.~s表外明细@业务品种e~" +
-					"				and BII2.~s合同明细@主要担保方式e~=BII1.~s表外明细@主要担保方式e~" +
-					"				and locate('保证',BII2.~s合同明细@其他担保方式e~)>0)";
- 		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
- 		Sqlca.executeSQL(sSql);
- 		//10、如果是保证金比例不为100（当然敞口>0），主要担保方式为本行存单或保证金的承兑汇票的,结合合同明细，如果其中 “其他担保方式” 包含抵押，则主要担保方式变为抵押
+ 		//9、如果是保证金比例不为100（当然敞口>0），主要担保方式为本行存单或保证金的承兑汇票的,结合合同明细，如果其中 “其他担保方式” 包含抵押，则主要担保方式变为抵押
  		sSql="update Batch_Import_Interim BII1 set " +
  					"~s表外明细@主要担保方式e~='抵押-' " +
  					" where ConfigNo='"+sConfigNo+"'"+
@@ -214,6 +225,23 @@ public class AIDuebillOutHandler{
  					"				and BII2.~s合同明细@业务品种e~=BII1.~s表外明细@业务品种e~" +
  					"				and BII2.~s合同明细@主要担保方式e~=BII1.~s表外明细@主要担保方式e~" +
  					"				and locate('抵押',BII2.~s合同明细@其他担保方式e~)>0)";
+ 		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
+ 		Sqlca.executeSQL(sSql);
+ 		//10、如果是保证金比例不为100（当然敞口>0），主要担保方式为本行存单或保证金的承兑汇票的,结合合同明细，如果其中 “其他担保方式” 包含保证，则主要担保方式变为保证
+ 		sSql="update Batch_Import_Interim BII1 set " +
+					"~s表外明细@主要担保方式e~='保证-' " +
+					" where ConfigNo='"+sConfigNo+"'"+
+					" and OneKey='"+sKey+"'"+
+					" and (nvl(~s表外明细@主要担保方式e~,'') like '%保证金%' or nvl(~s表外明细@主要担保方式e~,'') like '%本行存单%' or nvl(~s表外明细@主要担保方式e~,'') like '%我行人民币存款%')"+
+					" and nvl(~s表外明细@保证金比例(%)e~,0)<>100"+
+					" and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票'" +
+					" and exists(select 1 from Batch_Import_Interim BII2 " +
+					"			where BII2.ConfigName='合同明细'" +
+					"				and BII2.OneKey=BII1.OneKey" +
+					"				and BII2.~s合同明细@客户编号e~=BII1.~s表外明细@客户编号e~" +
+					"				and BII2.~s合同明细@业务品种e~=BII1.~s表外明细@业务品种e~" +
+					"				and BII2.~s合同明细@主要担保方式e~=BII1.~s表外明细@主要担保方式e~" +
+					"				and locate('保证',BII2.~s合同明细@其他担保方式e~)>0)";
  		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
  		Sqlca.executeSQL(sSql);
  		//11、主要担保方式为银行承兑汇票的,如果保证金比例为100，保证金比例变成0 风险敞口变为余额
@@ -266,7 +294,9 @@ public class AIDuebillOutHandler{
 				"round(sum(~s表外明细@风险敞口e~)/10000,2) as CKBalance, "+
 				"count(distinct ~s表外明细@客户名称e~) "+
 				"from Batch_Import_Interim "+
-				" where ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"' and nvl(~s表外明细@余额(元)e~,0)>0 "+sWhere+
+				" where ConfigNo='"+sConfigNo+"'" +
+				" and OneKey='"+sKey+"'" +
+				" and nvl(~s表外明细@余额(元)e~,0)>0 "+sWhere+
 				" group by ConfigNo,OneKey"+groupColumnClause[1];
 		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
  		Sqlca.executeSQL("insert into Batch_Import_Process "+
@@ -278,7 +308,19 @@ public class AIDuebillOutHandler{
 	}
 	//因为SQL语句复杂 process无法通用完成，需要此处独立完成
 	public static void afterProcess1(String HandlerFlag,String sConfigNo,String sKey,Transaction Sqlca)throws Exception{
-		
+		//差额全额里面插一条敞口余额
+		String sSql=" select "+
+				"HandlerFlag,ConfigNo,OneKey,Dimension,'银承敞口余额',CKBalance"+
+				" from Batch_Import_Process " +
+				" where HandlerFlag ='"+HandlerFlag+"'" +
+				" and OneKey ='"+sKey+"'" +
+				" and Dimension='差额全额银行承兑汇票'"+
+				" and DimensionValue='银承@差额银承余额'";
+ 		Sqlca.executeSQL("insert into Batch_Import_Process "+
+ 				"(HandlerFlag,ConfigNo,OneKey,Dimension,DimensionValue,Balance)"+
+ 				"("+
+ 				sSql+
+ 				")");
 	}
 	//加入小计 合计 横向纵向比较值 小计总以 DimensionValue 中以@分割为标志
 	public static void afterProcess(String HandlerFlag,String sConfigNo,String sKey,Transaction Sqlca)throws Exception{
@@ -287,26 +329,37 @@ public class AIDuebillOutHandler{
 		//1、插入各个维度的小计
  		sSql="select "+
  				"HandlerFlag,ConfigNo,OneKey,Dimension,substr(DimensionValue,1,locate('@',DimensionValue)-1)||'@小计',"+
-			"round(sum(BusinessSum),2),round(sum(BusinessSumSeason),2),round(sum(Balance),2),sum(TotalTransaction) "+
+			"round(sum(BusinessSum),2)," +
+			"round(sum(BusinessSumSeason),2)," +
+			"round(sum(Balance),2)," +
+			"round(sum(CKBalance),2)," +
+			"sum(TotalTransaction) "+
 			" from Batch_Import_Process "+
-			" where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"' and locate('@',DimensionValue)>0 "+
+			" where HandlerFlag='"+HandlerFlag+"'" +
+			" and ConfigNo='"+sConfigNo+"'" +
+			" and OneKey ='"+sKey+"'" +
+			" and locate('@',DimensionValue)>0 "+
 			" group by HandlerFlag,ConfigNo,OneKey,Dimension,substr(DimensionValue,1,locate('@',DimensionValue)-1)";
  		Sqlca.executeSQL("insert into Batch_Import_Process "+
  				"(HandlerFlag,ConfigNo,OneKey,Dimension,DimensionValue,"+
- 				"BusinessSum,BusinessSumSeason,Balance,TotalTransaction)"+
+ 				"BusinessSum,BusinessSumSeason,Balance,CKBalance,TotalTransaction)"+
  				"( "+
  				sSql+
  				")");
 		//2、插入各个维度的总计
  		sSql="select "+
  				"HandlerFlag,ConfigNo,OneKey,Dimension,'Z-总计@总计',"+
-			"round(sum(BusinessSum),2),round(sum(BusinessSumSeason),2),round(sum(Balance),2) as Balance,sum(TotalTransaction) "+
+			"round(sum(BusinessSum),2)," +
+			"round(sum(BusinessSumSeason),2)," +
+			"round(sum(Balance),2)," +
+			"round(sum(CKBalance),2)," +
+			"sum(TotalTransaction) "+
 			" from Batch_Import_Process "+
 			" where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"' and locate('小计',DimensionValue)=0"+
 			" group by HandlerFlag,ConfigNo,OneKey,Dimension";
  		Sqlca.executeSQL("insert into Batch_Import_Process "+
  				"(HandlerFlag,ConfigNo,OneKey,Dimension,DimensionValue,"+
- 				"BusinessSum,BusinessSumSeason,Balance,TotalTransaction)"+
+ 				"BusinessSum,BusinessSumSeason,Balance,CKBalance,TotalTransaction)"+
  				"( "+
  				sSql+
  				")");
@@ -314,20 +367,22 @@ public class AIDuebillOutHandler{
  		sSql="from (select tab1.Dimension,tab1.DimensionValue,"+
 		 				"case when nvl(tab2.BusinessSum,0)<>0 then round(tab1.BusinessSum/tab2.BusinessSum*100,2) else 0 end as BusinessSumRatio,"+
 		 				"case when nvl(tab2.BusinessSumSeason,0)<>0 then round(tab1.BusinessSumSeason/tab2.BusinessSumSeason*100,2) else 0 end as BusinessSumSeasonRatio,"+
-		 				"case when nvl(tab2.Balance,0)<>0 then round(tab1.Balance/tab2.Balance*100,2) else 0 end as BalanceRatio from "+
-					"(select Dimension,DimensionValue,BusinessSum,BusinessSumSeason,Balance "+
-						"from Batch_Import_Process "+
-						"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"'"+
-					")tab1,"+
-					"(select Dimension,DimensionValue,BusinessSum,BusinessSumSeason,Balance "+	
-						"from Batch_Import_Process "+
-						"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"' and locate('总计',DimensionValue)>0"+
-					")tab2"+
+		 				"case when nvl(tab2.Balance,0)<>0 then round(tab1.Balance/tab2.Balance*100,2) else 0 end as BalanceRatio, " +
+		 				"case when nvl(tab2.CKBalance,0)<>0 then round(tab1.CKBalance/tab2.CKBalance*100,2) else 0 end as CKBalanceRatio " +
+		 				"from "+
+							"(select Dimension,DimensionValue,BusinessSum,BusinessSumSeason,Balance,CKBalance "+
+								"from Batch_Import_Process "+
+								"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"'"+
+							")tab1,"+
+							"(select Dimension,DimensionValue,BusinessSum,BusinessSumSeason,Balance,CKBalance "+	
+								"from Batch_Import_Process "+
+								"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"' and locate('总计',DimensionValue)>0"+
+							")tab2"+
 					" where tab1.Dimension=tab2.Dimension)tab3"+
 				" where tab.Dimension=tab3.Dimension and tab.DimensionValue=tab3.DimensionValue";
  		Sqlca.executeSQL("update Batch_Import_Process tab "+
- 				"set(BusinessSumRatio,BusinessSumSeasonRatio,BalanceRatio)="+
- 				"(select tab3.BusinessSumRatio,tab3.BusinessSumSeasonRatio,tab3.BalanceRatio "+
+ 				"set(BusinessSumRatio,BusinessSumSeasonRatio,BalanceRatio,CKBalanceRatio)="+
+ 				"(select tab3.BusinessSumRatio,tab3.BusinessSumSeasonRatio,tab3.BalanceRatio,tab3.CKBalanceRatio "+
  				sSql+
  				")"+
  				" where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"'"+
@@ -336,23 +391,26 @@ public class AIDuebillOutHandler{
  		//4、相对前一年度增加值和幅度更新
  		sSql="from (select tab1.Dimension,tab1.DimensionValue,"+
 		 				"(nvl(tab1.Balance,0)-nvl(tab2.Balance,0)) as BalanceTLY,"+
+		 				"(nvl(tab1.CKBalance,0)-nvl(tab2.CKBalance,0)) as CKBalanceTLY,"+
 		 				"(nvl(tab1.BusinessRate,0)-nvl(tab2.BusinessRate,0)) as BusinessRateTLY,"+
 		 				"case when nvl(tab2.Balance,0)<>0 then cast(round((nvl(tab1.Balance,0)/nvl(tab2.Balance,0)-1)*100,2) as numeric(24,6)) else 0 end as BalanceRangeTLY,"+
-		 				"(nvl(tab1.BalanceRatio,0)-nvl(tab2.BalanceRatio,0)) as BalanceRatioTLY"+
+		 				"(nvl(tab1.BalanceRatio,0)-nvl(tab2.BalanceRatio,0)) as BalanceRatioTLY,"+
+		 				"case when nvl(tab2.CKBalance,0)<>0 then cast(round((nvl(tab1.CKBalance,0)/nvl(tab2.CKBalance,0)-1)*100,2) as numeric(24,6)) else 0 end as CKBalanceRangeTLY,"+
+		 				"(nvl(tab1.CKBalanceRatio,0)-nvl(tab2.CKBalanceRatio,0)) as CKBalanceRatioTLY"+
 		 				" from "+
-					"(select Dimension,DimensionValue,BusinessSum,BusinessRate,Balance,BalanceRatio "+
-						"from Batch_Import_Process "+
-						"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"'"+
-					")tab1,"+
-					"(select Dimension,DimensionValue,BusinessSum,BusinessRate,Balance,BalanceRatio "+	
-					"from Batch_Import_Process "+
-						"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sLastYearEnd+"'"+
-					")tab2"+
+							"(select Dimension,DimensionValue,BusinessSum,BusinessRate,Balance,BalanceRatio,CKBalance,CKBalanceRatio "+
+								"from Batch_Import_Process "+
+								"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"'"+
+							")tab1,"+
+							"(select Dimension,DimensionValue,BusinessSum,BusinessRate,Balance,BalanceRatio,CKBalance,CKBalanceRatio "+	
+							"from Batch_Import_Process "+
+								"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sLastYearEnd+"'"+
+							")tab2"+
 					" where tab1.Dimension=tab2.Dimension and tab1.DimensionValue=tab2.DimensionValue)tab3"+
 			" where tab.Dimension=tab3.Dimension and tab.DimensionValue=tab3.DimensionValue";	
  		Sqlca.executeSQL("update Batch_Import_Process tab "+
- 				"set(BalanceTLY,BusinessRateTLY,BalanceRangeTLY,BalanceRatioTLY)="+
- 				"(select tab3.BalanceTLY,tab3.BusinessRateTLY,tab3.BalanceRangeTLY,BalanceRatioTLY "+
+ 				"set(BalanceTLY,CKBalanceTLY,BusinessRateTLY,BalanceRangeTLY,BalanceRatioTLY,CKBalanceRangeTLY,CKBalanceRatioTLY)="+
+ 				"(select tab3.BalanceTLY,tab3.CKBalanceTLY,tab3.BusinessRateTLY,tab3.BalanceRangeTLY,tab3.BalanceRatioTLY,tab3.CKBalanceRangeTLY,tab3.CKBalanceRatioTLY "+
  				sSql+
  				")"+
  				" where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"'"+
@@ -365,23 +423,26 @@ public class AIDuebillOutHandler{
  			String OneKeys=StringFunction.toArrayString(sOneKey, "','");
  			sSql="from (select tab1.OneKey,tab1.Dimension,tab1.DimensionValue,"+
 		 	 				"(nvl(tab1.Balance,0)-nvl(tab2.Balance,0)) as BalanceTLY,"+
+		 	 				"(nvl(tab1.CKBalance,0)-nvl(tab2.CKBalance,0)) as CKBalanceTLY,"+
 		 	 				"(nvl(tab1.BusinessRate,0)-nvl(tab2.BusinessRate,0)) as BusinessRateTLY,"+
 		 	 				"case when nvl(tab2.Balance,0)<>0 then cast(round((nvl(tab1.Balance,0)/nvl(tab2.Balance,0)-1)*100,2) as numeric(24,6)) else 0 end as BalanceRangeTLY," +
-		 	 				"(nvl(tab1.BalanceRatio,0)-nvl(tab2.BalanceRatio,0)) as BalanceRatioTLY"+
+		 	 				"(nvl(tab1.BalanceRatio,0)-nvl(tab2.BalanceRatio,0)) as BalanceRatioTLY,"+
+		 	 				"case when nvl(tab2.CKBalance,0)<>0 then cast(round((nvl(tab1.CKBalance,0)/nvl(tab2.CKBalance,0)-1)*100,2) as numeric(24,6)) else 0 end as CKBalanceRangeTLY,"+
+			 				"(nvl(tab1.CKBalanceRatio,0)-nvl(tab2.CKBalanceRatio,0)) as CKBalanceRatioTLY"+
 		 	 				" from "+
-		 				"(select OneKey,Dimension,DimensionValue,BusinessSum,BusinessRate,Balance,BalanceRatio "+
+		 				"(select OneKey,Dimension,DimensionValue,BusinessSum,BusinessRate,Balance,BalanceRatio,CKBalance,CKBalanceRatio "+
 		 					"from Batch_Import_Process "+
 		 					"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey in('"+OneKeys+"')"+
 		 				")tab1,"+
-		 				"(select OneKey,Dimension,DimensionValue,BusinessSum,BusinessRate,Balance,BalanceRatio "+	
+		 				"(select OneKey,Dimension,DimensionValue,BusinessSum,BusinessRate,Balance,BalanceRatio,CKBalance,CKBalanceRatio "+	
 		 				"from Batch_Import_Process "+
 		 					"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"'"+
 		 				")tab2"+
 		 				" where tab1.Dimension=tab2.Dimension and tab1.DimensionValue=tab2.DimensionValue)tab3"+
  				" where tab.OneKey=tab3.OneKey and tab.Dimension=tab3.Dimension and tab.DimensionValue=tab3.DimensionValue";	
  	 		Sqlca.executeSQL("update Batch_Import_Process tab "+
- 	 				"set(BalanceTLY,BusinessRateTLY,BalanceRangeTLY,BalanceRatioTLY)="+
- 	 				"(select tab3.BalanceTLY,tab3.BusinessRateTLY,tab3.BalanceRangeTLY,tab3.BalanceRatioTLY "+
+ 	 				"set(BalanceTLY,CKBalanceTLY,BusinessRateTLY,BalanceRangeTLY,BalanceRatioTLY,CKBalanceRangeTLY,CKBalanceRatioTLY)="+
+ 	 				"(select tab3.BalanceTLY,tab3.CKBalanceTLY,tab3.BusinessRateTLY,tab3.BalanceRangeTLY,tab3.BalanceRatioTLY,tab3.CKBalanceRangeTLY,tab3.CKBalanceRatioTLY "+
  	 				sSql+
  	 				")"+
  	 				" where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey in('"+OneKeys+"')"+

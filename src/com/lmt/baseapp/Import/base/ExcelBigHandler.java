@@ -161,7 +161,7 @@ public class ExcelBigHandler extends DefaultHandler {
 		} else {
 			if (name.equals("row") && !allNull&&curRow!=1) {//第一行是标题行，不保存到数据库
 				//设置文件外的一些要素的值，譬如导入日期，此处设置显然是每天记录是不一样的
-				this.record.setString("ImportIndex", (curRow-1)+"");
+				this.record.setDouble("ImportIndex", (curRow-1));
 				this.record.setString("ImportTime", StringFunction.getTodayNow());
 				try {
 					this.HDB.saveToDB();
@@ -205,7 +205,7 @@ public class ExcelBigHandler extends DefaultHandler {
 	}
 	// 思想： 从字符串的最后一位到第一位，乘以26的幂，依次相加（n为字符串长度-1） A,B,C AA ... 1,2,3,...27
 	//算法： 26^0 * （最后一位 ） + 26 ^ 1 * （前一位 ） + …… + 26 ^ n * （第一位）。
-
+	//如果column为数字得到0
 	public static int getNumberFromLetter(String column) { 
         String c = column.toUpperCase().replaceAll("[0-9]", "");  
         int number = 0;

@@ -48,7 +48,7 @@
 	  	String sTabStrip[][] = new String[30][3];
 		int initTab = 1;//设定默认的 tab ，数值代表第几个tab
 		//标签组所在的记录 parentAttachmentNo=attachmentNo
-		sSql = "select AttachmentNo,Attribute4 from Doc_Attachment where DocNo ='"+sConfigNo+"' and nvl(AttachmentNo,'')=nvl(ParentAttachmentNo,'') order by Attribute4 asc";
+		sSql = "select AttachmentNo,ParentFileName from Doc_Attachment where DocNo ='"+sConfigNo+"' and nvl(AttachmentNo,'A')=nvl(ParentAttachmentNo,'B') order by ParentFileName asc";
 		ASResultSet rs = Sqlca.getResultSet(sSql);
 		int tabs=0;
 		int tabsEveryRow=6;//每行显示6个
@@ -103,7 +103,7 @@
 	<script language=javascript>
   	function doTabAction(ssOpenUrl)
   	{
-  	  	var ssOpenUrl=ssOpenUrl.replace(/~/g,"\"");
+  	  	ssOpenUrl=ssOpenUrl.replace(/~/g,"\"");
   	  	var sOpenUrl=ssOpenUrl.split("@");
   		eval(sOpenUrl[0]);
   		//有附属页面就另外打开
