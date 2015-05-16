@@ -89,7 +89,7 @@
 	doTemp.setDDDWCode("IsInUse","YesNo");
 	doTemp.setDDDWCode("EDocType","EDocType");
 	doTemp.setDDDWCode("StamperType","StamperType");
-	doTemp.setRequired("EDocNo,EDocName",true);
+	doTemp.setRequired("EDocNo,EDocName,IsInuse",true);
 	doTemp.setUnit("FileNameFmt","<input type=button class=inputDate   value=\" 查看..\" name=button2 onClick=\"javascript:parent.TemplateViewFmt();\"> ");
 	doTemp.setUnit("FileNameDef","<input type=button class=inputDate   value=\" 查看..\" name=button4 onClick=\"javascript:parent.TemplateViewDef();\"> ");
 	doTemp.setUpdateable("InputUserName,InputOrgName,UpdateUserName,UpdateOrgName",false);

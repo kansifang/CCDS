@@ -93,6 +93,7 @@
     doTemp.setHTMLStyle("DocTitle"," style={width:140px}");
     doTemp.setHTMLStyle("UserName,OrgName,AttachmentCount,InputTime,UpdateTime"," style={width:80px} ");
     doTemp.setDDDWSql("DocType", "select CodeNo,CodeName from Code_Catalog where CodeNo like 'b%'");
+    doTemp.setHTMLStyle("BatchNo,DocTitle,DocType"," style={width:200px;height:20px;cursor:hand} onDBLClick=\"parent.viewConfigList()\"");
     //Éú³É²éÑ¯¿ò
 	doTemp.setColumnAttribute("DocTypeName,DocTitle","IsFilter","1");
 	doTemp.generateFilters(Sqlca);
@@ -108,7 +109,7 @@
 
 	Vector vTemp = dwTemp.genHTMLDataWindow("");
 	for(int i=0;i<vTemp.size();i++) out.print((String)vTemp.get(i));
-	CurPage.setAttribute("ShowDetailArea","true");
+	CurPage.setAttribute("ShowDetailArea","false");
 	CurPage.setAttribute("DetailAreaHeight","150");
 %>
 <%
@@ -323,6 +324,12 @@
 			document.getElementById("ListDetailAreaTD").parentNode.style.display="";
 			OpenComp("CaseList","/BusinessManage/CaseList.jsp","BatchNo="+sBatchNo,"DetailFrame","");
 	
+		}
+		function viewConfigList(){
+			var sBatchNo = getItemValue(0,getRow(),"BatchNo");
+			if(sBatchNo.length>0){
+				popComp("CaseList","/BusinessManage/CaseList.jsp","BatchNo="+sBatchNo,"","");
+			}
 		}
 	</script>
 <%

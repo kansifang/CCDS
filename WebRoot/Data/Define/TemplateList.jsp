@@ -60,6 +60,7 @@
 				" getOrgName(InputOrg) as InputOrgName,InputTime, "+
 				" getUserName(UpdateUser) as UpdateUserName,UpdateTime "+
 				" from EDOC_DEFINE "+
+				" where 1=1"+
 				" order by EDocNo desc";
 
 	//根据代码标判断是否存在不存在的模板，进行初始化
@@ -80,12 +81,12 @@
 	doTemp.setKey("EDocNo",true);
 	//设置列宽度
 	doTemp.setHTMLStyle("EDocNo"," style={width:100px} ");
-	doTemp.setHTMLStyle("EDocType,IsInUse"," style={width:60px} ");
- 	doTemp.setHTMLStyle("TypeName,InputOrg"," style={width:160px} ");
-	doTemp.setHTMLStyle("InputTime,UpdateTime"," style={width:130px} ");
+	doTemp.setHTMLStyle("EDocType"," style={width:60px} ");
+ 	doTemp.setHTMLStyle("EDocName,InputOrg"," style={width:160px} ");
+	doTemp.setHTMLStyle("UpdateTime"," style={width:130px} ");
 	
 	//过滤查询
- 	doTemp.setColumnAttribute("TypeNo,TypeName","IsFilter","1");
+ 	doTemp.setColumnAttribute("EDocNo,EDocName","IsFilter","1");
 	doTemp.generateFilters(Sqlca);
 	doTemp.parseFilterData(request,iPostChange);
 	CurPage.setAttribute("FilterHTML",doTemp.getFilterHtml(Sqlca));
@@ -94,7 +95,7 @@
 	dwTemp.Style="1";      //设置DW风格 1:Grid 2:Freeform
 	dwTemp.ReadOnly = "1"; //设置是否只读 1:只读 0:可写
 	//设置页面显示的列数
-	dwTemp.setPageSize(20);
+	dwTemp.setPageSize(10);
   	
 	//生成HTMLDataWindow
 	Vector vTemp = dwTemp.genHTMLDataWindow("");

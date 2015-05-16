@@ -128,7 +128,7 @@
 <!--1、系统图标区 -->
   <td nowrap>
   &nbsp;&nbsp;&nbsp;&nbsp;
-  <img class=appversion src=<%=sResourcesPath%>/1x1.gif width="1" height="1">
+  <img class=appversion src=<%=sResourcesPath%>/app_version1.gif width="1" height="1">
   </td>
 <!--2、 按钮区 -->
   <td nowrap> &nbsp;&nbsp;

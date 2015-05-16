@@ -70,7 +70,7 @@
     ASDataWindow dwTemp = new ASDataWindow(CurPage,doTemp,Sqlca);
 	dwTemp.Style="1";      //设置DW风格 1:Grid 2:Freeform
 	dwTemp.ReadOnly = "1"; //设置是否只读 1:只读 0:可写
-    dwTemp.setPageSize(5);
+    dwTemp.setPageSize(15);
 
 	//定义后续事件
 	dwTemp.setEvent("AfterDelete","!SystemManage.DeleteOrgBelong(#OrgID)");

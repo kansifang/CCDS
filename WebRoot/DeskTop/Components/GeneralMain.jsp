@@ -42,6 +42,7 @@
 		
 		//获得组件参数	
 	String sCodeNo =DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("CodeNo")));
+	String sItemNo =DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("ItemNo")));
 	String sComponentName =DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("ComponentName")));
 	String sExpandItemNo =DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("DefaultTVItemID")));
 	
@@ -62,11 +63,26 @@
 		tviTemp.TriggerClickEvent=true; //是否自动触发选中事件
 
 		//定义树图结构
-		String sSqlTreeView = "from CODE_LIBRARY where CodeNo='"+sCodeNo+"' and IsInUse='1' ";
-		sSqlTreeView += "and (nvl(RelativeCode,'')='' or exists(select 1 from User_Role where UserID='"+CurUser.UserID+"' and locate(RoleID,RelativeCode)>0 and Status='1')) ";//视图filter
-		sSqlTreeView += "and (nvl(Attribute1,'')='' or not exists(select 1 from User_Role where UserID='"+CurUser.UserID+"' and locate(RoleID,Attribute1)>0 and Status='1')) ";//视图filter
-		//参数从左至右依次为： ID字段,Name字段,Value字段,Script字段,Picture字段,From子句,OrderBy子句,Sqlca
-		tviTemp.initWithSql("SortNo","ItemName","ItemNo","ItemDescribe","",sSqlTreeView,"Order By SortNo",Sqlca);
+		String sSqlTreeView = null;
+		ASCodeDefinition asd=(ASCodeDefinition)ASConfigure.getSysConfig("ASCodeSet", Sqlca).getAttribute(sCodeNo);
+		String url="";
+		if(sItemNo.length()>0){
+			sSqlTreeView=asd.getItem(sItemNo).getString("Attribute2");
+			sSqlTreeView =StringFunction.replace(sSqlTreeView, "#SortNo", CurOrg.SortNo);
+			
+			String sColumn=asd.getItem(sItemNo).getString("Attribute3");
+			String[] sCS=sColumn.split("@");
+			tviTemp.initWithSql(sCS[0],sCS[1],sCS[2],"","",sSqlTreeView,sCS[3],Sqlca);
+			
+			String para=asd.getItem(sItemNo).getString("Attribute5");
+			url=asd.getItem(sItemNo).getString("Attribute4")+"?"+para;
+		}else{
+			sSqlTreeView = "from CODE_LIBRARY where CodeNo='"+sCodeNo+"' and IsInUse='1' ";
+			sSqlTreeView += "and (nvl(RelativeCode,'')='' or exists(select 1 from User_Role where UserID='"+CurUser.UserID+"' and locate(RoleID,RelativeCode)>0 and Status='1')) ";//视图filter
+			sSqlTreeView += "and (nvl(Attribute1,'')='' or not exists(select 1 from User_Role where UserID='"+CurUser.UserID+"' and locate(RoleID,Attribute1)>0 and Status='1')) ";//视图filter
+			//参数从左至右依次为： ID字段,Name字段,Value字段,Script字段,Picture字段,From子句,OrderBy子句,Sqlca
+			tviTemp.initWithSql("SortNo","ItemName","ItemNo","","",sSqlTreeView,"Order By SortNo",Sqlca);
+		}
 %>
 <%
 	/*~END~*/
@@ -86,25 +102,33 @@
 %>
 	<script language=javascript> 
 	<%
-		ASCodeDefinition asd=(ASCodeDefinition)ASConfigure.getSysConfig("ASCodeSet", Sqlca).getAttribute(sCodeNo);
-		if(asd!=null){
+		if(sItemNo.length()>0){
+			out.println("var _"+sItemNo+"='"+url+"';");
+		}else{
 			for(int i=0;i<asd.items.size();i++){
 				ASValuePool ap=asd.getItem(i);
-				String id=(String)ap.getAttribute("ItemNo");
-				String url=(String)ap.getAttribute("ItemAttribute");
-				out.println("var _"+id+"='"+url+"';");
+				String value=(String)ap.getAttribute("ItemNo");
+				url=(String)ap.getAttribute("ItemDescribe");
+				if(url==null||url.length()==0){
+					continue;
+				}
+				url=url.split("@")[0];
+				out.println("var _"+value+"='"+url+"';");
 			}
 		}
 	%>
 	/*~[Describe=treeview单击选中事件;InputParam=无;OutPutParam=无;]~*/
 	function TreeViewOnClick()
 	{
-		var sCurItemID = getCurTVItem().id;
 		var sCurItemname = getCurTVItem().name;
-		var url=eval("_"+sCurItemID);
-		if(url!=='null'&&url.length>0){
-			 parent.newTab(sCurItemname,url);
+		var sCurItemvalue = getCurTVItem().value;
+		if("<%=sItemNo%>".length>0){
+			sCurItemDescribe_url=eval("_<%=sItemNo%>");
+			sCurItemDescribe_url=replaceAll(sCurItemDescribe_url,"#OrgID",sCurItemvalue);
+		}else{
+			sCurItemDescribe_url=eval("_"+sCurItemvalue);
 		}
+		parent.newTab(sCurItemname,sCurItemDescribe_url);
 	}
 	/*~[Describe=生成treeview;InputParam=无;OutPutParam=无;]~*/
 	function startMenu() 

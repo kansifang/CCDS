@@ -91,8 +91,7 @@
 	doTemp.setKey("CodeNo",true);
 	doTemp.setHeader(sHeaders);
 	doTemp.setDDDWCodeTable("CodeAttribute","01,导入对应配置,02,字段维护,03,种子配置");
-	doTemp.setHTMLStyle("CodeNo,SortNo,CodeDescribe,CodeAttribute"," style={width:120px;height:20px;overflow:auto;cursor:hand} onDBLClick=\"parent.viewConfigList()\"");
-	doTemp.setHTMLStyle("CodeName"," style={width:200px;height:20px;cursor:hand} onDBLClick=\"parent.viewConfigList()\"");
+	doTemp.setHTMLStyle("CodeNo,CodeName,SortNo,CodeDescribe,CodeAttribute"," style={width:120px;height:20px;overflow:auto;cursor:hand} onDBLClick=\"parent.viewConfigList()\"");
 	//查询
  	doTemp.setColumnAttribute("CodeNo","IsFilter","1");
 	doTemp.generateFilters(Sqlca);
