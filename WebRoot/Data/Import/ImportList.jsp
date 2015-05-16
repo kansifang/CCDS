@@ -144,7 +144,7 @@
     ASDataWindow dwTemp = new ASDataWindow(CurPage,doTemp,Sqlca);
 	dwTemp.Style="1";      //设置为Grid风格
 	dwTemp.ReadOnly = "1"; //设置为只读
-	dwTemp.iPageSize=20;
+	dwTemp.iPageSize=15;
 	//设置setEvent
 	dwTemp.setEvent("AfterDelete","!PublicMethod.DeleteColValue(Batch_Case,String@BatchNo@#BatchNo)");
 
@@ -177,6 +177,7 @@
 				{"false","","Button","上传附件","查看附件详情","uploadDoc()",sResourcesPath},
 				{"false","","Button","更新批次","查看附件详情","ImportBatch('02')",sResourcesPath},
 				{"false","","Button","区间汇总","查看附件详情","summation()",sResourcesPath},
+				{"true","","Button","详情","查看/修改详情","viewAndEdit()",sResourcesPath},
 				{"true","","Button","导入数据","查看附件详情","ImportBatch('01')",sResourcesPath}
 			};
 	%>
@@ -199,6 +200,19 @@
 %>
 	<script language=javascript>
 	//---------------------定义按钮事件------------------------------------
+		/*~[Describe=查看及修改详情;InputParam=无;OutPutParam=无;]~*/
+	function viewAndEdit()
+	{
+		var sReportDate=getItemValue(0,getRow(),"报表日期");//"<%=sReportDate%>";
+		var sConfigNo=getItemValue(0,getRow(),"报表类型");//"<%=sConfigNo%>";
+		if (typeof(sConfigNo)=="undefined" || sConfigNo.length==0)
+		{
+			alert(getHtmlMessage('1'));//请选择一条信息！
+			return;
+		}
+		popComp("ImportInfo","/Data/Import/ImportInfo.jsp","ReportDate="+sReportDate+"&ConfigNo="+sConfigNo,"");
+		reloadSelf();
+	}
 	/*~[Describe=删除记录;InputParam=无;OutPutParam=无;]~*/
 	function deleteRecord()
 	{

@@ -29,7 +29,6 @@ public class ParseResult {
     public ParseResult(){
         
     }
-
     public ParseResult(ParseData parsedata, ParseText parsetext) {
         this.parsedata = parsedata;
         this.parsetext = parsetext;
@@ -58,11 +57,4 @@ public class ParseResult {
     public void setParseObj(Object parseObj) {
         this.parseObj = parseObj;
     }
-    
-    
-    
-    
-    
-    
-    
 }

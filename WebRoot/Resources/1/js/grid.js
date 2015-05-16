@@ -397,14 +397,14 @@ function MR1(myobjname,myact,my_sortorder,sort_which,need_change){
 	if(bNeedCA) 
 		sss[jjj++]=(" <object id=doit style='display:none' classid='CLSID:8BE89452-A144-49BC-9643-A3D436D83241' border=0 width=0 height=0></object>  ");
 	sss[jjj++]=("<form name='form1' class='gdform' >");//gdform 根本没有找到
-	
 	var myS=new Array("","readonly","disabled","readonly"); 
 	var myR=DZ[myi][0][2]; 
 	var myFS,myHeaderUnit; 
 	var myAlign=new Array(""," align=left "," align=center "," align=right ");
 	var myAlign2=new Array("","left","center","right");
-	
-	sss[jjj++]=("<span style='display:none'>");
+//先不显示
+sss[jjj++]=("<span style='display:none'>");
+	//换页控制
 	sss[jjj++]=("<span style='font-size: 9pt'>");
 	sss[jjj++]=("<a href='javascript:parent.MR1(\""+myobjname+"\",1,"+my_sortorder+","+sort_which+")'>首页</a> "+
 					" <a href='javascript:parent.MR1(\""+myobjname+"\",2,"+my_sortorder+","+sort_which+")'>前一页</a> "+
@@ -412,6 +412,7 @@ function MR1(myobjname,myact,my_sortorder,sort_which,need_change){
 					" <a href='javascript:parent.MR1(\""+myobjname+"\",4,"+my_sortorder+","+sort_which+")'>尾页</a> ");
 	sss[jjj++]=("&nbsp;&nbsp;共&nbsp;"+rr_c[myi]+"&nbsp;条记录,共&nbsp;"+pagenum[myi]+"&nbsp;页,当前为第&nbsp;"+(curpage[myi]+1)+"&nbsp;页");
 	sss[jjj++]=("</span><br>");
+	//
 	sss[jjj++]=("<span style='font-size: 9pt'>按&nbsp;");
 	for(var i=0;i<f_c[myi];i++) {
 		if(DZ[myi][1][i][2]==0) //Visible  0不可见  1 可见
@@ -423,7 +424,9 @@ function MR1(myobjname,myact,my_sortorder,sort_which,need_change){
 	sss[jjj++]=("<input type=button name=btnSave   value='另存' style='cursor:pointer;FONT-SIZE: 8pt;border-style:groove;text-align:center;width:30pt;height:13pt' size=1 onclick='javascript:parent.MRK1(\""+myobjname+"\",8,"+my_sortorder+","+sort_which+")'>");
 	sss[jjj++]=("<input type=button name=btnPrint  value='打印' style='cursor:pointer;FONT-SIZE: 8pt;border-style:groove;text-align:center;width:30pt;height:13pt' size=1 onclick='javascript:parent.MRK1(\""+myobjname+"\",9,"+my_sortorder+","+sort_which+")'>");
 	sss[jjj++]=("</span><br>");
-	sss[jjj++]=("</span>");
+	
+sss[jjj++]=("</span>");
+	
 	sss[jjj++]=("<div id='tableContainer' class='tableContainer'>");
 	sss[jjj++]=("<table "+hmGDTable +">");
 	///////////////////////标题

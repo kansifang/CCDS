@@ -165,7 +165,7 @@
 	/*~[Describe=新增记录;InputParam=无;OutPutParam=无;]~*/
 	function newRecord()
 	{
-		sReturn=popComp("BatchInfo","/BusinessManage/BatchInfo.jsp","","dialogWidth=50;dialogHeight=60;status:no;center:yes;help:no;minimize:no;maximize:no;border:thin;statusbar:no");
+// 		sReturn=popComp("BatchInfo","/BusinessManage/BatchInfo.jsp","","dialogWidth=50;dialogHeight=60;status:no;center:yes;help:no;minimize:no;maximize:no;border:thin;statusbar:no");
         reloadSelf();  
 	}
 	/*~[Describe=删除记录;InputParam=无;OutPutParam=无;]~*/

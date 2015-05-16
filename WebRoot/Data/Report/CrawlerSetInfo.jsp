@@ -49,7 +49,7 @@
 		if("1".equals(sType)){
 			BreadthCrawler crawler = new IfengCrawler();
 			session.setAttribute("crawler",crawler);
-			sSql="select RelativeCode,ItemDescribe,ItemAttribute,Attribute1 " +
+			sSql="select RelativeCode,ItemDescribe,ItemAttribute,BankNo,Attribute1 " +
 					" from Code_Library" +
 					" where CodeNo='"+sCodeNo+"'"+
 					" and ItemNo='"+sItemNo+"'";
@@ -58,6 +58,7 @@
 				String sSeeds=rs.getString(1);
 				String sPRegexs=rs.getString(2);
 				String sNRegexs=rs.getString(3);
+				String sFilterKey=DataConvert.toString(rs.getString(5));
 				depth=Integer.valueOf(rs.getString(4));
 				//crawler.setPageSavePath(pageSavePath);
 				crawler.setCrawlPath(crawlPath);
@@ -66,6 +67,7 @@
 		        crawler.addSeeds(sSeeds, "\\s+");
 		        crawler.addPRegexs(sPRegexs, "\\s+");
 		        crawler.addNRegexs(sNRegexs, "\\s+");
+		        crawler.setFilterKey(sFilterKey);
 		        crawler.start(depth);
 			}
 			rs.getStatement().close();
@@ -84,7 +86,8 @@
 					{"RelativeCode","种子"},
 					{"ItemDescribe","允许正则"},
 					{"ItemAttribute","禁止正则"},
-					{"Attribute1","URL深度"},
+					{"Attribute1","主题"},
+					{"BankNo","URL深度"},
 					{"SortNo","序号"},
 					{"IsInUse","有效"},
 					{"InputUserName","登记人"},
@@ -94,7 +97,7 @@
 				};
 	sSql =  " select  CodeNo,ItemNo,ItemName,SortNo,"+
 				" RelativeCode,ItemDescribe,"+
-				" ItemAttribute,Attribute1,IsInUse,"+
+				" ItemAttribute,Attribute1,BankNo,IsInUse,"+
 				" InputUser,getUserName(InputUser) as InputUserName,InputTime,"+
 				" UpdateUser,getUserName(UpdateUser) as UpdateUserName, UpdateTime"+
 				" from Code_Library "+
@@ -114,7 +117,8 @@
 	doTemp.setRequired("Attribute2", true);
 	doTemp.setVisible("CodeNo,ItemName,InputUser,UpdateUser,Attribute8",false);
 	//doTemp.setUnit("ItemDescribe","<input type=button class=inputDate   value=\"...\" name=button1 onClick=\"javascript:parent.selectColumn();\"> ");
-	doTemp.setHTMLStyle("RelativeCode,ItemDescribe,ItemAttribute"," style={width:400px;height:100px} ");
+	doTemp.setEditStyle("RelativeCode,ItemDescribe,ItemAttribute,Attribute1", "3");
+	doTemp.setHTMLStyle("RelativeCode,ItemDescribe,ItemAttribute,Attribute1"," style={width:400px;height:100px} ");
 	doTemp.setDDDWCode("IsInUse","YesNo");
 	doTemp.setUpdateable("InputUserName,UpdateUserName",false);
 	doTemp.setReadOnly("ItemNo,InputUserName,UpdateUserName,InputTime,UpdateTime",true);

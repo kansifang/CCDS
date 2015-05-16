@@ -133,16 +133,21 @@ public class StringUtils
 	  	int ss=s.indexOf(sStart);
 		int se=s.indexOf(sEnd);
 		String toReplaceS="";
+		//toReplaceS就是获取 ~sXXXX@xxxe~ configContent是XXXX@xxx
 		if(se+sEnd.length()>s.length()){
 			toReplaceS=s.substring(ss,s.length());
 		}else{
-			toReplaceS=s.substring(ss, se+sEnd.length());
+			try{
+				toReplaceS=s.substring(ss, se+sEnd.length());
+			}catch(Exception e){
+				System.out.println(s);
+				System.out.println("ss="+ss+"&&se="+se+"&&sEnd="+sEnd);
+			}
 		}
 		String configContent=s.substring(ss+sStart.length(), se);
 		return new String[]{configContent,toReplaceS};
   }
-  public static String getOrgName(String sOrgID, Connection conn, String version) throws Exception
-  {
+  public static String getOrgName(String sOrgID, Connection conn, String version) throws Exception{
     String sSql = "";
     if (version.equalsIgnoreCase("2005")) {
       sSql = "select OrgName from Org_INFO where SortNo = '" + sOrgID.trim() + "'";
@@ -242,32 +247,33 @@ public class StringUtils
   public static String[] replaceWithRealSql(String groupBy) throws Exception{
 	  String groupbyClause="",groupbyColumn="";
 	  //修理group by 中的分组字段
-	  groupbyClause=groupBy.replaceAll("LJF",",");
-	  groupbyClause=groupbyClause.replaceAll("QZ(.+?)QZ","");
+	  groupbyClause=groupBy.replaceAll("LJF~",",").replaceAll("LJF@",",").replaceAll("QZ(.+?)QZ","");
 	  groupbyClause=("".equals(groupbyClause)?"":","+groupbyClause);
 	  //修理select中的分组字段
 	  groupbyColumn=groupBy;
 	  StringBuffer sb=new StringBuffer("");
-	  Pattern pattern=Pattern.compile("QZ(.+?)QZ",Pattern.CASE_INSENSITIVE);
+	  Pattern pattern=Pattern.compile("QZ(.+?)QZ",Pattern.CASE_INSENSITIVE);//用非贪婪模式
 	  Matcher matcher=pattern.matcher(groupBy);
 	  while(matcher.find()){
 		String QZContent=matcher.group(1);
 		if(QZContent.startsWith("Number")){
 			String []gsa=QZContent.split(":");
-			//获取形如 XXXLJFQZNumberQZXXXXX 中 QZNumberQZ之前的 XXX
-			String groupBypart=groupBy.substring(0,matcher.start(0)).replaceAll("QZ(.+?)QZ","").replaceAll("LJF",",");
+			//获取形如 XXXLJFQZNumber:0:1:BeforeQZXXXXX 中 QZNumber:0:1:BeforeQZ之前的 XXX
+			//注意下面的start(0)是匹配的QZ。。。QZ第一个Q的位置
+			String groupBypart=groupBy.substring(0,matcher.start(0)).replaceAll("QZ(.+?)QZ","").replaceAll("LJF~",",").replaceAll("LJF@",",");
 			if(groupBypart.length()>0){
 				groupBypart="partition by "+groupBypart.substring(0,groupBypart.lastIndexOf(","));
 			}
 			QZContent="complementstring(trim(char(row_number()over("+groupBypart+"))),'"+gsa[1]+"',"+gsa[2]+",'"+gsa[3]+"')";
 		}
-		matcher.appendReplacement(sb,QZContent+"||");
+		matcher.appendReplacement(sb,QZContent+"||");//把匹配到的内容replace为什么
 	  }
 	  matcher.appendTail(sb);
 	  if(!"".equals(sb.toString())){
 		groupbyColumn=sb.toString();
 	  }
-	  groupbyColumn=groupbyColumn.replaceAll("LJF","||'@'||");//分组字段之间的连接符，查询值里面用用@代替
+	  groupbyColumn=groupbyColumn.replaceAll("LJF~","||'~'||");//分组字段之间的连接符，查询值里面用用~代替---~用于中计
+	  groupbyColumn=groupbyColumn.replaceAll("LJF@","||'@'||");//分组字段之间的连接符，查询值里面用用@代替---@用于小计
 	  groupbyColumn=("".equals(groupbyColumn)?"":groupbyColumn+",");
 	  return new String[]{groupbyColumn,groupbyClause};
   }

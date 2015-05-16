@@ -64,7 +64,9 @@ if(ShowDetailArea!=null && ShowDetailArea.equalsIgnoreCase("true")){
 %>
 	<tr>
 	    <td id="ListHorizontalBar" class="ListHorizontalBar">
-			<div id=divDrag title='可拖拽改变窗口大小' ondrag='dragFrame(event);'><img class=imgsDrag src=<%=sResourcesPath%>/1x1.gif></div>
+			<div id=divDrag title='可拖拽改变窗口大小' ondrag='Drag("divDrag");'><!-- dragFrame(event) -->
+				<img class=imgsDrag src=<%=sResourcesPath%>/1x1.gif>
+			</div>
 	    </td>
 	</tr>
 	<tr>
@@ -84,31 +86,83 @@ if(ShowDetailArea!=null && ShowDetailArea.equalsIgnoreCase("true")){
 <%
 String DetailAreaHeight = (String)CurPage.getAttribute("DetailAreaHeight");
 if(DetailAreaHeight!=null && !DetailAreaHeight.equals("")){
-	%>
-	DWTR.height=<%=DetailAreaHeight%>;
-	<%
+%>
+	document.getElementById("DWTR").style.height=<%=DetailAreaHeight%>;
+<%
 }else{
-	%>
-	DWTR.height=232;	
-	<%
+%>
+document.getElementById("DWTR").style.height=232;	
+<%
 }
 %>
 //DWTR.height=232;
 function dragFrame(event) {
 	if(event.y>100 && event.y<800) { 
-		DWTR.height=event.y - DWTR.offsetTop - 5;
+		document.getElementById("DWTR").style.height=event.y - 3;
 	}
-	if(event.y<100) {
+	if(event.y<20) {
 		window.event.returnValue = false;
 	}
 }
+
+function Drag(id) {
+            var $ = function (flag) {
+                return document.getElementById(flag);
+            }
+            $(id).onmousedown = function (e) {
+                var d = document;
+                var page = {
+                    event: function (evt) {
+                        var ev = evt || window.event;
+                        return ev;
+                    },
+                    pageX: function (evt) {
+                        var e = this.event(evt);
+                        return e.pageX || (e.clientX + document.body.scrollLeft - document.body.clientLeft);
+                    },
+                    pageY: function (evt) {
+                        var e = this.event(evt);
+                        return e.pageY || (e.clientY + document.body.scrollTop - document.body.clientTop);
+                    },
+                    layerX: function (evt) {
+                        var e = this.event(evt);
+                        return e.layerX || e.offsetX;
+                    },
+                    layerY: function (evt) {
+                        var e = this.event(evt);
+                        return e.layerY || e.offsetY;
+                    }
+                }             
+                var x = page.layerX(e);
+                var y = page.layerY(e);        
+                if (dv.setCapture) {
+                    dv.setCapture();
+                }
+                else if (window.captureEvents) {
+                    window.captureEvents(Event.MOUSEMOVE | Event.MOUSEUP);
+                }
+                d.onmousemove = function (e) {                    
+                    var tx = page.pageX(e) - x;
+                    var ty = page.pageY(e) - y;
+                    dv.style.left = tx + "px";
+                    dv.style.top = ty + "px";
+                }
+                d.onmouseup = function () {
+                    if (dv.releaseCapture) {
+                        dv.releaseCapture();
+                    }
+                    else if (window.releaseEvents) {
+                        window.releaseEvents(Event.MOUSEMOVE | Event.MOUSEUP);
+                    }
+                    d.onmousemove = null;
+                    d.onmouseup = null;
+                }
+            }
+        }
 </script>
 <%
 }
 %>
-
-
-
 <!-----------------------------调试工具区----------------------------->
 <%@ include file="/Resources/CodeParts/SourceDisplayTR.jsp"%>
 <!-------------------------------->

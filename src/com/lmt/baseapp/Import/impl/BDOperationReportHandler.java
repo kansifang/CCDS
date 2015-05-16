@@ -34,11 +34,11 @@ public class BDOperationReportHandler{
 	public static void processS63(String HandlerFlag,String sReportConfigNo,String sKey,Transaction Sqlca) throws Exception{
  		//下面对 S63处理后的数据汇总生成一个一个不良汇总
 		//对大中小微等再生成一条不良余额 形式如 大型企业@不良余额..
-		String groupby="case when BII1.DimensionValue like '大型企业%' then 'A-大型企业'" +
-						" when BII1.DimensionValue like '中型企业%' then 'B-中型企业'"+
-						" when BII1.DimensionValue like '小型企业%' then 'C-小型企业'"+
-						" when BII1.DimensionValue like '微型企业%' then 'D-微型企业'"+
-						" when BII1.DimensionValue like '单户授信总额500万元以下的小微型企业%' then 'E-单户授信总额500万元以下的小微型企业'"+
+		String groupby="case when BII1.DimensionValue like '%大型企业%' then 'A-大型企业'" +
+						" when BII1.DimensionValue like '%中型企业%' then 'B-中型企业'"+
+						" when BII1.DimensionValue like '%小型企业%' then 'C-小型企业'"+
+						" when BII1.DimensionValue like '%单户授信总额500万元以下的小微型企业%' then 'E-单户授信总额500万元以下的小微型企业'"+
+						" when BII1.DimensionValue like '%微型企业%' then 'D-微型企业'"+
 						" else 'Z-'||BII1.DimensionValue end";
  		String sSql="select "+
  				"'"+HandlerFlag+"','"+sReportConfigNo+"',BII1.OneKey,'企业规模不良'," +
@@ -96,7 +96,7 @@ public class BDOperationReportHandler{
  				"'"+HandlerFlag+"','"+sReportConfigNo+"','"+sKey+"','贷款单一担保方式',substr(BIP.DimensionValue,locate('@',BIP.DimensionValue)+1),sum(Balance)"+
 				" from Batch_Import_Process BIP"+
 				" where BIP.ConfigNo='b20140603000003' and BIP.OneKey='"+sKey+"' and BIP.Dimension='企业规模明细'"+//S63_规模贷款导入配置号
-				" and BIP.DimensionValue not like '单户授信总额500万元以下的小微型企业%'" +
+				" and BIP.DimensionValue not like '%单户授信总额500万元以下的小微型企业%'" +
 				" and (BIP.DimensionValue like '%1.2.1%' or BIP.DimensionValue like '%1.2.2%' or BIP.DimensionValue like '%1.2.3%' or BIP.DimensionValue = '总计@各项贷款余额')" +
 				" group by substr(BIP.DimensionValue,locate('@',BIP.DimensionValue)+1)";
  		Sqlca.executeSQL("insert into Batch_Import_Process "+

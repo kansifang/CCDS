@@ -1,4 +1,4 @@
-package publics;
+package tests;
 
 import java.util.regex.Pattern;
 

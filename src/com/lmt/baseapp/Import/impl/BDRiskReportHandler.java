@@ -19,14 +19,17 @@ public class BDRiskReportHandler{
 	public static void riskReportHandle(String HandlerFlag,String sReportConfigNo,String sOneKey,Transaction Sqlca) throws Exception {
 		//1、对中间表数据进行特殊处理 	 		 	
 		BDRiskReportHandler.interimProcess(sReportConfigNo, sOneKey, Sqlca);
-		BDRiskReportHandler.process(HandlerFlag,sReportConfigNo, sOneKey, Sqlca,"归属条线贴现","'一般贷款'LJFQZNumber:0:1:BeforeQZManageDepartFlag"," and nvl(ManageDepartFlag,'')<>''");
-		//归属条线（个人 公司一块考虑）
-		String groupBy="'一般贷款'LJFQZNumber:0:1:BeforeQZcase "+
+		//归属条线贴现
+		BDRiskReportHandler.process(HandlerFlag,sReportConfigNo, sOneKey, Sqlca,"归属条线贴现","'一般贷款'LJF@QZNumber:0:1:BeforeQZManageDepartFlag"," and nvl(ManageDepartFlag,'')<>''");
+		
+		//对公对私贴现垫款汇总到处理表中（个人 公司一块考虑）
+		String groupBy="'一般贷款'LJF~case "+//"'一般贷款'LJFQZNumber:0:1:BeforeQZcase "+
 				" when BusinessType like '%垫款' then '垫款' " +
-				" when OperateOrgID='能源事业部' then '能源事业部' " +
- 				" when ManageDepartFlag is null or ManageDepartFlag='' or ManageDepartFlag = '公司条线' then '公司条线' " +
- 				" when ManageDepartFlag = '小企业条线' then '小企业条线'"+
- 				" when ManageDepartFlag = '零售条线' then '零售条线' end";
+				" when Scope='零售' then '个人贷款' " +
+				" when OperateOrgID='能源事业部' then '法人贷款@能源事业部' " +
+				" when Scope='大型企业' or Scope='中型企业' then '法人贷款@大中型企业' " +
+ 				" when Scope='小型企业' then '法人贷款@小企业' " +
+ 				" else '法人贷款@微型企业及其他' end";
 		BDRiskReportHandler.process(HandlerFlag,sReportConfigNo, sOneKey, Sqlca,"垫款能源部归属条线贴现",groupBy," and nvl(ManageDepartFlag,'')<>''");
 		//五级分类（个人 公司一块考虑）
 		groupBy="case "+
@@ -46,10 +49,31 @@ public class BDRiskReportHandler{
 	 				" 	when ManageDepartFlag = '零售条线' then 'B-不良贷款~零售条线@损失类' end"+
 	 				" end";
 		BDRiskReportHandler.process(HandlerFlag,sReportConfigNo, sOneKey, Sqlca,"五级分类",groupBy," and nvl(ManageDepartFlag,'')<>''");
+		//表外业务汇总
+		BDRiskReportHandler.processG0101("G0101_表外", HandlerFlag, sReportConfigNo, sOneKey, Sqlca);
 		//4、加工后，进行合计，横向纵向分析
 	 	BDRiskReportHandler.afterProcess(HandlerFlag,sReportConfigNo, sOneKey, Sqlca);
 	 	//最后收底
 	 	BDRiskReportHandler.lastProcess(HandlerFlag,sReportConfigNo, sOneKey, Sqlca);
+	}
+	/**
+	 * 按各个维度插入到处理表中---//1、 对G0101_表外业务 报表进行进行处理
+	 * @throws Exception 
+	 */
+	public static void processG0101(String sConfigName,String HandlerFlag,String sConfigNo,String sKey,Transaction Sqlca) throws Exception{
+		String sSql="select "+
+				"'"+HandlerFlag+"','"+sConfigNo+"','"+sKey+"','表外明细',~s"+sConfigName+"@项目e~"+
+				",~s"+sConfigName+"@本外币合计e~"+
+				" from Batch_Import_Interim "+
+				" where ConfigName='"+sConfigName+"' and OneKey='"+sKey+"' "+
+				" and (~s"+sConfigName+"@项目e~ like '3.%' or ~s"+sConfigName+"@项目e~ like '4.%' or ~s"+sConfigName+"@项目e~ like '5.%' or ~s"+sConfigName+"@项目e~ like '6.%') ";
+		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
+ 		Sqlca.executeSQL("insert into Batch_Import_Process "+
+ 				"(HandlerFlag,ConfigNo,OneKey,Dimension,DimensionValue"+
+ 				",Balance)"+
+ 				"( "+
+ 				sSql+
+ 				")");
 	}
 	//对导入数据加工处理,插入到中间表Batch_Import_Interim
 	public static void interimProcess(String sReportConfigNo,String sKey,Transaction Sqlca) throws Exception{
@@ -95,6 +119,7 @@ public class BDRiskReportHandler{
 		String sCSql="select OneKey," +
 					" Case when ConfigName='个人明细' then ~s个人明细@客户名称e~ else ~s借据明细@客户名称e~ end CustomerName, " +
 					" Case when ConfigName='个人明细' then ~s个人明细@归属条线e~ else ~s借据明细@归属条线e~ end ManageDepartFlag, " +
+					" Case when ConfigName='个人明细' then '零售' else ~s借据明细@企业规模e~ end Scope, " +//企业规模，个人的视为零售
 					" Case when ConfigName='个人明细' then ~s个人明细@五级分类e~ else ~s借据明细@五级分类e~ end Classify, " +
 					" Case when ConfigName='个人明细' then nvl(~s个人明细@金额e~,0) else nvl(~s借据明细@金额(元)e~,0) end BusinessSum, " +
 					" Case when ConfigName='个人明细' then nvl(~s个人明细@执行利率(%)e~,0) else nvl(~s借据明细@执行年利率(%)e~,0) end BusinessRate, " +
@@ -253,8 +278,8 @@ public class BDRiskReportHandler{
  	 				);
  		}
 	}
+	//把 我行短期流动资金比例，央行 金融机构短期流动资金比例 中小金融机构短期流动资金比例 汇总到一块儿，以生成折线图
 	public static void lastProcess(String HandlerFlag,String sReportConfigNo,String sKey,Transaction Sqlca)throws Exception{
-		//把 我行短期流动资金比例，央行 金融机构短期流动资金比例 中小金融机构短期流动资金比例 汇总到一块儿，以生成折线图
  		String sSql="select  "+
  				"'"+HandlerFlag+"','"+sReportConfigNo+"',OneKey,'短期贷款占比','我行短期贷款占比',"+
  				" round(sum(BIP4.BalanceRatio),2),"+

@@ -259,6 +259,7 @@ public class Fetcher {
                             try {
                                 Parser parser = parserFactory.createParser(url, contentType);
                                 if (parser != null) {
+                                	//解析网页到page中
                                     ParseResult parseresult = parser.getParse(page);
                                     page.setParseResult(parseresult);
                                 }

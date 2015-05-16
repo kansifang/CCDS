@@ -4,20 +4,19 @@ import java.io.UnsupportedEncodingException;
 
 import org.w3c.dom.Node;
 
+import com.lmt.app.crawler.parser.ParseUtils;
+
 import junit.framework.TestCase;
 
-public class testStyleNodeSet extends TestCase {
+public class testStyleTree extends TestCase {
         private static String str1 = "<tr><a href=\"www.daum.net\">中国</a></tr>";
         private static String str2 = "<tr><a href=\"www.daum.net\">中国</a><p>汽车</p></tr>";
         public void testEquals() throws UnsupportedEncodingException {
                 Node node = null;
-                ElementNode root = ElementNode.getInstanceOf();
+                StyleTree sTree = new StyleTree();
                 
-                node = (Node)StyleTree.parseBytes(str1.getBytes());
-                root.trainNode(node);
-                
-                node = (Node)StyleTree.parseBytes(str2.getBytes());
-                root.trainNode(node);
-                root.printInformation();
+                sTree.train(str1.getBytes());
+                sTree.train(str2.getBytes());
+                sTree.printInformation();
         }
 }

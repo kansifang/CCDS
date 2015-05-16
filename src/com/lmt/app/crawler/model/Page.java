@@ -22,9 +22,6 @@ import org.jsoup.nodes.Document;
 
 import com.lmt.app.crawler.net.Response;
 import com.lmt.app.crawler.parser.ParseResult;
-
-
-
 /**
  * Page是爬取过程中，内存中保存网页爬取信息的一个容器，与CrawlDatum不同，Page只在内存中存
  * 放，用于保存一些网页信息，方便用户进行自定义网页解析之类的操作。在广度遍历器中，用户覆盖
@@ -145,8 +142,4 @@ public class Page{
     public void setParseResult(ParseResult parseResult) {
         this.parseResult = parseResult;
     }
-    
-    
-    
-    
 }

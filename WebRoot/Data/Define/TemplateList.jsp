@@ -39,18 +39,18 @@
 <%/*~BEGIN~可编辑区~[Editable=true;CodeAreaID=List03;Describe=定义数据对象;]~*/%>
 <%	
 	String[][] sHeaders = {
-								{"EDocNo","文档编号"},
-								{"EDocName","文档名称"},
-								{"EDocType","文档类型"},
-								{"StamperType","签章页类型"},
-								{"IsInUse","是否有效"},
-								{"FileNameFmt","格式文件"},
-								{"FileNameDef","数据定义文件"},
-								{"InputUserName","登记人"},
-								{"InputOrgName","登记机构"},
-								{"InputTime","登记时间"},
-								{"UpdateUserName","更新人"},
-								{"UpdateTime","更新时间"}
+							{"EDocNo","文档编号"},
+							{"EDocName","文档名称"},
+							{"EDocType","文档类型"},
+							{"StamperType","签章页类型"},
+							{"IsInUse","是否有效"},
+							{"FileNameFmt","格式文件"},
+							{"FileNameDef","数据定义文件"},
+							{"InputUserName","登记人"},
+							{"InputOrgName","登记机构"},
+							{"InputTime","登记时间"},
+							{"UpdateUserName","更新人"},
+							{"UpdateTime","更新时间"}
 				             };
 	sSql =  " select EDocNo,EDocName,FileNameFmt,FileNameDef,"+
 		        " getItemName('YesNo',IsInUse) as IsInUse,"+

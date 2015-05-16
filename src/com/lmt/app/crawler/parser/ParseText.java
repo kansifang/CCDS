@@ -54,9 +54,4 @@ public class ParseText {
     public void setText(String text) {
         this.text = text;
     }
-    
-    
-    
-    
-    
 }

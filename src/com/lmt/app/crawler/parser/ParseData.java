@@ -24,8 +24,6 @@ import java.util.HashMap;
 import org.apache.avro.reflect.Nullable;
 
 import com.lmt.app.crawler.model.Link;
-
-
 /**
  *
  * @author hu
@@ -80,6 +78,4 @@ public class ParseData {
     public void setParseMap(HashMap<String, String> parseMap) {
         this.parseMap = parseMap;
     }
-    
-    
 }

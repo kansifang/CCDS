@@ -20,7 +20,7 @@ public class AIDuebillOutHandler{
 		//0、对中间表数据进行特殊处理 	 		 	
 		AIDuebillOutHandler.interimProcess(sConfigNo, sOneKey, Sqlca);
 		//1、差额全额
- 		String groupBy="'银承'LJFcase "+
+ 		String groupBy="'银承'LJF@case "+
 			 			"when nvl(~s表外明细@保证金比例(%)e~,0)=100 and (~s表外明细@主要担保方式e~ like '%本行存单' or ~s表外明细@主要担保方式e~ like '%保证金' or ~s表外明细@主要担保方式e~ like '%我行人民币存款%') then '全额银承余额' "+
 			 			"else '差额银承余额' end";
  		AIDuebillOutHandler.process(HandlerFlag,sConfigNo,sOneKey,Sqlca,"差额全额银行承兑汇票",groupBy,"and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票'");
@@ -30,8 +30,8 @@ public class AIDuebillOutHandler{
  					"case when ~s表外明细@保证金比例(%)e~>=1 then char(~s表外明细@保证金比例(%)e~)" +
  					"else '0'||char(~s表外明细@保证金比例(%)e~) end" +
  					",'.000000','%')),'0',4,'Before')" +
- 				"LJF" +
- 				"QZNumber:0:4:BeforeQZQZ'A'QZ~s表外明细@主要担保方式e~";
+ 				"LJF@~s表外明细@主要担保方式e~";
+ 				//"QZNumber:0:4:BeforeQZQZ'A'QZ~s表外明细@主要担保方式e~";
  		AIDuebillOutHandler.process(HandlerFlag,sConfigNo,sOneKey,Sqlca,"银行承兑汇票保证金比例",groupBy,"and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票'");
 	 	/*原来老的，为了统一月度经营报告和全面风险报告，用下面那个
 	 	groupBy="case "+
@@ -229,7 +229,7 @@ public class AIDuebillOutHandler{
  		Sqlca.executeSQL(sSql);
  		//10、如果是保证金比例不为100（当然敞口>0），主要担保方式为本行存单或保证金的承兑汇票的,结合合同明细，如果其中 “其他担保方式” 包含保证，则主要担保方式变为保证
  		sSql="update Batch_Import_Interim BII1 set " +
-					"~s表外明细@主要担保方式e~='保证-' " +
+					"~s表外明细@主要担保方式e~='保证-一般企业' " +
 					" where ConfigNo='"+sConfigNo+"'"+
 					" and OneKey='"+sKey+"'"+
 					" and (nvl(~s表外明细@主要担保方式e~,'') like '%保证金%' or nvl(~s表外明细@主要担保方式e~,'') like '%本行存单%' or nvl(~s表外明细@主要担保方式e~,'') like '%我行人民币存款%')"+
@@ -256,9 +256,27 @@ public class AIDuebillOutHandler{
  		//12、核心存在未解付的215w，在此当成全额插入
  		sSql="insert into Batch_Import_Interim" +
  					"(ConfigNo,OneKey,~s表外明细@业务品种e~,~s表外明细@主要担保方式e~,~s表外明细@保证金比例(%)e~,~s表外明细@余额(元)e~,~s表外明细@经营类型(新)e~)" +
- 					"values('"+sConfigNo+"','"+sKey+"','银行承兑汇票','保证金',100,2150000,'煤炭开采')";
+ 					"values('"+sConfigNo+"','"+sKey+"','银行承兑汇票','质押-金融质押品-保证金-保证金',100,2150000,'煤炭开采')";
  		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
  		Sqlca.executeSQL(sSql);
+ 		//13、2014年 主要担保方式 质押-金融质押品-票据-银行承兑汇票 以前为 质押-银行承兑汇票(4个月以下)、银行本票
+ 		//所以再次统一更新
+ 		sSql="update Batch_Import_Interim set ~s表外明细@主要担保方式e~='质押-金融质押品-票据-银行承兑汇票'"+
+				" where ConfigNo='"+sConfigNo+"'"+
+				" and OneKey='"+sKey+"'"+
+				" and nvl(~s表外明细@主要担保方式e~,'') like '质押-银行承兑汇票%'"+
+				" and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票'";
+		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
+		Sqlca.executeSQL(sSql);
+		//13、2014年 主要担保方式 质押-金融质押品-保证金-保证金 以前为 保证金
+ 		//所以再次统一更新
+ 		sSql="update Batch_Import_Interim set ~s表外明细@主要担保方式e~='质押-金融质押品-保证金-保证金'"+
+				" where ConfigNo='"+sConfigNo+"'"+
+				" and OneKey='"+sKey+"'"+
+				" and nvl(~s表外明细@主要担保方式e~,'') like '%保证金%'"+
+				" and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票'";
+		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
+		Sqlca.executeSQL(sSql);
 	}
 	/**
 	 * 按各个维度插入到处理表中

@@ -25,8 +25,9 @@ public class ElementNode {
 	private boolean isText;
 	private HashMap<String, String> atrrMap = new HashMap<String, String>();
 	private ArrayList<StyleNode> children = new ArrayList<StyleNode>();
+	//存储 元素节点 如 <a> 叶子节点（textNode） 如 国务院总理
 	private ArrayList<String> contents = new ArrayList<String>();
-	// 衰减因子，越大，节点重要性越大，反之，后代（即所属自风格节点越重要）
+	// 衰减因子，越大，节点重要性越大，反之，后代，即所属之风格节点越重要
 	private static double RAMDA = 0.9;
 
 	protected ElementNode(String tagName, String nodeValue) {
@@ -94,10 +95,10 @@ public class ElementNode {
 			}
 			return value;
 		}
+		//标签节点，本身作为字符串返回
 		if (node.getNodeType() == Node.ELEMENT_NODE) {
 			return nodeToString(node);
 		}
-
 		return null;
 	}
 
@@ -114,27 +115,29 @@ public class ElementNode {
 		while (list.hasNext()) {
 			StyleNode child = list.next();
 			if (child.equals(styleNode)) {
-				// 和已有的NodeSet相同，不分裂(分叉) 只增加相同的计数
+				// 和已有的styleNode相同，不分裂(分叉) 只增加相同的计数
 				child.increaseCount();
+				//只把要加的风格节点中元素节点的内容增加到已存在的风格节点对应的元素节点里面
 				child.addContents(styleNode);
 				return child;
 			}
 		}
-		// 内容不相同，分裂出新的NodeSet
+		// 内容不相同，分裂出新的styleNode
 		this.children.add(styleNode);
 		return styleNode;
 	}
 
-	public StyleNode get(StyleNode styleNodeSet) {
+	public StyleNode get(StyleNode styleNode) {
 		for (StyleNode child : this.children) {
-			if (child.equals(styleNodeSet)) {
+			if (child.equals(styleNode)) {
 				return child;
 			}
 		}
-
 		return null;
 	}
-
+	/**
+	 * 返回节点名称
+	 */
 	public String toString() {
 		return this.getNodeName();
 	}
@@ -147,8 +150,7 @@ public class ElementNode {
 		if (node == null) {
 			return "root";
 		}
-		System.setProperty(DOMImplementationRegistry.PROPERTY,
-				"org.apache.xerces.dom.DOMXSImplementationSourceImpl");
+		System.setProperty(DOMImplementationRegistry.PROPERTY,"org.apache.xerces.dom.DOMXSImplementationSourceImpl");
 		DOMImplementationRegistry registry = null;
 		try {
 			registry = DOMImplementationRegistry.newInstance();
@@ -165,8 +167,7 @@ public class ElementNode {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		DOMImplementationLS impl = (DOMImplementationLS) registry
-				.getDOMImplementation("LS");
+		DOMImplementationLS impl = (DOMImplementationLS) registry.getDOMImplementation("LS");
 		LSSerializer lsSerializer = impl.createLSSerializer();
 		DOMConfiguration config = lsSerializer.getDomConfig();
 		config.setParameter("xml-declaration", false);
@@ -183,35 +184,39 @@ public class ElementNode {
 		}
 		return false;
 	}
-
+	//总体思想是：传入参数节点root的第一层子节点包装成元素节点，然后归入风格节点挂到当前元素下，
+	//然后下一层子节点继续包装挂到上一层元素节点下
 	public void trainNode(Node root) {
 		if (!root.hasChildNodes()) {
 			return;
 		}
+		//所有子节点，可不包括孙子节点
 		NodeList nodeList = root.getChildNodes();
 		Node node = null;
 		int i = 0;
 		StyleNode styleNode = new StyleNode();
+		//1、把传入参数节点的子节点当成元素节点合并成风格节点，挂到当前元素节点下
 		for (i = 0; i < nodeList.getLength(); i++) {
 			node = nodeList.item(i);
 			ElementNode elementNode = ElementNode.getInstanceOf(node);
 			styleNode.addElementNode(elementNode);
 		}
 		StyleNode child = this.add(styleNode);
-		for (i = 0; i < nodeList.getLength(); i++) {
+		//然后，子节点再当成元素节点合并成风格节点，加入到第一层元素节点中去，即递归往下进行
+		//注意 元素节点的顺序和元html标签节点的顺序是一致的
+		for (i = 0; i <nodeList.getLength(); i++){
 			child.getElementNode(i).trainNode(nodeList.item(i));
 		}
 	}
-
 	// 当前元素节点重要性是所属子风格节点重要性的加总，通过所有自风格节点计算当前元素节点的重要性
-	public double getSimpleImportance() {
+	private double getSimpleImportance() {
 		double sum = 0.0;
 		int numOfStyles = 0;
 		for (StyleNode child : this.children) {
 			numOfStyles += child.getCount();
 		}
 		for (StyleNode child : this.children) {
-			sum += child.getOutImportance(numOfStyles);
+			sum += child.getEntropyValue(numOfStyles);
 		}
 		return sum;
 	}
@@ -221,13 +226,13 @@ public class ElementNode {
 		double sum = 0.0;
 		// 计算所有子风格几点
 		for (StyleNode child : this.children) {
-			sum += child.getInImportance();
+			sum += child.getNotLeafStyleNodeImportance();
 		}
 		return (1 - ElementNode.RAMDA) * this.getSimpleImportance()
 				+ ElementNode.RAMDA * sum;
 	}
 
-	// 当前是叶子元素节点下计算其重要性
+	//给节点一个重要程度值 
 	public double getContentImportance() {
 		double rv = 0.0;
 		String aContent = null;
@@ -256,31 +261,39 @@ public class ElementNode {
 		}
 		return rv;
 	}
-
+	
+	//以下内容测试用
+	/**
+	 * 获取当前元素下的风格节点中与 root下的标签节点形成的风格节点相同的内容
+	 * @param root
+	 * @param out
+	 */
 	public void getContent(Node root, StringWriter out) {
 		NodeList nodeList = root.getChildNodes();
-		int i = 0;
-		StyleNode styleNodeSet = new StyleNode();
 		Node node = null;
 		if (isLeaf() && isText() && isImportant()) {
 			out.append(ElementNode.getNodeValue(root));
 		}
-		for (i = 0; i < nodeList.getLength(); i++) {
+		//先把传入参数节点转化成风格节点
+		StyleNode styleNode = new StyleNode();
+		for (int i = 0; i < nodeList.getLength(); i++) {
 			node = nodeList.item(i);
 			ElementNode elementNode = ElementNode.getInstanceOf(node);
-			styleNodeSet.addElementNode(elementNode);
+			styleNode.addElementNode(elementNode);
 		}
 		if (!root.hasChildNodes()) {
 			return;
 		}
-		StyleNode child = get(styleNodeSet);
+		//看看当前元素节点有没有这个风格节点
+		StyleNode child = get(styleNode);
 		if (child == null) {
 			System.err.println(getInformation()
 					+ "child is null -- it should not be occured!!");
 		}
-		for (i = 0; i < nodeList.getLength(); i++) {
+		//有的话，递归一直往下取直到获得叶子节点的值
+		for (int i = 0; i < nodeList.getLength(); i++) {
 			if (child.getElementNode(i) == null) {
-				System.err.println("child is null");
+				System.err.println("there is no elementNode in styleNode");
 			}
 			if (nodeList.item(i) == null) {
 				System.err.println("nodeList is null");
@@ -289,25 +302,9 @@ public class ElementNode {
 		}
 	}
 
-	public void printChildren() {
-		System.out.println(this.getNodeName() + " : node       importance : "
-				+ this.getSimpleImportance());
-		// System.out.println(this.getNodeValue() +
-		// " : compsosite importance : " + this.getCompositeImportance());
-		if (this.isLeaf()) {
-			System.out.println("    # of contents : " + contents.size());
-			System.out.println("    content importance : "
-					+ this.getContentImportance());
-		}
-		for (int i = 0; i < children.size(); i++) {
-			children.get(i).print();
-		}
-	}
-
 	public void printSimpleImportance() {
 		if (this.getSimpleImportance() != 0) {
-			System.out.println(this.getNodeName() + "  simple importance : "
-					+ this.getSimpleImportance());
+			System.out.println(this.getNodeName() + "  simple importance :"+ this.getSimpleImportance());
 		}
 		for (int i = 0; i < children.size(); i++) {
 			children.get(i).printSimpleImportance();
@@ -316,8 +313,7 @@ public class ElementNode {
 
 	public void printCompositeImportance() {
 		if (this.getCompositeImportance() != 0) {
-			System.out.println(this.getNodeName() + "  composite importance : "
-					+ this.getCompositeImportance());
+			System.out.println(this.getNodeName() + "  composite importance : "+ this.getCompositeImportance());
 		}
 		for (int i = 0; i < children.size(); i++) {
 			children.get(i).printCompositeImportance();
@@ -325,8 +321,7 @@ public class ElementNode {
 	}
 
 	public void printContentImportance() {
-		System.out.println(this.getNodeName() + " : "
-				+ this.getContentImportance());
+		System.out.println(this.getNodeName() + " : "+ this.getContentImportance());
 		if (this.isLeaf() && this.getContentImportance() > 0) {
 			for (String content : this.contents) {
 				System.out.print("[" + content + "]");
@@ -337,15 +332,32 @@ public class ElementNode {
 			child.printContentImportance();
 		}
 	}
-
 	public void printTree(String sep) {
 		System.out.println(sep + "[N] " + getNodeName());
-		for (StyleNode styleNodeSet : this.children) {
-			styleNodeSet.printTree(sep + " ");
+		for (StyleNode styleNode : this.children) {
+			styleNode.printTree(sep + " ");
 		}
 	}
-
-	public String getInformation() {
+	public void printInformation() {
+		System.out.println(getInformation());
+		for (int i = 0; i < children.size(); i++) {
+			System.out.print(i + "> ");
+			children.get(i).printInformation();
+		}
+	}
+	public void printImportance() {
+		System.out.println("["+this.getNodeName()+"]:" );
+		if (this.isLeaf()) {
+			System.out.println("    size of contents : " + contents.size());
+			System.out.println(" node   content importance : "+ this.getContentImportance());
+		}else{
+			System.out.println( " node   composite : "+ this.getCompositeImportance());
+		}
+		for (int i = 0; i < children.size(); i++) {
+			children.get(i).printImportance();
+		}
+	}
+	private String getInformation() {
 		StringBuffer strContents = new StringBuffer("\n");
 		for (int i = 0; i < contents.size(); i++) {
 			strContents.append("[" + contents.get(i) + "]\n");
@@ -354,13 +366,5 @@ public class ElementNode {
 				+ " NodeValue:" + this.getNodeValue() + " child.size="
 				+ this.children.size() + " contents.size="
 				+ this.contents.size() + " contents:" + strContents;
-	}
-
-	public void printInformation() {
-		System.out.println(getInformation());
-		for (int i = 0; i < children.size(); i++) {
-			System.out.print(i + "> ");
-			children.get(i).printInformation();
-		}
 	}
 }

@@ -24,14 +24,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
-
 /**
  *
  * @author hu
  */
 public class FileUtils {
-    
     public static void deleteDir(File dir){
         File[] filelist=dir.listFiles();
         for(File file:filelist){
@@ -95,9 +92,7 @@ public class FileUtils {
         while ((read = fis.read(buf)) != -1) {
             bos.write(buf, 0, read);
         }
-
         fis.close();
         return bos.toByteArray();
     }
-    
 }

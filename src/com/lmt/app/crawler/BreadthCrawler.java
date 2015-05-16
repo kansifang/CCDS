@@ -40,6 +40,15 @@ import com.lmt.app.crawler.util.LogUtils;
 public class BreadthCrawler extends CommonCrawler{
     private String crawlPath = "crawl";
     private String pageSavePath = "data";
+    private String filterKey="";
+	
+    public String getFilterKey() {
+		return filterKey;
+	}
+
+	public void setFilterKey(String filterKey) {
+		this.filterKey = filterKey;
+	}
     @Override
     public DbUpdater createDbUpdater() {
         return new FSDbUpdater(crawlPath);

@@ -43,7 +43,8 @@
 		//定义变量
 		
 		//获得组件参数	
-		 String sComponentName = DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("ComponentName"));
+		String sComponentName = DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("ComponentName"));
+		String sCodeNo =DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("CodeNo")));
 		//获得页面参数	
 		
 		PG_CONTENT_TITLE = "&nbsp;&nbsp;"+sComponentName+"&nbsp;&nbsp;";
@@ -70,6 +71,12 @@
 	//myleft.width=1;
 	OpenComp("CaseList","/BusinessManage/CaseList.jsp","ComponentName=案件查询","right");
 	setTitle("案件查询");
+	<%
+	if(sCodeNo.startsWith("/")){
+		out.println("parent.parent.newTab('"+sComponentName+"','"+sCodeNo+"');");
+	}
+%>
+//setTitle("案件查询");
 	</script>
 <%
 	/*~END~*/

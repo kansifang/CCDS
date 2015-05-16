@@ -173,7 +173,7 @@ public class AIOperationReportHandler{
 	 */
 	public static void processS63(String sConfigName,String HandlerFlag,String sConfigNo,String sKey,Transaction Sqlca) throws Exception{
  		String sSql="select "+
- 				"'"+HandlerFlag+"',BII1.ConfigNo,BII1.OneKey,'企业规模明细','大型企业@'||BII1.~s"+sConfigName+"@项目e~"+
+ 				"'"+HandlerFlag+"',BII1.ConfigNo,BII1.OneKey,'企业规模明细','1、大型企业@'||BII1.~s"+sConfigName+"@项目e~"+
 				",round(BII1.~s"+sConfigName+"@大型企业e~/10000,2),BII2.~s"+sConfigName+"@大型企业e~"+
 				" from Batch_Import_Interim BII1,Batch_Import_Interim BII2 "+
 				" where BII1.ConfigNo='"+sConfigNo+"' and BII1.OneKey='"+sKey+"' and BII2.ConfigNo='"+sConfigNo+"' and BII2.OneKey='"+sKey+"' "+
@@ -181,7 +181,7 @@ public class AIOperationReportHandler{
 				" and BII2.~s"+sConfigName+"@项目e~ like '%其中：贷款户数%'"+
 				" union all "+
 				"select "+
-				"'"+HandlerFlag+"',BII1.ConfigNo,BII1.OneKey,'企业规模明细','中型企业@'||BII1.~s"+sConfigName+"@项目e~"+
+				"'"+HandlerFlag+"',BII1.ConfigNo,BII1.OneKey,'企业规模明细','2、中型企业@'||BII1.~s"+sConfigName+"@项目e~"+
 				",round(BII1.~s"+sConfigName+"@中型企业e~/10000,2),BII2.~s"+sConfigName+"@中型企业e~"+
 				" from Batch_Import_Interim BII1,Batch_Import_Interim BII2 "+
 				" where BII1.ConfigNo='"+sConfigNo+"' and BII1.OneKey='"+sKey+"' and BII2.ConfigNo='"+sConfigNo+"' and BII2.OneKey='"+sKey+"' "+
@@ -189,7 +189,7 @@ public class AIOperationReportHandler{
 				" and BII2.~s"+sConfigName+"@项目e~ like '%其中：贷款户数%'"+
 				" union all "+
 				" select "+
-				"'"+HandlerFlag+"',BII1.ConfigNo,BII1.OneKey,'企业规模明细','小型企业@'||BII1.~s"+sConfigName+"@项目e~"+
+				"'"+HandlerFlag+"',BII1.ConfigNo,BII1.OneKey,'企业规模明细','3、小型企业@'||BII1.~s"+sConfigName+"@项目e~"+
 				",round(BII1.~s"+sConfigName+"@小型企业e~/10000,2),BII2.~s"+sConfigName+"@小型企业e~"+
 				" from Batch_Import_Interim BII1,Batch_Import_Interim BII2 "+
 				" where BII1.ConfigNo='"+sConfigNo+"' and BII1.OneKey='"+sKey+"' and BII2.ConfigNo='"+sConfigNo+"' and BII2.OneKey='"+sKey+"' "+
@@ -197,7 +197,7 @@ public class AIOperationReportHandler{
 				" and BII2.~s"+sConfigName+"@项目e~ like '%其中：贷款户数%'"+
 				" union all "+
 				" select "+
-				"'"+HandlerFlag+"',BII1.ConfigNo,BII1.OneKey,'企业规模明细','微型企业@'||BII1.~s"+sConfigName+"@项目e~"+
+				"'"+HandlerFlag+"',BII1.ConfigNo,BII1.OneKey,'企业规模明细','4、微型企业@'||BII1.~s"+sConfigName+"@项目e~"+
 				",round(BII1.~s"+sConfigName+"@微型企业e~/10000,2),BII2.~s"+sConfigName+"@微型企业e~"+
 				" from Batch_Import_Interim BII1,Batch_Import_Interim BII2 "+
 				" where BII1.ConfigNo='"+sConfigNo+"' and BII1.OneKey='"+sKey+"' and BII2.ConfigNo='"+sConfigNo+"' and BII2.OneKey='"+sKey+"' "+
@@ -205,7 +205,7 @@ public class AIOperationReportHandler{
 				" and BII2.~s"+sConfigName+"@项目e~ like '%其中：贷款户数%'"+
 				" union all "+
 				" select "+
-				"'"+HandlerFlag+"',BII1.ConfigNo,BII1.OneKey,'企业规模明细','单户授信总额500万元以下的小微型企业@'||BII1.~s"+sConfigName+"@项目e~"+
+				"'"+HandlerFlag+"',BII1.ConfigNo,BII1.OneKey,'企业规模明细','5、单户授信总额500万元以下的小微型企业@'||BII1.~s"+sConfigName+"@项目e~"+
 				",round(BII1.~s"+sConfigName+"@单户授信总额500万元以下的小微型企业e~/10000,2),BII2.~s"+sConfigName+"@单户授信总额500万元以下的小微型企业e~"+
 				" from Batch_Import_Interim BII1,Batch_Import_Interim BII2 "+
 				" where BII1.ConfigNo='"+sConfigNo+"' and BII1.OneKey='"+sKey+"' and BII2.ConfigNo='"+sConfigNo+"' and BII2.OneKey='"+sKey+"' "+

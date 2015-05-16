@@ -61,7 +61,7 @@ public class AIDuebillInHandler{
 	 						"when case when ~s借据明细@期限日e~>1 then (~s借据明细@期限月e~+1) else ~s借据明细@期限月e~ end <=12 then '2M(6-12]' "+//常常有12个月零1天那种，先处理为12个月吧，遗留数据有几笔（00000231001，00000230881，00000231541，00000253001）
 	 						"when case when ~s借据明细@期限日e~>0 then (~s借据明细@期限月e~+1) else ~s借据明细@期限月e~ end <=36 then '3M(12-36]' "+
 	 						"when case when ~s借据明细@期限日e~>0 then (~s借据明细@期限月e~+1) else ~s借据明细@期限月e~ end <=60 then '4M(36-60]' "+
-	 						"else '5M(60' endLJF~s借据明细@业务品种e~";
+	 						"else '5M(60' endLJF@~s借据明细@业务品种e~";
 	 	AIDuebillInHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"期限业务品种",groupBy,"");
 	 	
 	 	groupBy="case when ~s借据明细@主要担保方式e~ like '保证-%' then '保证' "+
@@ -101,7 +101,7 @@ public class AIDuebillInHandler{
 	 			"when ~s借据明细@国家地区e~ like '%阳泉市%' then 'K-阳泉市' "+
 	 			//"when ~s借据明细@国家地区e~ like '%石家庄市%' then '石家庄市' "+
 	 			//"when ~s借据明细@国家地区e~ like '%武汉市%' then '武汉市' "+
-	 			"when ~s借据明细@国家地区e~ like '%佛山市%' then 'L-佛山市' "+
+	 			//"when ~s借据明细@国家地区e~ like '%佛山市%' then 'L-佛山市' "+
 	 			"else 'A-太原市' end";//剩下的默认都是太原市when ~s借据明细@国家地区e~ like '%太原市%' then '太原市'
 	 	AIDuebillInHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"地区分类",groupBy,"");
 	 	
@@ -281,13 +281,26 @@ public class AIDuebillInHandler{
 	public static void afterProcess(String HandlerFlag,String sConfigNo,String sKey,Transaction Sqlca)throws Exception{
 		String sSql="";
 		String sLastYearEnd=StringFunction.getRelativeAccountMonth(sKey.substring(0, 4)+"/12","year",-1);
-		//1、插入各个维度的小计
+		//0、插入各个维度的小计
  		sSql="select "+
  				"HandlerFlag,ConfigNo,OneKey,Dimension,substr(DimensionValue,1,locate('@',DimensionValue)-1)||'@小计',"+
 			"round(sum(BusinessSum),2),round(sum(BusinessSumSeason),2),round(sum(Balance),2),sum(TotalTransaction) "+
 			" from Batch_Import_Process "+
 			" where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"' and locate('@',DimensionValue)>0 "+
 			" group by HandlerFlag,ConfigNo,OneKey,Dimension,substr(DimensionValue,1,locate('@',DimensionValue)-1)";
+ 		Sqlca.executeSQL("insert into Batch_Import_Process "+
+ 				"(HandlerFlag,ConfigNo,OneKey,Dimension,DimensionValue,"+
+ 				"BusinessSum,BusinessSumSeason,Balance,TotalTransaction)"+
+ 				"( "+
+ 				sSql+
+ 				")");
+ 		//1、插入各个维度的中计 以~为标记
+ 		sSql="select "+
+ 				"HandlerFlag,ConfigNo,OneKey,Dimension,substr(DimensionValue,1,locate('~',DimensionValue)-1)||'@中计',"+
+			"round(sum(BusinessSum),2),round(sum(BusinessSumSeason),2),round(sum(Balance),2),sum(TotalTransaction) "+
+			"from Batch_Import_Process "+
+			"where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey ='"+sKey+"' and locate('小计',DimensionValue)=0 and locate('~',DimensionValue)>0 "+
+			"group by HandlerFlag,ConfigNo,OneKey,Dimension,substr(DimensionValue,1,locate('~',DimensionValue)-1)";
  		Sqlca.executeSQL("insert into Batch_Import_Process "+
  				"(HandlerFlag,ConfigNo,OneKey,Dimension,DimensionValue,"+
  				"BusinessSum,BusinessSumSeason,Balance,TotalTransaction)"+

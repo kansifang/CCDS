@@ -24,7 +24,9 @@ public class ObjRow {
 	public ObjRow(String configNo,String Key,ASUser curUser,Transaction Sqlca) throws Exception {
 		this.columns.clear();
 		//加载模板定义
+		//"CodeTypeOne,是否直接以序号号为准" 1 是  "SortNo,文件类型" 02 Text
 		String isIndex=Sqlca.getString("select CodeTypeOne from Code_Catalog where CodeNo='"+configNo+"'");
+		String fileType=Sqlca.getString("select SortNo from Code_Catalog where CodeNo='"+configNo+"'");
 		ASResultSet rs=Sqlca.getASResultSet("select ItemDescribe,Attribute1,Attribute2,Attribute3,SortNo,Attribute8 from Code_Library where CodeNo='"+configNo+"' and IsInUse='1'");
 		if(!"1".equals(isIndex)){
 			while(rs.next()){
@@ -43,7 +45,11 @@ public class ObjRow {
 					if(index==0){//等于0意味着 sIndex本身就是数字
 						index=Integer.valueOf(sIndex);
 					}
-					int sColumnSize=DataConvert.toInt(rs.getString(6));
+					//下面这是针对text导入，每个字段固定长度的情况
+					int sColumnSize=0;
+					if("02".equals(fileType)){
+						sColumnSize=DataConvert.toInt(rs.getString(6));
+					}
 					this.addColumn(rs.getString(1),index-1,rs.getString(3),isPrimaryKey,sColumnSize);
 				}
 			}

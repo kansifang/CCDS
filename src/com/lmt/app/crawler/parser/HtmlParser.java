@@ -70,18 +70,20 @@ public class HtmlParser implements Parser {
     @Override
     public ParseResult getParse(Page page) throws UnsupportedEncodingException {
         String url=page.getUrl();
-        
-        String charset = CharsetDetector.guessEncoding(page.getContent());
-        
+        String charset = CharsetDetector.guessEncoding(page.getContent());//response.getContent();
         String html=new String(page.getContent(), charset);
         page.setHtml(html);
-        
+        //Jsoup解析网页内容
         Document doc=Jsoup.parse(page.getHtml());
         doc.setBaseUri(url);      
         page.setDoc(doc);
-        
         String title=doc.title();
+        //这个意思是把网页中凡是文字性的内容全部提取出来，
+        //其实就是全部的textNode
+        //此处用风格树的方法把 导航，版权信息、联系方式等网站自身的信息，广告信息等噪声去掉
+        //获取主题内容
         String text=doc.text();
+        
         
         ArrayList<Link> links = null;
         if(topN!=null && topN==0){
@@ -91,7 +93,6 @@ public class HtmlParser implements Parser {
         }
         ParseData parsedata = new ParseData(url,title, links);
         ParseText parsetext=new ParseText(url,text);
-        
         return new ParseResult(parsedata,parsetext);
     }
 

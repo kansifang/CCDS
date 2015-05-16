@@ -507,7 +507,7 @@ div.tableContainer {
 	overflow: auto;
 }
 div.tableContainer table{
-	*+border:1px solid #bcbcbc;
+	*+border:0px solid #bcbcbc;
 	
 }
 

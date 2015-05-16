@@ -92,7 +92,6 @@
 	doTemp.setRequired("EDocNo,EDocName",true);
 	doTemp.setUnit("FileNameFmt","<input type=button class=inputDate   value=\" 查看..\" name=button2 onClick=\"javascript:parent.TemplateViewFmt();\"> ");
 	doTemp.setUnit("FileNameDef","<input type=button class=inputDate   value=\" 查看..\" name=button4 onClick=\"javascript:parent.TemplateViewDef();\"> ");
-	
 	doTemp.setUpdateable("InputUserName,InputOrgName,UpdateUserName,UpdateOrgName",false);
 	
 	ASDataWindow dwTemp = new ASDataWindow(CurPage,doTemp,Sqlca); 
@@ -221,7 +220,7 @@
 			alert("文件未上传！");//请选择一条信息！
 	        return ;
 		}
-		popComp("EDocTemplateView","/Common/EDOC/TemplateView.jsp","EDocNo="+sEDocNo+"&EDocType=Fmt");
+		popComp("TemplateView","/Data/Define/TemplateView.jsp","EDocNo="+sEDocNo+"&EDocType=Fmt");
 	}
 
 	/*~[Describe=定义文件查看;InputParam=无;OutPutParam=无;]~*/
@@ -233,7 +232,7 @@
 			alert("文件未上传！");//请选择一条信息！
 	        return ;
 		}
-		popComp("EDocTemplateView","/Common/EDOC/TemplateView.jsp","EDocNo="+sEDocNo+"&EDocType=Def");
+		popComp("TemplateView","/Data/Define/TemplateView.jsp","EDocNo="+sEDocNo+"&EDocType=Def");
 	}
 	</script>
 <%/*~END~*/%>

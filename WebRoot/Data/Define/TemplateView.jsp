@@ -23,7 +23,7 @@
 	<div style="display:none">
 		<input name=filename value="<%=sFullPath%>">
 		<input name=contenttype value="<%=sContentType%>">
-		<input name=viewtype value="view">		
+		<input name=viewtype value="view1">		
 	</div>
 </form>
 

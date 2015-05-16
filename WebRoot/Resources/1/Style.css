@@ -782,8 +782,9 @@ img.taboffoff
 }
 .ListDWArea{
 	background-color:#DCDCDC;
-	width£º100%;
-	height£º100%
+	padding:0px;
+	margin:0px;
+	width:100%;
 }
 .ListBottomArea{
 	height:0px;

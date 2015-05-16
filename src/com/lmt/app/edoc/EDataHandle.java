@@ -273,6 +273,7 @@ public class EDataHandle {
 
 			// 获取字段集合
 			String sCols = el_table.getAttributeValue("cols");
+			sCols = replaceStr(sCols, list_parm);
 			el_table_data.setAttribute("cols", sCols);
 
 			String sSql = "select " + sCols + " from " + sTable + " where " + sWhere;

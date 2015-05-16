@@ -3,7 +3,7 @@ package com.lmt.app.crawler.content;
 
 import java.util.List;
 
-//tableÖĞµÄÄÚÈİ
+//tableä¸­çš„å†…å®¹
 public class TableContext {
 	private List linkList;
 	private StringBuffer textBuffer;
