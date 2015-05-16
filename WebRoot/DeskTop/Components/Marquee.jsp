@@ -30,17 +30,12 @@
 <title><%=sImplementationName%></title>
 </head>
 <script language=javascript>
-
-    function openFile(sBoardNo)
-    {
+    function openFile(sBoardNo){
         popComp("BoardView","/SystemManage/SynthesisManage/BoardView.jsp","BoardNo="+sBoardNo,"","");
     }
-
-    function saveFile(sBoardNo)
-    {
+    function saveFile(sBoardNo){
         window.open("<%=sWebRootPath%>/SystemManage/BoardManage/BoardView2.jsp?BoardNo="+sBoardNo+"&rand="+randomNumber(),"_blank",OpenStyle);
     }
-
 </script>
 <body leftmargin="0" topmargin="0" class="windowbackground" style="{overflow:scroll;overflow-x:visible;overflow-y:visible}">
 <table width="100%" border="0" cellspacing="0" cellpadding="0" height="100%">
@@ -62,19 +57,21 @@
 				                 <p>&nbsp</p><p>&nbsp</p><p>&nbsp</p><zhp>&nbsp</p><p>&nbsp</p><p>&nbsp</p><!--加空行解决滚动区域的问题-->
 				                 <%
 				                 	  String sIsNew = "",sIsEject = "";
-	           		                  ASResultSet rs = null;
-	           		                  rs = Sqlca.getASResultSet("select BoardNo,BoardTitle,IsNew,IsEject from BOARD_LIST where IsPublish = '1' and (ShowToRoles is null or ShowToRoles in (select RoleID from USER_ROLE where UserID='"+CurUser.UserID+"')) order by BoardNo desc");
-	           		                  while(rs.next())
-	           		                  {
+				                 	String sSql="select BoardNo,BoardTitle,IsNew,IsEject"+
+				                 			" from BOARD_LIST"+
+				                 			" where IsPublish = '1'"+
+				                 			" and (ShowToRoles is null or"+
+				                 				" ShowToRoles in (select RoleID from USER_ROLE where UserID='"+CurUser.UserID+"') )"+
+				                 			" order by BoardNo desc";
+	           		                  ASResultSet rs = Sqlca.getASResultSet(sSql);
+	           		                  while(rs.next()){
 	           		                    sIsNew = DataConvert.toString(rs.getString("IsNew"));
 	           		                    sIsEject = DataConvert.toString(rs.getString("IsEject"));
 	           		                    out.print("<li style='cursor:hand' >");
-	           		                    if(sIsEject.equals("1"))
-	           		                    {
+	           		                    if(sIsEject.equals("1")){
 	           		                        out.print("<span onclick='javascript:openFile(\""+rs.getString(1)+"\")'>"+rs.getString(2)+"</span>");
 	           		                    }
-	           		                    else
-	           		                    {
+	           		                    else{
 	           		                        out.print("<span>"+rs.getString(2)+"</span>");
 	           		                    }
 	           		                    if(sIsNew.equals("1")) out.print("<img src='"+sResourcesPath+"/new.gif' border=0>");

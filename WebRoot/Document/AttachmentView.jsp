@@ -32,6 +32,7 @@
 	
 	<script language=javascript>
 		form1.submit();
+		setTimeout("top.close();",2000);
 	</script>
 	
 <%

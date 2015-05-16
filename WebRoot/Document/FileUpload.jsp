@@ -76,7 +76,8 @@ String getMD5String(String srcKey){
 		e.printStackTrace();
 	}
 	return md5Key;
-}%>
+}
+%>
 
 <%
 	/*~BEGIN~可编辑区~[Editable=true;CodeAreaID=Main02;Describe=定义变量，获取参数;]~*/

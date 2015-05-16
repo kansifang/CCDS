@@ -21,35 +21,31 @@
 	sViewType = "view"; //"view" or "save"
 	
 	sqlString = sViewType+"@"+sqlString;
-	if(sViewType.equals("view"))
-	{
+	if(sViewType.equals("view")){
 %>
-
-<form name=form1 method=post action=<%=sWebRootPath%>/boardview>
-	<div style="display:none">
-		<input name=sqlString value="<%=sqlString%>">
-	</div>
-</form>
-
-<script language=javascript>
-	form1.submit();
-</script>
+	<form name=form1 method=post action=<%=sWebRootPath%>/boardview>
+		<div style="display:none">
+			<input name=sqlString value="<%=sqlString%>">
+		</div>
+	</form>
 	
+	<script language=javascript>
+		form1.submit();
+		setTimeout("top.close();",2000);
+	</script>
 <%
-		}
-		else
-		{
+	}else{
 	%>	
-<form name=form1 method=post action=<%=sWebRootPath%>/boardview target=MyAtt>
-	<div style="display:none">
-		<input name=sqlString value="<%=sqlString%>">
-	</div>
-</form>
-
-<script language=javascript>
-	form1.submit();
-	//if(confirm("¹Ø±ÕÂð£¿")) self.close();
-</script>
+	<form name=form1 method=post action=<%=sWebRootPath%>/boardview target=MyAtt>
+		<div style="display:none">
+			<input name=sqlString value="<%=sqlString%>">
+		</div>
+	</form>
+	
+	<script language=javascript>
+		form1.submit();
+		setTimeout("top.close();",2000);
+	</script>
 <%
 	}
 %>	

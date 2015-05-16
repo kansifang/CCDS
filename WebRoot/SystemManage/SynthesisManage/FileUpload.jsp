@@ -1,7 +1,9 @@
 <%@ page contentType="text/html; charset=GBK"%>
 <%@include file="/IncludeBegin.jsp"%>
-<%@page import="com.amarsoft.web.upload.*"%>
-
+<%@page import="com.lmt.frameapp.web.uad.*"%>
+<%@page import="java.security.NoSuchAlgorithmException,
+com.lmt.app.cms.javainvoke.BizletExecutor,
+com.lmt.baseapp.util.ASValuePool"%>
 <title>文档附件上传</title>
 <%!//根据相关参数得到保存文件的实际路径
 String getFullPath(String sDocNo, String sAttachmentNo,String sFileName,String sFileSavePath, String sFileNameType, ServletContext sc) {
@@ -48,13 +50,23 @@ String getFilePath(String sDocNo, String sAttachmentNo,String sShortFileName,Str
 	// 判断文件类型
 	if (sFileNameType.equalsIgnoreCase("MD5")) {
 		sFileName = getMidPath(sDocNo,sAttachmentNo);
-		sFileName = sFileName+"/"+new MD5().getMD5ofStr(sDocNo+sAttachmentNo);
+		sFileName = sFileName+"/"+getMD5String(sDocNo+sAttachmentNo);
 	} else {
 		sFileName = getMidPath(sDocNo,sAttachmentNo);
 		sFileName = sFileName+"/"+sDocNo + "_" + sAttachmentNo + "_" + sShortFileName;
 	}
 	return sFileName;
-}%>
+}
+String getMD5String(String srcKey){
+	String md5Key = srcKey;
+	try {
+		md5Key = MessageDigest.getDigestAsUpperHexString("MD5", srcKey);
+	} catch (NoSuchAlgorithmException e) {
+		e.printStackTrace();
+	}
+	return md5Key;
+}
+%>
 
 <%
 	String sAttachmentNo="000";

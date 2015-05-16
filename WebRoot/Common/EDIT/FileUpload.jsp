@@ -18,7 +18,7 @@
     String sSerialNo=  DataConvert.toRealString(iPostChange,(String)request.getParameter("SerialNo"));
     String sFileName = "",sFileExt = "";
 		
-	com.amarsoft.web.upload.AmarsoftUpload myAmarsoftUpload = new com.amarsoft.web.upload.AmarsoftUpload();
+    com.lmt.frameapp.web.uad.AmarsoftUpload myAmarsoftUpload = new com.lmt.frameapp.web.uad.AmarsoftUpload();
                                                            
 	myAmarsoftUpload.initialize(pageContext);              
 	myAmarsoftUpload.upload();                             
