@@ -7,7 +7,58 @@ import com.lmt.frameapp.sql.Transaction;
  * @author bllou 2012/08/13
  * @msg. 历史押品信息导入初始化
  */
-public class AIContractHandler{
+public class DataContractHandler{
+	public static void beforeHandle(String HandlerFlag,String sConfigNo,String sOneKey,Transaction Sqlca)throws Exception{
+		//更新配置号和报表日期
+ 		//String sSerialNo  = DBFunction.getSerialNo("Batch_Case","SerialNo",Sqlca);
+ 		//Sqlca.executeSQL("update "+sImportTableName+" set ReportDate='"+sReportDate+"' where ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"' and ImportNo like 'N%000000'");
+		//清空目标表 
+		Sqlca.executeSQL("Delete from Batch_Import_Process where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey='"+sOneKey+"'");
+	}
+	/**
+	 * 合同导入后处理
+	 * @param sheet
+	 * @param icol
+	 * @return
+	 * @throws Exception 
+	 * @throws Exception
+	 */
+	public static void handle(String HandlerFlag,String sConfigNo,String sOneKey,Transaction Sqlca) throws Exception {
+		//先导入到数据库,并清空目标表，为数据处理做准备
+		DataContractHandler.beforeHandle(HandlerFlag, sConfigNo, sOneKey, Sqlca);
+		//1、对中间表数据进行特殊处理 	 		 	
+		DataContractHandler.interimProcess(sConfigNo, sOneKey, Sqlca);
+		//对公贷款混合担保（按照合同的其他担保方式直接分组，此处不再case when...）
+	 	String groupBy="case when ~s合同明细@其他担保方式e~ like '%保证%' and ~s合同明细@其他担保方式e~ like '%软抵押%' then '保证+软抵押' "+
+	 			"when ~s合同明细@其他担保方式e~ like '%保证%' and ~s合同明细@其他担保方式e~ like '%抵押%' and ~s合同明细@其他担保方式e~ like '%质押%' then '保证+抵质押' "+
+	 			"when ~s合同明细@其他担保方式e~ = '保证' then '单一保证' "+
+	 			"when ~s合同明细@其他担保方式e~ like '%信用%' and ~s合同明细@其他担保方式e~ like '%软抵押%' then '信用+软抵押' "+
+	 			"when ~s合同明细@其他担保方式e~ = '信用' then '单一信用' "+
+	 			"when ~s合同明细@其他担保方式e~ = '抵押' then '单一抵押' "+
+	 			"when ~s合同明细@其他担保方式e~ = '质押' then '单一质押' "+
+	 			"when ~s合同明细@其他担保方式e~ like '%抵押%' and ~s合同明细@其他担保方式e~ like '%质押%' then '抵押+质押' "+
+	 			"else '其他担保' end";
+	 	String sWhere=" and nvl(~s合同明细@业务品种e~,'X') not in('国内信用证','进口信用证','银行承兑汇票','贷款担保','进口信用证增额','委托代付-信用证','委托贷款')";
+	 	DataContractHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"对公贷款混合担保","~s合同明细@其他担保方式e~",sWhere);
+	 	//银承混合担保
+	 	groupBy="case when ~s合同明细@主要担保方式e~ like '%质押%' and not(~s合同明细@主要担保方式e~ like '%本行存单' or ~s合同明细@主要担保方式e~ like '%保证金' or ~s合同明细@主要担保方式e~ like '%我行人民币存款%') then ~s合同明细@其他担保方式e~" +
+	 			//" ~s合同明细@主要担保方式e~ like '%保证%' and ~s合同明细@其他担保方式e~ like '%保证%' " +
+	 			//		"  and ~s合同明细@其他担保方式e~ like '%质押%' " +
+	 			//		"  and ~s合同明细@其他担保方式e~ not like '%软抵押%' " +
+	 			//		"  and ~s合同明细@其他担保方式e~ not like '%抵押%' then '保证' "+
+	 			//"when ~s合同明细@其他担保方式e~ like '%保证%' and ~s合同明细@其他担保方式e~ like '%抵押%' and ~s合同明细@其他担保方式e~ like '%质押%' then '保证+抵质押' "+
+	 			//"when ~s合同明细@其他担保方式e~ = '保证' then '单一保证' "+
+	 			//"when ~s合同明细@其他担保方式e~ like '%信用%' and ~s合同明细@其他担保方式e~ like '%软抵押%' then '信用+软抵押' "+
+	 			//"when ~s合同明细@其他担保方式e~ = '信用' then '单一信用' "+
+	 			//"when ~s合同明细@其他担保方式e~ = '抵押' then '单一抵押' "+
+	 			//"when ~s合同明细@其他担保方式e~ = '质押' then '单一质押' "+
+	 			//"when ~s合同明细@其他担保方式e~ like '%抵押%' and ~s合同明细@其他担保方式e~ like '%质押%' then '抵押+质押' "+
+	 			" else replace(~s合同明细@其他担保方式e~,'质押','') end";
+	 	sWhere="and nvl(~s合同明细@业务品种e~,'')='银行承兑汇票' and not(nvl(~s合同明细@保证金比例(%)e~,0)=100 and (~s合同明细@主要担保方式e~ like '%本行存单' or ~s合同明细@主要担保方式e~ like '%保证金' or ~s合同明细@主要担保方式e~ like '%我行人民币存款%'))";
+	 	DataContractHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"银行承兑汇票混合担保",groupBy,sWhere);
+	 	//4、加工后，进行合计，横向纵向分析
+	 	DataContractHandler.afterProcess(HandlerFlag,sConfigNo, sOneKey, Sqlca);
+	}
 	//对导入数据加工处理,插入到中间表Batch_Import_Interim
 	public static void interimProcess(String sConfigNo,String sKey,Transaction Sqlca) throws Exception{
 		String sSql="";
@@ -100,48 +151,6 @@ public class AIContractHandler{
  					" and nvl(~s合同明细@管户机构e~,'')='总行营业部'";
  		sSql=StringUtils.replaceWithConfig(sSql, Sqlca);
  		Sqlca.executeSQL(sSql);
-	}
-	/**
-	 * 合同导入后处理
-	 * @param sheet
-	 * @param icol
-	 * @return
-	 * @throws Exception 
-	 * @throws Exception
-	 */
-	public static void contractHandle(String HandlerFlag,String sConfigNo,String sOneKey,Transaction Sqlca) throws Exception {
-		//1、对中间表数据进行特殊处理 	 		 	
-		AIContractHandler.interimProcess(sConfigNo, sOneKey, Sqlca);
-		//对公贷款混合担保（按照合同的其他担保方式直接分组，此处不再case when...）
-	 	String groupBy="case when ~s合同明细@其他担保方式e~ like '%保证%' and ~s合同明细@其他担保方式e~ like '%软抵押%' then '保证+软抵押' "+
-	 			"when ~s合同明细@其他担保方式e~ like '%保证%' and ~s合同明细@其他担保方式e~ like '%抵押%' and ~s合同明细@其他担保方式e~ like '%质押%' then '保证+抵质押' "+
-	 			"when ~s合同明细@其他担保方式e~ = '保证' then '单一保证' "+
-	 			"when ~s合同明细@其他担保方式e~ like '%信用%' and ~s合同明细@其他担保方式e~ like '%软抵押%' then '信用+软抵押' "+
-	 			"when ~s合同明细@其他担保方式e~ = '信用' then '单一信用' "+
-	 			"when ~s合同明细@其他担保方式e~ = '抵押' then '单一抵押' "+
-	 			"when ~s合同明细@其他担保方式e~ = '质押' then '单一质押' "+
-	 			"when ~s合同明细@其他担保方式e~ like '%抵押%' and ~s合同明细@其他担保方式e~ like '%质押%' then '抵押+质押' "+
-	 			"else '其他担保' end";
-	 	String sWhere=" and nvl(~s合同明细@业务品种e~,'X') not in('国内信用证','进口信用证','银行承兑汇票','贷款担保','进口信用证增额','委托代付-信用证','委托贷款')";
-	 	AIContractHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"对公贷款混合担保","~s合同明细@其他担保方式e~",sWhere);
-	 	//银承混合担保
-	 	groupBy="case when ~s合同明细@主要担保方式e~ like '%质押%' and not(~s合同明细@主要担保方式e~ like '%本行存单' or ~s合同明细@主要担保方式e~ like '%保证金' or ~s合同明细@主要担保方式e~ like '%我行人民币存款%') then ~s合同明细@其他担保方式e~" +
-	 			//" ~s合同明细@主要担保方式e~ like '%保证%' and ~s合同明细@其他担保方式e~ like '%保证%' " +
-	 			//		"  and ~s合同明细@其他担保方式e~ like '%质押%' " +
-	 			//		"  and ~s合同明细@其他担保方式e~ not like '%软抵押%' " +
-	 			//		"  and ~s合同明细@其他担保方式e~ not like '%抵押%' then '保证' "+
-	 			//"when ~s合同明细@其他担保方式e~ like '%保证%' and ~s合同明细@其他担保方式e~ like '%抵押%' and ~s合同明细@其他担保方式e~ like '%质押%' then '保证+抵质押' "+
-	 			//"when ~s合同明细@其他担保方式e~ = '保证' then '单一保证' "+
-	 			//"when ~s合同明细@其他担保方式e~ like '%信用%' and ~s合同明细@其他担保方式e~ like '%软抵押%' then '信用+软抵押' "+
-	 			//"when ~s合同明细@其他担保方式e~ = '信用' then '单一信用' "+
-	 			//"when ~s合同明细@其他担保方式e~ = '抵押' then '单一抵押' "+
-	 			//"when ~s合同明细@其他担保方式e~ = '质押' then '单一质押' "+
-	 			//"when ~s合同明细@其他担保方式e~ like '%抵押%' and ~s合同明细@其他担保方式e~ like '%质押%' then '抵押+质押' "+
-	 			" else replace(~s合同明细@其他担保方式e~,'质押','') end";
-	 	sWhere="and nvl(~s合同明细@业务品种e~,'')='银行承兑汇票' and not(nvl(~s合同明细@保证金比例(%)e~,0)=100 and (~s合同明细@主要担保方式e~ like '%本行存单' or ~s合同明细@主要担保方式e~ like '%保证金' or ~s合同明细@主要担保方式e~ like '%我行人民币存款%'))";
-	 	AIContractHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"银行承兑汇票混合担保",groupBy,sWhere);
-	 	//4、加工后，进行合计，横向纵向分析
-	 	AIContractHandler.afterProcess(HandlerFlag,sConfigNo, sOneKey, Sqlca);
 	}
 	/**
 	 * 按各个维度插入到处理表中

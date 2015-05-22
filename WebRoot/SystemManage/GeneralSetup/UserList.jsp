@@ -146,7 +146,8 @@
 	/*~[Describe=在当前机构中新增人员;InputParam=无;OutPutParam=无;]~*/
 	function my_add()
     {   
-		OpenPage("/SystemManage/GeneralSetup/UserInfo.jsp","_self","");
+		popComp("UserInfo","/SystemManage/GeneralSetup/UserInfo.jsp","","");
+		reloadSelf();
 	}
 	
     /*~[Describe=查看及修改详情;InputParam=无;OutPutParam=无;]~*/
@@ -156,10 +157,11 @@
 		if (typeof(sUserID)=="undefined" || sUserID.length==0)
 		{
 			alert(getHtmlMessage('1'));//请选择一条信息！
-		}else
-		{
-			OpenPage("/SystemManage/GeneralSetup/UserInfo.jsp?UserID="+sUserID,"_self","");
+			return;
 		}
+		popComp("UserInfo","/SystemManage/GeneralSetup/UserInfo.jsp","RoleID="+sRoleID,"");
+		reloadSelf();
+		//OpenPage("/SystemManage/GeneralSetup/UserInfo.jsp?UserID="+sUserID,"_self","");
 	}
 
 	/*~[Describe=查看并可修改人员角色;InputParam=无;OutPutParam=无;]~*/

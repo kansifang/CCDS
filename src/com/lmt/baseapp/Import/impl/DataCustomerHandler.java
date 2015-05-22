@@ -7,7 +7,42 @@ import com.lmt.frameapp.sql.Transaction;
  * @author bllou 2012/08/13
  * @msg. 历史押品信息导入初始化
  */
-public class AICustomerHandler{
+public class DataCustomerHandler{
+	public static void beforeHandle(String HandlerFlag,String sConfigNo,String sOneKey,Transaction Sqlca)throws Exception{
+		//更新配置号和报表日期
+ 		//String sSerialNo  = DBFunction.getSerialNo("Batch_Case","SerialNo",Sqlca);
+ 		//Sqlca.executeSQL("update "+sImportTableName+" set ReportDate='"+sReportDate+"' where ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"' and ImportNo like 'N%000000'");
+		//清空目标表 
+		Sqlca.executeSQL("Delete from Batch_Import_Process where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey='"+sOneKey+"'");
+	}
+	/**
+	 * 客户信息导入后处理
+	 * @param sheet
+	 * @param icol
+	 * @return
+	 * @throws Exception 
+	 * @throws Exception
+	 */
+	public static void handle(String HandlerFlag,String sConfigNo,String sOneKey,Transaction Sqlca) throws Exception {
+		//先导入到数据库,并清空目标表，为数据处理做准备
+		DataCustomerHandler.beforeHandle(HandlerFlag, sConfigNo, sOneKey, Sqlca);
+		//1、对中间表数据进行特殊处理 	 		 	
+		DataCustomerHandler.interimProcess(sConfigNo, sOneKey, Sqlca);
+		/*
+	 	String groupBy="case when ~s合同明细@其他担保方式e~ like '%保证%' and ~s合同明细@其他担保方式e~ like '%软抵押%' then '保证+软抵押' "+
+	 			"when ~s合同明细@其他担保方式e~ like '%保证%' and ~s合同明细@其他担保方式e~ like '%抵押%' and ~s合同明细@其他担保方式e~ like '%质押%' then '保证+抵质押' "+
+	 			"when ~s合同明细@其他担保方式e~ = '保证' then '单一保证' "+
+	 			"when ~s合同明细@其他担保方式e~ like '%信用%' and ~s合同明细@其他担保方式e~ like '%软抵押%' then '信用+软抵押' "+
+	 			"when ~s合同明细@其他担保方式e~ = '信用' then '单一信用' "+
+	 			"when ~s合同明细@其他担保方式e~ = '抵押' then '单一抵押' "+
+	 			"when ~s合同明细@其他担保方式e~ = '质押' then '单一质押' "+
+	 			"when ~s合同明细@其他担保方式e~ like '%抵押%' and ~s合同明细@其他担保方式e~ like '%质押%' then '抵押+质押' "+
+	 			"else '其他担保' end";
+	 	AfterImportCustomerHandler.process(sConfigNo, sOneKey, Sqlca,"混合担保方式",groupBy);
+	 	//4、加工后，进行合计，横向纵向分析
+	 	AfterImportCustomerHandler.afterProcess(sConfigNo, sOneKey, Sqlca);
+	 	*/
+	}
 	//对导入数据加工处理,插入到中间表Batch_Import_Interim
 	public static void interimProcess(String sConfigNo,String sKey,Transaction Sqlca) throws Exception{
 		

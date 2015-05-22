@@ -62,8 +62,9 @@
 					{"Attribute5","字段精度"},
 					{"Attribute7","操作要素方式"},
 					{"IsInUse","有效"},
-					{"InputUserName","登记人"},
-					{"InputTime","登记时间"},
+					{"InputUser","最终结果表"},
+					{"InputTime","最终结果字段"},
+					{"BankNo","最终结果字段是否可更新"},
 					{"UpdateUserName","更新人"},
 					{"UpdateTime","更新时间"}
 				};
@@ -72,8 +73,8 @@
 				" Attribute6,ItemDescribe,ItemAttribute,"+
 				"Attribute2,Attribute4,Attribute5,"+
 				" Attribute7,IsInUse,"+
-				" InputUser,getUserName(InputUser) as InputUserName,InputTime,"+
-				" UpdateUser,getUserName(UpdateUser) as UpdateUserName, UpdateTime"+
+				" InputUser,InputTime,BankNo,"+
+				" UpdateUser,getUserName(UpdateUser) as UpdateUserName,UpdateTime"+
 				" from Code_Library "+
 				" where  CodeNo = '"+sCodeNo+"'"+
 				" and ItemNo='"+sItemNo+"' order by SortNo asc";
@@ -89,7 +90,7 @@
 	//设置格式
 	doTemp.setAlign("Attribute2,Attribute4,","1");
 	doTemp.setRequired("Attribute2", true);
-	doTemp.setVisible("CodeNo,ItemName,InputUser,UpdateUser",false);
+	doTemp.setVisible("CodeNo,ItemName,UpdateUser",false);
 	if("01".equals(sType)){
 		doTemp.setVisible("ItemAttribute", false);
 		doTemp.setUnit("ItemDescribe","<input type=button class=inputDate   value=\"...\" name=button1 onClick=\"javascript:parent.selectColumn();\"> ");
@@ -98,11 +99,11 @@
 		doTemp.setHTMLStyle("ItemDescribe"," style={width:200px} ");
 		doTemp.setUnit("Attribute6", "<font style={color:red}>表名以,分割</font>");
 	}
-	doTemp.setDDDWCode("IsInUse","YesNo");
+	doTemp.setDDDWCode("IsInUse,BankNo","YesNo");
 	doTemp.setDDDWCode("Attribute7", "AlterType");
 	doTemp.setDDDWCode("ItemName","YesNo");
 	doTemp.setUpdateable("InputUserName,UpdateUserName",false);
-	doTemp.setReadOnly("ItemNo,InputUserName,UpdateUserName,InputTime,UpdateTime",true);
+	doTemp.setReadOnly("ItemNo,InputUserName,UpdateUserName,UpdateTime",true);
 	//设置字段显示宽度	
 	
 	//生成datawindow
@@ -319,9 +320,6 @@
 			//setItemValue(0,0,"Attribute7","AddColumn");
 	        setItemValue(0,0,"IsInUse","1");
 	        setItemValue(0,0,"SortNo","000");
-	        setItemValue(0,0,"InputUser","<%=CurUser.UserID%>");
-	        setItemValue(0,0,"InputUserName","<%=CurUser.UserName%>");
-	        setItemValue(0,0,"InputTime","<%=StringFunction.getToday()+"-"+StringFunction.getNow()%>");
 	        setItemValue(0,0,"UpdateUser","<%=CurUser.UserID%>");
 	        setItemValue(0,0,"UpdateUserName","<%=CurUser.UserName%>");
 	        setItemValue(0,0,"UpdateTime","<%=StringFunction.getToday()+"-"+StringFunction.getNow()%>");

@@ -61,7 +61,6 @@ public class ASComponent implements Serializable
     throws Exception
   {
     Enumeration e = reqTmp.getParameterNames();
-
     while (e.hasMoreElements()) {
       String sParaName = (String)e.nextElement();
       setAttribute(sParaName, reqTmp.getParameter(sParaName));

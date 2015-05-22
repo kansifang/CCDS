@@ -96,7 +96,7 @@
     doTemp.setFilter(Sqlca, "1", "报表日期", "HtmlTemplate=PopSelect;");//这个可以独立使用---不知道为什么下面的用法 能显示出弹出按钮，但下面的filterAction函数无法调用
     //doTemp.setColumnAttribute("报表日期","IsFilter","1");
 	//doTemp.setColumnAttribute("报表日期", "FilterOptions", "HtmlTemplate=PopSelect;");
-	doTemp.setColumnAttribute("报表类型","IsFilter","1");
+	doTemp.setColumnAttribute("报表类型,序号","IsFilter","1");
 	doTemp.setColumnAttribute("报表类型", "FilterOptions", "Operators=EqualsString;");
     if(sHeaders.length!=0){
     	//doTemp.setHTMLStyle(DataConvert.toString(StringFunction.getAttribute(sHeaders,"合同流水号",1,0))," style={width:95px}");
@@ -127,6 +127,12 @@
         ItemName=DataConvert.toString(StringFunction.getAttribute(sHeaders,"业务品种",1,0));
         if(!"".equals(ItemName)){
         	doTemp.setHTMLStyle(ItemName," style={width:260px}");
+        	//生成查询框
+            doTemp.setColumnAttribute(ItemName,"IsFilter","1");
+        }
+        ItemName=DataConvert.toString(StringFunction.getAttribute(sHeaders,"序列号",1,0));
+        if(!"".equals(ItemName)){
+        	doTemp.setHTMLStyle(ItemName," style={width:100px}");
         	//生成查询框
             doTemp.setColumnAttribute(ItemName,"IsFilter","1");
         }
@@ -295,45 +301,6 @@
 		PopPage("/Data/Process/S63Handler.jsp?Type=02&ConfigNo="+configNo+"&OneKey="+oneKey,"","dialogWidth=0;dialogHeight=0;minimize:yes");
    		alert("汇总成功");
 		reloadSelf(); 
-	}
-	/*~[Describe=完成导入批量;InputParam=无;OutPutParam=无;]~*/
-	function FinishBatch()
-	{
-		var sBatchNo=getItemValue(0,getRow(),"BatchNo");
-    	if (typeof(sBatchNo)=="undefined" || sBatchNo.length==0)
-    	{
-        	alert(getHtmlMessage(1));  //请选择一条记录！
-			return;
-    	}
-		if(confirm("确认完成导入？"))
-		{
-			RunMethod("PublicMethod","UpdateColValue","String@Status@020,Batch_Info,String@BatchNo@"+sBatchNo);
-			//RunMethod("PublicMethod","UpdateColValue","String@Status@030,Batch_Case,String@BatchNo@"+sBatchNo);
-	   		var sArg="ApplyCaseDistOT,SerialNo@Batch_Case@BatchNo@"+sBatchNo+",ApplyCaseDist,ApplyCaseDistFlow,0010,<%=CurUser.UserID%>,<%=CurUser.OrgID%>";
-	   		RunMethod("WorkFlowEngine","AutoBatchInitializeFlow",sArg);
-			reloadSelf(); 
-		}
-	}
-	/*~[Describe=取消导入批量;InputParam=无;OutPutParam=无;]~*/
-	function unFinishBatch()
-	{
-		var sBatchNo=getItemValue(0,getRow(),"BatchNo");
-		var sFlag=getItemValue(0,getRow(),"\"040CaseCount\"");
-    	if (typeof(sBatchNo)=="undefined" || sBatchNo.length==0)
-    	{
-        	alert(getHtmlMessage(1));//请选择一条记录！
-			return;
-    	}
-    	if(sFlag!=="0"){
-    		alert("当前批次下已有案件分配，不能取消！");//请选择一条记录！
-			return;
-    	}
-    	if(confirm("确认取消完成导入？")){
-    		RunMethod("PublicMethod","UpdateColValue","String@Status@010,Batch_Info,String@BatchNo@"+sBatchNo);
-    		RunMethod("PublicMethod","DeleteColValue","Flow_Object,String@ObjectType@ApplyCaseDistOT@Exists@None@select 1 from Batch_Case where Batch_Case.SerialNo=Flow_Object.ObjectNo and BatchNo='"+sBatchNo+"'");
-    		RunMethod("PublicMethod","DeleteColValue","Flow_Task,String@ObjectType@ApplyCaseDistOT@Exists@None@select 1 from Batch_Case where Batch_Case.SerialNo=Flow_Task.ObjectNo and BatchNo='"+sBatchNo+"'");
-    		reloadSelf(); 
-		}
 	}
 	/*~[Describe=查询条件;InputParam=;OutPutParam=SerialNo;]~*/
 	function filterAction(sInputValue,sFilterID,sInputDisplay)

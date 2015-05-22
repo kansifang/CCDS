@@ -10,7 +10,14 @@ import com.lmt.frameapp.sql.Transaction;
  * @author bllou 2012/08/13
  * @msg. 历史押品信息导入初始化
  */
-public class AIDuebillInHandler{
+public class DataDuebillInHandler{
+	public static void beforeHandle(String HandlerFlag,String sConfigNo,String sOneKey,Transaction Sqlca)throws Exception{
+		//更新配置号和报表日期
+ 		//String sSerialNo  = DBFunction.getSerialNo("Batch_Case","SerialNo",Sqlca);
+ 		//Sqlca.executeSQL("update "+sImportTableName+" set ReportDate='"+sReportDate+"' where ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"' and ImportNo like 'N%000000'");
+		//清空目标表 
+		Sqlca.executeSQL("Delete from Batch_Import_Process where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey='"+sOneKey+"'");
+	}
 	/**
 	 * 表内借据导入后处理
 	 * @param sheet
@@ -19,9 +26,11 @@ public class AIDuebillInHandler{
 	 * @throws Exception 
 	 * @throws Exception
 	 */
-	public static void dueBillInHandle(String HandlerFlag,String sConfigNo,String sOneKey,Transaction Sqlca) throws Exception {
+	public static void handle(String HandlerFlag,String sConfigNo,String sOneKey,Transaction Sqlca) throws Exception {
+		//先导入到数据库,并清空目标表，为数据处理做准备
+		DataDuebillInHandler.beforeHandle(HandlerFlag, sConfigNo, sOneKey, Sqlca);
 		//1、对中间表数据进行特殊处理 	 		 	
-		AIDuebillInHandler.interimProcess(sConfigNo, sOneKey, Sqlca);
+		DataDuebillInHandler.interimProcess(sConfigNo, sOneKey, Sqlca);
 		//经营类型分组
  		String groupBy="case "+
  				"when ~s借据明细@经营类型(新)e~ is null or ~s借据明细@经营类型(新)e~ = '' or ~s借据明细@经营类型(新)e~='其他' then 'V-其他' "+
@@ -55,21 +64,21 @@ public class AIDuebillInHandler{
 	 			"when ~s借据明细@经营类型(新)e~ like '信息技术' then 'T-信息技术' "+
 	 			"when ~s借据明细@经营类型(新)e~ like '文化娱乐' then 'U-文化娱乐' "+
 	 			"else 'W-'||~s借据明细@经营类型(新)e~ end";
-	 	AIDuebillInHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"经营类型(新)",groupBy,"");
+	 	DataDuebillInHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"经营类型(新)",groupBy,"");
 	 	//期限业务品种分组
 	 	groupBy="case when case when ~s借据明细@期限日e~>0 then (~s借据明细@期限月e~+1) else ~s借据明细@期限月e~ end <=6  then '1M6]' "+
 	 						"when case when ~s借据明细@期限日e~>1 then (~s借据明细@期限月e~+1) else ~s借据明细@期限月e~ end <=12 then '2M(6-12]' "+//常常有12个月零1天那种，先处理为12个月吧，遗留数据有几笔（00000231001，00000230881，00000231541，00000253001）
 	 						"when case when ~s借据明细@期限日e~>0 then (~s借据明细@期限月e~+1) else ~s借据明细@期限月e~ end <=36 then '3M(12-36]' "+
 	 						"when case when ~s借据明细@期限日e~>0 then (~s借据明细@期限月e~+1) else ~s借据明细@期限月e~ end <=60 then '4M(36-60]' "+
 	 						"else '5M(60' endLJF@~s借据明细@业务品种e~";
-	 	AIDuebillInHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"期限业务品种",groupBy,"");
+	 	DataDuebillInHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"期限业务品种",groupBy,"");
 	 	
 	 	groupBy="case when ~s借据明细@主要担保方式e~ like '保证-%' then '保证' "+
 	 			"when ~s借据明细@主要担保方式e~ like '抵押-%' then '抵押' "+
 	 			"when ~s借据明细@主要担保方式e~ = '信用' then '信用' "+
 	 			"when ~s借据明细@主要担保方式e~ like '%质押-%' or ~s借据明细@主要担保方式e~='保证金' then '质押' "+
 	 			"else '其他' end";
-	 	AIDuebillInHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"贷款单一担保方式",groupBy,"");
+	 	DataDuebillInHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"贷款单一担保方式",groupBy,"");
 	 	
 	 	groupBy="case " +
 	 				" when ~s借据明细@业务品种e~ like '%垫款'  then 'G-上浮50%以上@0-垫款' "+
@@ -82,11 +91,11 @@ public class AIDuebillInHandler{
 	 				" when ~s借据明细@利率浮动方式e~='浮动比率(%)' and ~s借据明细@利率浮动值e~>0 or ~s借据明细@利率浮动方式e~='浮动点' and ~s借据明细@利率浮动值e~/(~s借据明细@执行年利率(%)e~-~s借据明细@利率浮动值e~)*100>0 then 'C-上浮10%以内（含10%）' "+
 	 				" when ~s借据明细@利率浮动方式e~='浮动比率(%)' and ~s借据明细@利率浮动值e~=0 or ~s借据明细@利率浮动方式e~='浮动点' and ~s借据明细@利率浮动值e~/(~s借据明细@执行年利率(%)e~-~s借据明细@利率浮动值e~)*100=0 then 'B-基准利率' "+
 	 				" else 'A-下浮10%以内（含10%）' end";
-	 	AIDuebillInHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"利率浮动区间",groupBy,"");//and ~s借据明细@业务品种e~ not like '%垫款'
+	 	DataDuebillInHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"利率浮动区间",groupBy,"");//and ~s借据明细@业务品种e~ not like '%垫款'
 	 	
-	 	AIDuebillInHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"企业规模","~s借据明细@企业规模e~","");
+	 	DataDuebillInHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"企业规模","~s借据明细@企业规模e~","");
 	 	
-	 	AIDuebillInHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"业务品种","~s借据明细@业务品种e~","");
+	 	DataDuebillInHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"业务品种","~s借据明细@业务品种e~","");
 	 	
 	 	groupBy="case  "+
 	 			"when ~s借据明细@国家地区e~ like '%吕梁市%' then 'B-吕梁市' "+
@@ -103,14 +112,14 @@ public class AIDuebillInHandler{
 	 			//"when ~s借据明细@国家地区e~ like '%武汉市%' then '武汉市' "+
 	 			//"when ~s借据明细@国家地区e~ like '%佛山市%' then 'L-佛山市' "+
 	 			"else 'A-太原市' end";//剩下的默认都是太原市when ~s借据明细@国家地区e~ like '%太原市%' then '太原市'
-	 	AIDuebillInHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"地区分类",groupBy,"");
+	 	DataDuebillInHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"地区分类",groupBy,"");
 	 	
-	 	AIDuebillInHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"机构分类","~s借据明细@直属行名称e~","");
+	 	DataDuebillInHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"机构分类","~s借据明细@直属行名称e~","");
 	 	
 	 	//单独完成一些复杂的操作
-	 	AIDuebillInHandler.afterProcess1(HandlerFlag,sConfigNo, sOneKey, Sqlca);
+	 	DataDuebillInHandler.afterProcess1(HandlerFlag,sConfigNo, sOneKey, Sqlca);
 	 	//4、加工后，进行合计，横向纵向分析
-	 	AIDuebillInHandler.afterProcess(HandlerFlag,sConfigNo, sOneKey, Sqlca);
+	 	DataDuebillInHandler.afterProcess(HandlerFlag,sConfigNo, sOneKey, Sqlca);
 	}
 	//对导入数据加工处理,插入到中间表Batch_Import_Interim
 	public static void interimProcess(String sConfigNo,String sKey,Transaction Sqlca) throws Exception{

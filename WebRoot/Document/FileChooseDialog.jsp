@@ -33,6 +33,7 @@
 	
 	//获得组件参数	
 	String sFileType = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("FileType")));
+	String sConfigNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("ConfigNo")));
 	//获得组件参数
 %>
 <%
@@ -45,6 +46,14 @@
 <script language=javascript>
 	function getMonth(obj){
 		var sReturn=PopPage("/Common/ToolsA/SelectMonth.jsp","","dialogWidth=420px;dialogHeight=160px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
+		if(typeof(sReturn)=="undefined"){
+			obj.value="";
+		}else{
+			obj.value=sReturn;
+		}
+	}
+	function getDate(obj){
+		var sReturn=PopPage("/Common/ToolsA/SelectDate.jsp","","dialogWidth:20;dialogheight:15;resizable:yes;status:no;center:yes;help:no;minimize:no;maximize:no;border:thin;statusbar:no");
 		if(typeof(sReturn)=="undefined"){
 			obj.value="";
 		}else{
@@ -167,7 +176,7 @@
 		var value=document.getElementsByName("ReportDate"+groups+"["+(row-1)+"]")[0].value;//每增加一个行，赋上上一行的值作为初始值
 		var ivalue=parseFloat(value.substr(5))+1;
 		value=value.substr(0,5)+(ivalue>12?"12":(ivalue<10?"0"+ivalue:""+ivalue));
-		temp=" <input type=text value='"+value+"' name=ReportDate"+groups+"["+(row)+"] size=15 ondblclick=getMonth(this); style='display:"+(utv=="1"?"none":"block")+"'>";
+		temp=" <input type=text value='"+value+"' name=ReportDate"+groups+"["+(row)+"] size=15 oncontextmenu='getDate(this);return false;' ondblclick=getMonth(this); style='display:"+(utv=="1"?"none":"block")+"'>";
 	    c.innerHTML+=temp; 
 		//插入第一3个td
 		c =r.insertCell();
@@ -215,7 +224,7 @@
 				sHTML+="<td class='black9pt' bgcolor='#D8D8AF'>报表日期";
 				sHTML+="</td>";
 				sHTML+="<td bgcolor='#F0F1DE'>";
-					sHTML+="<input type=text size=15 value=<%=StringFunction.getRelativeAccountMonth(StringFunction.getToday(),"month", -1)%>  name='ReportDate"+(groups)+"[0]' ondblclick='getMonth(this)'>";
+					sHTML+="<input type=text size=15 value=<%=StringFunction.getRelativeAccountMonth(StringFunction.getToday(),"month", -1)%>  name='ReportDate"+(groups)+"[0]' oncontextmenu='getDate(this);return false;' ondblclick='getMonth(this)'>";
 				sHTML+="</td>";
 				sHTML+="<td class='black9pt' bgcolor='#D8D8AF'>数据文件";
 				sHTML+="</td>";
@@ -287,9 +296,18 @@
 				<tr>
 					<td class="black9pt" bgcolor="#D8D8AF">报表类型</td>
 					<td bgcolor="#F0F1DE">
-						<select name="ConfigNo0" style="width:150"> 
-						<%=HTMLControls.generateDropDownSelect(Sqlca,"select CodeNo,CodeName from Code_Catalog where CodeNo like 'b%' and CodeName<>'表配置' order by InputTime asc",1,2,"")%>
-			        	</select>
+						<%if(sConfigNo.length()>0){
+						%>
+							<input name="ConfigNo0" style="width:150" value="<%=sConfigNo%>" readonly>
+						<% 
+						}else{
+						%>
+							<select name="ConfigNo0" style="width:150"> 
+							<%=HTMLControls.generateDropDownSelect(Sqlca,"select CodeNo,CodeName from Code_Catalog where CodeNo like 'b%' and CodeName<>'表配置' order by InputTime asc",1,2,"")%>
+			        		</select>
+						<%
+						}
+						%>
 					</td>
 					<td class="black9pt" bgcolor="#D8D8AF">上传文件方式</td>
 					<td bgcolor="#F0F1DE">
@@ -302,7 +320,7 @@
 				<tr>
 					<td class="black9pt" bgcolor="#D8D8AF">报表日期</td>
 					<td bgcolor="#F0F1DE">
-						<input type=text size=15 value="<%=StringFunction.getRelativeAccountMonth(StringFunction.getToday(),"month", -1)%>" name="ReportDate0[0]" ondblclick="getMonth(this)"> 
+						<input type=text size=15 value="<%=StringFunction.getRelativeAccountMonth(StringFunction.getToday(),"month", -1)%>" name="ReportDate0[0]" oncontextmenu="getDate(this);return false;" ondblclick="getMonth(this)"> 
 					</td>
 					<td class="black9pt" bgcolor="#D8D8AF">数据文件</td>
 					<td bgcolor="#F0F1DE">

@@ -83,7 +83,6 @@ public class ObjRow {
 				oc.setIndexInFile(-1);
 				oc.setSColumnValue("");
 				oc.setDColumnValue(0.0);
-				
 			}
 		}
 		SimpleDateFormat sdf=new SimpleDateFormat("'N'yyyyMMddHHmmssSSSS");

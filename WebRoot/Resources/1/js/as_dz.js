@@ -655,62 +655,58 @@ function checkDOFilterForm(oForm){
 	var bHaveOrgAndNoValue = false;
 	var sOrgCaption = "";
 	var specialChar = new Array('%','"','\'','\\','$','％');//设置查询条件需要过滤的特殊字符   
-
 	for(i=0;i<oForm.length;i++){
 		if(oForm.elements[i].tagName=="TD" && oForm.elements[i].id.indexOf("_TD_1")>0 ){
 			for(j=0;j<DZ[myi][1].length;j++){
 				try {
-				if(DZ[myi][1][j][0]==oForm.elements[i].innerText){
-
-					if(oForm.document.getElementById(oForm.elements[i].id.replace("_TD_1","")+"_OP_ID").value=="EqualsString" &&
-						oForm.document.getElementById("DOFILTER_"+oForm.elements[i].id.replace("_TD_1","")+"_1_VALUE").value!=""  )
-						bHaveEquals = true;
-				
-					if(DZ[myi][1][j][12]==2 || DZ[myi][1][j][12]==5 || DZ[myi][1][j][12]>10) //数字
-					{
-						if(isNaN(oForm.document.getElementById("DOFILTER_"+oForm.elements[i].id.replace("_TD_1","")+"_1_VALUE").value) ||
-							isNaN(oForm.document.getElementById("DOFILTER_"+oForm.elements[i].id.replace("_TD_1","")+"_2_VALUE").value) ) 
+					if(DZ[myi][1][j][0]==oForm.elements[i].innerText){
+						if(oForm.document.getElementById(oForm.elements[i].id.replace("_TD_1","")+"_OP_ID").value=="EqualsString" &&
+							oForm.document.getElementById("DOFILTER_"+oForm.elements[i].id.replace("_TD_1","")+"_1_VALUE").value!="")
+							bHaveEquals = true;
+						if(DZ[myi][1][j][12]==2 || DZ[myi][1][j][12]==5 || DZ[myi][1][j][12]>10) //数字
 						{
-							alert("["+oForm.elements[i].innerText+"]应为数字！");
-							return false;
+							if(isNaN(oForm.document.getElementById("DOFILTER_"+oForm.elements[i].id.replace("_TD_1","")+"_1_VALUE").value) ||
+								isNaN(oForm.document.getElementById("DOFILTER_"+oForm.elements[i].id.replace("_TD_1","")+"_2_VALUE").value) ) 
+							{
+								alert("["+oForm.elements[i].innerText+"]应为数字！");
+								return false;
+							}
+						}	
+						
+						//开发阶段可以屏蔽掉如下FOR循环代码，从而禁用查询条件中的特殊字符过滤功能。
+						for(var k=0;k<specialChar.length;k++ ){
+							if(oForm.document.getElementById("DOFILTER_"+oForm.elements[i].id.replace("_TD_1","")+"_1_VALUE").value.indexOf(specialChar[k]) > -1 || 
+								oForm.document.getElementById("DOFILTER_"+oForm.elements[i].id.replace("_TD_1","")+"_2_VALUE").value.indexOf(specialChar[k]) > -1)
+							{
+								alert("["+oForm.elements[i].innerText+"]不能含有特殊字符"+specialChar[k]+"！");
+								return false;
+							}
 						}
-					}	
-					//开发阶段可以屏蔽掉如下FOR循环代码，从而禁用查询条件中的特殊字符过滤功能。
-					for(var k=0;k<specialChar.length;k++ ){
-						if(oForm.document.getElementById("DOFILTER_"+oForm.elements[i].id.replace("_TD_1","")+"_1_VALUE").value.indexOf(specialChar[k]) > -1 || 
-							oForm.document.getElementById("DOFILTER_"+oForm.elements[i].id.replace("_TD_1","")+"_2_VALUE").value.indexOf(specialChar[k]) > -1)
-						{
-							alert("["+oForm.elements[i].innerText+"]不能含有特殊字符"+specialChar[k]+"！");
-							return false;
+					
+						//如果涉及谁用到了，请自行调整一下
+						//if(oForm.elements[i].innerText=="登记机构"||oForm.elements[i].innerText=="管户机构" ||oForm.elements[i].innerText=="经办机构"||oForm.elements[i].innerText=="所属机构")
+						if(DZ[myi][1][j][15].toUpperCase( ).indexOf("ORGID")>0){
+							if((oForm.document.getElementById("DOFILTER_"+oForm.elements[i].id.replace("_TD_1","")+"_1_VALUE").value=="" || 
+								oForm.document.getElementById("DOFILTER_"+oForm.elements[i].id.replace("_TD_1","")+"_1_VALUE").value==null))
+							{
+								//alert("["+oForm.elements[i].innerText+"]不能为空，请选择相应的"+"["+oForm.elements[i].innerText+"]");
+								//return false;
+								bHaveOrgAndNoValue = true;
+								sOrgCaption = oForm.elements[i].innerText;
+							}else{
+								bHaveOrgAndNoValue = false;
+							}
 						}
+						break;			
 					}
-				
-					//如果涉及谁用到了，请自行调整一下
-					//if(oForm.elements[i].innerText=="登记机构"||oForm.elements[i].innerText=="管户机构" ||oForm.elements[i].innerText=="经办机构"||oForm.elements[i].innerText=="所属机构")
-					if(DZ[myi][1][j][15].toUpperCase( ).indexOf("ORGID")>0){
-						if((oForm.document.getElementById("DOFILTER_"+oForm.elements[i].id.replace("_TD_1","")+"_1_VALUE").value=="" || 
-							oForm.document.getElementById("DOFILTER_"+oForm.elements[i].id.replace("_TD_1","")+"_1_VALUE").value==null))
-						{
-							//alert("["+oForm.elements[i].innerText+"]不能为空，请选择相应的"+"["+oForm.elements[i].innerText+"]");
-							//return false;
-							bHaveOrgAndNoValue = true;
-							sOrgCaption = oForm.elements[i].innerText;
-						}else{
-							bHaveOrgAndNoValue = false;
-						}
-					}
-					break;			
-				}
 				}catch(e){}
 			}
 		}
 	}
-	
 	if( bHaveOrgAndNoValue && !bHaveEquals){
 		alert("["+sOrgCaption+"]不能为空，请选择相应的"+"["+sOrgCaption+"]");
 		return false;
 	}
-	
 	ShowMessage("系统正在处理数据，请等待...",true,false);
 	return true;
 }
@@ -718,10 +714,12 @@ function checkDOFilterForm(oForm){
 /**add by byhu 2004.12.19*/
 /**modify by zywei 2006.2.16 17:20 调整了函数onFromAction的输入参数值*/
 function submitFilterForm(sFormName){
+	alert(111);
 	var oForm = document.forms[sFormName];
 	//for(i=0;i<oForm.elements.length;i++) alert(oForm.elements[i].name+":"+oForm.elements[i].value);
 	//oForm.submit();		
 	amarhidden.style.display = "none";//点击查询按钮时，隐藏展示区
+	alert(2222);
 	onFromAction(oForm,sFormName);
 }
 function clearFilterForm(sFormName){

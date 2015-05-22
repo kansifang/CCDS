@@ -30,10 +30,7 @@ public class ExcelBigEntrance implements EntranceImpl{
 		this.Sqlca = Sqlca;
 	}
 	public void actionBefore(String configNo,String Key) throws Exception {//批量主键，标示不同类型批量
-		//把上一批置上最新标志，刚刚导入的为N开头的
-		String sNImportNo=DBFunction.getSerialNo(this.sImportTableName,"ImportNo","'O'yyyyMMdd","000000",new Date(),Sqlca);
-	 	Sqlca.executeSQL("update "+this.sImportTableName+" set ImportNo='"+sNImportNo+"' where ConfigNo='"+configNo+"' and OneKey='"+Key+"' and ImportNo like 'N%000000'");
-	 	//初始化数据结构  一次导入对应一个模板定义，对应一个PS
+		//初始化数据结构  一次导入对应一个模板定义，对应一个PS
 		//初始化head属性
 	 	this.OR=new ObjRow(configNo,Key,this.CurUser,this.Sqlca);
 	 	this.OR.setValueToCode(Sqlca);
@@ -45,8 +42,7 @@ public class ExcelBigEntrance implements EntranceImpl{
 			OPCPackage pkg = OPCPackage.open(sFilePathName);
 			XSSFReader r = new XSSFReader( pkg );
 			SharedStringsTable sst = r.getSharedStringsTable();
-			XMLReader parser = fetchSheetParser(sst,configNo,Key);
-
+			XMLReader parser = this.fetchSheetParser(sst,configNo,Key);
 			Iterator<InputStream> sheets = r.getSheetsData();
 			while(sheets.hasNext()) {
 				System.out.println("Processing new sheet:\n");
@@ -54,8 +50,9 @@ public class ExcelBigEntrance implements EntranceImpl{
 				InputSource sheetSource = new InputSource(sheet);
 				parser.parse(sheetSource);
 				sheet.close();
-				//System.out.println("");
+				//System.out.println("1");
 			}
+			pkg.close();
 		}
 		try{
 			this.HDB.end();

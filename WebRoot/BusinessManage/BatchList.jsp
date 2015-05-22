@@ -58,10 +58,11 @@
 								{"BatchNo","批次号"},
                             	{"DocTitle","批次名称"},
                             	{"DocType","批次使用模板"},
-                            	{"TotalCaseCount","案件总数量"}, 
-                            	{"TotalCaseSum","案件总委额"},
-                            	{"\"040CaseCount\"","已分配案件数量"}, 
-                            	{"\"040CaseSum\"","已分配案件委额"},
+                            	{"DocDate","批次建立日期"},
+                            	{"TotalCaseCount","变更总数量"}, 
+                            	{"TotalCaseSum","变更总委额"},
+                            	{"\"040CaseCount\"","已分配变更数量"}, 
+                            	{"\"040CaseSum\"","已分配变更委额"},
                             	{"ImportFlagN","批次是否已导入"},
                             	{"UserName","登记人"},
                             	{"OrgName","登记机构"},
@@ -69,7 +70,7 @@
                             	{"UpdateTime","更新日期"}
                            	};                           
     	//定义SQL语句
-    String sSql = " SELECT BatchNo,DocTitle,DocType," + 
+    String sSql = " SELECT BatchNo,DocTitle,DocType,DocDate," + 
 		  " getCaseSum(BatchNo,1,'all') as TotalCaseCount,"+
 		  " getCaseSum(BatchNo,2,'all') as TotalCaseSum,"+
 		  " getCaseSum(BatchNo,1,'040') as \"040CaseCount\","+//以数字开头的别名必须这样写
@@ -137,9 +138,9 @@
 			{"true","","Button","查看附件","查看附件详情","viewDoc()",sResourcesPath},
 			{"true","","Button","上传附件","查看附件详情","uploadDoc()",sResourcesPath},
 			{"010".equals(sStatus)?"true":"false","","Button","导入批次","查看附件详情","ImportBatch(1)",sResourcesPath},
-			{"010".equals(sStatus)?"true":"false","","Button","完成导入","查看附件详情","FinishBatch()",sResourcesPath},
-			{"020".equals(sStatus)?"true":"false","","Button","更新批次","查看附件详情","ImportBatch(2)",sResourcesPath},
-			{"020".equals(sStatus)?"true":"false","","Button","取消完成导入","查看附件详情","unFinishBatch()",sResourcesPath},
+			{"010".equals(sStatus)?"false":"false","","Button","完成导入","查看附件详情","FinishBatch()",sResourcesPath},
+			{"020".equals(sStatus)?"false":"false","","Button","更新批次","查看附件详情","ImportBatch(2)",sResourcesPath},
+			{"020".equals(sStatus)?"false":"false","","Button","取消完成导入","查看附件详情","unFinishBatch()",sResourcesPath},
 			};
 	%>
 <%
@@ -166,7 +167,7 @@
 	/*~[Describe=新增记录;InputParam=无;OutPutParam=无;]~*/
 	function newRecord()
 	{
-// 		sReturn=popComp("BatchInfo","/BusinessManage/BatchInfo.jsp","","dialogWidth=50;dialogHeight=60;status:no;center:yes;help:no;minimize:no;maximize:no;border:thin;statusbar:no");
+		sReturn=popComp("BatchInfo","/BusinessManage/BatchInfo.jsp","","dialogWidth=50;dialogHeight=60;status:no;center:yes;help:no;minimize:no;maximize:no;border:thin;statusbar:no");
         reloadSelf();  
 	}
 	/*~[Describe=删除记录;InputParam=无;OutPutParam=无;]~*/
@@ -198,9 +199,7 @@
     	if (typeof(sBatchNo)=="undefined" || sBatchNo.length==0){
         	alert(getHtmlMessage(1));  //请选择一条记录！
 			return;
-    	}
-    	else
-    	{
+    	}else{
     		sReturn=popComp("BatchInfo","/BusinessManage/BatchInfo.jsp","BatchNo="+sBatchNo,"");
             reloadSelf(); 
         }
@@ -244,7 +243,7 @@
 	function ImportBatch(sType)
 	{
 		var sBatchNo=getItemValue(0,getRow(),"BatchNo");
-		var sDocType=getItemValue(0,getRow(),"DocType");
+		var sConfigNo=getItemValue(0,getRow(),"DocType");
 		var sDocTitle=getItemValue(0,getRow(),"DocTitle");
 		var sImportFlag=getItemValue(0,getRow(),"ImportFlag");
     	if (typeof(sBatchNo)=="undefined" || sBatchNo.length==0)
@@ -257,16 +256,12 @@
         	alert("该批次已导入，不能重复导入，请废掉当前批次，重新建批次再导入！");  //请选择一条记录！
 			return;
     	}
-   		var sDocNo=RunMethod("PublicMethod","GetColValue","Doc_Library.DocNo,Doc_Relative@Doc_Library,None@Doc_Relative.DocNo@Doc_Library.DocNo@String@ObjectType@Batch@String@ObjectNo@"+sBatchNo+"@String@DocAttribute@02");
-   		if(sDocNo.length==0){
-   			sDocNo = PopPage("/Common/ToolsB/GetSerialNo.jsp?TableName=Doc_Library&ColumnName=DocNo&Prefix=","","resizable=yes;dialogWidth=0;dialogHeight=0;center:no;status:no;statusbar:no");
-   			RunMethod("PublicMethod","InsertColValue","String@DocNo@"+sDocNo+"@String@ObjectType@Batch@String@ObjectNo@"+sBatchNo+",Doc_Relative");
-   			RunMethod("PublicMethod","InsertColValue","String@DocNo@"+sDocNo+"@String@DocTitle@"+sDocTitle+"_批量文件夹_<%=StringFunction.getNow()%>@String@DocAttribute@02@String@OrgID@<%=CurUser.OrgID%>@String@UserID@<%=CurUser.UserID%>@String@InputOrg@<%=CurUser.OrgID%>@String@InputUser@<%=CurUser.UserID%>@String@InputTime@<%=StringFunction.getToday()%>,Doc_Library");
-   		}else{
-   			sDocNo=sDocNo.split("@")[1];
+   		var sReturn=popComp("FileChooseDialog","/Document/FileChooseDialog.jsp","PCNo="+sBatchNo+"&ConfigNo="+sConfigNo,"dialogWidth=650px;dialogHeight=250px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
+   		if(typeof(sReturn)!=="undefined" && sReturn.length!==0){
+   			//alert(sReturn);进来后 是Return为true
+   			//RunMethod("PublicMethod","UpdateColValue","String@Status@020,Batch_Info,String@BatchNo@"+sBatchNo);
+   	   		reloadSelf(); 
    		}
-   		popComp("FileChooseDialog","/Common/Document/FileChooseDialog.jsp","BatchNo="+sBatchNo+"&ConfigNo="+sDocType+"&DocNo="+sDocNo+"&Handler=CaseInfoHandler&Message=批次导入成功&HandlerType="+sType,"dialogWidth=650px;dialogHeight=250px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
-   		reloadSelf(); 
 	}
 	/*~[Describe=完成导入批量;InputParam=无;OutPutParam=无;]~*/
 	function FinishBatch()

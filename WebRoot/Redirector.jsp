@@ -215,7 +215,7 @@ function randomNumber()
 			throw new Exception("您没有访问该组件的权限！<br>组件权限点："+sRightID+"<br><a href=\"javascript:window.open('"+sWebRootPath+"/index.html','_top');\">点击此处重新登录。</a>");
 		}
 /*****************Redirector.jsp主要作用就是产生ClientID号，并注册相关页面和功能点及权限，并和父组件产生关联*******************/		
-		//创建当前组件实例,并且在组件会话中注册
+		//创建当前组件实例，存储传入的parameter,并且在组件会话中注册
 		ASComponent CurComp = CurCompSession.creatComponent(sComponentID,sComponentName,CurUser,(HttpServletRequest)request);
 		CurComp.setAttribute("iPostChange",String.valueOf(iPostChange));
 		CurComp.appID = sAppID;
@@ -290,30 +290,37 @@ function randomNumber()
 					if((sComponentURL==null || sComponentURL.equals("")) && sDBComponentURL!=null){
 						sComponentURL = sDBComponentURL;
 					}
-					if(sComponentURL==null || sComponentURL.equals(""))
-					{
+					if(sComponentURL==null || sComponentURL.equals("")){
 						if(sCurRunMode.equalsIgnoreCase("Production")) throw new Exception("该组件尚未定义访问地址!组件ID:"+sComponentID);
 			%>
-			<script language=javascript>
-			if(confirm("组件 [<%=sComponentID%>] 尚未定义访问地址。\n\n现在更新组件注册信息吗？"))
-				window.showModalDialog("<%=sWebRootPath%>/Frame/OpenCompDialog.jsp?CompClientID=<%=CurComp.ClientID%>&ComponentID=UpdateCompInfo&ComponentURL=/Common/Configurator/CompManage/CompInfo.jsp&ParaString=CompID=<%=sComponentID%>&rand="+randomNumber(),"diaglogwidth:640px,diaglogheight:480px");
-			</script>
+						<script language=javascript>
+						if(confirm("组件 [<%=sComponentID%>] 尚未定义访问地址。\n\n现在更新组件注册信息吗？"))
+							window.showModalDialog("<%=sWebRootPath%>/Frame/OpenCompDialog.jsp?CompClientID=<%=CurComp.ClientID%>&ComponentID=UpdateCompInfo&ComponentURL=/Common/Configurator/CompManage/CompInfo.jsp&ParaString=CompID=<%=sComponentID%>&rand="+randomNumber(),"diaglogwidth:640px,diaglogheight:480px");
+						</script>
 			<%
-				return;
+						return;
 					}
-					sComponentURL = sComponentURL+"?CompClientID="+CurComp.ClientID;
-					sComponentURL = sWebRootPath+sComponentURL;
+					//目前做到了浏览器地址栏始终只显示Main.jsp,所以此处对这个Main.jsp也进行混淆隐藏，达到全部真实地址都隐藏的目的
+					if(sComponentURL.contains("/Main.jsp")){
+						sComponentURL = sComponentURL.replace("Main.jsp", "123456")+CurComp.ClientID;
+						sComponentURL = sWebRootPath+sComponentURL;
+					}else{
+						sComponentURL = sComponentURL+"?CompClientID="+CurComp.ClientID;
+						sComponentURL = sWebRootPath+sComponentURL;
+					}
+					
 			%>
-		<script language="javascript">
-			window.open("<%=sComponentURL%>","_self","");
-		</script>
+			<!--<jsp22:forward page="<1%=sComponentURL%>" /> -->
+					<script language="javascript">
+						window.open("<%=sComponentURL%>","_self","");
+					</script>
 		<%
 			}catch(Exception e){	
 				if(SqlcaRepository!=null)
 				{
-			SqlcaRepository.conn.rollback();
-			SqlcaRepository.disConnect();
-			SqlcaRepository = null;
+					SqlcaRepository.conn.rollback();
+					SqlcaRepository.disConnect();
+					SqlcaRepository = null;
 				}
 				throw e;
 			}
@@ -321,9 +328,9 @@ function randomNumber()
 			{
 				if(SqlcaRepository!=null)
 				{
-			SqlcaRepository.conn.commit();
-			SqlcaRepository.disConnect();
-			SqlcaRepository = null;
+					SqlcaRepository.conn.commit();
+					SqlcaRepository.disConnect();
+					SqlcaRepository = null;
 				}
 		        if(sDebugMode!=null && sDebugMode.equals("1")) {
 		        	java.util.Date dEndTime = new java.util.Date();

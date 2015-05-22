@@ -144,8 +144,8 @@
 			alert(getHtmlMessage('1'));//请选择一条信息！
             return ;
 		}
-		
-		popComp("OrgManageInfo","/SystemManage/OrgManage/OrgInfo.jsp","OrgID="+sOrgID,"");  
+		popComp("OrgManageInfo","/SystemManage/OrgManage/OrgInfo.jsp","OrgID="+sOrgID,"");
+		reloadSelf();
 	}
     
 	/*~[Describe=删除记录;InputParam=无;OutPutParam=无;]~*/

@@ -195,6 +195,7 @@ function OpenComp(sCompID,sCompURL,sPara,sTargetWindow,sStyle){
 	//增加编码，防止中文乱码； 并在Redirector.jsp中做解码处理
 	//sParaStr = encodeURI(encodeURI(sParaStr));
 	var sURL = sWebRootPath + "/Redirector.jsp?ComponentID="+sCompID+"&OpenerClientID="+sCompClientID+"&ToDestroyClientID="+sToDestroyClientID+"&ComponentURL="+sCompURL+sParaStr;
+	//var sURL = sWebRootPath + "/RRRR~1"+sCompID+"~1~2"+sCompClientID+"~2~3"+sToDestroyClientID+"~3~4"+sCompURL+"~4~5"+sParaStr+"~5";
 	window.open(sURL,sTargetWindow,sStyle);
 }
 

@@ -7,7 +7,14 @@ import com.lmt.frameapp.sql.Transaction;
  * @author bllou 2012/08/13
  * @msg. 历史押品信息导入初始化
  */
-public class AIDuebillOutHandler{
+public class DataDuebillOutHandler{
+	public static void beforeHandle(String HandlerFlag,String sConfigNo,String sOneKey,Transaction Sqlca)throws Exception{
+		//更新配置号和报表日期
+ 		//String sSerialNo  = DBFunction.getSerialNo("Batch_Case","SerialNo",Sqlca);
+ 		//Sqlca.executeSQL("update "+sImportTableName+" set ReportDate='"+sReportDate+"' where ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"' and ImportNo like 'N%000000'");
+		//清空目标表 
+		Sqlca.executeSQL("Delete from Batch_Import_Process where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey='"+sOneKey+"'");
+	}
 	/**
 	 * 表外借据导入后处理
 	 * @param sheet
@@ -16,14 +23,16 @@ public class AIDuebillOutHandler{
 	 * @throws Exception 
 	 * @throws Exception
 	 */
-	public static void dueBillOutHandle(String HandlerFlag,String sConfigNo,String sOneKey,Transaction Sqlca) throws Exception {
+	public static void handle(String HandlerFlag,String sConfigNo,String sOneKey,Transaction Sqlca) throws Exception {
+		//先导入到数据库,并清空目标表，为数据处理做准备
+		DataDuebillOutHandler.beforeHandle(HandlerFlag, sConfigNo, sOneKey, Sqlca);
 		//0、对中间表数据进行特殊处理 	 		 	
-		AIDuebillOutHandler.interimProcess(sConfigNo, sOneKey, Sqlca);
+		DataDuebillOutHandler.interimProcess(sConfigNo, sOneKey, Sqlca);
 		//1、差额全额
  		String groupBy="'银承'LJF@case "+
 			 			"when nvl(~s表外明细@保证金比例(%)e~,0)=100 and (~s表外明细@主要担保方式e~ like '%本行存单' or ~s表外明细@主要担保方式e~ like '%保证金' or ~s表外明细@主要担保方式e~ like '%我行人民币存款%') then '全额银承余额' "+
 			 			"else '差额银承余额' end";
- 		AIDuebillOutHandler.process(HandlerFlag,sConfigNo,sOneKey,Sqlca,"差额全额银行承兑汇票",groupBy,"and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票'");
+ 		DataDuebillOutHandler.process(HandlerFlag,sConfigNo,sOneKey,Sqlca,"差额全额银行承兑汇票",groupBy,"and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票'");
 		//3、保证金比例
  		groupBy="QZ'A'QZ" +
  				"complementstring(trim(replace(" +
@@ -32,7 +41,7 @@ public class AIDuebillOutHandler{
  					",'.000000','%')),'0',4,'Before')" +
  				"LJF@~s表外明细@主要担保方式e~";
  				//"QZNumber:0:4:BeforeQZQZ'A'QZ~s表外明细@主要担保方式e~";
- 		AIDuebillOutHandler.process(HandlerFlag,sConfigNo,sOneKey,Sqlca,"银行承兑汇票保证金比例",groupBy,"and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票'");
+ 		DataDuebillOutHandler.process(HandlerFlag,sConfigNo,sOneKey,Sqlca,"银行承兑汇票保证金比例",groupBy,"and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票'");
 	 	/*原来老的，为了统一月度经营报告和全面风险报告，用下面那个
 	 	groupBy="case "+
  				"when ~s表外明细@经营类型(新)e~ like '%煤炭开采%' or ~s表外明细@经营类型(新)e~ like '%煤炭洗选%' then '煤炭' "+
@@ -92,7 +101,7 @@ public class AIDuebillOutHandler{
 	 			"when ~s表外明细@经营类型(新)e~ like '信息技术' then 'T-信息技术' "+
 	 			"when ~s表外明细@经营类型(新)e~ like '文化娱乐' then 'U-文化娱乐' "+
 	 			"else 'W-'||~s表外明细@经营类型(新)e~ end";
- 		AIDuebillOutHandler.process(HandlerFlag,sConfigNo,sOneKey,Sqlca,"银行承兑汇票经营类型(新)",groupBy,"and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票'");
+ 		DataDuebillOutHandler.process(HandlerFlag,sConfigNo,sOneKey,Sqlca,"银行承兑汇票经营类型(新)",groupBy,"and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票'");
  		
 	 	//2、差额承兑按单一担保方式
  		groupBy="case when ~s表外明细@主要担保方式e~ like '保证-%' then '保证' "+
@@ -100,11 +109,11 @@ public class AIDuebillOutHandler{
 	 			"when ~s表外明细@主要担保方式e~ = '信用' then '信用' "+
 	 			"when ~s表外明细@主要担保方式e~ like '%质押-%' or ~s表外明细@主要担保方式e~='保证金' then '质押' "+
 	 			"else '其他' end";
- 		AIDuebillOutHandler.process(HandlerFlag,sConfigNo,sOneKey,Sqlca,"银行承兑汇票单一担保",groupBy,"and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票' and not(nvl(~s表外明细@保证金比例(%)e~,0)=100 and (~s表外明细@主要担保方式e~ like '%本行存单' or ~s表外明细@主要担保方式e~ like '%保证金' or ~s表外明细@主要担保方式e~ like '%我行人民币存款%'))");
+ 		DataDuebillOutHandler.process(HandlerFlag,sConfigNo,sOneKey,Sqlca,"银行承兑汇票单一担保",groupBy,"and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票' and not(nvl(~s表外明细@保证金比例(%)e~,0)=100 and (~s表外明细@主要担保方式e~ like '%本行存单' or ~s表外明细@主要担保方式e~ like '%保证金' or ~s表外明细@主要担保方式e~ like '%我行人民币存款%'))");
  		groupBy="case when ~s表外明细@企业规模e~ = '小型企业' or ~s表外明细@企业规模e~ = '微小型企业' then '0、小微型企业' "+
  				"when ~s表外明细@企业规模e~ = '中型企业' then '1、中型企业'"+
 	 			"else '2、'||~s表外明细@企业规模e~ end";
- 		AIDuebillOutHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"银行承兑汇票企业规模",groupBy,"and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票' and not(nvl(~s表外明细@保证金比例(%)e~,0)=100 and (~s表外明细@主要担保方式e~ like '%本行存单' or ~s表外明细@主要担保方式e~ like '%保证金' or ~s表外明细@主要担保方式e~ like '%我行人民币存款%'))");
+ 		DataDuebillOutHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"银行承兑汇票企业规模",groupBy,"and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票' and not(nvl(~s表外明细@保证金比例(%)e~,0)=100 and (~s表外明细@主要担保方式e~ like '%本行存单' or ~s表外明细@主要担保方式e~ like '%保证金' or ~s表外明细@主要担保方式e~ like '%我行人民币存款%'))");
 	 		 	
 	 	groupBy="case  "+
 	 			"when ~s表外明细@国家地区e~ like '%吕梁市%' then 'B-吕梁市' "+
@@ -121,13 +130,13 @@ public class AIDuebillOutHandler{
 	 			//"when ~s表外明细@国家地区e~ like '%武汉市%' then '武汉市' "+
 	 			"when ~s表外明细@国家地区e~ like '%佛山市%' then 'L-佛山市' "+
 	 			"else 'A-太原市' end";//剩下的默认都是太原市when ~s表外明细@国家地区e~ like '%太原市%' then '太原市'
-	 	AIDuebillOutHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"银行承兑汇票地区",groupBy,"and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票' and not(nvl(~s表外明细@保证金比例(%)e~,0)=100 and (~s表外明细@主要担保方式e~ like '%本行存单' or ~s表外明细@主要担保方式e~ like '%保证金' or ~s表外明细@主要担保方式e~ like '%我行人民币存款%'))");
+	 	DataDuebillOutHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"银行承兑汇票地区",groupBy,"and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票' and not(nvl(~s表外明细@保证金比例(%)e~,0)=100 and (~s表外明细@主要担保方式e~ like '%本行存单' or ~s表外明细@主要担保方式e~ like '%保证金' or ~s表外明细@主要担保方式e~ like '%我行人民币存款%'))");
 	 	
-	 	AIDuebillOutHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"银行承兑汇票机构","~s表外明细@直属行名称e~","and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票' and not(nvl(~s表外明细@保证金比例(%)e~,0)=100 and (~s表外明细@主要担保方式e~ like '%本行存单' or ~s表外明细@主要担保方式e~ like '%保证金' or ~s表外明细@主要担保方式e~ like '%我行人民币存款%'))");
+	 	DataDuebillOutHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"银行承兑汇票机构","~s表外明细@直属行名称e~","and nvl(~s表外明细@业务品种e~,'')='银行承兑汇票' and not(nvl(~s表外明细@保证金比例(%)e~,0)=100 and (~s表外明细@主要担保方式e~ like '%本行存单' or ~s表外明细@主要担保方式e~ like '%保证金' or ~s表外明细@主要担保方式e~ like '%我行人民币存款%'))");
  		//单独完成一些复杂的操作
-	 	AIDuebillOutHandler.afterProcess1(HandlerFlag,sConfigNo, sOneKey, Sqlca);
+	 	DataDuebillOutHandler.afterProcess1(HandlerFlag,sConfigNo, sOneKey, Sqlca);
 	 	//4、加工后，进行合计，横向纵向分析
-	 	AIDuebillOutHandler.afterProcess(HandlerFlag,sConfigNo, sOneKey, Sqlca);
+	 	DataDuebillOutHandler.afterProcess(HandlerFlag,sConfigNo, sOneKey, Sqlca);
 	}
 	//对导入数据加工处理,插入到中间表Batch_Import_Interim
 	public static void interimProcess(String sConfigNo,String sKey,Transaction Sqlca) throws Exception{

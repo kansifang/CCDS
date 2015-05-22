@@ -17,7 +17,7 @@
 <%@ include file="/IncludeBeginMD.jsp"%>
 <%
 	String sUserID  = DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("UserID"));
-	String sPassword = MessageDigest.getDigestAsUpperHexString("MD5", "000000als6");
+	String sPassword = MessageDigest.getDigestAsUpperHexString("MD5", "oooo0000");
     String sSql = "update user_info set password='"+sPassword+"' where userid='"+sUserID+"'";
     Sqlca.executeSQL(sSql);
 %>

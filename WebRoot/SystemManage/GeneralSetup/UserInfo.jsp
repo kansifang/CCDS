@@ -46,11 +46,11 @@
 	
 	//获得组件参数	
 	String sUserID =  DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("UserID"));
-	String sOrgID = DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("OrgID"));
+	String sOrgID = DataConvert.toRealString(iPostChange,(String)CurComp.compParentComponent.getParameter("OrgID"));
 	if(sUserID==null) sUserID="";
 	String sOrgName = Sqlca.getString("Select OrgName From Org_Info Where OrgID='"+sOrgID+"' ");
 	//设置初始密码000000als6
-	String sPassword=MessageDigest.getDigestAsUpperHexString("MD5","000000als6");
+	String sPassword=MessageDigest.getDigestAsUpperHexString("MD5","oooo0000");
 	
 	//获得页面参数	
 	//sCustomerID =  DataConvert.toRealString(iPostChange,(String)request.getParameter("CustomerID"));
@@ -306,6 +306,7 @@
 	/*~BEGIN~可编辑区~[Editable=false;CodeAreaID=List07;Describe=页面装载时，进行初始化;]~*/
 %>
 <script language=javascript>	
+	var bFreeFormMultiCol=true;
 	AsOne.AsInit();
 	init();
 	my_load(2,0,'myiframe0');

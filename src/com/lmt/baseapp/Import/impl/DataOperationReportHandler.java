@@ -1,5 +1,6 @@
 package com.lmt.baseapp.Import.impl;
 
+import com.lmt.baseapp.user.ASUser;
 import com.lmt.baseapp.util.StringFunction;
 import com.lmt.baseapp.util.StringUtils;
 import com.lmt.frameapp.sql.Transaction;
@@ -7,7 +8,14 @@ import com.lmt.frameapp.sql.Transaction;
  * @author bllou 2012/08/13
  * @msg. 历史押品信息导入初始化
  */
-public class AIOperationReportHandler{
+public class DataOperationReportHandler{
+	public static void beforeHandle(String HandlerFlag,String sConfigNo,String sOneKey,Transaction Sqlca)throws Exception{
+		//更新配置号和报表日期
+ 		//String sSerialNo  = DBFunction.getSerialNo("Batch_Case","SerialNo",Sqlca);
+ 		//Sqlca.executeSQL("update "+sImportTableName+" set ReportDate='"+sReportDate+"' where ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"' and ImportNo like 'N%000000'");
+		//清空目标表 
+		Sqlca.executeSQL("Delete from Batch_Import_Process where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey='"+sOneKey+"'");
+	}
 	/**
 	 * 月度经营报告处理
 	 * @param sheet
@@ -16,12 +24,14 @@ public class AIOperationReportHandler{
 	 * @throws Exception 
 	 * @throws Exception
 	 */
-	public static void operationReportHandle(String HandlerFlag,String sConfigNo,String sOneKey,Transaction Sqlca) throws Exception {
+	public static void handle(String HandlerFlag,String sConfigNo,String sOneKey,Transaction Sqlca) throws Exception {
+		//先导入到数据库,并清空目标表，为数据处理做准备
+		DataOperationReportHandler.beforeHandle(HandlerFlag, sConfigNo, sOneKey, Sqlca);
 		//1、对中间表数据进行特殊处理 	 		 	
-		AIOperationReportHandler.interimProcess(sConfigNo, sOneKey, Sqlca);
-	 	AIOperationReportHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca);
+		DataOperationReportHandler.interimProcess(sConfigNo, sOneKey, Sqlca);
+	 	DataOperationReportHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca);
 	 	//4、加工后，进行合计，横向纵向分析
-	 	AIOperationReportHandler.afterProcess(HandlerFlag,sConfigNo, sOneKey, Sqlca);
+	 	DataOperationReportHandler.afterProcess(HandlerFlag,sConfigNo, sOneKey, Sqlca);
 	}
 	//对导入数据加工处理,插入到中间表Batch_Import_Interim
 	public static void interimProcess(String sConfigNo,String sKey,Transaction Sqlca) throws Exception{
@@ -40,13 +50,13 @@ public class AIOperationReportHandler{
 	public static void process(String HandlerFlag,String sConfigNo,String sKey,Transaction Sqlca) throws Exception{
 		String sConfigName=Sqlca.getString("select CodeName from Code_Catalog where CodeNo='"+sConfigNo+"'");
 		if("G0101_表外".equals(sConfigName)){
- 			AIOperationReportHandler.processG0101(sConfigName, HandlerFlag, sConfigNo, sKey, Sqlca);
+ 			DataOperationReportHandler.processG0101(sConfigName, HandlerFlag, sConfigNo, sKey, Sqlca);
  		}else if("G0103_存贷款".equals(sConfigName)){
- 			AIOperationReportHandler.processG0103(sConfigName, HandlerFlag, sConfigNo, sKey, Sqlca);
+ 			DataOperationReportHandler.processG0103(sConfigName, HandlerFlag, sConfigNo, sKey, Sqlca);
  		}else if("G0107_行业贷款".equals(sConfigName)){
- 			AIOperationReportHandler.processG0107(sConfigName, HandlerFlag, sConfigNo, sKey, Sqlca);
+ 			DataOperationReportHandler.processG0107(sConfigName, HandlerFlag, sConfigNo, sKey, Sqlca);
  		}else if("S6301_五级分类担保_企业规模".equals(sConfigName)){
- 			AIOperationReportHandler.processS63(sConfigName, HandlerFlag, sConfigNo, sKey, Sqlca);
+ 			DataOperationReportHandler.processS63(sConfigName, HandlerFlag, sConfigNo, sKey, Sqlca);
  		}
 	}
 	//加入小计 合计 横向纵向比较值

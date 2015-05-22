@@ -2,9 +2,12 @@ package com.lmt.baseapp.Import.base;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.xml.sax.Attributes;
@@ -60,13 +63,18 @@ public class ExcelBigHandler extends DefaultHandler {
 	protected ObjRow record=null;
 	private SharedStringsTable sst;
 	private String lastContents;
+	//字符标志 
 	private boolean nextIsString;
-
+	//日期标志  
+	private boolean dateFlag1 ;  
+	private boolean dateFlag2 ;  
+	 // //数字标志  
+	 // private boolean numberFlag ; 
 	private int curRow = 1;
 	private int curCol = 1;
 	private boolean listIsNull = true;//表示rowlist有没有初始化，没有的用空字符串初始化之
 	protected int rows = 0;//总记录数
-	protected int cols = 0;//总记录数
+	protected int cols = 0;//总列数
 	private boolean allNull = true;//表示Excel当前行所有Cell都是空
 	public ExcelBigHandler(ExcelBigEntrance ebe,SharedStringsTable sst) throws SAXException {
 		this.record=ebe.getOR();
@@ -91,7 +99,21 @@ public class ExcelBigHandler extends DefaultHandler {
 			} else {
 				nextIsString = false;
 			}
+			 //日期格式  
+			String cellDateType = attributes.getValue("s"); 
+			
+			if("1".equals(cellDateType)){
+				dateFlag1 = true;
+			}else{
+			    dateFlag1 = false;  
+			}  
+			if("2".equals(cellDateType)){
+				dateFlag2 = true;  
+			} else {
+				dateFlag2 = false;  
+			}	
 			curCol = getNumberFromLetter(attributes.getValue("r"));
+			//System.out.println("c="+curRow+"@"+curCol+"~"+cellDateType);
 		} else if (name.equals("row")) {
 			/*
 			 * <row r="1" spans="1:3"> <c r="A1" s="1" t="s"> <v>0</v> </c> <c
@@ -109,8 +131,12 @@ public class ExcelBigHandler extends DefaultHandler {
 			String d = attributes.getValue("ref");
 			rows = getNumber(d.substring(d.indexOf(":") + 1, d.length()));
 		}
-		// Clear contents cache
+		// Clear contents cache 置空
 		lastContents = "";
+	}
+	//重写（接着上面执行此方法）
+	public void characters(char[] ch, int start, int length) throws SAXException {
+		lastContents += new String(ch, start, length);
 	}
 	//重写
 	public void endElement(String uri, String localName, String name) throws SAXException {
@@ -131,6 +157,22 @@ public class ExcelBigHandler extends DefaultHandler {
 			if (allNull && !value.equals("")) {
 				allNull = false;
 			}
+			//日期格式处理  
+           if(dateFlag1){  
+        	  if(value.matches("^\\d+(\\.\\d+)?$")){
+	              Date date = HSSFDateUtil.getJavaDate(Double.valueOf(value));  
+	              SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");  
+	              value = dateFormat.format(date); 
+        	  }
+            } 
+           // 具体到时分秒
+           if(dateFlag2){  
+        	   if(value.matches("^\\d+(\\.\\d+)?$")){
+	              Date date = HSSFDateUtil.getJavaDate(Double.valueOf(value));  
+	              SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");  
+	              value = dateFormat.format(date); 
+        	   }
+            } 
 			if (curCol <= cols) {
 				if(curRow==1){//默认第一行为标题行，在此设置记录集字段在文件中的序号（0开始）
 					if(curCol==1){//如果是第一行第一列，说明此sheet刚刚开始，所以清理一下record到初始值
@@ -151,7 +193,6 @@ public class ExcelBigHandler extends DefaultHandler {
 							//}catch(Exception e){
 							//	System.out.println("ss"+value);
 							//}
-							
 						}else{
 							record.setString(curCol-1, value);
 						}
@@ -159,6 +200,7 @@ public class ExcelBigHandler extends DefaultHandler {
 				}
 			}
 		} else {
+			//如果标签名称为 row ，这说明已到行尾
 			if (name.equals("row") && !allNull&&curRow!=1) {//第一行是标题行，不保存到数据库
 				//设置文件外的一些要素的值，譬如导入日期，此处设置显然是每天记录是不一样的
 				this.record.setDouble("ImportIndex", (curRow-1));
@@ -179,13 +221,8 @@ public class ExcelBigHandler extends DefaultHandler {
 			}
 		}
 	}
-	//重写
-	public void characters(char[] ch, int start, int length)
-			throws SAXException {
-		lastContents += new String(ch, start, length);
-	}
 
-	public void resetRowList() {
+	private void resetRowList() {
 		for(int j=0;j<record.columnTCount;j++){
 			ObjColumn oc=record.getColumnObjWI(j);
 			if(!oc.isOutFileColumn()){

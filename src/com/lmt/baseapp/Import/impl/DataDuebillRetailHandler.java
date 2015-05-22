@@ -8,7 +8,35 @@ import com.lmt.frameapp.sql.Transaction;
  * @author bllou 2012/08/13
  * @msg. 历史押品信息导入初始化
  */
-public class AIDuebillRetailHandler{
+public class DataDuebillRetailHandler{
+	public static void beforeHandle(String HandlerFlag,String sConfigNo,String sOneKey,Transaction Sqlca)throws Exception{
+		//更新配置号和报表日期
+ 		//String sSerialNo  = DBFunction.getSerialNo("Batch_Case","SerialNo",Sqlca);
+ 		//Sqlca.executeSQL("update "+sImportTableName+" set ReportDate='"+sReportDate+"' where ConfigNo='"+sConfigNo+"' and OneKey='"+sKey+"' and ImportNo like 'N%000000'");
+		//清空目标表 
+		Sqlca.executeSQL("Delete from Batch_Import_Process where HandlerFlag='"+HandlerFlag+"' and ConfigNo='"+sConfigNo+"' and OneKey='"+sOneKey+"'");
+	}
+	/**
+	 * 零售借据导入后处理
+	 * @param sheet
+	 * @param icol
+	 * @return
+	 * @throws Exception 
+	 * @throws Exception
+	 */
+	public static void handle(String HandlerFlag,String sConfigNo,String sOneKey,Transaction Sqlca) throws Exception {
+		//先导入到数据库,并清空目标表，为数据处理做准备
+		DataDuebillRetailHandler.beforeHandle(HandlerFlag, sConfigNo, sOneKey, Sqlca);
+		//1、对中间表数据进行特殊处理 	 		 	
+		DataDuebillRetailHandler.interimProcess(sConfigNo, sOneKey, Sqlca);
+ 		String groupBy="case "+
+		 				" when ~s个人明细@归属条线e~ ='个人条线' or ~s个人明细@归属条线e~ = '微小条线' or ~s个人明细@归属条线e~ = '零售条线' then '零售条线'"+
+		 				" when ~s个人明细@归属条线e~ = '小企业条线' then '小企业条线' "+
+		 				" else '其他条线' end";
+ 		DataDuebillRetailHandler.process(HandlerFlag,sConfigNo, sOneKey, Sqlca,"归属条线",groupBy,"and (~s个人明细@业务品种e~<>'个人委托贷款' and ~s个人明细@业务品种e~<>'个人住房公积金贷款')");
+	 	//4、加工后，进行合计，横向纵向分析
+ 		DataDuebillRetailHandler.afterProcess(HandlerFlag,sConfigNo, sOneKey, Sqlca);
+	}
 	//对导入数据加工处理,插入到中间表Batch_Import_Interim
 	public static void interimProcess(String sConfigNo,String sKey,Transaction Sqlca) throws Exception{
 		//1、归属条线 个人条线统一修改为 零售条线

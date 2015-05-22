@@ -60,7 +60,7 @@ public class DBHandler{
 		}
 		this.iCount++;
 		ps.addBatch();
-		if (this.iCount >=600){//把600变成1 上面的两个System.out...放开注释，可以定位不符合规范的数据
+		if (this.iCount >=500){//把500变成1 上面的两个System.out...放开注释，可以定位不符合规范的数据
 			ps.executeBatch();
 			this.iCount=0;
 		}

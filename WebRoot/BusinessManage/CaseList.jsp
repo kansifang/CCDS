@@ -56,59 +56,65 @@
 %>
 <%
 	String sHeaders[][] = 	{ 
-                            	{"BatchNo","批次号"},
-                            	{"SerialNo","案子号"},
-                            	{"DueNo","借据号"},
-                            	{"LCustomerID","委托方"},
-                            	{"LCustomerName","委托方"},
-                            	{"LDate","委托日期"},
-                            	{"LSum","委托金额"},
-                            	{"DCustomerID","姓名"},
-                            	{"DCustomerName","姓名"},
-                            	{"ID","身份证号"},
-                            	{"CardNo","卡号"},
-                            	{"PayBackSum","应还款金额"},
-                            	{"PayBackDate","应还日期"},
-                            	{"ActualPayBackSum","实际还款金额"},
-                            	{"ActualPayBackDate","实际还日期"},
-                            	{"Balance","余额"},
-                            	{"Remark","评语"},
-                            	{"BeginTime","发送开始时间"},
-                            	{"EndTime","发送结束时间"},
-                            	{"BeginTime","发送开始时间"},
-                            	{"EndTime","发送结束时间"}
-	     			};    		                     
-	
-	    
+	                           	{"BatchNo","批次号"},
+	                           	{"SerialNo","流水号"},
+	                           	{"ChangeNo","变更号"},
+	                           	{"SystemName","系统名称"},
+	                           	{"Status","变更状态"},
+	                           	{"Summary","摘要"},
+	                           	{"CreateDate","创建时间"},
+	                           	{"ChangeType","变更类型"},
+	                           	{"ChangeUser","变更申请人"},
+	                           	{"BusinessPriority","业务优先级"},
+	                           	{"FactoryPriority","厂商优先级"},
+	                           	{"FinallyTerm","最终实现期次"},
+	                           	{"ChangeConfirmDate","需求分析完成时间"},
+	                           	{"UATDate","厂商提交版本时间"},
+	                           	{"RelativeSystem","涉及相关系统"},
+	                           	{"ChangeConfirmPerson","厂商需求分析人员"},
+	                           	{"ChangeWorker","开发人员"},
+	                           	{"Problem","存在问题"},
+	                           	{"MeetingContent","讨论过程"},
+	                           	{"Remark","备注"},
+	                           	{"BranchSpecial","分行特色"},
+	                           	{"ChangeCondition","开发状态"},
+	                           	{"OutFactoryDate","上线版本"},
+	                           	{"FatherCNo","父变更号"},
+	                           	{"BusinessWriteCondition","业需编写情况"},
+	                           	{"SoftWriteCondition","软需编写情况"},
+	                           	{"SoftWriteDir","软需目录"},
+	                           	{"BusinessReviewResult","业务评审结果"},
+	                           	{"ProjectManagerReviewResult","项目负责人评审结果"},
+	                           	{"ChangeManagerReviewResult","需求组评审结果"},
+	                           	{"UpdateUserName","维护人"},
+						       	{"UpdateTime","维护时间"}
+	     					};    		                     
     	//定义SQL语句
-    	
-	sSql = 	" SELECT BatchNo,SerialNo,DueNo,"+
-	" LCustomerID,LCustomerName,"+
-	" LDate,LSum,"+
-	" DCustomerID,DCustomerName,"+
-	" ID,CardNo,"+
-	" PayBackSum,PayBackDate,"+
-	" ActualPayBackSum,ActualPayBackDate,"+
-	" Balance,Remark,"+
-	" BeginTime,EndTime,"+
-	" getItemName('Status',Status) as Status"+
-           	" FROM Batch_Case"+
-	" WHERE 1=1 "+
-           	("".equals(sBatchNo)?"":" and BatchNo='"+sBatchNo+"'")+
-           	("".equals(sStatus)?"":" and Status='"+sStatus+"'");
+	sSql = 	" SELECT BatchNo,SerialNo,ChangeNo,"+
+			" SystemName,Status,Summary,CreateDate,"+
+			" ChangeType,ChangeUser,BusinessPriority,FactoryPriority,"+
+			" FinallyTerm,ChangeConfirmDate,UATDate,RelativeSystem,"+
+			" ChangeConfirmPerson,ChangeWorker,Problem,"+
+			" MeetingContent,Remark,BranchSpecial,"+
+			" ChangeCondition,OutFactoryDate,FatherCNo,BusinessWriteCondition,"+
+			" SoftWriteCondition,SoftWriteDir,BusinessReviewResult,ProjectManagerReviewResult,"+
+			" ChangeManagerReviewResult,getUserName(UpdateUserID) as UpdateUserName,UpdateTime"+
+			//" getItemName('Status',Status) as Status"+
+		    " FROM Batch_Case"+
+			" WHERE 1=1 "+
+           	("".equals(sBatchNo)?"":" and BatchNo='"+sBatchNo+"'");
 	ASDataObject doTemp = new ASDataObject(sSql);
 	//定义列表表头
 	doTemp.setHeader(sHeaders);
     doTemp.UpdateTable = "Batch_Case";
-	doTemp.setKey("SerialNo",true);	
+	doTemp.setKey("ChangeNo",true);	
 	
-    doTemp.setVisible("BatchNo,LCustomerID,DCustomerID",false);
-	doTemp.setHTMLStyle("BeginTime,EndTime,ContentType"," ondblclick=\"javascript:parent.viewFile()\"");
-	doTemp.setHTMLStyle("ContentLength"," style={width:50px} ondblclick=\"javascript:parent.viewFile()\"");
-	doTemp.setHTMLStyle("FileName"," style={width:150px} ondblclick=\"javascript:parent.viewFile()\" ");
-    doTemp.setAlign("ContentLength","3");
+    doTemp.setVisible("BatchNo,SerialNo",false);
+	doTemp.setHTMLStyle("ChangeNo,SystemName,Status","ondblclick=\"javascript:parent.viewAndEdit()\"");
+    doTemp.setHTMLStyle("Summary"," style={width:300px;cursor:hand} onDBLClick=\"javascript:parent.viewAndEdit()\"");
+    //doTemp.setDDDWCode("SystemName", "SystemType");
     //生成查询框
-  	doTemp.setColumnAttribute("LCustomerName,DCustomerName","IsFilter","1");
+  	doTemp.setColumnAttribute("ChangeNo,SystemName","IsFilter","1");
   	doTemp.generateFilters(Sqlca);
   	doTemp.parseFilterData(request,iPostChange);
   	CurPage.setAttribute("FilterHTML",doTemp.getFilterHtml(Sqlca));
@@ -180,17 +186,14 @@
 	/*~[Describe=查看详情;InputParam=无;OutPutParam=无;]~*/
 	function viewAndEdit()
 	{
-		var sSerialNo = getItemValue(0,getRow(),"SerialNo");
-		if (typeof(sSerialNo)=="undefined" || sSerialNo.length==0)
-    	{
+		var sChangeNo = getItemValue(0,getRow(),"ChangeNo");
+		var sSystemName = getItemValue(0,getRow(),"SystemName");
+		if (typeof(sChangeNo)=="undefined" || sChangeNo.length==0){
         	alert("请选择一条记录！");
 			return;
     	}
-    	else
-    	{
-    		popComp("CaseInfo","/BusinessManage/CaseInfo.jsp","BatchNo=<%=sBatchNo%>&SerialNo="+sSerialNo,"");
-    		reloadSelf();
-		}
+   		popComp("CaseInfo","/BusinessManage/CaseInfo.jsp","BatchNo=<%=sBatchNo%>&ChangeNo="+sChangeNo+"&SystemName="+sSystemName,"");
+   		reloadSelf();
 	}
 	/*~[Describe=上传附件;InputParam=无;OutPutParam=无;]~*/	
 	function uploadFile()

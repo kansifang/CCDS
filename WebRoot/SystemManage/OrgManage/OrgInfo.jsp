@@ -75,9 +75,7 @@
 		doTemp.setVisible("SortNo",true);
 		doTemp.setRequired("SortNo",true);
 	}
-
 	//filter过滤条件
-	
 	ASDataWindow dwTemp = new ASDataWindow(CurPage,doTemp,Sqlca);
 	dwTemp.Style="2";      //设置DW风格 1:Grid 2:Freeform
 	dwTemp.ReadOnly = "0"; //设置是否只读 1:只读 0:可写
@@ -164,7 +162,6 @@
 				return;
 			}
 		}
-		
 	    setItemValue(0,0,"UpdateUser","<%=CurUser.UserID%>");
         setItemValue(0,0,"UpdateTime","<%=StringFunction.getToday()%>");
         setItemValue(0,0,"UpdateDate","<%=StringFunction.getToday()%>");
@@ -173,11 +170,11 @@
 	}
     
     /*~[Describe=返回;InputParam=无;OutPutParam=无;]~*/
-    function doReturn(){
-   	 	self.close();
+    function doReturn(sIsRefresh){
+    	var sObjectNo = getItemValue(0,getRow(),"OrgID");
+		parent.sObjectInfo = sObjectNo+"@"+sIsRefresh;
+    	parent.closeAndReturn();
 	}
-	
-
 	</script>
 <%
 	/*~END~*/

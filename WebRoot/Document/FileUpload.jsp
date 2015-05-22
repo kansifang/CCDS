@@ -82,6 +82,7 @@ String getMD5String(String srcKey){
 <%
 	/*~BEGIN~可编辑区~[Editable=true;CodeAreaID=Main02;Describe=定义变量，获取参数;]~*/
 		//调用页面与当前页面共用一个组件，故这样获取参数
+		String sPCNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("PCNo")));
 		String sDocNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("DocNo")));
 %>
 <%
@@ -191,7 +192,8 @@ String getMD5String(String srcKey){
 			asp.setAttribute("OneKeys", sReportDates.toString());
 			asp.setAttribute("Files", sFiles.toString());
 			asp.setAttribute("CurUser", CurUser);
-			sReturn=(String)be.execute(Sqlca, "com.lmt.baseapp.Import.impl.HandlerFactory", asp);
+			asp.setAttribute("PCNo", sPCNo);
+			sReturn=(String)be.execute(Sqlca, "com.lmt.baseapp.Import.impl.TotalFactory", asp);
 		}
 		myAmarsoftUpload = null;
 %>

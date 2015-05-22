@@ -42,9 +42,18 @@
 	//获得页面参数
 	
 	//获得组件参数
-	String sBatchNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("BatchNo")));
-	String sSerialNo =DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("SerialNo")));	
-	String sEditable = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("Editable")));
+	String sBatchNo =DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("BatchNo")));
+	String sChangeNo = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("ChangeNo")));
+	String sSystemName = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("SystemName")));
+	double sEditable=Sqlca.getDouble("select count(1) "+
+					" from User_Role UR,Role_Info RI,Code_Library CL "+
+					" where UR.UserID='"+CurUser.UserID+"'"+
+					" and UR.RoleID=RI.RoleID"+
+					" and locate(CL.ItemNo,RI.RoleDescribe)>0"+
+					" and CL.CodeNo='SystemType' "+
+					" and CL.IsInUse='1'"+
+					" and (locate('"+sSystemName+"',CL.ItemName)>0 or locate(CL.ItemName,'"+sSystemName+"')>0)");
+	//String sEditable = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("Editable")));
 %>
 <%
 	/*~END~*/
@@ -57,56 +66,66 @@
 	/*~BEGIN~可编辑区~[Editable=true;CodeAreaID=List03;Describe=定义数据对象;]~*/
 %>
 <%
-	String sHeaders[][] = 	{ 
-                            	{"BatchNo","批次号"},
-                            	{"SerialNo","案子号"},
-                            	{"DueNo","借据号"},
-                            	{"LCustomerID","委托方"},
-                            	{"LCustomerName","委托方"},
-                            	{"LDate","委托日期"},
-                            	{"LSum","委托金额"},
-                            	{"DCustomerID","姓名"},
-                            	{"DCustomerName","姓名"},
-                            	{"ID","身份证号"},
-                            	{"CardNo","卡号"},
-                            	{"PayBackSum","应还款金额"},
-                            	{"PayBackDate","应还日期"},
-                            	{"ActualPayBackSum","实际还款金额"},
-                            	{"ActualPayBackDate","实际还日期"},
-                            	{"Balance","余额"},
-                            	{"Remark","评语"},
-                            	{"BeginTime","发送开始时间"},
-                            	{"EndTime","发送结束时间"},
-                            	{"ContentType","类别"},
-                            	{"ContentLength","文档长度(字节)"},
-                            	{"FileName","委托方"},
-                            	{"BeginTime","发送开始时间"},
-                            	{"EndTime","发送结束时间"},
-                            	{"ContentType","类别"},
-                            	{"ContentLength","文档长度(字节)"}
-	     			};    		                     
-	
-	    
-    	//定义SQL语句
-    	
-	sSql = 	" SELECT BatchNo,SerialNo,DueNo,"+
-			" LCustomerID,LCustomerName,LDate,LSum,DCustomerID,DCustomerName,"+
-			" ID,CardNo,PayBackSum,PayBackDate,ActualPayBackSum,ActualPayBackDate,Balance,Remark,"+
-			" BeginTime,EndTime"+
-           	" FROM Batch_Case"+
-			" WHERE SerialNo='"+sSerialNo+"'";
+String sHeaders[][] = 	{ 
+					       	{"BatchNo","批次号"},
+					       	{"SerialNo","流水号"},
+					       	{"ChangeNo","变更号"},
+					       	{"SystemName","系统名称"},
+					       	{"Status","变更状态"},
+					       	{"Summary","摘要"},
+					       	{"CreateDate","创建时间"},
+					       	{"ChangeType","变更类型"},
+					       	{"ChangeUser","变更申请人"},
+					       	{"BusinessPriority","业务优先级"},
+					       	{"FactoryPriority","厂商优先级"},
+					       	{"FinallyTerm","最终实现期次"},
+					       	{"ChangeConfirmDate","需求分析完成时间"},
+					       	{"UATDate","厂商提交版本时间"},
+					       	{"RelativeSystem","涉及相关系统"},
+					       	{"ChangeConfirmPerson","厂商需求分析人员"},
+					       	{"ChangeWorker","开发人员"},
+					       	{"Problem","存在问题"},
+					       	{"MeetingContent","讨论过程"},
+					       	{"Remark","备注"},
+					       	{"BranchSpecial","分行特色"},
+					       	{"ChangeCondition","开发状态"},
+					       	{"OutFactoryDate","上线版本"},
+					       	{"FatherCNo","父变更号"},
+					       	{"BusinessWriteCondition","业需编写情况"},
+					       	{"SoftWriteCondition","软需编写情况"},
+					       	{"SoftWriteDir","软需目录"},
+					       	{"BusinessReviewResult","业务评审结果"},
+					       	{"ProjectManagerReviewResult","项目负责人评审结果"},
+					       	{"ChangeManagerReviewResult","需求组评审结果"},
+					       	{"UpdateUserName","维护人"},
+					       	{"UpdateTime","维护时间"}
+						};    		                     
+		//定义SQL语句
+		sSql = 	" SELECT BatchNo,SerialNo,ChangeNo,"+
+				" SystemName,Status,Summary,CreateDate,"+
+				" ChangeType,ChangeUser,BusinessPriority,FactoryPriority,"+
+				" FinallyTerm,ChangeConfirmDate,UATDate,RelativeSystem,"+
+				" ChangeConfirmPerson,ChangeWorker,Problem,"+
+				" MeetingContent,Remark,BranchSpecial,"+
+				" ChangeCondition,OutFactoryDate,FatherCNo,BusinessWriteCondition,"+
+				" SoftWriteCondition,SoftWriteDir,BusinessReviewResult,ProjectManagerReviewResult,"+
+				" ChangeManagerReviewResult,UpdateUserID,getUserName(UpdateUserID) as UpdateUserName,UpdateTime"+
+				//" getItemName('Status',Status) as Status"+
+				" FROM Batch_Case"+
+				" WHERE ChangeNo='"+sChangeNo+"'";
 	ASDataObject doTemp = new ASDataObject(sSql);
 	//定义列表表头
 	doTemp.setHeader(sHeaders);
     doTemp.UpdateTable = "Batch_Case";
-	doTemp.setKey("SerialNo",true);	
+	doTemp.setKey("ChangeNo",true);	
 	
-    doTemp.setVisible("BatchNo,LCustomerID,DCustomerID",false);
+    doTemp.setVisible("BatchNo,SerialNo,UpdateUserID",false);
 	doTemp.setHTMLStyle("BeginTime,EndTime,ContentType"," ondblclick=\"javascript:parent.viewFile()\"");
 	doTemp.setHTMLStyle("ContentLength"," style={width:50px} ondblclick=\"javascript:parent.viewFile()\"");
-	doTemp.setHTMLStyle("FileName"," style={width:150px} ondblclick=\"javascript:parent.viewFile()\" ");
+	doTemp.setEditStyle("Summary,MeetingContent","3");
+	doTemp.setHTMLStyle("Summary,MeetingContent"," style={width:730px;height:50px} ");
     doTemp.setAlign("ContentLength","3");
-	doTemp.setReadOnly("SerialNo", true);
+	doTemp.setReadOnly("UpdateTime,UpdateUserName", true);
     ASDataWindow dwTemp = new ASDataWindow(CurPage,doTemp,Sqlca);
 	dwTemp.Style="2";      //设置为Grid风格
 	dwTemp.ReadOnly = "0"; //设置为只读
@@ -115,7 +134,7 @@
 	for(int i=0;i<vTemp.size();i++) out.print((String)vTemp.get(i));
 
 	String sCriteriaAreaHTML = ""; //查询区的页面代码
-	CurPage.setAttribute("ShowDetailArea","true");
+	CurPage.setAttribute("ShowDetailArea","false");
 	CurPage.setAttribute("DetailAreaHeight","150");
 %>
 <%
@@ -139,7 +158,7 @@
 			//6.资源图片路径
 
 		String sButtons[][] = {
-			{"Y".equals(sEditable)?"true":"false","","Button","保存","查看附件内容","saveRecord()",sResourcesPath},
+			{sEditable>0?"true":"false","","Button","保存","查看附件内容","saveRecord()",sResourcesPath},
 			{"true","","Button","返回","返回列表页面","doReturn()",sResourcesPath}
 			};
 	%>
@@ -194,7 +213,8 @@
 	/*~[Describe=执行更新操作前执行的代码;InputParam=无;OutPutParam=无;]~*/
 	function beforeUpdate()
 	{
-		setItemValue(0,0,"UpdateTime","<%=StringFunction.getToday()%>");
+		setItemValue(0,0,"UpdateTime","<%=StringFunction.getTodayNow()%>");
+		setItemValue(0,0,"UpdateUserID","<%=CurUser.UserID%>");
 	}
 
 	/*~[Describe=有效性检查;InputParam=无;OutPutParam=通过true,否则false;]~*/
@@ -218,9 +238,7 @@
 		if (getRowCount(0)== 0){//如果没有找到对应记录，则新增一条，并设置字段默认值
 			as_add("myiframe0");//新增记录
 			setItemValue(0,0,"BatchNo","<%=sBatchNo%>");
-			setItemValue(0,0,"InputTime","<%=StringFunction.getToday()%>");
-			setItemValue(0,0,"UserID","<%=CurUser.UserID%>");
-			setItemValue(0,0,"UserName","<%=CurUser.UserName%>");
+			setItemValue(0,0,"UpdateTime","<%=StringFunction.getToday()%>");
 			setItemValue(0,0,"OrgID","<%=CurOrg.OrgID%>");
 			setItemValue(0,0,"OrgName","<%=CurOrg.OrgName%>");
 			setItemValue(0,0,"DocImportance","01");
@@ -269,8 +287,8 @@
 	init();
 	my_load(2,0,'myiframe0');
 	initRow();
-	var sSerialNo = getItemValue(0,0,"SerialNo");//编制日期
-	OpenPage("/BusinessManage/CaseLoanBack.jsp?SerialNo="+sSerialNo,"DetailFrame",OpenStyle);
+	//var sSerialNo = getItemValue(0,0,"SerialNo");//编制日期
+	//OpenPage("/BusinessManage/CaseLoanBack.jsp?SerialNo="+sSerialNo,"DetailFrame",OpenStyle);
 </script>
 <%
 	/*~END~*/

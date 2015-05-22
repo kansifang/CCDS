@@ -6,7 +6,7 @@ import com.lmt.baseapp.user.ASUser;
 import com.lmt.baseapp.util.DataConvert;
 import com.lmt.frameapp.sql.ASResultSet;
 import com.lmt.frameapp.sql.Transaction;
-public class HandlerFactory extends Bizlet {
+public class TotalFactory extends Bizlet {
 	public Object run(Transaction Sqlca) throws Exception{
   		// AfterImport表示导入后即进行数据处理 
 		//BeforeDisplay标识展示前做一下最后的数据处理
@@ -17,6 +17,7 @@ public class HandlerFactory extends Bizlet {
  		String sKeys =DataConvert.toString((String)this.getAttribute("OneKeys"));
   		String sFiles =DataConvert.toString((String)this.getAttribute("Files"));
   		ASUser CurUser =(ASUser)this.getAttribute("CurUser");
+  		String sBatchNo =DataConvert.toString((String)this.getAttribute("PCNo"));
   		//定义变量：SQL语句、意见详情
   		String sMessage="";
   		ASResultSet rs=null;
@@ -31,7 +32,8 @@ public class HandlerFactory extends Bizlet {
  	   		 		String sFileType=DataConvert.toString(rs.getString("SortNo")).toUpperCase();
  	   		 		String sHandlerFlag=DataConvert.toString(rs.getString("CodeDescribe")).toUpperCase();
  	   		 		if("1".equals(sUploadMethod)){
- 		   	 			AIHandlerFactory.handle(sFiles,sFileType,sHandlerFlag, sConfigNo, sKeys, CurUser, Sqlca);
+ 	   		 			ImportFactory.importData(sFiles, sFileType, sHandlerFlag, sConfigNo, sKeys, CurUser, Sqlca);
+ 		   	 			DataHandlerFactory.handle(sBatchNo,sFiles,sFileType,sHandlerFlag, sConfigNo, sKeys, CurUser, Sqlca);
  		   	 			Sqlca.conn.commit();
  		   		 	}else if("2".equals(sUploadMethod)){
  		   		 		String[] sReportDates=sKeys.split("~");
@@ -40,7 +42,8 @@ public class HandlerFactory extends Bizlet {
  		   		 			if("".equals(sReportDates[i])){
  		   		 				continue;
  		   		 			}
- 		   	  	 			AIHandlerFactory.handle(sFile[i],sFileType,sHandlerFlag, sConfigNo, sReportDates[i], CurUser, Sqlca);
+ 		   		 			ImportFactory.importData(sFile[i], sFileType,sHandlerFlag, sConfigNo, sReportDates[i], CurUser, Sqlca);
+ 		   	  	 			DataHandlerFactory.handle(sBatchNo,sFile[i],sFileType,sHandlerFlag, sConfigNo, sReportDates[i], CurUser, Sqlca);
  		   	  	 			Sqlca.conn.commit();//一个循环提交一次，以节省缓存，否则容易报57011
  		   		 		}
  		   		 	}
@@ -57,15 +60,12 @@ public class HandlerFactory extends Bizlet {
 	 	   		}
 	 	   		rs.getStatement().close();
  		 	}
-		}catch(SQLException e){
-		 	System.out.println(e.getNextException());
-		 	throw e;
 		}catch (Exception e) {
 		 	sMessage="数据导入并处理失败！An error occurs : " + e.toString()+"@"+e.getMessage();
-		 	e.printStackTrace();
-		 	Sqlca.conn.rollback();
+		 	System.out.println(sMessage);
 		 	throw e;
 		}finally{
+			Sqlca.conn.rollback();
 			Sqlca.conn.setAutoCommit(isAutoCommit);
 		}
 		return sMessage;

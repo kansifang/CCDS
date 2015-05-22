@@ -70,7 +70,7 @@
 		{"CodeName","配置名称"},
 		{"CodeTypeOne","是否以序列号为准"},
 		{"SortNo","文件类型"},
-		{"CodeDescribe","系统展示要素"},
+		{"CodeDescribe","处理器识别标识"},
 		{"CodeAttribute","配置类型"},
 		{"InputTime","排序号"},
 		{"UpdateUserName","更新人"},
@@ -97,7 +97,6 @@
 	doTemp.generateFilters(Sqlca);
 	doTemp.parseFilterData(request,iPostChange);
 	CurPage.setAttribute("FilterHTML",doTemp.getFilterHtml(Sqlca));
-   	doTemp.setVisible("CodeDescribe",false);  
    	
 	ASDataWindow dwTemp = new ASDataWindow(CurPage,doTemp,Sqlca);
 	dwTemp.Style="1";      //设置DW风格 1:Grid 2:Freeform
