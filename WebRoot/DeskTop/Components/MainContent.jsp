@@ -61,6 +61,7 @@
 					<td id="myright" class="myright">
 						<div  class="RightContentDiv" id="RightContentDiv"> 
 							<table width="100%" border="0" cellspacing="0" cellpadding="0" height="100%">
+								<!-- 标题栏 -->
 								<tr> 
 									<td height="1"> 
 										<table id=table0 cols=3 border=0 cellpadding=0 cellspacing=0>
@@ -71,6 +72,7 @@
 										</table>
 									</td>
 								</tr>
+								<!-- 展示tab台 -->
 								<tr> 
 									<td colspan=2> 
 										<%@include file="/DeskTop/Components/GeneralTab.jsp"%>

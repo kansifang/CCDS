@@ -1,6 +1,4 @@
 package com.lmt.baseapp.Import.impl;
-import java.sql.SQLException;
-
 import com.lmt.app.cms.javainvoke.Bizlet;
 import com.lmt.baseapp.user.ASUser;
 import com.lmt.baseapp.util.DataConvert;

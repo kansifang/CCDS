@@ -27,7 +27,7 @@
 <script language="JavaScript">
 	var bForceRefreshTab = false;
 	var bForceDeleteTab = true;
-	var bForceAddTab = true;
+	var bForceAddTab = false;
 	var tabstrip = new Array();
 	var tabType = new Array();
 	var strip_id_increment = -1;
@@ -77,7 +77,7 @@
 		var beginti=calBiginIndex(selectstrip_id_increment,GbeginTabIndex);
 		//接着重新画tab
 		hc_drawTabToTable_plus_ex(tabstrip,selectstrip_id_increment,beginti,iMaxTabLength,hangtableID);
-		myTabAction(hangtableID,selectstrip_id_increment,false,beginti);
+		//myTabAction(hangtableID,selectstrip_id_increment,false,beginti);
 		window.focus();
 	}
 	function addTab(tabname,url){
@@ -95,22 +95,22 @@
 	var sMarrow = false;
 	var tabname="",url="",para="";
 	<%
-	String sSql = " select ItemNo,ItemName,ItemAttribute from CODE_LIBRARY CL"+
-			" where CodeNo = 'TabStrip'  and IsInUse = '1' ";
-	if(CurUser.UserID.equals("9999999")||CurUser.hasRole("062")||CurUser.hasRole("262")||CurUser.hasRole("462")){
-		sSql += " order by SortNo ";
-	}else{
-		sSql += " and ItemNo <> '050'  Order by SortNo ";
-	}	
-	ASResultSet rs = Sqlca.getASResultSet(sSql);	 
-	while(rs.next()){
+		String sSql = " select ItemNo,ItemName,ItemAttribute from CODE_LIBRARY CL"+
+				" where CodeNo = 'TabStrip'  and IsInUse = '1' ";
+		if(CurUser.UserID.equals("9999999")||CurUser.hasRole("062")||CurUser.hasRole("262")||CurUser.hasRole("462")){
+			sSql += " order by SortNo ";
+		}else{
+			sSql += " and ItemNo <> '050'  Order by SortNo ";
+		}	
+		ASResultSet rs = Sqlca.getASResultSet(sSql);	 
+		while(rs.next()){
  %> 
-   	tabname="<%=rs.getString("ItemName")%>";
-   	url=eval("<%=rs.getString("ItemAttribute")%>");
-   	addTab(tabname,url);
+		   	tabname="<%=rs.getString("ItemName")%>";
+		   	url=eval("<%=rs.getString("ItemAttribute")%>");
+		   	addTab(tabname,url);
  <%
-  	}
-   	rs.getStatement().close();
+	  	}
+	   	rs.getStatement().close();
 	%>
 	var initTab = 1;
 	var iMaxTabLength = 8;
@@ -121,7 +121,7 @@
 	hc_drawTabToTable_plus_ex(tabstrip,0,0,iMaxTabLength,hangtableID);
 	//设定默认页面
 	//var iIndex = 0;
-	myTabAction(hangtableID,0,false,0);
+	//myTabAction(hangtableID,0,false,0);
 	window.focus();
 </script>
 

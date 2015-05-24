@@ -57,7 +57,7 @@
 	String sHeaders[][] = 	{           
 								{"BatchNo","批次号"},
                             	{"DocTitle","批次名称"},
-                            	{"DocType","批次使用模板"},
+                            	{"DocTypeName","批次使用模板"},
                             	{"DocDate","批次建立日期"},
                             	{"TotalCaseCount","变更总数量"}, 
                             	{"TotalCaseSum","变更总委额"},
@@ -70,14 +70,17 @@
                             	{"UpdateTime","更新日期"}
                            	};                           
     	//定义SQL语句
-    String sSql = " SELECT BatchNo,DocTitle,DocType,DocDate," + 
-		  " getCaseSum(BatchNo,1,'all') as TotalCaseCount,"+
-		  " getCaseSum(BatchNo,2,'all') as TotalCaseSum,"+
-		  " getCaseSum(BatchNo,1,'040') as \"040CaseCount\","+//以数字开头的别名必须这样写
-		  " getCaseSum(BatchNo,2,'040') as \"040CaseSum\","+
-    	  " ImportFlag,getItemName('YesNo',ImportFlag) as ImportFlagN,OrgName,UserID,UserName,InputTime,UpdateTime " +
-		  " FROM Batch_Info" +
-		  " WHERE Status='"+sStatus+"'";
+    String sSql = " SELECT BatchNo,DocTitle,"+
+    		  "DocType,(select CodeName from Code_Catalog where CodeNo =DocType) as DocTypeName,"+
+    		  "DocDate," + 
+			  " getCaseSum(BatchNo,1,'all') as TotalCaseCount,"+
+			  //" getCaseSum(BatchNo,2,'all') as TotalCaseSum,"+
+			  //" getCaseSum(BatchNo,1,'040') as \"040CaseCount\","+//以数字开头的别名必须这样写
+			  //" getCaseSum(BatchNo,2,'040') as \"040CaseSum\","+
+	    	  " ImportFlag,getItemName('YesNo',ImportFlag) as ImportFlagN,"+
+			  " OrgName,UserID,UserName,InputTime,UpdateTime " +
+			  " FROM Batch_Info" +
+			  " WHERE Status='"+sStatus+"'";
 	//产生ASDataObject对象doTemp
     ASDataObject doTemp = new ASDataObject(sSql);
     //设置表头
@@ -93,7 +96,7 @@
     doTemp.setHTMLStyle("AttachmentCount","style={width:80px}");
     doTemp.setHTMLStyle("DocTitle"," style={width:140px}");
     doTemp.setHTMLStyle("UserName,OrgName,AttachmentCount,InputTime,UpdateTime"," style={width:80px} ");
-    doTemp.setDDDWSql("DocType", "select CodeNo,CodeName from Code_Catalog where CodeNo like 'b%'");
+    //doTemp.setDDDWSql("DocType", "select CodeNo,CodeName from Code_Catalog where CodeNo like 'b%'");
     doTemp.setHTMLStyle("BatchNo,DocTitle,DocType"," style={width:200px;height:20px;cursor:hand} onDBLClick=\"parent.viewConfigList()\"");
     //生成查询框
 	doTemp.setColumnAttribute("DocTypeName,DocTitle","IsFilter","1");
@@ -133,14 +136,14 @@
 
 		String sButtons[][] = {
 			{"010".equals(sStatus)?"true":"false","","Button","新增","新增文档信息","newRecord()",sResourcesPath},
-			{"true","","Button","批次详情","查看文档详情","viewAndEdit()",sResourcesPath},
+			{"010".equals(sStatus)?"true":"false","","Button","批次详情","查看文档详情","viewAndEdit()",sResourcesPath},
 			{"010".equals(sStatus)?"true":"false","","Button","删除","删除文档信息","deleteRecord()",sResourcesPath},
 			{"true","","Button","查看附件","查看附件详情","viewDoc()",sResourcesPath},
-			{"true","","Button","上传附件","查看附件详情","uploadDoc()",sResourcesPath},
+			{"false","","Button","上传附件","查看附件详情","uploadDoc()",sResourcesPath},
 			{"010".equals(sStatus)?"true":"false","","Button","导入批次","查看附件详情","ImportBatch(1)",sResourcesPath},
 			{"010".equals(sStatus)?"false":"false","","Button","完成导入","查看附件详情","FinishBatch()",sResourcesPath},
 			{"020".equals(sStatus)?"false":"false","","Button","更新批次","查看附件详情","ImportBatch(2)",sResourcesPath},
-			{"020".equals(sStatus)?"false":"false","","Button","取消完成导入","查看附件详情","unFinishBatch()",sResourcesPath},
+			{"020".equals(sStatus)?"true":"false","","Button","取消完成导入","查看附件详情","unFinishBatch()",sResourcesPath},
 			};
 	%>
 <%
@@ -257,9 +260,11 @@
 			return;
     	}
    		var sReturn=popComp("FileChooseDialog","/Document/FileChooseDialog.jsp","PCNo="+sBatchNo+"&ConfigNo="+sConfigNo,"dialogWidth=650px;dialogHeight=250px;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
-   		if(typeof(sReturn)!=="undefined" && sReturn.length!==0){
-   			//alert(sReturn);进来后 是Return为true
-   			//RunMethod("PublicMethod","UpdateColValue","String@Status@020,Batch_Info,String@BatchNo@"+sBatchNo);
+   		//关闭弹出框或异常为 undefined 取消按钮为 _CANCEL_ 
+   		if(typeof(sReturn)!=="undefined" && sReturn.length!==0&&sReturn!=='_CANCEL_'){
+   			//进来后 是Return为true
+   			alert(sReturn);
+   			RunMethod("PublicMethod","UpdateColValue","String@Status@020,Batch_Info,String@BatchNo@"+sBatchNo);
    	   		reloadSelf(); 
    		}
 	}
@@ -291,14 +296,14 @@
         	alert(getHtmlMessage(1));//请选择一条记录！
 			return;
     	}
-    	if(sFlag!=="0"){
+    	if(typeof(sFlag)!=='undefined'&&sFlag!=="0"){
     		alert("当前批次下已有案件分配，不能取消！");//请选择一条记录！
 			return;
     	}
     	if(confirm("确认取消完成导入？")){
     		RunMethod("PublicMethod","UpdateColValue","String@Status@010,Batch_Info,String@BatchNo@"+sBatchNo);
-    		RunMethod("PublicMethod","DeleteColValue","Flow_Object,String@ObjectType@ApplyCaseDistOT@Exists@None@select 1 from Batch_Case where Batch_Case.SerialNo=Flow_Object.ObjectNo and BatchNo='"+sBatchNo+"'");
-    		RunMethod("PublicMethod","DeleteColValue","Flow_Task,String@ObjectType@ApplyCaseDistOT@Exists@None@select 1 from Batch_Case where Batch_Case.SerialNo=Flow_Task.ObjectNo and BatchNo='"+sBatchNo+"'");
+    		//RunMethod("PublicMethod","DeleteColValue","Flow_Object,String@ObjectType@ApplyCaseDistOT@Exists@None@select 1 from Batch_Case where Batch_Case.SerialNo=Flow_Object.ObjectNo and BatchNo='"+sBatchNo+"'");
+    		//RunMethod("PublicMethod","DeleteColValue","Flow_Task,String@ObjectType@ApplyCaseDistOT@Exists@None@select 1 from Batch_Case where Batch_Case.SerialNo=Flow_Task.ObjectNo and BatchNo='"+sBatchNo+"'");
     		reloadSelf(); 
 		}
 	}

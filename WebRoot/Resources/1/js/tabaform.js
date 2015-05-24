@@ -525,172 +525,172 @@ function hc_drawTab(tabID, tabStrip,selectedStrip){
 		var GbeginTabIndex=0;
 		function hc_drawTabToTable_plus_ex(tabStrip,selectedStrip,beginTabIndex,tabLength,hangtbid){
 			GbeginTabIndex=beginTabIndex;
-			var tabID=hangtbid+"tableID";
-			var sObject=document.getElementById(hangtbid);
-			if(tabStrip.length == 0) return;
-			// 支持TAB缓存 多少个tab，增加多少个iframe以容纳其对应的页面
-			for (var i=0;i<tabStrip.length;i++){
-				//创建所有的Iframe
-				if(document.getElementById(hangtbid+tabStrip[i][0])==null){
-					//document.all("TabIframeTD").innerHTML += "<iframe id='TabContentFrame"+tabStrip[i][0]+"' name='TabContentFrame"+tabStrip[i][0]+"' src='' width=100% height=100% frameborder=0 hspace=0 vspace=0 marginwidth=0 marginheight=0 scrolling=no></iframe>";
-					var sHTML="<iframe id='"+hangtbid+tabStrip[i][0]+"' name='"+hangtbid+tabStrip[i][0]+"' src='' width=100% height=100% frameborder=0 hspace=0 vspace=0 marginwidth=0 marginheight=0 scrolling=no></iframe>";
-					document.all("TabIframeTD").insertAdjacentHTML("afterBegin",sHTML);
-				}
-			}	
-			//突出显示点击的tab标签
-			for (var i=0;i<tabStrip.length;i++){
-				if(selectedStrip==i){
-					//显示本TabContentIframe
-					document.all(hangtbid+tabStrip[i][0]).style.display="block";
-				}else{
-					//隐藏其他TabContentIframe
-					try{
-						document.all(hangtbid+tabStrip[i][0]).style.display="none";
-					}catch(e){}
-				}
-			}
-			//writeMsg(document.all("TabIframeTD").innerHTML);
-			//begin 代表的是tabStrip中的位置，一定要区分当前数组和整个数组的区分
+			
+			if(tabStrip.length == 0) 
+				return;
+//一、根据开始位置获取相应的显示标签 存放到另一个数组里面 arrTabStrip
+	//beginTabIndex 代表的是tabStrip中的位置，一定要区分当前数组和整个数组的区分
 			var vBeginIndex=beginTabIndex;
 			if (parseInt(vBeginIndex,10)>tabStrip.length-1)
 				vBeginIndex=tabStrip.length-1;
 			if (parseInt(vBeginIndex,10)<0)
 				vBeginIndex=0;
-			//selectedStrip是整个数组tabStrip里面的序号，vSelectedStrip是当前应该展示的数组arrTabStrip中的序号
-			//比如要展示 3,4,5,6,7，点击的是selectedStrip=7，那么在新数组中 7的序号就是4，可不是 7-3
-			var vSelectedStrip=selectedStrip-parseInt(vBeginIndex,10);
+			
+			//当前页面展示的标签组
 			var arrTabStrip=new Array();
 			var vCounter=0;
-			//根据开始位置获取相应的显示标签
-			for (var i=parseInt(vBeginIndex,10);i<tabStrip.length; i++){
-				if (vCounter<tabLength){
-					arrTabStrip[vCounter]=new Array();
-					for (var j=0;j<tabStrip[i].length;j++){
-						arrTabStrip[vCounter][j]=tabStrip[i][j];
-					}
-				}else{
-					break;
+			for (var i=parseInt(vBeginIndex,10);i<tabStrip.length&&vCounter<tabLength; i++){
+				if(tabStrip[i][6]=="del"){
+					continue;
+				}
+				arrTabStrip[vCounter]=new Array();
+				for (var j=0;j<tabStrip[i].length;j++){
+					arrTabStrip[vCounter][j]=tabStrip[i][j];
 				}
 				vCounter++;
 			}
-			//end
-			sObject.innerHTML="";
-			sInnerHTML = "";
-			sInnerHTML= sInnerHTML + "<body leftMargin=0 rightMargin=0 topMargin=0 bottomMargin=0 >";
-			sInnerHTML= sInnerHTML + "<table id='"+tabID+"' cellspacing=0 cellpadding=0 border=0  align='left' valign='bottom' width=100%>"+"\r";
-			sInnerHTML= sInnerHTML + "<tr>"+"\r";
-			//对标签的显示隐藏的操作
+			var arrTabStrip1=new Array();
+			if(vCounter<tabLength){
+				var vCounter1=0;
+				for (var i=parseInt(vBeginIndex,10)-1;i>=0&&vCounter1<(tabLength-vCounter); i--){
+					if(tabStrip[i][6]=="del"){
+						continue;
+					}
+					arrTabStrip1[vCounter1]=new Array();
+					for (var j=0;j<tabStrip[i].length;j++){
+						arrTabStrip1[vCounter1][j]=tabStrip[i][j];
+					}
+					vCounter1++;
+				}
+			}
+			//两个数组合并 逻辑是 从开始处往后如果达不到展示的最大数，就从开始处往前再追加直到达到最大展示数
+			arrTabStrip=arrTabStrip1.concat(arrTabStrip);
+			//不往前追加的话，下面两处是相等的，追加的话arrTabStrip[0][0]肯定小于vBeginIndex 所以在此赋一下值
+			vBeginIndex=arrTabStrip[0][0];
+	//end
+			
+			// 支持TAB缓存 多少个tab，增加多少个iframe以容纳其对应的页面
+//二、tabStrip每个tab对应一个iframe
+			for (var i=0;i<arrTabStrip.length;i++){
+				//创建所有的Iframe
+				if(document.getElementById(hangtbid+arrTabStrip[i][0])==null){
+					//document.all("TabIframeTD").innerHTML += "<iframe id='TabContentFrame"+tabStrip[i][0]+"' name='TabContentFrame"+tabStrip[i][0]+"' src='' width=100% height=100% frameborder=0 hspace=0 vspace=0 marginwidth=0 marginheight=0 scrolling=no></iframe>";
+					var sHTML="<iframe id='"+hangtbid+arrTabStrip[i][0]+"' name='"+hangtbid+arrTabStrip[i][0]+"' src='' width=100% height=100% frameborder=0 hspace=0 vspace=0 marginwidth=0 marginheight=0 scrolling=no></iframe>";
+					document.all("TabIframeTD").insertAdjacentHTML("afterBegin",sHTML);
+				}
+				//突出显示点击的tab标签
+				if(selectedStrip==arrTabStrip[i][0]){
+					//显示本TabContentIframe
+					document.all(hangtbid+arrTabStrip[i][0]).style.display="block";
+				}else{
+					//隐藏其他TabContentIframe
+					document.all(hangtbid+arrTabStrip[i][0]).style.display="none";
+				}
+			}	
+			//writeMsg(document.all("TabIframeTD").innerHTML);
+			var sInnerHTML = "";
+			sInnerHTML= sInnerHTML + "<body leftMargin=0 rightMargin=0 topMargin=0 bottomMargin=0>";
+//三、开始生成html***************************大table在此开始
+			sInnerHTML= sInnerHTML + "<table cellspacing=0 cellpadding=0 border=0  align='left' valign='bottom' width='100%'><tr>";
+			//tab挂靠的table id
+			var tabID=hangtbid+"tableID";
+			sInnerHTML= sInnerHTML + "<td width='95%'><table id='"+tabID+"' cellspacing=0 cellpadding=0 border=0  align='left' valign='bottom' width='100%'>"+"\r";
+	//1、标签层  对标签的显示隐藏的操作
+		//第一行
+			sInnerHTML= sInnerHTML + "<tr>\r";
+			//一个tab页有三个td组成，前后装饰和中间的tab标题
 			for(var i=0; i<arrTabStrip.length; i++){
-				if(arrTabStrip[i][6]=="del")continue;//打上删除标志的不再显示
 				var a1="";
 				var a2="";
 				var a3="";
 				var rowspan="3";
 				var a4="";
-				if(i==vSelectedStrip){
+				if(arrTabStrip[i][0]==selectedStrip){
 					a2="on";
 				}else{
 					a2="off";
 				}
-				if(i==(vSelectedStrip+1)){
+				if(arrTabStrip[i][0]==(selectedStrip+1)){
 					a1="on";
 				}else{
 					a1="off";
 				}
+				//第一个tab 如果前面还有很多tab没有展示时，显示一个向左的按钮支持向前移动展示 
+				var srcc=sHCResourcesPath+"/tab/1x1.gif";
 				if(i==0){
 					a1="fr";
 					rowspan="2";
-					//begin
-					if (parseInt(vBeginIndex,10)>1){
+					if (parseInt(vBeginIndex,10)>0){
 						a3= "plus";
-						//added by byhu 20070726
-						a4= " alt=\"点击此处左移一格\" style={cursor:hand;} onClick=\"javascript:hc_drawTabToTable_plus_ex(tabstrip,"+selectedStrip+","+(parseInt(beginTabIndex,10)-1)+","+tabLength+","+hangtbid+");return false;\"";
+						a4= " alt=\"点击此处左移一格\" style={cursor:hand;} onClick=\"javascript:hc_drawTabToTable_plus_ex(tabstrip,"+selectedStrip+","+(parseInt(vBeginIndex,10)-1)+","+tabLength+",'"+hangtbid+"');return false;\"";
+						srcc=sHCResourcesPath+"/chooser_orange/arrow-left.png";
 					}else{
 						a3="";
-						//added by byhu 20070726
 						a4="";
 					}
-					//end
 				}
-				sInnerHTML= sInnerHTML + "<td rowspan="+rowspan+"><img class='tab"+a1+a2+a3+"'  src='"+sHCResourcesPath+"/1x1.gif' "+a4+"></td>"+"\r";
+				sInnerHTML= sInnerHTML + "<td rowspan="+rowspan+"><img class='tab"+a1+a2+a3+"'  src='"+srcc+"' "+a4+"></td>"+"\r";
+				
 				sInnerHTML= sInnerHTML + "<td class='tabline'><img src='"+sHCResourcesPath+"/1x1.gif'></td>"+"\r";
+				
+				//最后一个tab 多增加一个td  如果后面还有很多tab没有展示时，显示一个向右的按钮支持向后移动展示 
 				if(i==(arrTabStrip.length-1)){
-					//begin
 					if ((arrTabStrip.length+parseInt(vBeginIndex,10))<tabStrip.length){
 						a3= "plus";
-						a4= " alt=\"点击此处右移一格\" style={cursor:hand} onClick=\"javascript:hc_drawTabToTable_plus_ex(tabstrip,"+selectedStrip+","+(parseInt(beginTabIndex,10)+1)+","+tabLength+","+hangtbid+");return false;\"";
+						a4= " alt=\"点击此处右移一格\" style={cursor:hand} onClick=\"javascript:hc_drawTabToTable_plus_ex(tabstrip,"+selectedStrip+","+(parseInt(vBeginIndex,10)+1)+","+tabLength+",'"+hangtbid+"');return false;\"";
+						sInnerHTML= sInnerHTML + "<td rowspan=2 ><img class='tab"+a2+a3+"bk'  src='"+sHCResourcesPath+"/chooser_orange/arrow-right.png' "+a4+"></td>"+"\r";
 					}else{
 						a3="";
 						a4="";
+						sInnerHTML= sInnerHTML + "<td rowspan=2 ><img class='tab"+a2+a3+"bk'  src='"+sHCResourcesPath+"/tab/1x1.gif' "+a4+"></td>"+"\r";
 					}
-					//end
-					sInnerHTML= sInnerHTML + "<td rowspan=2 ><img class='tab"+a2+a3+"bk'  src='"+sHCResourcesPath+"/1x1.gif' "+a4+"></td>"+"\r";
 				}
 			}
 			sInnerHTML= sInnerHTML + "</tr>";
-			//画tab标签
+	//2、画tab标签
+		//第二行
 			sInnerHTML= sInnerHTML + "<tr>"+"\r";
 			for(var i=0; i<arrTabStrip.length; i++){
-				if(arrTabStrip[i][6]=="del")continue;
 				var selected="";
-				if(i==vSelectedStrip){
+				if(arrTabStrip[i][0]==selectedStrip){
 					selected="sel";
 				}else{
 					selected="desel";
 				}
-				var iTemp = arrTabStrip[i][0];//parseInt(vBeginIndex,10)+i;//vBeginIndex是tabStrip中的序号
+				//vBeginIndex是tabStrip中的序号
+				var tabid = arrTabStrip[i][0];//parseInt(vBeginIndex,10)+i;
 				var sDel = "";
 				if(arrTabStrip[i][5]=="1"&&bForceDeleteTab){ 
-					sDel = "&nbsp;<span class='deletebtn' valign=top onclick=\"javascript:deleteTabMenu('"+hangtbid+"',"+iTemp+","+beginTabIndex+");javascript:myTabDelete("+iTemp+")\">×</span>";
+					sDel = "&nbsp;<span class='deletebtn' valign=top onclick=\"javascript:deleteTabMenu('"+hangtbid+"',"+tabid+","+vBeginIndex+");\">×</span>";
 				}
 				sInnerHTML= sInnerHTML + "<td  class='tab"+selected+"' nowrap>" +
-										"<span class='tabtext' onclick=\"javascript:myTabAction('"+hangtbid+"',"+iTemp+",false)\" oncontextmenu=\"javascript:myTabAction('"+hangtbid+"',"+iTemp+",true)\">"+
-										arrTabStrip[i][1]+
-										"</span>"+sDel+"</td>"+"\r";
-			}
-			sInnerHTML= sInnerHTML + "<td nowrap>&nbsp;</td>"+"\r";
-			//begin tab前后组操作
-			if (parseInt(vBeginIndex,10)>0 || (arrTabStrip.length+parseInt(vBeginIndex,10))<tabStrip.length){
-				sInnerHTML= sInnerHTML +"<td align=left width=100%><table cellspacing=0 cellpadding=0 border=0><tr>";
-				if (parseInt(vBeginIndex,10)>0){
-					sInnerHTML= sInnerHTML +"<td><a href='#' title='前一个Tab' onClick=\"javascript:hc_drawTabToTable_plus_ex(tabstrip,"+selectedStrip+","+(parseInt(beginTabIndex,10)-1)+","+tabLength+",'"+hangtbid+"');return false;\"><img class='tabpre' border=0 src='"+sHCResourcesPath+"/chooser_orange/arrow-left.png'></a></td>\r";
-				}else{
-					sInnerHTML= sInnerHTML +"<td><img class='tabpredisable' border=0 src='"+sHCResourcesPath+"/1x1.gif'></td>\r";
-				}
-				if ((arrTabStrip.length+parseInt(vBeginIndex,10))<tabStrip.length){
-					sInnerHTML= sInnerHTML +"<td><a href='#' title='后一个Tab' onClick=\"javascript:hc_drawTabToTable_plus_ex(tabstrip,"+selectedStrip+","+(parseInt(beginTabIndex,10)+1)+","+tabLength+",'"+hangtbid+"');return false;\"><img class='tabnext' border=0 src='"+sHCResourcesPath+"/chooser_orange/arrow-right.png'></a></td>\r";
-				}else{
-					sInnerHTML= sInnerHTML +"<td><img class='tabnextdisable' border=0 src='"+sHCResourcesPath+"/1x1.gif'></td>\r";
-				}
-				sInnerHTML= sInnerHTML +"</tr></table>";
-				//展示新增按钮，可以新增tab
-				if(bForceAddTab){
-					sInnerHTML= sInnerHTML + "<div style=\"cursor:hand;position:absolute;right:0px;background:gray;visibility:visible\">";
-				}
-				//展示全部
-				sInnerHTML= sInnerHTML +"<span onClick=\"javascript:showHideTabMenu(this)\" onMouseOver1=\"javascript:showTabMenu(this)\"><img class='tabmenu' border=0 src='"+sHCResourcesPath+"/chooser_orange/arrow02.png'></span><span onClick=\"javascript:myTabAdd();showdiv(this);return false;\"><img class='tabadd' border=0 src='"+sHCResourcesPath+"/new.gif'></span></div></td>";
-
+											"<span class='tabtext' onclick=\"javascript:myTabAction('"+hangtbid+"',"+tabid+",false)\" oncontextmenu=\"javascript:myTabAction('"+hangtbid+"',"+tabid+",true)\">"+//左键仅仅从缓存中打开tab，右键刷新tab
+												arrTabStrip[i][1]+
+											"</span>"+sDel+
+										"</td>"+"\r";
 			}
 			sInnerHTML= sInnerHTML + "</tr>\r";
 			//end
-			//分割层
+			
+	//3、tab底
+		//第三行
 			sInnerHTML= sInnerHTML + "<tr>"+"\r";
 			for(var i=0; i<arrTabStrip.length; i++){
 				if(i==0){
-					if(i==vSelectedStrip){
+					if(arrTabStrip[i][0]==selectedStrip){
 						sInnerHTML= sInnerHTML + "<td class='tabline1'><img src='"+sHCResourcesPath+"/1x1.gif'></td>"+"\r";
 					}else{
 						sInnerHTML= sInnerHTML + "<td class='tabline'><img src='"+sHCResourcesPath+"/1x1.gif'></td>"+"\r";
 					}	
 					
 				}
-				if(i==vSelectedStrip){
+				if(arrTabStrip[i][0]==selectedStrip){
 					sInnerHTML= sInnerHTML + "<td class='tabline1'><img src='"+sHCResourcesPath+"/1x1.gif'></td>"+"\r";
 				}else{
 					sInnerHTML= sInnerHTML + "<td class='tabline'><img src='"+sHCResourcesPath+"/1x1.gif'></td>"+"\r";
 				}	
 				if(i==(arrTabStrip.length-1)){
-					if(i==vSelectedStrip){
+					if(arrTabStrip[i][0]==selectedStrip){
 						sInnerHTML= sInnerHTML + "<td class='tabline1'><img src='"+sHCResourcesPath+"/1x1.gif'></td>"+"\r";
 					}else{
 						sInnerHTML= sInnerHTML + "<td class='tabline'><img src='"+sHCResourcesPath+"/1x1.gif'></td>"+"\r";
@@ -698,14 +698,43 @@ function hc_drawTab(tabID, tabStrip,selectedStrip){
 				}			
 			}
 			sInnerHTML= sInnerHTML +"</tr>";
-			//隐藏层
-			sInnerHTML= sInnerHTML +"<tr><td><input type=hidden id='"+tabID+"_beginIndexID' name='"+tabID+"_beginIndex' value='"+vBeginIndex+"'></td></tr></table>\r";
-			//浮动层，点击新增时显示所有的tab
+	//4、隐藏层 可存储一些值，让各种事件来获取，相当于一个隐藏变量
+		//第四行
+			sInnerHTML= sInnerHTML +"<tr><td><input type=hidden id='"+tabID+"_beginIndexID' name='"+tabID+"_beginIndex' value='"+vBeginIndex+"'></td></tr>";
+			sInnerHTML= sInnerHTML +"</table></td>\r";
+	//tab之table 后面再跟一个table
+			sInnerHTML= sInnerHTML + "<td width='5%'><table cellspacing=0 cellpadding=0 border=0 width='100%' align='center' valign='bottom'  style={table-layout:fixed;}><tr>"+"\r";
+			//当tab前台展示不下时 增加一个下拉框 展示全部tab
+			sInnerHTML= sInnerHTML +"<td nowrap>";
+			if (parseInt(vBeginIndex,10)>0 || (arrTabStrip.length+parseInt(vBeginIndex,10))<tabStrip.length){
+				sInnerHTML= sInnerHTML +"<span class='tabtext' onClick=\"javascript:showHideTabMenu(this)\" onMouseOver=\"javascript:showTabMenu(this)\">" +
+											"<img class='tabmenu' src='"+sHCResourcesPath+"/chooser_orange/arrow02.png'>" +
+										"</span>";
+			}else{
+				sInnerHTML= sInnerHTML +"<img src='"+sHCResourcesPath+"/1x1.gif'>";
+			}
+			sInnerHTML= sInnerHTML + "</td>";
+			//展示新增按钮，可以新增tab
+			sInnerHTML= sInnerHTML +"<td nowrap>";
+			if(bForceAddTab){
+				sInnerHTML= sInnerHTML +"<span class='tabtext' onClick=\"javascript:myTabAdd();showdiv(this);return false;\">" +
+							"<img class='tabadd' src='"+sHCResourcesPath+"/new.gif'>" +//可以点击增加tab，可择机实现
+							"</span>";
+			}else{
+				sInnerHTML= sInnerHTML +"<img src='"+sHCResourcesPath+"/1x1.gif'>";
+			}
+			sInnerHTML= sInnerHTML + "</td>";
+			sInnerHTML= sInnerHTML + "</tr></table></td>"+"\r";
+			sInnerHTML= sInnerHTML +"</tr></table>\r";
+//***************************大table在此结束
+			//浮动层，点击下拉框时显示所有的tab 是两个div
 			sInnerHTML= sInnerHTML +"<div id=\"tabMenu1\" style=\"z-index:1000;position:absolute;left:0px;right:0px;top:0px;width:0px;height:0px;visibility:hidden;background:green\" class=\"SubMenuDiv\">\r";
 			sInnerHTML= sInnerHTML +"<table  class=\"SubMenuTable\"  cellpadding=4 cellspacing=0  border=0 >\r";
 			sInnerHTML= sInnerHTML +"<tr height=5><td class=\"TabMenuTd2\" style=\"font-size:15px;height:10px;\" align=right><span style=\"font-weight:bold;BORDER-LEFT:#999999 1px solid;BORDER-BOTTOM:#999999 1px solid;cursor:hand\" onclick=\"javascript:hideTabMenu();\">×</span></td></tr>\r";
 			for (var i=0;i<tabStrip.length; i++){
-				if(tabStrip[i][6]=="del")continue;
+				if(tabStrip[i][6]=="del"){
+					continue;
+				}
 				sInnerHTML= sInnerHTML +"<tr>\r";
 				var vPre="&nbsp;&nbsp;&nbsp;";
 				if (selectedStrip==i)
@@ -719,22 +748,22 @@ function hc_drawTab(tabID, tabStrip,selectedStrip){
 			}
 			sInnerHTML= sInnerHTML +"</table>\r";
 			sInnerHTML= sInnerHTML +"</div>\r";
+			
 			sInnerHTML= sInnerHTML +"<div id=\"tabMenu9\" style=\"z-index:1000;position:absolute; left:0px; top:0px; width:0px;height:0px;visibility:hidden\" class=\"SubMenuDiv\">\r";
 			sInnerHTML= sInnerHTML +"<table  class=\"SubMenuTable\" id='SubMenuTable9' cellpadding=4 cellspacing=0  border=0>\r";
 			sInnerHTML= sInnerHTML +"</table>\r";
 			sInnerHTML= sInnerHTML +"<iframe id=iframeSelect src=\"javascript:false\" style=\"position:absolute; visibility:inherit; top:0px; left:0px; width:100px; height:200px; z-index:-1; filter='progid:DXImageTransform.Microsoft.Alpha(style=0,opacity=0)';\"></iframe>"; 
-			sInnerHTML= sInnerHTML +"</div>\r</body leftMargin=0 rightMargin=0 topMargin=0 bottomMargin=0 >";
+			sInnerHTML= sInnerHTML +"</div>\r" +
+			"</body>";
+			var sObject=document.getElementById(hangtbid);
 			sObject.innerHTML=sInnerHTML;
-		}
-		//根据tabIndex来计算当打开的新页面时第一个tab的序号currentBeginIndex
-		function calBiginIndex(tabIndex,currentBeginIndex){
-			var vNewCurBegin=currentBeginIndex;
-			if (tabIndex<currentBeginIndex)
-				vNewCurBegin=tabIndex;
-			//arrTabStrip.length 每一组的标签个数，此判断意思是i到了下一组标签里
-			if (tabIndex>(parseInt(currentBeginIndex,10)-1+iMaxTabLength))
-				vNewCurBegin=tabIndex-iMaxTabLength+1;
-			return vNewCurBegin;
+			if(checkTabAction(selectedStrip))
+			{	
+				if(tabstrip[selectedStrip][4]!='LOADED'){
+					eval(tabstrip[selectedStrip][2]);
+					tabstrip[selectedStrip][4]='LOADED';
+				}
+			}		
 		}
 		function myTabAction(hangtbid,tabindex,bRefresh,vBegin)
 		{
@@ -744,17 +773,14 @@ function hc_drawTab(tabID, tabStrip,selectedStrip){
 				iBeginTabIndex= document.all(tabID+'_beginIndexID').value;
 			if(arguments.length==4) 
 				iBeginTabIndex = vBegin;
-			if(bForceRefreshTab || bRefresh )
-			{
-				if(checkTabAction(tabindex))
-				{
+			if(bForceRefreshTab || bRefresh ){
+				if(checkTabAction(tabindex)){
+					//打开tab对应的页面内容 起始 [3]和[2]内容一样啦，暂时是这样
 					eval(tabstrip[tabindex][3]);
 					tabstrip[tabindex][4]='LOADED';
 					hc_drawTabToTable_plus_ex(tabstrip,tabindex,iBeginTabIndex,iMaxTabLength,hangtbid);
 				}				
-			}
-			else
-			{
+			}else{
 				if(checkTabAction(tabindex))
 				{	
 					if(tabstrip[tabindex][4]!='LOADED'){
@@ -765,25 +791,39 @@ function hc_drawTab(tabID, tabStrip,selectedStrip){
 				}		
 			}
 		}
-		function deleteTabMenu(hangtbid,tabindex,currentBeginIndex)
-		{
-			var nexttab=tabindex;
-			if(tabindex>=1){
-				nexttab=tabindex-1;
+		//根据tabIndex来计算当打开的新页面时第一个tab的序号currentBeginIndex
+		function calBiginIndex(nexttab,currentBeginIndex){
+			var vNewCurBegin=currentBeginIndex;
+			if(nexttab<currentBeginIndex){
+				vNewCurBegin=nexttab;
 			}
-			var iBeginTabIndex = calBiginIndex(nexttab,currentBeginIndex);
-			//从总的数组中删除 i tab
-			//tabstrip.remove(tabindex);
-			tabstrip[tabindex][6]="del";
-			if(checkTabAction(nexttab))
-			{	
-				if(tabstrip[nexttab][4]!='LOADED'){
-					eval(tabstrip[nexttab][2]);
-					tabstrip[nexttab][4]='LOADED';
+			//arrTabStrip.length 每一组的标签个数，此判断意思是i到了下一组标签里
+			if (nexttab>(parseInt(currentBeginIndex,10)-1+iMaxTabLength))
+				vNewCurBegin=nexttab-iMaxTabLength+1;
+			return vNewCurBegin;
+		}
+		//删除一个tab时要解决两个问题
+		//1、默认要展示下一组tab是哪些：从当前开始tab往后展示，如果不够最大展示数，就往前排，直到展示到最大数为止，如果达不到就全展示
+		//2、默认打开的下一个tab是哪个：从当前删除的tab往后顺延，如果后面没有了，就往前顺延直到一个都没有，这是显示空白页
+		//原则就是 先往后再往前
+		function deleteTabMenu(hangtbid,tabid,currentBeginIndex){
+			//从总的数组中删除 i tab 只是把删除的打上标识，不删除的
+			//tabstrip.remove(tabid);
+			tabstrip[tabid][6]="del";
+			//删除当前tab后默认后一个没有打上 del标识的tab被选中
+			var nextSelectedTab=tabid+1;
+			//var iBeginTabIndex = calBiginIndex(nextSelectedTab,currentBeginIndex);
+			var iBeginTabIndex=currentBeginIndex;
+			if(tabid==currentBeginIndex){
+				iBeginTabIndex=tabid+1;
+			}
+			//检查下一个tab合法后打开，已加载的只是展示出来
+			if(checkTabAction(nextSelectedTab)){	
+				if(tabstrip[nextSelectedTab][4]!='LOADED'){
+					eval(tabstrip[nextSelectedTab][2]);
+					tabstrip[nextSelectedTab][4]='LOADED';
 				}
-				//strip_id_increment--;
-				document.getElementById(hangtbid+tabindex).style.display="none";
-				hc_drawTabToTable_plus_ex(tabstrip,nexttab,iBeginTabIndex,iMaxTabLength,hangtbid);
+				hc_drawTabToTable_plus_ex(tabstrip,nextSelectedTab,iBeginTabIndex,iMaxTabLength,hangtbid);
 			}		
 		}
 		function showdiv(obj){
@@ -874,11 +914,6 @@ function hc_drawTab(tabID, tabStrip,selectedStrip){
 		function onSelectTab(tabno)
 		{
 			
-		}
-		function myTabDelete(i)
-		{
-			//在程序里自己实现 
-			//alert("删除..."+i);
 		}
 		function myTabAdd()
 		{

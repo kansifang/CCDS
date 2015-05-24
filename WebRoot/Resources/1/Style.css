@@ -1,6 +1,4 @@
 body{
-
-
 }
 td {  font-size: 9pt; text-decoration: none }
 a:link {
@@ -20,13 +18,13 @@ a:visited {
 td {font-size: 9pt;}
 
 .windowbackground{
-	background-color: #99B0CE; 
+	background-color: #9FB6CD ;/**99B0CE;整个界面的背景色**/ 
 	overflow:scroll;
 	overflow-x:visible;
 	overflow-y:visible;
 }
 .pagebackground{
-	background-color: #DCDCDC;
+	background-color: #DCDCDC;/**;list info等页面的背景色**/ 
 }
 .MainMessageFrame{
 	background-color: #DCDCDC;
@@ -39,7 +37,6 @@ td {font-size: 9pt;}
 	background-color: #DCDCDC;
 	height:18px;
 }
-
 .no_border {  border-top-width: 0px; border-right-width: 0px; border-bottom-width: 0px; border-left-width: 0px}
 .number {  text-align: right}
 .no_border_number {  text-align: right; border-top-width: 0px; border-right-width: 0px; border-bottom-width: 0px; border-left-width: 0px}
@@ -159,8 +156,6 @@ input {
 	width:20px;
 	background-repeat: no-repeat;
 }
-
-
 .SystemArea{
 	background-color: #DCDCDC;
 }
@@ -308,7 +303,6 @@ input {
 
 .groupboxmaxcontent
 {
-	
 	font-weight: normal;
 	padding-top: 0px;
 	overflow: hidden;
@@ -319,7 +313,6 @@ input {
 	border-color: #ECECEC #AAAAAA #AAAAAA #ECECEC;
 	border-width:1px;
 }
-
 .LoweredArea
 {
 	
@@ -333,8 +326,6 @@ input {
 	border-color: #AAAAAA #ECECEC #ECECEC #AAAAAA;
 	border-width:1px;
 }
-
-
 .groupboxmaxcontentscroll
 {
 	
@@ -561,12 +552,12 @@ input {
 }
 .tabline
 {
-	background-color:#FFFFFF;
+	background-color:#FFFFFF;/***#FFFFFF*/
 }
 
 .tabline1
 {
-	background-color:#DCDCDC;
+	background-color:#DCDCDC;/***##DCDCDC*/
 }
 
 .tabsel

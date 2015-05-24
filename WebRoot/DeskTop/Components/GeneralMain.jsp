@@ -118,8 +118,7 @@
 		}
 	%>
 	/*~[Describe=treeview单击选中事件;InputParam=无;OutPutParam=无;]~*/
-	function TreeViewOnClick()
-	{
+	function TreeViewOnClick(){
 		var sCurItemname = getCurTVItem().name;
 		var sCurItemvalue = getCurTVItem().value;
 		if("<%=sItemNo%>".length>0){
