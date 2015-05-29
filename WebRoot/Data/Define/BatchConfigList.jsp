@@ -194,7 +194,7 @@
 			alert(getHtmlMessage('1'));//请选择一条信息！
 			return;
 		}
-		popComp("BatchConfigInfo","/Data/Define/BatchConfigInfo.jsp","CodeNo="+sCodeNo+"&ItemNo="+sItemNo,"dialogWidth=40;dialogHeight=20;status:no;center:yes;help:no;minimize:no;maximize:no;border:thin;statusbar:no");
+		popComp("BatchConfigInfo","/Data/Define/BatchConfigInfo.jsp","CodeNo="+sCodeNo+"&ItemNo="+sItemNo+"&rand="+amarRand(),"dialogWidth=40;dialogHeight=20;status:no;center:yes;help:no;minimize:no;maximize:no;border:thin;statusbar:no");
 		reloadSelf();
 	}
 	/*~[Describe=引入类似配置详情以节省功夫;InputParam=无;OutPutParam=无;]~*/
