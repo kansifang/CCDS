@@ -264,7 +264,9 @@
 		var sCodeNo = getItemValue(0,getRow(),"CodeNo");
 		var sType = getItemValue(0,getRow(),"CodeAttribute");
 		if(sCodeNo.length>0){
-			popComp("BatchConfigList","/Data/Define/BatchConfigList.jsp","CodeNo="+sCodeNo+"&type="+sType,"","");
+			//加个rand=amarRand()能借据浏览器缓存问题，这对于不需要缓存的情况很有用（打开组件关掉组件，组件在服务器端会destroy,这时再打开组件有缓存的话不会请求服务器，这个组件再进一步打开页面将
+			//报组件过期或找不到错误）
+			popComp("BatchConfigList","/Data/Define/BatchConfigList.jsp","CodeNo="+sCodeNo+"&type="+sType+"&rand="+amarRand(),"","");
 		}
 	}
 	</script>

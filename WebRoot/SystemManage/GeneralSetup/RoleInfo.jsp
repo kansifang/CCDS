@@ -150,7 +150,7 @@
 			}
 	        setItemValue(0,0,"UpdateUser","<%=CurUser.UserID%>");
             setItemValue(0,0,"UpdateTime","<%=StringFunction.getToday()%>");
-            as_save("myiframe0","doReturn('Y');");
+            as_save("myiframe0","");//doReturn('Y');
         
 	}
     

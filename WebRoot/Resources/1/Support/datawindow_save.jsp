@@ -121,7 +121,6 @@
 			//obj.OpenPage(sAfterAction,"_self",""); //window.open
 			try{
 				eval("obj."+sAfterAction);
-				
 				//add by hxd in 2008/04/10
 				obj.hideMessage(); 	
 				if(obj.bSavePrompt) alert("数据保存成功！"); 

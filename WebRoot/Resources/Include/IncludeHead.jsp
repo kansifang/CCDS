@@ -257,8 +257,11 @@ void setCurPref(ASPreference CurPref, ASComponent CurComp) throws Exception{
             if(sCompClientID!=null && !sCompClientID.equals(""))
             {
                 CurComp = CurCompSession.lookUp(sCompClientID);
+               //有一个问题是，如果打开新页面A后关闭，回到list页面而不刷新，服务器端list这个组件会从内存中注销掉，
+               	//再打开A页面，如果浏览器本地有缓存，将不会再请求服务器，这时A页面再打开非组件页面将找不到list组件，这时会报错
+               //所以回到原list后尽量刷新
                 if(CurComp==null){
-                    throw new Exception("您请求的页面已过期。请不要通过“前进”、“后退”或“刷新”来访问本系统的功能。请不要同时对多个窗口进行操作。<br><a href=\"javascript:window.open('"+sWebRootPath+"/Redirector.jsp?ComponentURL=/Main.jsp&ComponentID=Main','_top');\">点击此处返回主页面。</a>");
+                    throw new Exception("您请求的页面已过期或找不到相应组件。请不要通过“前进”、“后退”或“刷新”来访问本系统的功能。请不要同时对多个窗口进行操作："+sCompClientID+"<br><a href=\"javascript:window.open('"+sWebRootPath+"/Redirector.jsp?ComponentURL=/Main.jsp&ComponentID=Main','_top');\">点击此处返回主页面。</a>");
                 }
             }else{
                 CurComp = null;

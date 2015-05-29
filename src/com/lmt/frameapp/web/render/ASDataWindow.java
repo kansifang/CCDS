@@ -69,7 +69,7 @@ public class ASDataWindow implements Cloneable {
 
 	public ASDataWindow(ASComponent cpComp, ASDataObject doDataObject,
 			Transaction Sqlca) throws Exception {
-		Name = "";
+		Name = "";//以这个为唯一性会把当前类实例存储到缓存中
 		DataObject = null;
 		this.Sqlca = null;
 		Style = "1";

@@ -114,7 +114,7 @@
     doTemp.setHTMLStyle("Summary"," style={width:300px;cursor:hand} onDBLClick=\"javascript:parent.viewAndEdit()\"");
     //doTemp.setDDDWCode("SystemName", "SystemType");
     //Éú³É²éÑ¯¿ò
-  	doTemp.setColumnAttribute("ChangeNo,SystemName","IsFilter","1");
+  	doTemp.setColumnAttribute("Status,ChangeNo,SystemName,Summary,ChangeUser,FinallyTerm,OutFactoryDate","IsFilter","1");
   	doTemp.generateFilters(Sqlca);
   	doTemp.parseFilterData(request,iPostChange);
   	CurPage.setAttribute("FilterHTML",doTemp.getFilterHtml(Sqlca));

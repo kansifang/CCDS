@@ -320,9 +320,9 @@
 		function mySelectRow()
 		{
 			var sBatchNo = getItemValue(0,getRow(),"BatchNo");
-			document.getElementById("ListHorizontalBar").parentNode.style.display="";
-			document.getElementById("ListDetailAreaTD").parentNode.style.display="";
-			OpenComp("CaseList","/BusinessManage/CaseList.jsp","BatchNo="+sBatchNo,"DetailFrame","");
+			//document.getElementById("ListHorizontalBar").parentNode.style.display="";
+			//document.getElementById("ListDetailAreaTD").parentNode.style.display="";
+			//OpenComp("CaseList","/BusinessManage/CaseList.jsp","BatchNo="+sBatchNo,"DetailFrame","");
 	
 		}
 		function viewConfigList(){

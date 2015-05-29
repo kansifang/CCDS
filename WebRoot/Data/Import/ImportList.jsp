@@ -73,7 +73,7 @@
     				sS+
     				",ImportNo as 导入号,ImportTime as 导入时间,UserID as 导入人"+
     	 			" FROM Batch_Import_Interim " +
-		  			" WHERE 1=1 order by ImportIndex asc";
+		  			" WHERE ImportNo like 'N%' order by ImportIndex asc";
 	//产生ASDataObject对象doTemp
     ASDataObject doTemp = new ASDataObject(sSql);
     //设置表头

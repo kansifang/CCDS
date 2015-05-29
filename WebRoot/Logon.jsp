@@ -197,7 +197,7 @@ void setCurPref(Transaction Sqlca, ASPreference CurPref,String sUserID,String sP
 	    session.setAttribute("listener",sessionListener);
 %>
 	<script language=javascript>
-		window.open("<%=sWebRootPath%>/Redirector.jsp?ComponentURL=/Welcome.jsp&ComponentID=Welcome&ToDestroyClientID=<%=CurComp.ClientID%>&ParentClientID=<%=CurComp.ClientID%>&rand="+randomNumber(),"_top");
+		window.open("<%=sWebRootPath%>/Redirector.jsp?ComponentURL=/Main.jsp&ComponentID=Main&ToDestroyClientID=<%=CurComp.ClientID%>&ParentClientID=<%=CurComp.ClientID%>&rand="+randomNumber(),"_top");
 	</script>
 <%	    
 	}

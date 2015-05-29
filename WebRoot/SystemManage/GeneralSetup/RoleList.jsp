@@ -139,7 +139,7 @@
 				alert(getHtmlMessage('1'));//请选择一条信息！
 				return;
 			}
-			sReturn=popComp("RoleInfo","/SystemManage/GeneralSetup/RoleInfo.jsp","RoleID="+sRoleID,"");
+			sReturn=popComp("RoleInfo","/SystemManage/GeneralSetup/RoleInfo.jsp","RoleID="+sRoleID+"&rand="+amarRand(),"");
 			//修改数据后刷新列表
 			if (typeof(sReturn)!='undefined' && sReturn.length!=0){
 				reloadSelf();

@@ -110,7 +110,7 @@ Transaction getSqlca(Transaction SqlcaRepository, String sAppID, String sDataSou
 
             CurUser = (ASUser)CurARC.getAttribute("CurUser");
             CurOrg = (ASOrg)CurARC.getAttribute("CurOrg");
-
+			//SessionID是存在缓存中的dw：ASDataWindow
             sSessionID = DataConvert.toRealString(5,(String)request.getParameter("SessionID"));
             if( sSessionID == null || sSessionID.equals("") )
                 sSessionID = DataConvert.toRealString(5,(String)request.getParameter("dw"));
@@ -128,8 +128,12 @@ Transaction getSqlca(Transaction SqlcaRepository, String sAppID, String sDataSou
             if(sCompClientID!=null && !sCompClientID.equals(""))
             {
                 CurComp = CurCompSession.lookUp(sCompClientID);
+              	//有一个问题是，如果打开新页面A后关闭，回到list页面而不刷新，list这个组件会从内存中注销掉，所以再打开A页面，A页面再打开非组件页面将找不到list组件，这时会报错
+              	//加个rand=amarRand()能借据浏览器缓存问题，这对于不需要缓存的情况很有用（打开组件关掉组件，组件在服务器端会destroy,这时再打开组件有缓存的话不会请求服务器，这个组件再进一步打开页面将
+				//报组件过期或找不到错误）
+				//完美解决报这个错误问题
                 if(CurComp==null){
-                    throw new Exception("DW错误：无法找到组件实例："+sCompClientID);
+                    throw new Exception("DW错误：您请求的页面已过期或找不到相应组件："+sCompClientID);
                 }
             }else{
                 CurComp = null;
@@ -203,21 +207,23 @@ Transaction getSqlca(Transaction SqlcaRepository, String sAppID, String sDataSou
     var sCompClientID = "<%=sCompClientID%>";
     var sPageClientID = "<%=sPageClientID%>";
 </script>
-<script language=javascript src="<%=sResourcesPath%>/js/jquery-1.3.2.min.js"></script>
-<script language=javascript src="<%=sResourcesPath%>/js/as_control.js"></script>
-<script language=javascript src="<%=sResourcesPath%>/js/as_webcalendar.js"></script>
-<script language=javascript src="<%=sResourcesPath%>/js/xls.js"> </script>
-<script language=javascript src="<%=sResourcesPath%>/js/expand.js"> </script>
-<script language=javascript src="<%=sResourcesPath%>/js/htmlcontrol.js"> </script>
-<script language=javascript src="<%=sResourcesPath%>/js/String.js"> </script>
-<script language=javascript src="<%=sResourcesPath%>/js/as_dz.js"> </script>
-<script language=javascript src="<%=sResourcesPath%>/js/as_dz_middle.js"> </script>
-<script language=javascript src="<%=sResourcesPath%>/js/as_dz_init.js"> </script>
-<script language=javascript src="<%=sResourcesPath%>/js/checkdatavalidity.js"> </script>
-<script language=javascript src="<%=sResourcesPath%>/js/editor1.js"> </script>
-<script language=javascript src="<%=sResourcesPath%>/js/common.js"> </script>
-<script language=javascript src="<%=sResourcesPath%>/js/message.js"> </script>
-<script language=javascript src="<%=sResourcesPath%>/js/menu.js"> </script>
+<script type=text/javascript src="<%=sResourcesPath%>/js/jquery-1.3.2.min.js"></script>
+<script type=text/javascript src="<%=sResourcesPath%>/js/as_dz.js"> </script>
+<script type=text/javascript src="<%=sResourcesPath%>/js/as_dz_middle.js"> </script>
+<script type=text/javascript src="<%=sResourcesPath%>/js/grid.js"> </script>
+<script type=text/javascript src="<%=sResourcesPath%>/js/fform.js"> </script>
+<script type=text/javascript src="<%=sResourcesPath%>/js/init.js"> </script>
+<script type=text/javascript src="<%=sResourcesPath%>/js/as_control.js"></script>
+<script type=text/javascript src="<%=sResourcesPath%>/js/as_webcalendar.js"></script>
+<script type=text/javascript src="<%=sResourcesPath%>/js/mainmenu.js"> </script>
+<script type=text/javascript src="<%=sResourcesPath%>/js/treemenu.js"> </script>
+<script type=text/javascript src="<%=sResourcesPath%>/js/tabaform.js"> </script>
+<script type=text/javascript src="<%=sResourcesPath%>/js/String.js"> </script>
+<script type=text/javascript src="<%=sResourcesPath%>/js/checkdatavalidity.js"> </script>
+<script type=text/javascript src="<%=sResourcesPath%>/js/common.js"> </script>
+<script type=text/javascript src="<%=sResourcesPath%>/js/message.js"> </script>
+<script type=text/javascript src="<%=sResourcesPath%>/HtmlEdit/editor.js"> </script>
+<script type=text/javascript src="<%=sResourcesPath%>/js/xls.js"> </script>
 <script language=javascript>
 var AsOne = {
 		SetDefault:function(sURL){

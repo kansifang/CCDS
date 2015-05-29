@@ -127,7 +127,11 @@
 		}else{
 			sCurItemDescribe_url=eval("_"+sCurItemvalue);
 		}
-		parent.newTab(sCurItemname,sCurItemDescribe_url);
+		if(sCurItemDescribe_url.lastIndexOf("~M")==sCurItemDescribe_url.length-2){
+			PopPage(sCurItemDescribe_url.replace("~M",""),"_blank","dialogWidth:900px;dialogHeight:540px;status:no;center:yes;help:no;minimize:yes;maximize:yes;border:thin;statusbar:no");
+		}else{
+			parent.newTab(sCurItemname,sCurItemDescribe_url);
+		}
 	}
 	/*~[Describe=生成treeview;InputParam=无;OutPutParam=无;]~*/
 	function startMenu() 
@@ -149,7 +153,7 @@
 	expandNode('root');		
 	expandNode('0200');	
 	expandNode('0500');	
-	selectItem('<%=sExpandItemNo%>');	
+	//selectItem('<%=sExpandItemNo%>');	 在传入参数中已有DefaultTVItemID=010 所以此处没必要多此一举默认再打开一次
 	
 	</script>
 <%

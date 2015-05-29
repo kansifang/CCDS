@@ -91,6 +91,7 @@ function selectItem(id) {
 				sTempScript = sTempScript.substring(7);
 			}
 			eval(parent.html2Real(sTempScript));//eval();
+			
 		}
 		click_change(index);
 	}
@@ -98,11 +99,27 @@ function selectItem(id) {
 
 //check if the node is the current subtree's end element
 function ifMax(id) {
+	//var i = 0;
+	var max = true;
+	var i=getItemIndex(id)+1;
+	while (i < nodePosition && max == true) {
+		if(nodes[i].prentID==getItem(id).parentID){ 
+			max = false;
+		}
+		i++;
+	}
+	//alert(nodes[currentIndex].id+" is max? "+max);
+	return max;
+}
+function ifMax1(id)
+{
 	var i = 0;
 	var max = true;
-	while (i < nodePosition && max == true) {
+	while(i<nodePosition && max == true)
+	{
 		if(nodes[i].parentID==id) max = false;
 		i++;
+	
 	}
 	//alert(nodes[currentIndex].id+" is max? "+max);
 	return max;
@@ -182,7 +199,8 @@ function click_change(index) {
 	myCurIndex = index;
 
 	//如果指定了Click后续事件，则调用当前
- 	if (myTriggerClickEvent==true) TreeViewOnClick();
+ 	if (myTriggerClickEvent==true) 
+ 		TreeViewOnClick();
 
 	//parent.parent.location=url;
 }
@@ -494,8 +512,10 @@ function flex2(currentIndex, checkStr) {
 	var i;
 	var currentID = nodes[currentIndex].id;
 	var checkStrBrother;
-	if(checkStr=='plus')	checkStrBrother = 'minu';
-	else	checkStrBrother = 'plus';
+	if(checkStr=='plus')	
+		checkStrBrother = 'minu';
+	else	
+		checkStrBrother = 'plus';
 	
 	if (currentID != 'root') {
 		left.document.getElementById(currentID+checkStr).style.display="none";

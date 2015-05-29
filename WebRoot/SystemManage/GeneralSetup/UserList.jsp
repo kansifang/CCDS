@@ -153,13 +153,13 @@
     /*~[Describe=查看及修改详情;InputParam=无;OutPutParam=无;]~*/
 	function viewAndEdit()
 	{
-		sUserID = getItemValue(0,getRow(),"UserID");
+		var sUserID = getItemValue(0,getRow(),"UserID");
 		if (typeof(sUserID)=="undefined" || sUserID.length==0)
 		{
 			alert(getHtmlMessage('1'));//请选择一条信息！
 			return;
 		}
-		popComp("UserInfo","/SystemManage/GeneralSetup/UserInfo.jsp","RoleID="+sRoleID,"");
+		popComp("UserInfo","/SystemManage/GeneralSetup/UserInfo.jsp","UserID="+sUserID,"");
 		reloadSelf();
 		//OpenPage("/SystemManage/GeneralSetup/UserInfo.jsp?UserID="+sUserID,"_self","");
 	}

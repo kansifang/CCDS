@@ -54,10 +54,10 @@
 	<FileNameType>SRC</FileNameType>
 	<!--FileNameType Remark SRC:上传原始名称  MD5:生成MD5加密文件名 -->
 
-	<ProductID>CCDS</ProductID>
-	<ProductName>聚鹏达信贷催收系统</ProductName>
-	<ProductVersion>7.1</ProductVersion>
-	<ImplementationID>CCDS</ImplementationID>
-	<ImplementationName>聚鹏达信贷催收系统</ImplementationName>
-	<ImplementationVersion>7.2</ImplementationVersion>
+	<ProductID>SYS</ProductID>
+	<ProductName>XX系统</ProductName>
+	<ProductVersion>1.1</ProductVersion>
+	<ImplementationID>SYS</ImplementationID>
+	<ImplementationName>XX系统</ImplementationName>
+	<ImplementationVersion>1.2</ImplementationVersion>
 </Domain>

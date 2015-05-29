@@ -52,7 +52,7 @@
 					" and locate(CL.ItemNo,RI.RoleDescribe)>0"+
 					" and CL.CodeNo='SystemType' "+
 					" and CL.IsInUse='1'"+
-					" and (locate('"+sSystemName+"',CL.ItemName)>0 or locate(CL.ItemName,'"+sSystemName+"')>0)");
+					" and (locate('"+sSystemName+"',CL.ItemDescribe)>0 or locate(CL.ItemDescribe,'"+sSystemName+"')>0)");
 	//String sEditable = DataConvert.toString(DataConvert.toRealString(iPostChange,(String)CurComp.getParameter("Editable")));
 %>
 <%
@@ -123,7 +123,7 @@ String sHeaders[][] = 	{
 	doTemp.setHTMLStyle("BeginTime,EndTime,ContentType"," ondblclick=\"javascript:parent.viewFile()\"");
 	doTemp.setHTMLStyle("ContentLength"," style={width:50px} ondblclick=\"javascript:parent.viewFile()\"");
 	doTemp.setEditStyle("Summary,MeetingContent","3");
-	doTemp.setHTMLStyle("Summary,MeetingContent"," style={width:730px;height:50px} ");
+	doTemp.setHTMLStyle("Summary,MeetingContent,Remark"," style={width:730px;height:50px} ");
     doTemp.setAlign("ContentLength","3");
 	doTemp.setReadOnly("UpdateTime,UpdateUserName", true);
     ASDataWindow dwTemp = new ASDataWindow(CurPage,doTemp,Sqlca);

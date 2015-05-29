@@ -23,10 +23,10 @@
 %>
 <%
 	//从内存中取出代码缓冲池（不使用SQL去查询，提高页面效率）
-	ASValuePool vpCode = CurConfig.getSysConfig(ASConfigure.SYSCONFIG_CODE,Sqlca);
+	//ASValuePool vpCode = CurConfig.getSysConfig(ASConfigure.SYSCONFIG_CODE,Sqlca);
 	//取出代码对象
-	ASCodeDefinition codeDef = (ASCodeDefinition)vpCode.getAttribute("WorkTips");
-	int taskNum = codeDef.items.size();
+	//ASCodeDefinition codeDef = (ASCodeDefinition)vpCode.getAttribute("WorkTips");
+	//int taskNum = codeDef.items.size();
 %>
 
 <html>
@@ -37,10 +37,17 @@
 <body class="pagebackground" leftmargin="0" topmargin="0" id="mybody" 
 onload="
 	<%
-		for(int i=0;i<taskNum;i++){
-			ASValuePool asp=codeDef.getItem(i);
-			String ItemNo=	asp.getString("ItemNo");	
-			String HandJsp=	asp.getString("ItemDescribe");	
+		String sSql="select ItemNo,ItemName,ItemDescribe,ItemAttribute "+
+				" from Code_Library"+
+				" where CodeNo='WorkTips' "+
+				" and IsInuse='1'"+
+				" and (nvl(ItemAttribute,'')='' "+
+					" or exists(select 1 from User_Role UR"+ 
+							" where UR.UserID='"+CurUser.UserID+"' and locate(UR.RoleID,ItemAttribute)>0))";
+		ASResultSet rs=Sqlca.getASResultSet(sSql);
+		while(rs.next()){
+			String ItemNo=	rs.getString("ItemNo");	
+			String HandJsp=	rs.getString("ItemDescribe");	
 	%>
 		HandleWork('<%=ItemNo%>','<%=HandJsp%>',0);
 	<%
@@ -59,45 +66,27 @@ onload="
                   <td valign='top'>
                     <table width="100%" border="0" cellspacing="0" cellpadding="4">
                       <tr>
+                      <!-- 
                         <td width="20%" valign="top" align="center">
                           <p><br>
                           <%
                           	String sPic = StringFunction.getNow().substring(7);
-                          	sPic+=".gif";
+                          	sPic+=".wgif";
                           %>
                           <img src="<%=sResourcesPath%>/DailyPics/<%=sPic%>">
                           </p>
                           <p><a href="javascript:self.location.reload();">刷新</a></p>  
                         </td>
+                         -->
                         <td valign="top">
                           <table align='left' border="0" cellspacing="0" cellpadding="0" bordercolordark="#FFFFFF" width="100%" >
 							<!-------------------循环输出日常工作提示------------------------------------------------->
 							 <%
-							 boolean bPass=false;
-							 for(int i=0;i<taskNum;i++){
-								 	ASValuePool asp=codeDef.getItem(i);
-								 	String ItemNo=asp.getString("ItemNo");	
-								 	String Title=	asp.getString("ItemName");	
-									String HandJsp=asp.getString("ItemDescribe");	
-									String sRoleID = asp.getString("ItemAttribute");//配置的角色//配置的角色
-									//检查当前用户是否有查看的角色
-					    			if(sRoleID == null || sRoleID.length() == 0){	//如果没有配置角色限制，则默认全部可见
-					    				sRoleID = "";
-					    				bPass = true;
-					    			}
-					    			if(bPass == false){
-					    				String[] roleIDArray = sRoleID.split(",");
-					    				for(int j=0;j<roleIDArray.length;j++){	//角色检查
-					    					if(CurUser.hasRole(roleIDArray[j])){
-					    						bPass = true;
-					    						break;
-					    					}
-					    				}
-					    			}
-					    			//如果角色检查未通过，则不显示当前类别的数据了
-					    			if(bPass == false){
-					    				continue;
-					    			}
+							 rs.beforeFirst();
+							 while(rs.next()){
+								 	String ItemNo=rs.getString("ItemNo");	
+								 	String Title=rs.getString("ItemName");	
+									String HandJsp=rs.getString("ItemDescribe");	
 							 %>
 								 <tr hight="1">
 	                                <td align="left" colspan="2"  background="<%=sResourcesPath%>/workTipLine.gif" >
@@ -124,6 +113,7 @@ onload="
 		                        </tr>
 			                 <%
 			                 	}
+							 	rs.getStatement().close();
 			                 %>
                           </table>
                         </td>

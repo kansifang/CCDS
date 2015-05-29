@@ -57,27 +57,30 @@
 		}
 		return sReturn;
 	}
-	function getIDInArray(tabname){
-		for(var i=0;i<tabstrip.length;i++){
-			if(tabstrip[i][1]==tabname){
-				return tabstrip[i][0];
-			}
-		}
-		return -1;
-	}
+	
 	function newTab(tabname,url){
-		var selectstrip_id_increment=getIDInArray(tabname);
+		var selectstrip_id_increment=getIDInArrayWN(tabname);
+		var isExist=true;
 		if(selectstrip_id_increment==-1){
+			isExist=false;
 			//增加到数组
 			addTab(tabname,url);
 			selectstrip_id_increment=strip_id_increment;
 		}
-		tabstrip[selectstrip_id_increment][6]="";//删除标志置空，"del"表示删除
+		//tabstrip[selectstrip_id_increment][6]="";//删除标志置空，"del"表示删除
 		//获取为了新tab重新画tab时应该开始的tab的序号
 		var beginti=calBiginIndex(selectstrip_id_increment,GbeginTabIndex);
 		//接着重新画tab
 		hc_drawTabToTable_plus_ex(tabstrip,selectstrip_id_increment,beginti,iMaxTabLength,hangtableID);
-		//myTabAction(hangtableID,selectstrip_id_increment,false,beginti);
+		if(isExist){
+			if(confirm("刷新已打开页面吗？")){
+				myTabAction(hangtableID,selectstrip_id_increment,true,beginti);
+			}else{
+				myTabAction(hangtableID,selectstrip_id_increment,false,beginti);
+			}
+		}else{
+			myTabAction(hangtableID,selectstrip_id_increment,true,beginti);
+		}
 		window.focus();
 	}
 	function addTab(tabname,url){
@@ -86,10 +89,11 @@
 			para='&'+url.substring(url.indexOf('?')+1);
 			url=url.substring(0,url.indexOf('?'));
 		}
-		tabstrip[++strip_id_increment] = new Array(strip_id_increment,
+		tabstrip.push( new Array(++strip_id_increment,
 				tabname,
 				"AsControl.OpenView('"+url+"','TextToShow="+tabname+para+"&ToInheritObj=y','"+(hangtableID+strip_id_increment)+"')",
-				"AsControl.OpenView('"+url+"','TextToShow="+tabname+para+"&ToInheritObj=y','"+(hangtableID+strip_id_increment)+"')","1","1");
+				"AsControl.OpenView('"+url+"','TextToShow="+tabname+para+"&ToInheritObj=y','"+(hangtableID+strip_id_increment)+"')","1","1")
+		);
 	}
 	//第一个参数为Tab唯一标识，第二个参数为Tab显示名称，第三个参数为Tab的OnClick事件，第四个参数为oncontextmenu事件，
 	var sMarrow = false;
@@ -121,7 +125,7 @@
 	hc_drawTabToTable_plus_ex(tabstrip,0,0,iMaxTabLength,hangtableID);
 	//设定默认页面
 	//var iIndex = 0;
-	//myTabAction(hangtableID,0,false,0);
+	myTabAction(hangtableID,0,false,0);
 	window.focus();
 </script>
 
