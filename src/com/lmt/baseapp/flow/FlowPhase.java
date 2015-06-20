@@ -131,6 +131,9 @@ public class FlowPhase
             {
                 throw new Exception(exception.toString() + " " + s + "\u5B9A\u4E49\u9519\u8BEF\uFF01" + s + ":" + s1);
             }
+            if(any==null){
+            	throw new Exception("没有找到被提交角色的用户！");
+            }
             return any;
         } else
         {

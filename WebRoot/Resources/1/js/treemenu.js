@@ -87,11 +87,10 @@ function selectItem(id) {
 		expandFoldersToNode(nodes[index].id,10);
 		if(nodes[index].url.trim().indexOf("javascript")==0 || nodes[index].url.trim().indexOf("Javascript")==0){
 			var sTempScript = nodes[index].url.trim().substring(11);
-			if(sTempScript.indexOf("parent.")==0 || sTempScript.indexOf("parent.")==0){
+			if(sTempScript.indexOf("parent.")==0){
 				sTempScript = sTempScript.substring(7);
 			}
 			eval(parent.html2Real(sTempScript));//eval();
-			
 		}
 		click_change(index);
 	}
@@ -184,17 +183,20 @@ function click_change(index) {
 		try {
 			eval("left.document.all().style.cssText=''");
 		} catch (e) {
+			
 		}
 	}
 	if (nodes[myCurIndex].type == 'folder') {	
 		left.document.getElementById('span'+myCurIndex+'plus').style.cssText='border-bottom:1px dashed #9fc0e3;';
 		left.document.getElementById('span'+myCurIndex+'minu').style.cssText='border-bottom:0px dashed #9fc0e3;';
-	}else   left.document.getElementById('span'+myCurIndex).style.cssText='border-bottom:0px dashed #9fc0e3;';
+	}else   
+		left.document.getElementById('span'+myCurIndex).style.cssText='border-bottom:0px dashed #9fc0e3;';
 		
 	if (nodes[index].type == 'folder') {
 		left.document.getElementById('span'+index+'plus').style.cssText='background-color:#b4d3ff';
 		left.document.getElementById('span'+index+'minu').style.cssText='background-color:#b4d3ff';
-	}else   left.document.getElementById('span'+index).style.cssText='background-color:#b4d3ff';
+	}else   
+		left.document.getElementById('span'+index).style.cssText='background-color:#b4d3ff';
 		
 	myCurIndex = index;
 
@@ -427,10 +429,7 @@ function drawNode2(myDocument, currentIndex, spanID, myPos) {
 			var nodeTarget = 'PageFrame';
 		else 
 			nodeTarget = nodes[currentIndex].target;
-		if (nodes[currentIndex].url == '') 
-			ss2[jj2++]=("\t<A id=textminu"+currentIndex+" class='pt9song' onClick=parent.click_change("+currentIndex+") title='"+nodeName+"' >" + nodeName + "</A></td></tr></table>");
-		else
-			ss2[jj2++]=("\t<A id=textminu"+currentIndex+" class='pt9song' HREF='" + nodes[currentIndex].url + "' TARGET='" + nodeTarget + "' onClick=parent.click_change("+currentIndex+") title='"+nodeName+"' >" + nodeName + "</A></td></tr></table>");
+		ss2[jj2++]=("\t<A id=textminu"+currentIndex+" class='pt9song' onClick=parent.click_change("+currentIndex+") title='"+nodeName+"' >" + nodeName + "</A></td></tr></table>");
 		
 		newTD2Obj.innerHTML = ss2.join('');
 		
@@ -456,11 +455,7 @@ function drawNode2(myDocument, currentIndex, spanID, myPos) {
 			var nodeTarget = 'PageFrame';
 		else 
 			nodeTarget = nodes[currentIndex].target;
-		if (nodes[currentIndex].url == '') {
-			sss[jjj++]=("\t<A id=text"+currentIndex+" class='pt9song' onClick=parent.click_change("+currentIndex+") title='"+nodeName+"' >" + nodeName + "</A></td></tr></table>");
-		} else
-			sss[jjj++]=("\t<A id=text"+currentIndex+" class='pt9song' HREF='" + nodes[currentIndex].url + "' TARGET='" + nodeTarget + "' onClick=parent.click_change("+currentIndex+") title='"+nodeName+"' >" + nodeName + "</A></td></tr></table>");
-			
+		sss[jjj++]=("\t<A id=text"+currentIndex+" class='pt9song' onClick=parent.click_change("+currentIndex+") title='"+nodeName+"' >" + nodeName + "</A></td></tr></table>");
 		newTDObj.innerHTML = sss.join('');
 		
 		return myPos+1;

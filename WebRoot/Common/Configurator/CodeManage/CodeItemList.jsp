@@ -131,7 +131,7 @@
 	doTemp.setHTMLStyle("IsInUse"," style={width:56px} ");
 	
 	//查询
-	doTemp.setColumnAttribute("CodeNo","IsFilter","1");
+	doTemp.setColumnAttribute("CodeNo,ItemName","IsFilter","1");
 	doTemp.generateFilters(Sqlca);
 	doTemp.parseFilterData(request,iPostChange);
 	CurPage.setAttribute("FilterHTML",doTemp.getFilterHtml(Sqlca));
@@ -192,7 +192,7 @@
 			//5.事件
 			//6.资源图片路径
 		String sButtons[][] = {
-			{(sCodeNo.equals("")?"false":"true"),"","Button","新增","新增一条记录","newRecord()",sResourcesPath},
+			{"true","","Button","新增","新增一条记录","newRecord()",sResourcesPath},
 			{"true","","Button","详情","查看/修改详情","viewAndEdit()",sResourcesPath},		
 			{"true","","Button","删除","删除所选中的记录","deleteRecord()",sResourcesPath}
 			};
@@ -247,7 +247,7 @@
 			return ;
 			}
         
-        sReturn=popComp("CodeItemInfo","/Common/Configurator/CodeManage/CodeItemInfo.jsp","CodeName=<%=sCodeName%>&CodeNo="+sCodeNo+"&ItemNo="+sItemNo,"");
+        sReturn=popComp("CodeItemInfo","/Common/Configurator/CodeManage/CodeItemInfo.jsp","CodeName=<%=sCodeName%>&CodeNo="+sCodeNo+"&ItemNo="+sItemNo+"&rand="+amarRand(),"");
 		reloadSelf();
 	}
 	

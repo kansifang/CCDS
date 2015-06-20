@@ -162,8 +162,7 @@ void setCurPref(ASPreference CurPref, ASComponent CurComp) throws Exception{
     if (session.getAttribute("LastRunJspName")!=null && 
 		session.getAttribute("LastRunJspName").equals(sCurJspName) &&
 		session.getAttribute("LastRunQueryString").equals(sCurQueryString) &&
-		session.getAttribute("LastRunEndTime").equals("") )
-	{
+		session.getAttribute("LastRunEndTime").equals("") ){
     	ARE.getLog().warn("[BBB]"+sBeginTimeTemp+" : "+CurUser.UserID+"  :  "+sCurJspName+" reclick(wait)...request.getQueryString...ana..."+sCurQueryString);
 
 	    sResourcesPath = (String)CurARC.getAttribute("ResourcesPath");
@@ -265,7 +264,7 @@ void setCurPref(ASPreference CurPref, ASComponent CurComp) throws Exception{
                 }
             }else{
                 CurComp = null;
-                throw new Exception("非法的访问方式：本页面不允许非组件的访问方式！</a>");
+                throw new Exception("非法的访问方式：本页面不允许非组件的访问方式（传进来的组件号="+sCompClientID+"）！</a>");
             }
 
             //byhu 及时销毁页面实例

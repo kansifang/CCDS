@@ -77,7 +77,9 @@ public class ASUser
     while (localLSResultSet.next())
       this.rights.setAttribute(localLSResultSet.getString("RightID"), null);
     localLSResultSet.getStatement().close();
+    
     this.roles.setAttribute("800", null);
+    
     Object localObject = localLSValuePool1.getAttribute("800");
     if (localObject == null)
       throw new Exception("没有定义的角色：800");

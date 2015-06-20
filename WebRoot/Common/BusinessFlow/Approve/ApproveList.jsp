@@ -1,25 +1,3 @@
-<%/*~BEGIN~可编辑区~[Editable=true;CodeAreaID=List00;Describe=注释区;]~*/%>
-	<%
-	/*
-		Author:   byhu  2004.12.6
-		Tester:
-		Content: 该页面主要处理业务申请相关的审查审批、最终审批意见复核、放贷申请复核
-		Input Param:
-			ApproveType:审批对象			
-			PhaseType：阶段类型
-			FlowNo：流程模型编号
-			PhaseNo：阶段编号
-			FinishFlag：完成标志（Y：已完成；N：未完成）
-		Output param:
-		History Log: 
-			2005.08.03 jbye    重新修改流程审查相关信息
-			2005.08.05 zywei   重检页面
-			2006.02.21 zywei   将审查审批列表上的按钮配置从数据表CODE_LIBRARY中字段ItemDescribe移到数据表FLOW_MODEL中字段Attribute1，Attribute2
-	 */
-	%>
-<%/*~END~*/%>
-
-
 <%/*~BEGIN~可编辑区~[Editable=true;CodeAreaID=List02;Describe=定义变量，获取参数;]~*/%>
 <%
 

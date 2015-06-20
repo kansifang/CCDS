@@ -1,6 +1,5 @@
 <%@ page contentType="text/html; charset=GBK"%>
 <%@ include file="/IncludeBeginMD.jsp"%>
-<%@ page import="com.amarsoft.impl.jsbank_als.CheckGuarantyEnterpriseLimit,com.lmt.app.lending.bizlets.*"%>
 
 <%
 	/*~BEGIN~可编辑区~[Editable=true;CodeAreaID=Info00;Describe=注释区;]~*/
@@ -65,8 +64,8 @@
 		
 		//判断是否为支行权限 2011-5-4
 		if(sIsJGT.equals("1")&&getRight(Sqlca,sCreditAggreement)&&sApplyType.equals("DependentApply")){
-	//满足支行权限
-	sFlowNo= "CreditNormalFlow3";
+			//满足支行权限
+			sFlowNo= "CreditNormalFlow3";
 		}else if(sOrgID.equals("14")){
 		if(sApplyType.equals("PutOutApply")){
 			sFlowNo = "MicroPutOutFlow";
@@ -74,18 +73,14 @@
 			sFlowNo = "CreditMicroFlow";
 		}
 		}else if(sCustomerType.equals("03")){
-		sFlowNo= "CreditRetailFlow";
+			sFlowNo= "CreditRetailFlow";
 		}else if((sOrgID.equals("01")&&(sCreditAggreement == null||sCreditAggreement.trim().equals(""))||sOrgID.equals("02"))&&sApplyType.equals("DependentApply")){//总行营业部或者中小企业专营中心
-		sFlowNo= "CreditNormalFlow";
+			sFlowNo= "CreditNormalFlow";
 		}else if((sCreditAggreement == null||sCreditAggreement.trim().equals(""))&&sApplyType.equals("DependentApply")){//单笔业务（特别授信）
-		sFlowNo= "CreditNormalFlow1";
+			sFlowNo= "CreditNormalFlow1";
 		}else{
-	sFlowNo = DataConvert.toString(Sqlca.getString("select Attribute2 from CODE_LIBRARY where CodeNo = 'ApplyType' and ItemNo = '"+sApplyType+"'"));
+			sFlowNo = DataConvert.toString(Sqlca.getString("select Attribute2 from CODE_LIBRARY where CodeNo = 'ApplyType' and ItemNo = '"+sApplyType+"'"));
 		}
-		//如果申请一笔新发生的业务或只是申请额度，且在BUSINESS_TYPE中指定了审批流程,则从之中取得审批流程编号和初始阶段编号，并覆盖掉已经取得的默认值；
-		sSql = " select Attribute9 from Business_Apply BA,Business_Type BT "+
-		" where BA.BusinessType=BT.TypeNo"+
-		" and BA.SerialNo='sObjectNo') ";
 %>
 
 <script language=javascript>

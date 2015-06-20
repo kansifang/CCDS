@@ -331,12 +331,15 @@ function RunJspAjax(sURL) {
 
 function PopPage(sURL,sTargetWindow,sStyle){
 	var sDialogStyle = "";
-	if(typeof(sStyle)=="undefined" || sStyle=="") sDialogStyle= sDefaultDialogStyle;
-	else sDialogStyle = sStyle;
-
+	if(typeof(sStyle)=="undefined" || sStyle=="") 
+		sDialogStyle= sDefaultDialogStyle;
+	else 
+		sDialogStyle = sStyle;
 	var sPageURL=""; 
-	if(sURL.indexOf("?")<0) sPageURL = sWebRootPath+sURL+"?";
-	else sPageURL = sWebRootPath+sURL+"&";
+	if(sURL.indexOf("?")<0) 
+		sPageURL = sWebRootPath+sURL+"?";
+	else 
+		sPageURL = sWebRootPath+sURL+"&";
 	
 	sPageURL = sPageURL + "CompClientID="+sCompClientID;
 	//alert(sPageURL);

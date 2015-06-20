@@ -29,94 +29,64 @@ public class Expression
     ARE.getLog().trace("getExpressionValue:" + sExpression);
     try
     {
-      while (iScanPos < iExpressionLen)
-      {
+      while (iScanPos < iExpressionLen){
         ID idCurrent = IDManager.getID(sExpression, iScanPos);
 
-        if (idCurrent.Name.equalsIgnoreCase("操作数"))
-        {
+        if (idCurrent.Name.equalsIgnoreCase("操作数")){
           StackOperand.push(new Any(idCurrent.Attribute, idCurrent.Value));
-        }
-        else if (idCurrent.Name.equalsIgnoreCase("运算符"))
-        {
+        }else if (idCurrent.Name.equalsIgnoreCase("运算符")){
           if ((idCurrent.Content.equalsIgnoreCase("-")) && (!idLast.Name.equalsIgnoreCase("操作数")) && (!idLast.Name.equalsIgnoreCase("右括号")) && (!idLast.Name.equalsIgnoreCase("数组结束")) && (!idLast.Name.equalsIgnoreCase("外部函数")))
           {
             ID idNext = IDManager.getID(sExpression, iScanPos + 1);
-            if (idNext.Attribute.equalsIgnoreCase("Number"))
-            {
+            if (idNext.Attribute.equalsIgnoreCase("Number")){
               idNext.Content = ("-" + idNext.Content);
               idNext.Value = ("-" + idNext.Value);
               idCurrent = idNext;
               StackOperand.push(new Any(idCurrent.Attribute, idCurrent.Value));
-            }
-            else {
+            }else {
               throw new ExpressionException("Expression:表达式书写错误1" + sExpression);
             }
-
-          }
-          else if (StackOperator.empty())
-          {
+          }else if (StackOperator.empty()){
             StackOperator.push(idCurrent);
-          }
-          else
-          {
+          }else{
             idLast = (ID)StackOperator.lastElement();
-            if (idCurrent.Order > idLast.Order)
-            {
+            if (idCurrent.Order > idLast.Order){
               StackOperator.push(idCurrent);
-            }
-            else
-            {
+            }else{
               ID idOperator;
-              do
-              {
+              do{
                 idOperator = (ID)StackOperator.pop();
                 anyOperateResult = getOperateResult(StackOperand, idOperator);
                 StackOperand.push(anyOperateResult);
-
                 if (StackOperator.empty())
                   continue;
                 idOperator = (ID)StackOperator.lastElement();
-              }
-
-              while ((idCurrent.Order <= idOperator.Order) && (!StackOperator.empty()));
-
+              }while ((idCurrent.Order <= idOperator.Order) && (!StackOperator.empty()));
               StackOperator.push(idCurrent);
             }
           }
-        }
-        else if ((idCurrent.Name.equalsIgnoreCase("左括号")) || (idCurrent.Name.equalsIgnoreCase("函数")))
-        {
+        }else if ((idCurrent.Name.equalsIgnoreCase("左括号")) || (idCurrent.Name.equalsIgnoreCase("函数"))){
           StackOperator.push(idCurrent);
-        }
-        else if (idCurrent.Name.equalsIgnoreCase("右括号"))
-        {
+        }else if (idCurrent.Name.equalsIgnoreCase("右括号")){
           ID idOperator;
-          do
-          {
+          do{
             idOperator = (ID)StackOperator.pop();
             anyOperateResult = getOperateResult(StackOperand, idOperator);
             StackOperand.push(anyOperateResult);
-
             if (idOperator.Name.equalsIgnoreCase("左括号")) break; 
           }while (!idOperator.Name.equalsIgnoreCase("函数"));
-        }
-        else if (idCurrent.Name.equalsIgnoreCase("数组开始"))
-        {
+        }else if (idCurrent.Name.equalsIgnoreCase("数组开始")){
           StackOperator.push(idCurrent);
-        }
-        else if (idCurrent.Name.equalsIgnoreCase("数组结束")) {
+        }else if (idCurrent.Name.equalsIgnoreCase("数组结束")){
           String sOperandType = "";
           Vector vOperandList = new Vector();
           ID idOperator;
           do {
             idOperator = (ID)StackOperator.pop();
-            if (idOperator.Name.equalsIgnoreCase("运算符"))
-            {
+            if (idOperator.Name.equalsIgnoreCase("运算符")){
               anyOperateResult = getOperateResult(StackOperand, idOperator);
               StackOperand.push(anyOperateResult);
-            }
-            else {
+            }else {
               Any anyOperand = popOperand(StackOperand);
               if (sOperandType.equals("")) sOperandType = anyOperand.getType();
               else if (!sOperandType.equals(anyOperand.getType()))
@@ -125,12 +95,10 @@ public class Expression
               }
               vOperandList.insertElementAt(anyOperand, 0);
             }
-          }
-          while (!idOperator.Name.equalsIgnoreCase("数组开始"));
-
-          if (vOperandList.size() > 0) 
+          }while (!idOperator.Name.equalsIgnoreCase("数组开始"));
+          if (vOperandList.size() > 0){ 
         	  anyOperateResult = new Any(sOperandType + "[]", vOperandList); 
-          else {
+          }else {
             anyOperateResult = new Any("Null", "");
           }
           StackOperand.push(anyOperateResult);
@@ -158,7 +126,6 @@ public class Expression
         iScanPos += idCurrent.Content.length();
         idLast = idCurrent;
       }
-
       while (!StackOperator.empty()){
         ID idOperator = (ID)StackOperator.pop();
         anyOperateResult = getOperateResult(StackOperand, idOperator);

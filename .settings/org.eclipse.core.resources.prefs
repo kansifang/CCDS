@@ -1,5 +1,6 @@
 eclipse.preferences.version=1
 encoding//WebRoot/Common/BusinessFlow/Apply/ApplyList.jsp=gbk
+encoding//WebRoot/Common/BusinessFlow/Approve/ApproveList.jsp=GBK
 encoding//WebRoot/Common/BusinessFlow/Receive/ReceiveList.jsp=GBK
 encoding//WebRoot/Data/Define/QDefinitionInfo.jsp=GBK
 encoding//WebRoot/Data/Report/CrawlerDetail.jsp=gbk

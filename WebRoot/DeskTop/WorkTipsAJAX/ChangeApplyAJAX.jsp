@@ -14,7 +14,7 @@
 					" and locate(CL.ItemNo,RI.RoleDescribe)>0"+
 					" and CL.CodeNo='SystemType' "+
 					" and CL.IsInUse='1'"+
-					" and (locate(W.SystemName,CL.ItemDescribe)>0 or locate(CL.ItemDescribe,W.SystemName)>0))";
+					" and (locate(W.SystemName,CL.ItemDescribe)>0 or locate(CL.ItemDescribe,W.SystemName)>0)) ";
 	if(sFlag.equals("0")){
 		sSql = 	" select count(ChangeNo) ";
 		sSql = sSql+ WhereCase;	
@@ -25,7 +25,7 @@
 	}else if(sFlag.equals("1")){
 		sSql = 	" select W.ChangeNo,SystemName,"+
 					"W.Summary,W.ChangeUser";
-		sSql = sSql+ WhereCase;	
+		sSql = sSql+ WhereCase+" order by SystemName,ChangeNo asc";	
 		rs = Sqlca.getResultSet(sSql);
 		int iWorks=1;
 		while(rs.next()){

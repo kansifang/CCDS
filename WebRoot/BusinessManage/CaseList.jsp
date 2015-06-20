@@ -79,28 +79,33 @@
 	                           	{"BranchSpecial","分行特色"},
 	                           	{"ChangeCondition","开发状态"},
 	                           	{"OutFactoryDate","上线版本"},
-	                           	{"FatherCNo","父变更号"},
 	                           	{"BusinessWriteCondition","业需编写情况"},
 	                           	{"SoftWriteCondition","软需编写情况"},
 	                           	{"SoftWriteDir","软需目录"},
 	                           	{"BusinessReviewResult","业务评审结果"},
 	                           	{"ProjectManagerReviewResult","项目负责人评审结果"},
 	                           	{"ChangeManagerReviewResult","需求组评审结果"},
+	                           	{"FatherCNo","父变更"},
+	                        	{"ChildCNo","子变更"},
 	                           	{"UpdateUserName","维护人"},
 						       	{"UpdateTime","维护时间"}
 	     					};    		                     
     	//定义SQL语句
-	sSql = 	" SELECT BatchNo,SerialNo,ChangeNo,"+
+	sSql = 	" SELECT BatchNo,SerialNo,"+
+    		" ChangeNo,"+
 			" SystemName,Status,Summary,CreateDate,"+
 			" ChangeType,ChangeUser,BusinessPriority,FactoryPriority,"+
 			" FinallyTerm,ChangeConfirmDate,UATDate,RelativeSystem,"+
 			" ChangeConfirmPerson,ChangeWorker,Problem,"+
 			" MeetingContent,Remark,BranchSpecial,"+
-			" ChangeCondition,OutFactoryDate,FatherCNo,BusinessWriteCondition,"+
+			" ChangeCondition,OutFactoryDate,BusinessWriteCondition,"+
 			" SoftWriteCondition,SoftWriteDir,BusinessReviewResult,ProjectManagerReviewResult,"+
-			" ChangeManagerReviewResult,getUserName(UpdateUserID) as UpdateUserName,UpdateTime"+
+			" ChangeManagerReviewResult,"+
+			" FatherCNo||'：'||(Select SystemName from Batch_Case BC1 where BC1.ChangeNo=BC.FatherCNo) as FatherCNo,"+
+    		" getRowsToRow(ChangeNo) as ChildCNo,"+
+			"getUserName(UpdateUserID) as UpdateUserName,UpdateTime"+
 			//" getItemName('Status',Status) as Status"+
-		    " FROM Batch_Case"+
+		    " FROM Batch_Case BC"+
 			" WHERE 1=1 "+
            	("".equals(sBatchNo)?"":" and BatchNo='"+sBatchNo+"'");
 	ASDataObject doTemp = new ASDataObject(sSql);
@@ -112,6 +117,7 @@
     doTemp.setVisible("BatchNo,SerialNo",false);
 	doTemp.setHTMLStyle("ChangeNo,SystemName,Status","ondblclick=\"javascript:parent.viewAndEdit()\"");
     doTemp.setHTMLStyle("Summary"," style={width:300px;cursor:hand} onDBLClick=\"javascript:parent.viewAndEdit()\"");
+    doTemp.setHTMLStyle("ChildCNo"," style={width:400px;cursor:hand} onDBLClick=\"javascript:parent.viewAndEdit()\"");
     //doTemp.setDDDWCode("SystemName", "SystemType");
     //生成查询框
   	doTemp.setColumnAttribute("Status,ChangeNo,SystemName,Summary,ChangeUser,FinallyTerm,OutFactoryDate","IsFilter","1");
@@ -147,7 +153,7 @@
 		String sButtons[][] = {
 			{"false","","Button","新增","新增一个相关附件信息","newRecord()",sResourcesPath},
 			{"true","","Button","详情","查看明细信息","viewAndEdit()",sResourcesPath},
-			{"false","","Button","删除","删除文档信息","deleteRecord()",sResourcesPath},
+			{CurUser.hasRole("482")?"true":"false","","Button","删除","删除文档信息","deleteRecord()",sResourcesPath},
 			{"false","","Button","上传/查看文档","查看附件详情","viewDoc()",sResourcesPath}
 			};
 	%>
@@ -228,8 +234,8 @@
 	/*~[Describe=删除记录;InputParam=无;OutPutParam=无;]~*/
 	function deleteRecord()
 	{
-		var sSerialNo = getItemValue(0,getRow(),"SerialNo");
-		if (typeof(sSerialNo)=="undefined" || sSerialNo.length==0)
+		var sChangeNo = getItemValue(0,getRow(),"ChangeNo");
+		if (typeof(sChangeNo)=="undefined" || sChangeNo.length==0)
 		{
 			alert(getHtmlMessage(1));  //请选择一条记录！
 			return;

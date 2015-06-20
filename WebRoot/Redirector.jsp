@@ -110,7 +110,6 @@ function randomNumber()
 		ASResultSet rs = null;
 		String sSql = "";
 		
-		//add by zxu 20050509 
 		ASValuePool definitions;
 	    ASCompDefinition definition;
 	    

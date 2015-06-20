@@ -51,7 +51,6 @@
 	{
 		sFlowNo  = DataConvert.toString(rsTemp.getString("FlowNo"));
 		sPhaseNo  = DataConvert.toString(rsTemp.getString("PhaseNo"));
-		
 		//将空值转化成空字符串
 		if(sFlowNo == null) sFlowNo = "";
 		if(sPhaseNo == null) sPhaseNo = "";				
@@ -77,29 +76,26 @@
 	//初始化任务对象
 	FlowTask ftBusiness = new FlowTask(sSerialNo,Sqlca);
 
+	sPhaseOpinion1 = ftBusiness.getChoiceList();
+	if (sPhaseOpinion1 == null){
+		sPhaseOpinion1 = new String[1];
+		sPhaseOpinion1[0] = "";
+	}
+
 	//获取动作选择列表
 	sActionList = ftBusiness.getActionList("");
-
-	if (sActionList == null)
-	{
+	if (sActionList == null){
 		sActionList = new String[1];
 		sActionList[0] = "";
 	}
 	
-	sPhaseOpinion1 = ftBusiness.getChoiceList();
-	if (sPhaseOpinion1 == null)
-	{
-		sPhaseOpinion1 = new String[1];
-		sPhaseOpinion1[0] = "";
-	}
 
 	String sActionValue[];
 	String sTempString1 = "";
 	int iCount=sActionList.length;
 	sActionValue = new String[iCount];
 
-	for(int i=0;i<iCount;i++)
-	{
+	for(int i=0;i<iCount;i++){
 		sSql = "select LoginID||'  '||UserName from USER_INFO where UserID = '"+sActionList[i]+"' ";
 		rsTemp = Sqlca.getASResultSet(sSql);
 		if(rsTemp.next()){
@@ -113,8 +109,6 @@
 <%
 	/*~END~*/
 %>	
-
-
 <%
 		/*~BEGIN~可编辑区~[Editable=true;CodeAreaID=List04;Describe=定义选择提交动作界面风格;]~*/
 	%>
@@ -128,9 +122,9 @@
 		if (!sPhaseOpinion1[0].equals("")){//当前页就是为了展示PhaseOpinion1内容，不知为啥搞个if else
 	%>
 		 <table width="100%" align="center">
-		  	<tr width="100%" >
+		  		<tr width="100%" >
 		  		<td width="100%"  valign="top" >
-		  		<table >
+		  			<table >
 					<tr>
 						<td>
 						<%=ASWebInterface.generateControl(SqlcaRepository,CurComp,sServletURL,"","Button","提  交","提交","javascript:commitAction()",sResourcesPath)%>
@@ -139,21 +133,25 @@
 						<%=ASWebInterface.generateControl(SqlcaRepository,CurComp,sServletURL,"","Button","放  弃","放弃","javascript:doCancel()",sResourcesPath)%>
 						</td>			
 					</tr>
-		        </table>
+		       		</table>
+		        </td>
+		        </tr>
 		        <tr height=1> 
 		          <td colspan="5" valign="top" ><hr></td>
-		        </tr>					
-						<table align="center">							
-							<tr>
-								 <!--<td valign="top" width=1><img src="<%=sResourcesPath%>/TN_031.gif" width="123" height="80"></td>-->
-								 <td colspan=5>
-									<select size=8  name="PhaseOpinion1"  class="select1">
-									<option value='' style='color:white'>------------------------</option>
-									<%=HTMLControls.generateDropDownSelect(sPhaseOpinion1,sPhaseOpinion1,"")%>
-									</select>
-								 </td>
-							</tr>							
-						</table>
+		        </tr>	
+		        <tr>
+		        <td>				
+					<table align="center">							
+						<tr>
+							 <!--<td valign="top" width=1><img src="<%=sResourcesPath%>/TN_031.gif" width="123" height="80"></td>-->
+							 <td colspan=5>
+								<select size=8  name="PhaseOpinion1"  class="select1">
+								<option value='' style='color:white'>------------------------</option>
+								<%=HTMLControls.generateDropDownSelect(sPhaseOpinion1,sPhaseOpinion1,"")%>
+								</select>
+							 </td>
+						</tr>							
+					</table>
 				</td>
 			</tr>
 		</table>
@@ -173,39 +171,33 @@
 <%
 	}else{
 %>
-					<table align="center">
-						<table >
-							<tr>
-								<td>
-								<%=ASWebInterface.generateControl(SqlcaRepository,CurComp,sServletURL,"","Button","提  交","提交","javascript:commitAction()",sResourcesPath)%>
-								</td>
-								<td>
-								<%=ASWebInterface.generateControl(SqlcaRepository,CurComp,sServletURL,"","Button","放  弃","放弃","javascript:doCancel()",sResourcesPath)%>
-								</td>			
-							</tr>
-				        </table>
-				        <tr height=1> 
-				          <td colspan="5" valign="top" ><hr></td>
-				        </tr>
-				        <br>	
-						<tr>
-							 <td valign="top" width=1><img src="<%=sResourcesPath%>/TN_031.gif" width="123" height="80"></td>
-							 <td colspan=4>
-								<select size=8 <%=sSelectStyle%> <%=sSelectStyle%> name="PhaseAction"  class="select1">
-								<option value='' style='color:white'>------------------------</option>
-								<%=HTMLControls.generateDropDownSelect(sActionList,sActionValue,"")%>
-								</select>
-							</td>
-						</tr>
-						<tr>
-							<td colspan=4>
-							</td>
-						</tr>
-					</table>
-
-				</td>
-			</tr>
-		</table>
+			<table align="center">
+				<tr>
+					<td>
+					<%=ASWebInterface.generateControl(SqlcaRepository,CurComp,sServletURL,"","Button","提  交","提交","javascript:commitAction()",sResourcesPath)%>
+					</td>
+					<td>
+					<%=ASWebInterface.generateControl(SqlcaRepository,CurComp,sServletURL,"","Button","放  弃","放弃","javascript:doCancel()",sResourcesPath)%>
+					</td>			
+				</tr>
+		        <tr height=1> 
+		          <td colspan="5" valign="top" ><hr></td>
+		        </tr>
+		        <br>	
+				<tr>
+					 <td valign="top" width=1><img src="<%=sResourcesPath%>/TN_031.gif" width="123" height="80"></td>
+					 <td colspan=4>
+						<select size=8 <%=sSelectStyle%> <%=sSelectStyle%> name="PhaseAction"  class="select1">
+						<option value='' style='color:white'>------------------------</option>
+						<%=HTMLControls.generateDropDownSelect(sActionList,sActionValue,"")%>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td colspan=4>
+					</td>
+				</tr>
+			</table>
 		<p>		
 		<div style="visibility:hidden;">
 			<table align="right">
@@ -217,8 +209,8 @@
 							</select>
 						</td>
 					</tr>
-				</table>
-			</div>
+			</table>
+		</div>
 <%
 	}
 %>
@@ -236,12 +228,11 @@
 %>
 	<script language=javascript>		
 		//提交任务
-		function commitAction()
-		{
+		function commitAction(){
 			var thisPhaseAction  = "";
 			var thisPhaseOpinion1 = "";
 			iLength  = document.forms("Phase").PhaseAction.length;
-			for(i = 0;i <= iLength - 1;i++)
+			for(var i = 0;i <= iLength - 1;i++)
 			{
 				if (document.forms("Phase").PhaseAction.item(i).selected)
 				{
@@ -254,7 +245,7 @@
 			
 			iLength =  document.forms("Phase").PhaseOpinion1.length;
 			//有下面这些情况，就不要提交，进入下一个选择提交对象对话框
-			for(i = 0;i <= iLength - 1;i++)
+			for(var i = 0;i <= iLength - 1;i++)
 			{
 				if (document.forms("Phase").PhaseOpinion1.item(i).selected)
 				{
@@ -329,13 +320,8 @@
 				self.close();
 			}
 		}
-
 </script>
 <%
 	/*~END~*/
 %>
-
-
-
-
 <%@ include file="/IncludeEnd.jsp"%>

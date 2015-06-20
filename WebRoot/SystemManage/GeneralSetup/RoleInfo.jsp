@@ -106,7 +106,7 @@
 			//6.资源图片路径
 		String sButtons[][] = {
 			{(CurUser.hasRole("099")?"true":"false"),"","Button","保存","保存修改","saveRecord()",sResourcesPath},
-			// Del by wuxiong 2005-02-22 因返回在TreeView中会有错误 {"true","","Button","返回","返回代码列表","doReturn('N')",sResourcesPath}
+			{"true","","Button","返回","返回代码列表","doReturn('Y')",sResourcesPath}
 			};
 	%> 
 <%

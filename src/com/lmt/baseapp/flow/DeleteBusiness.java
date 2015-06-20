@@ -23,81 +23,89 @@ public class DeleteBusiness extends Bizlet
 		if(sDeleteType == null) sDeleteType = "";
 
 		//删除任务
-		if(sDeleteType.equals("DeleteTask")){
-			//删除任务
-			//获取关联表
-			//删除流程对象信息				
-			deleteTableData("Flow_Object",sObjectType,sObjectNo,Sqlca);			
-			//删除流程任务信息
-			deleteTableData("Flow_Task",sObjectType,sObjectNo,Sqlca);
-			//删除流程意见信息
-			deleteTableData("Flow_Opinion",sObjectType,sObjectNo,Sqlca);
-
-		}
-		//删除申请和最终审批意见任务
-		if(sObjectType.equals("CreditApply") || sObjectType.equals("ApproveApply"))
+		if(sDeleteType.equals("DeleteTask"))
 		{
-			//获取关联表
-			getRelativeTable(sObjectType,Sqlca);
-			//删除共同申请人
-			deleteTableData("Business_Applicant",sObjectType,sObjectNo,Sqlca);
-			//删除业务调查报告
-			deleteTableData("Business_Report",sObjectType,sObjectNo,Sqlca);
-			//删除票据信息
-			deleteTableData("Bill_Info",sObjectType,sObjectNo,Sqlca);
-			//信用证信息
-			deleteTableData("LC_Info",sObjectType,sObjectNo,Sqlca);
-			//删除贸易合同信息
-			deleteTableData("Contract_Info",sObjectType,sObjectNo,Sqlca);
-			//删除增值税发票信息
-			deleteTableData("Invoice_Info",sObjectType,sObjectNo,Sqlca);
-			//删除其它提供贷款人信息
-			deleteTableData("Business_Provider",sObjectType,sObjectNo,Sqlca);
-			//删除保函信息
-			deleteTableData("LG_Info",sObjectType,sObjectNo,Sqlca);
-			//删除中介信息
-			deleteAgencyInfo(this.sRelativeTable,sObjectNo,Sqlca);
-			//删除提单信息
-			deleteTableData("Bol_Info",sObjectType,sObjectNo,Sqlca);
-			//删除房屋买卖装修信息
-			deleteTableData("Building_Deal",sObjectType,sObjectNo,Sqlca);
-			//删除汽车信息
-			deleteTableData("Vehicle_Info",sObjectType,sObjectNo,Sqlca);
-			//删除消费信息
-			deleteTableData("Consume_Info",sObjectType,sObjectNo,Sqlca);
-			//删除设备信息
-			deleteTableData("Equipment_Info",sObjectType,sObjectNo,Sqlca);
-			//删除留助学信息
-			deleteTableData("Study_Info",sObjectType,sObjectNo,Sqlca);
-			//删除开发商楼盘信息
-			deleteTableData("Building_Info",sObjectType,sObjectNo,Sqlca);
-			//删除担保物信息
-			deleteGuarantyInfo(sObjectType,sObjectNo,Sqlca);
-			//删除担保物与业务关联关系
-			deleteTableData("Guaranty_Relative",sObjectType,sObjectNo,Sqlca);
-			//删除担保合同信息
-			deleteGuarantyContract(this.sRelativeTable,sObjectNo,Sqlca);
-			//删除风险度评估明细信息
-			deleteTableData("Evaluate_Data",sObjectType,sObjectNo,Sqlca);
-			//删除风险度评估信息
-			deleteTableData("Evaluate_Record",sObjectType,sObjectNo,Sqlca);
-			//删除格式化调查报告信息
-			deleteTableData("FormatDoc_Data",sObjectType,sObjectNo,Sqlca);
-			//删除文档信息
-			deleteDocInfo(sObjectType,sObjectNo,Sqlca);	
-			//删除项目信息
-			deleteTableData("Project_Relative",sObjectType,sObjectNo,Sqlca);
-			//删除授信方案明细信息
-			deleteCLInfo(sObjectType,sObjectNo,Sqlca);				
-			//删除关联信息
-			deleteRelativeInfo(this.sRelativeTable,sObjectNo,Sqlca);
-			//删除主体对象信息
-			deleteObjectInfo(this.sObjectTable,sObjectNo,Sqlca);
-			//删除流程对象信息				
-			deleteTableData("Flow_Object",sObjectType,sObjectNo,Sqlca);			
-			//删除流程任务信息
-			deleteTableData("Flow_Task",sObjectType,sObjectNo,Sqlca);				
+			//删除申请和最终审批意见任务
+			if(sObjectType.equals("CreditApply") || sObjectType.equals("ApproveApply"))
+			{
+				//获取关联表
+				getRelativeTable(sObjectType,Sqlca);
+				//删除共同申请人
+				deleteTableData("Business_Applicant",sObjectType,sObjectNo,Sqlca);
+				//删除业务调查报告
+				deleteTableData("Business_Report",sObjectType,sObjectNo,Sqlca);
+				//删除票据信息
+				deleteTableData("Bill_Info",sObjectType,sObjectNo,Sqlca);
+				//信用证信息
+				deleteTableData("LC_Info",sObjectType,sObjectNo,Sqlca);
+				//删除贸易合同信息
+				deleteTableData("Contract_Info",sObjectType,sObjectNo,Sqlca);
+				//删除增值税发票信息
+				deleteTableData("Invoice_Info",sObjectType,sObjectNo,Sqlca);
+				//删除其它提供贷款人信息
+				deleteTableData("Business_Provider",sObjectType,sObjectNo,Sqlca);
+				//删除保函信息
+				deleteTableData("LG_Info",sObjectType,sObjectNo,Sqlca);
+				//删除中介信息
+				deleteAgencyInfo(this.sRelativeTable,sObjectNo,Sqlca);
+				//删除提单信息
+				deleteTableData("Bol_Info",sObjectType,sObjectNo,Sqlca);
+				//删除房屋买卖装修信息
+				deleteTableData("Building_Deal",sObjectType,sObjectNo,Sqlca);
+				//删除汽车信息
+				deleteTableData("Vehicle_Info",sObjectType,sObjectNo,Sqlca);
+				//删除消费信息
+				deleteTableData("Consume_Info",sObjectType,sObjectNo,Sqlca);
+				//删除设备信息
+				deleteTableData("Equipment_Info",sObjectType,sObjectNo,Sqlca);
+				//删除留助学信息
+				deleteTableData("Study_Info",sObjectType,sObjectNo,Sqlca);
+				//删除开发商楼盘信息
+				deleteTableData("Building_Info",sObjectType,sObjectNo,Sqlca);
+				//删除担保物信息
+				deleteGuarantyInfo(sObjectType,sObjectNo,Sqlca);
+				//删除担保物与业务关联关系
+				deleteTableData("Guaranty_Relative",sObjectType,sObjectNo,Sqlca);
+				//删除担保合同信息
+				deleteGuarantyContract(this.sRelativeTable,sObjectNo,Sqlca);
+				//删除风险度评估明细信息
+				deleteTableData("Evaluate_Data",sObjectType,sObjectNo,Sqlca);
+				//删除风险度评估信息
+				deleteTableData("Evaluate_Record",sObjectType,sObjectNo,Sqlca);
+				//删除格式化调查报告信息
+				deleteTableData("FormatDoc_Data",sObjectType,sObjectNo,Sqlca);
+				//删除文档信息
+				deleteDocInfo(sObjectType,sObjectNo,Sqlca);	
+				//删除项目信息
+				deleteTableData("Project_Relative",sObjectType,sObjectNo,Sqlca);
+				//删除授信方案明细信息
+				deleteCLInfo(sObjectType,sObjectNo,Sqlca);				
+				//删除关联信息
+				deleteRelativeInfo(this.sRelativeTable,sObjectNo,Sqlca);
+				//删除主体对象信息
+				deleteObjectInfo(this.sObjectTable,sObjectNo,Sqlca);
+				//删除流程对象信息				
+				deleteTableData("Flow_Object",sObjectType,sObjectNo,Sqlca);			
+				//删除流程任务信息
+				deleteTableData("Flow_Task",sObjectType,sObjectNo,Sqlca);				
+			}
+
+			//删除放贷任务
+			if(sObjectType.equals("PutOutApply"))
+			{
+				//获取关联表
+				getRelativeTable(sObjectType,Sqlca);
+				//删除主体对象信息
+				deleteObjectInfo(this.sObjectTable,sObjectNo,Sqlca);
+				//删除流程对象信息				
+				deleteTableData("Flow_Object",sObjectType,sObjectNo,Sqlca);			
+				//删除流程任务信息
+				deleteTableData("Flow_Task",sObjectType,sObjectNo,Sqlca);
+			}
+
+		
 		}
+
 		if(sDeleteType.equals("DeleteBusiness"))
 		{					
 			//删除合同信息

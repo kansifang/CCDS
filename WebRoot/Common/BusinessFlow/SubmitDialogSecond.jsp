@@ -178,7 +178,7 @@
 			var sReturnValue = "";
 			var thisPhaseAction = "";			
 			iLength  = document.forms("Phase").PhaseAction.length;
-			for(i = 0;i <= iLength - 1;i++)
+			for(var i = 0;i <= iLength - 1;i++)
 			{	
 				if (document.forms("Phase").PhaseAction.item(i).selected)
 				{

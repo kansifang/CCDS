@@ -79,20 +79,20 @@ public class FlowTask
     {
         String EndTime = StringFunction.getToday() + " " + StringFunction.getNow();
         FlowPhase flowphase;
-        //当前阶段与指针阶段不一致那个，就完成当前阶段，返回指针阶段作为下一阶段
-        if(!RelativeFlowPhase.equals(RelativeFlowObject.RelativeFlowPhase))
-        {
+        //流程当前阶段与指针所指向的阶段不一致，只完成当前阶段，返回指针指向阶段作为下一阶段
+        if(!RelativeFlowPhase.equals(RelativeFlowObject.RelativeFlowPhase)){
             finish(EndTime, PhaseAction, PhaseOpinion1);
             flowphase = RelativeFlowObject.RelativeFlowPhase;
-        } else{
+        }else{
             flowphase = getNextFlowPhase(PhaseAction, PhaseOpinion1);
             if(flowphase != null && !flowphase.PhaseNo.equals("")){
-            	 if(RelativeFlowPhase.equals(flowphase)){
-                     finish(EndTime, PhaseAction, PhaseOpinion1);
-                 }else{
-                     finish(EndTime, PhaseAction, PhaseOpinion1);
-                     RelativeFlowObject.changePhase(flowphase, this);
-                 }
+	        	 //流程当前阶段和配置的下一阶段一致或者当前阶段存在多个处理人时，只完成本阶段task即可
+	        	 if(RelativeFlowPhase.equals(flowphase)||this.getComradeTaskCount()>0){
+	                 finish(EndTime, PhaseAction, PhaseOpinion1);
+	             }else{
+	                 finish(EndTime, PhaseAction, PhaseOpinion1);
+	                 RelativeFlowObject.changePhase(flowphase, this);
+	             }
             }
         }
         return flowphase;
@@ -231,7 +231,21 @@ public class FlowTask
         asresultset.getStatement().close();
         return i;
     }
-
+    public int getComradeTaskCount() throws Exception{
+        int i = 0;
+        String sSql="select count(1) from FLOW_TASK " +
+					" where ObjectType='"+this.ObjectType+"'" +
+					" and ObjectNo = '" + this.ObjectNo + "'" +
+					" and RelativeSerialNo = '" + this.RelativeSerialNo + "'" +
+					" and SerialNo<>'"+this.SerialNo+"'" +
+					" and nvl(EndTime,'')='' ";
+        ASResultSet asresultset = Sqlca.getASResultSet(sSql);
+        if(asresultset.next()){
+        	i = asresultset.getInt(1);
+        }
+        asresultset.getStatement().close();
+        return i;
+    }
     public String getChoiceDescribe()
         throws Exception
     {
@@ -277,9 +291,7 @@ public class FlowTask
         return as;
     }
 
-    public String[] getActionList(String s)
-        throws Exception
-    {
+    public String[] getActionList(String s) throws Exception{
         String as[][] = getConstantList();
         StringFunction.setAttribute(as, "#PhaseOpinion1", "'" + s + "'");
         return RelativeFlowPhase.executeScript("ActionScript", as).toStringArray();
