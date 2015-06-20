@@ -1,0 +1,232 @@
+<%@ page contentType="text/html; charset=GBK"%>
+<%@ include file="/IncludeBegin.jsp"%>
+
+
+<%/*~BEGIN~可编辑区~[Editable=true;CodeAreaID=Info00;Describe=注释区;]~*/%>
+	<%
+	/*
+		Author:   byhu  2004.12.7
+		Tester:
+		Content: 创建授信额度申请
+		Input Param:
+			ObjectType：对象类型
+			ApplyType：申请类型
+			PhaseType：阶段类型
+			FlowNo：流程号
+			PhaseNo：阶段号
+			OccurType：发生类型	
+			OccurDate：发生日期
+		Output param:
+		History Log: zywei 2005/07/28
+	 */
+	%>
+<%/*~END~*/%>
+
+
+<%/*~BEGIN~可编辑区~[Editable=true;CodeAreaID=Info01;Describe=定义页面属性;]~*/%>
+	<%
+	String PG_TITLE = "授信方案新增信息"; // 浏览器窗口标题 <title> PG_TITLE </title>	
+	%>
+<%/*~END~*/%>
+
+
+<%/*~BEGIN~可编辑区~[Editable=true;CodeAreaID=Info02;Describe=定义变量，获取参数;]~*/%>
+<%
+	//获得组件参数	：对象类型、申请类型、阶段类型、流程编号、阶段编号、发生方式、发生日期
+	String sObjectType = DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("ObjectType"));
+	String sApplyType =  DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("ApplyType"));
+	String sPhaseType = DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("PhaseType"));
+	String sFlowNo =  DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("FlowNo"));
+	String sPhaseNo =  DataConvert.toRealString(iPostChange,(String)CurPage.getParameter("PhaseNo"));
+	
+	//将空值转化成空字符串
+	if(sObjectType == null) sObjectType = "";	
+	if(sApplyType == null) sApplyType = "";
+	if(sPhaseType == null) sPhaseType = "";	
+	if(sFlowNo == null) sFlowNo = "";
+	if(sPhaseNo == null) sPhaseNo = "";
+	
+	//定义变量：SQL语句
+	String sSql = "";
+%>
+<%/*~END~*/%>
+
+
+<%/*~BEGIN~可编辑区~[Editable=true;CodeAreaID=Info03;Describe=定义数据对象;]~*/%>
+<%
+	//通过显示模版产生ASDataObject对象doTemp
+	String[][] sHeaders = {
+							{"SerialNo","流水号"},		
+							{"ChangeNo","变更号"},	
+							{"SystemName","系统名称"}
+						  };
+	sSql = 	" select SerialNo,ChangeNo,SystemName,TempSaveFlag"+	
+				" from Batch_Case where 1 = 2 ";	
+	//通过SQL产生ASDataObject对象doTemp
+	ASDataObject doTemp = new ASDataObject(sSql);	
+	//设置标题
+	doTemp.setHeader(sHeaders);
+	doTemp.UpdateTable="Batch_Case";
+	doTemp.setKey("SerialNo,ChangeNo", true);
+	//设置必输项
+	doTemp.setRequired("ConfigNo,OneKey",true);
+	doTemp.setVisible("SerialNo,ChangeNo,TempSaveFlag", false);
+	//doTemp.setVisible("SerialNo,ChangeNo", false);
+	//设置下拉框选择内容
+	if(sApplyType.equals("IndependentApply"))
+		doTemp.setDDDWCode("OccurType","OccurType");	
+	if(sApplyType.equals("DependentApply"))
+		doTemp.setDDDWSql("OccurType","select ItemNo,ItemName from CODE_LIBRARY where CodeNo = 'OccurType' and ItemNo <> '015' and IsInUse='1'");
+	//设置必输背景色
+	doTemp.setHTMLStyle("OccurType,OccurDate","style={background=\"#EEEEff\"} ");
+	//设置日期格式
+	doTemp.setCheckFormat("OneKey","6");	
+	//注意,先设HTMLStyle，再设ReadOnly，否则ReadOnly不会变灰
+	doTemp.setHTMLStyle("InputDate"," style={width:80px}");
+	doTemp.setReadOnly("InputOrgName,InputUserName,InputDate",true);
+	doTemp.setDDDWSql("ConfigNo", "select CodeNo,CodeName from Code_Catalog where CodeNo like 'b%'");
+	ASDataWindow dwTemp = new ASDataWindow(CurPage,doTemp,Sqlca); 
+	dwTemp.Style="2";      //设置DW风格 1:Grid 2:Freeform
+	dwTemp.ReadOnly = "0"; //设置是否只读 1:只读 0:可写
+
+	//生成HTMLDataWindow
+	Vector vTemp = dwTemp.genHTMLDataWindow("");
+	for(int i=0;i<vTemp.size();i++) out.print((String)vTemp.get(i));
+	
+	%>
+<%/*~END~*/%>
+
+
+<%/*~BEGIN~可编辑区~[Editable=true;CodeAreaID=Info04;Describe=定义按钮;]~*/%>
+	<%
+	//依次为：
+		//0.是否显示
+		//1.注册目标组件号(为空则自动取当前组件)
+		//2.类型(Button/ButtonWithNoAction/HyperLinkText/TreeviewItem/PlainText/Blank)
+		//3.按钮文字
+		//4.说明文字
+		//5.事件
+		//6.资源图片路径
+	String sButtons[][] = {	
+		{"true","","Button","确认","新增授信额度申请的下一步","doCreation()",sResourcesPath},
+		{"true","","Button","取消","取消新增授信额度申请","doCancel()",sResourcesPath}		
+	};
+	%> 
+<%/*~END~*/%>
+
+
+<%/*~BEGIN~不可编辑区~[Editable=false;CodeAreaID=Info05;Describe=主体页面;]~*/%>
+	<%@include file="/Resources/CodeParts/Info05.jsp"%>
+<%/*~END~*/%>
+
+
+<%/*~BEGIN~可编辑区~[Editable=false;CodeAreaID=Info06;Describe=定义按钮事件;]~*/%>
+	<script language=javascript>
+		/*~[Describe=新增一笔授信申请记录;InputParam=无;OutPutParam=无;]~*/
+		function doCreation()
+		{
+			sIsJGT = getItemValue(0,0,"isJGT");		
+			sCreditAggreement = getItemValue(0,0,"CreditAggreement");		
+			
+			if(sIsJGT == "1" && sCreditAggreement.length == 0){
+				alert("晋钢通业务，请选择额度协议号！");
+				return 
+			}
+			saveRecord();
+		}
+		/*~[Describe=保存;InputParam=后续事件;OutPutParam=无;]~*/
+		function saveRecord()
+		{
+			//--added by wwhe 2009.06.10 for:校验额度项下业务是否在额度分配范围内
+			var sCreditAggreement = getItemValue(0,0,"CreditAggreement");
+			var sBusinessType = getItemValue(0,0,"BusinessType");
+			var sManageDepartFlag = getItemValue(0,0,"ManageDepartFlag");
+			if(typeof(sCreditAggreement) != "undefined" && sCreditAggreement != "" ){
+				var sReturnValue = RunMethod("PublicMethod","ExecuteSql","Select count(*) from code_library where codeno='CreditLineBusinessType' and ItemDescribe='"+sManageDepartFlag+"' and  ~ZKH~substr~ZKH~'"+sBusinessType+"'@1@4~YKH~=bankno  or bankno like '"+sBusinessType+"~BFH~' ~YKH~");
+				if(sReturnValue ==0){
+					alert("授信额度项下未分配该业务品种，请重新选择业务品种");
+					return false;
+				}
+			}else{//added by bllou 20120426 没有关联额度进行提示
+				if((typeof(sCreditAggreement) != "undefined" && sCreditAggreement.length==0)&&!confirm("没有关联授信额度，确认继续吗？")){//added by ymwu 修改原有额度判断方式 原有为： "<%=sApplyType%>" == "DependentApply"
+					return false;
+				}
+			}
+			initSerialNo();
+			as_save("myiframe0","");	
+			AfterInsert();
+		}
+		/*~[added by wwhe 2009-06-08 for:Describe=保存后续事件;InputParam=无;OutPutParam=无;]~*/
+		function AfterInsert(){
+			var sObjectType = "<%=sObjectType%>";
+			var sApplyType = "<%=sApplyType%>";
+			var sFlowNo = "<%=sFlowNo%>";
+			var sPhaseNo = "<%=sPhaseNo%>";
+			var sUserID = "<%=CurUser.UserID%>";
+			var sOrgID = "<%=CurOrg.OrgID%>";
+			var sSerialNo = getItemValue(0,0,"SerialNo");
+			//将原有SelectFlow类判断流程的方式改为通过SelectFlow.jsp add by ymwu
+			sFlowNo = PopPage("/Common/BusinessFlow/Apply/SelectFlow.jsp?OrgID="+sOrgID+"&ApplyType="+sApplyType,"","dialogWidth=34;dialogHeight=22;resizable=no;scrollbars=no;status:yes;maximize:no;help:no;");
+			RunMethod("WorkFlowEngine","InitializeFlow",sObjectType+","+sSerialNo+","+sApplyType+","+sFlowNo+","+sPhaseNo+","+sUserID+","+sOrgID);	
+			doReturn();
+		}
+		/*~[Describe=确认新增授信申请;InputParam=无;OutPutParam=申请流水号;]~*/
+		function doReturn(){
+			var sSerialNo= getItemValue(0,0,"SerialNo");		
+			//var sReportDate = getItemValue(0,0,"OneKey");		
+			self.returnValue = sSerialNo+"@";
+			self.close();
+		}
+		/*~[Describe=取消新增授信方案;InputParam=无;OutPutParam=取消标志;]~*/
+		function doCancel(){		
+			top.returnValue = "_CANCEL_";
+			top.close();
+		}
+	</script>
+<%/*~END~*/%>
+
+
+<%/*~BEGIN~可编辑区~[Editable=false;CodeAreaID=Info07;Describe=自定义函数;]~*/%>
+
+	<script language=javascript>	
+	/*~[Describe=页面装载时，对DW进行初始化;InputParam=无;OutPutParam=无;]~*/
+	function initRow()
+	{
+		if (getRowCount(0)==0) //如果没有找到对应记录，则新增一条，并设置字段默认值
+		{
+			as_add("myiframe0");//新增一条空记录	
+			setItemValue(0,0,"OneKey","<%=DateUtils.getRelativeMonth(DateUtils.getToday(),0,0)%>");
+			setItemValue(0,0,"InputOrgName","<%=CurOrg.OrgName%>");	
+			setItemValue(0,0,"InputUserName","<%=CurUser.UserName%>");	
+			setItemValue(0,0,"InputDate","<%=DateUtils.getToday()%>");	
+			setItemValue(0,0,"TempSaveFlag","1");
+		}
+    }
+	/*~[Describe=初始化流水号字段;InputParam=无;OutPutParam=无;]~*/
+	function initSerialNo() 
+	{
+		var sTableName = "Batch_Case";//表名
+		var sColumnName = "SerialNo";//字段名
+		var sPrefix = "";//前缀
+								
+		//使用GetSerialNo.jsp来抢占一个流水号
+		var sSerialNo = PopPage("/Common/ToolsB/GetSerialNo.jsp?TableName="+sTableName+"&ColumnName="+sColumnName+"&Prefix="+sPrefix,"","resizable=yes;dialogWidth=0;dialogHeight=0;center:no;status:no;statusbar:no");
+		//将流水号置入对应字段
+		setItemValue(0,getRow(),sColumnName,sSerialNo);
+		setItemValue(0,getRow(),"ChangeNo",sSerialNo);
+	}
+	</script>
+<%/*~END~*/%>
+
+
+<%/*~BEGIN~可编辑区~[Editable=false;CodeAreaID=Info08;Describe=页面装载时，进行初始化;]~*/%>
+<script language=javascript>	
+	AsOne.AsInit();
+	init();	
+	my_load(2,0,'myiframe0');
+	initRow(); //页面装载时，对DW当前记录进行初始化	
+	var bCheckBeforeUnload=false;	
+</script>	
+<%/*~END~*/%>
+
+<%@ include file="/IncludeEnd.jsp"%>
